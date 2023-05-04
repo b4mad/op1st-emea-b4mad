@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    imageregistry.openshift.io: "true"
+    volume.beta.kubernetes.io/storage-provisioner: topolvm.io
+    volume.kubernetes.io/selected-node: bridge
+    volume.kubernetes.io/storage-provisioner: topolvm.io
+  finalizers:
+  - kubernetes.io/pvc-protection
+  name: image-registry-storage
+  namespace: openshift-image-registry
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: lvms-vg1
+  volumeMode: Filesystem

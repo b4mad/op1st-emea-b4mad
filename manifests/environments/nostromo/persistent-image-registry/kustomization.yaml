@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - image-registry-patch.yaml
+  - image-registry-storage-pvc.yaml
+
+patches:
+  - target:
+      group: imageregistry.operator.openshift.io
+      version: v1
+      kind: Config
+      name: cluster
+    patch: |-
+      - op: replace
+        path: /spec/managementState
+        value: Managed
+      - op: replace
+        path: /spec/storage
+        value:
+          pvc:
+            claim: image-registry-storage

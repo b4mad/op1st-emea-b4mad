@@ -14,6 +14,8 @@ resources:
   - ../../components/lvm-storage/
   - lvm-storage/
 
+  - persistent-image-registry/
+
   - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
   - argocd-openshift-gitops.yaml
