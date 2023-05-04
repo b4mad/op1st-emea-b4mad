@@ -1,0 +1,23 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+commonAnnotations:
+  app.kubernetes.io/managed-by: human+kustomize/command-line
+  app.kubernetes.io/part-of: op1st-emea-b4mad-phobos
+  org.opencontainers.image.source: https://github.com/b4mad/op1st-emea-b4mad.git
+
+resources:
+  - ../../resources/organizational-unit-scope/
+
+  - local-storage/
+  - ../../components/lvm-storage/
+  - lvm-storage/
+
+  - grafana-operator/
+  - crunchy-postgres/
+
+components:
+  - github.com/operate-first/apps/cluster-scope/components/resourcequotas/small?ref=master
+  - github.com/operate-first/apps/cluster-scope/components/resourcequotas/medium?ref=master
+  - github.com/operate-first/apps/cluster-scope/components/resourcequotas/large?ref=master
