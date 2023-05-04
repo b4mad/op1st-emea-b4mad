@@ -32,6 +32,13 @@ These manifests are valid and applicable to a single environment, they should be
 ou or cluster scoped manifests. They implement a specific functionality/configuration that is specific to a single
 environment.
 
+## Infrastructure Services
+
+On the nostromo environment we have deployed and configured the following infrastructure services:
+
+* Red Hat OpenShift Pipelines
+* Red Hat OpenShift GitOps
+
 ## Usage
 
 To configure a specific environment, run `kustomize build manifests/environments/nostromo | oc apply -f -`

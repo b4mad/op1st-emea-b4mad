@@ -10,6 +10,27 @@ commonAnnotations:
 resources:
   - ../../resources/organizational-unit-scope/
 
+  - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
+  - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
+  - argocd-openshift-gitops.yaml
+  - cluster-management.yaml
+  - b4mad-nostromo.yaml
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: argoproj.io/v1alpha1
+    kind: ArgoCD
+    metadata:
+      name: openshift-gitops
+      namespace: openshift-gitops
+    spec:
+      rbac:
+        policy: |
+          g, system:cluster-admins, role:admin
+          g, cluster-admins, role:admin
+          g, b4mad-members, role:admin
+        scopes: '[groups]'
+
 components:
   - github.com/operate-first/apps/cluster-scope/components/resourcequotas/small?ref=master
   - github.com/operate-first/apps/cluster-scope/components/resourcequotas/medium?ref=master
