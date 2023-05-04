@@ -41,4 +41,4 @@ On the nostromo environment we have deployed and configured the following infras
 
 To configure a specific environment, run `kustomize build manifests/environments/nostromo | oc apply -f -`
 
-[op1stb4mad]: https://raw.githubusercontent.com/b4mad/op1st-emea-b4mad/main/images/op1stb4mad.png "Op1st by #B4mad"
+[op1stb4mad]: images/op1stb4mad.svg "Op1st by #B4mad"
