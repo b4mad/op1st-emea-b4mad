@@ -2,9 +2,7 @@
 
 ![Op1st by #B4mad][op1stb4mad]
 
-This repository will deploy Red Hat OpenShift GitOps, and an app-of-apps.
-
-It implements [Operate First SIG/SRE Infrastructure Services](https://github.com/operate-first/community/issues/251)
+This repository implements [Operate First SIG/SRE Infrastructure Services](https://github.com/operate-first/community/issues/251)
 and partialy [Hybride Cloud Patterns: Multicluster DevSecOps](https://hybrid-cloud-patterns.io/patterns/devsecops/)
 
 ## Directory Structure
