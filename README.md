@@ -1,5 +1,7 @@
 # Op1st DevSecOps by #B4mad
 
+![Op1st by #B4mad][op1stb4mad]
+
 This repository will deploy Red Hat OpenShift GitOps, and an app-of-apps.
 
 It implements [Operate First SIG/SRE Infrastructure Services](https://github.com/operate-first/community/issues/251)
@@ -33,3 +35,5 @@ environment.
 ## Usage
 
 To configure a specific environment, run `kustomize build manifests/environments/nostromo | oc apply -f -`
+
+[op1stb4mad]: https://raw.githubusercontent.com/b4mad/op1st-emea-b4mad/main/images/op1stb4mad.png "Op1st by #B4mad"
