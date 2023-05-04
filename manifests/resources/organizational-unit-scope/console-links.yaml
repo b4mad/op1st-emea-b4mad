@@ -23,7 +23,7 @@ spec:
     section: Operate First
   href: "https://github.com/b4mad/op1st-emea-b4mad"
   location: ApplicationMenu
-  text: "#B4mad Nostromo GitOps Repo"
+  text: "#B4mad GitOps Repo"
 ---
 apiVersion: console.openshift.io/v1
 kind: ConsoleLink
