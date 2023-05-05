@@ -4,10 +4,10 @@ kind: Kustomization
 
 resources:
   - argocd-openshift-gitops.yaml
+  - clusterrole.yaml
 
-  - projects/
-  - applications/
-
+  - ../../applications/nostromo-openshift-gitops/application.yaml
+  -
 patchesStrategicMerge:
   - |-
     apiVersion: argoproj.io/v1alpha1

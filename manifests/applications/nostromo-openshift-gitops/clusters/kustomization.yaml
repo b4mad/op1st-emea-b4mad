@@ -4,4 +4,4 @@ kind: Kustomization
 namespace: openshift-gitops
 
 resources:
-  - b4mad/racing.yaml
+  - phobos.yaml

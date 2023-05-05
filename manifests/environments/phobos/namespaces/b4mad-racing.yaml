@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/description: ""
+    openshift.io/display-name: "#B4mad Racing"
+    openshift.io/requester: goern
+  labels:
+    kubernetes.io/metadata.name: b4mad-racing
+    openshift-pipelines.tekton.dev/namespace-reconcile-version: 1.10.0
+  name: b4mad-racing
+spec:
+  finalizers:
+    - kubernetes

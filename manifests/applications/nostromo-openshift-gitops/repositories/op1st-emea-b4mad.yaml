@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github.com-thomassuedbroecker-vend-helm
+  namespace: openshift-gitops
+  labels:
+    argocd.argoproj.io/secret-type: repository
+data:
+  type: git
+  url: https://github.com/b4mad/op1st-emea-b4mad
