@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: b4mad
+spec:
+  destinations:
+    - name: phobos
+      namespace: "b4mad-*"
+      server: "https://api.phobos.b4mad.emea.operate-first.cloud:6443"
+    - name: nostromo
+      namespace: "b4mad-*"
+      server: "https://kubernetes.default.svc"
+  sourceRepos:
+    - "*"
+  roles:
+    - name: project-admin
+      description: Read/Write access to this project only
+      policies:
+        - p, proj:b4mad:project-admin, applications, get, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, create, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, update, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, delete, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, sync, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, override, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, action/*, b4mad/*, allow
+      groups:
+        - b4mad-members

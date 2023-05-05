@@ -18,13 +18,11 @@ resources:
 
   - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
-  - argocd-openshift-gitops.yaml
   - cluster-management.yaml
   - cluster-monitoring-config.yaml
+  - openshift-gitops/
 
   - default-ingress-certificate.yaml
-
-  - b4mad-nostromo.yaml
 
 components:
   - github.com/operate-first/apps/cluster-scope/components/resourcequotas/small?ref=master
@@ -41,17 +39,3 @@ patchesStrategicMerge:
     spec:
       defaultCertificate:
         name: default-ingress-certificate
-
-  - |-
-    apiVersion: argoproj.io/v1alpha1
-    kind: ArgoCD
-    metadata:
-      name: openshift-gitops
-      namespace: openshift-gitops
-    spec:
-      rbac:
-        policy: |
-          g, system:cluster-admins, role:admin
-          g, cluster-admins, role:admin
-          g, b4mad-members, role:admin
-        scopes: '[groups]'
