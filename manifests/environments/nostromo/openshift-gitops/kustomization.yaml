@@ -7,8 +7,10 @@ resources:
   - cluster-management.yaml
   - clusterrole.yaml
 
-  - nostromo-gitops-application.yaml
+  - argocd.b4mad.emea.operate-first.cloud.yaml
+
   - bitnami-sealedsecret-integration.yaml
+  - nostromo-gitops-application.yaml
 
 components:
   - ../../../components/openshift-gitops-integration
@@ -21,6 +23,8 @@ patchesStrategicMerge:
       name: openshift-gitops
       namespace: openshift-gitops
     spec:
+      server:
+        insecure: true # so that our ingress can access the service via http (not https)
       rbac:
         policy: |
           g, system:cluster-admins, role:admin
