@@ -13,3 +13,5 @@ spec:
       creationTimestamp: null
       name: op1st-emea-b4mad
       namespace: openshift-gitops
+      labels:
+        argocd.argoproj.io/secret-type: repository
