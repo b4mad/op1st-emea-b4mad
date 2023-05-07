@@ -40,6 +40,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: argocd-manager
+    namespace: kube-admin
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

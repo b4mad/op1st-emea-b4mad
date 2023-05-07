@@ -8,7 +8,7 @@ commonAnnotations:
   org.opencontainers.image.source: https://github.com/b4mad/op1st-emea-b4mad.git
 
 resources:
-  - ../../resources/organizational-unit-scope/
+  - ../../organizational-unit-scope/
 
   - local-storage/
   - lvm-storage/

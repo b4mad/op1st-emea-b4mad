@@ -11,7 +11,7 @@ stringData:
   server: {{.Env.OP1ST_B4MAD_URL}}
   config: |
     {
-      "bearerToken": "{{.Env.OP1ST_B4MAD_AUTEHNTICATION_TOKEN}}",
+      "bearerToken": "{{.Env.OP1ST_B4MAD_AUTHENTICATION_TOKEN}}",
       "tlsClientConfig": {
         "insecure": true
       }

@@ -4,7 +4,7 @@ metadata:
   annotations:
     openshift.io/description: ""
     openshift.io/display-name: "#B4mad Racing"
-    openshift.io/requester: goern
+    openshift.io/requester: durandom
   labels:
     kubernetes.io/metadata.name: b4mad-racing
     openshift-pipelines.tekton.dev/namespace-reconcile-version: 1.10.0
