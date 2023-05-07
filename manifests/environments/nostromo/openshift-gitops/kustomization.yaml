@@ -8,6 +8,7 @@ resources:
   - clusterrole.yaml
 
   - nostromo-gitops-application.yaml
+  - bitnami-sealedsecret-manager.yaml
 
 patchesStrategicMerge:
   - |-
