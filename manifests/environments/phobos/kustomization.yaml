@@ -19,6 +19,8 @@ resources:
 
   - namespaces/b4mad-racing.yaml
 
+  - openshift-gitops-integration.yaml
+
 components:
   - github.com/operate-first/apps/cluster-scope/components/resourcequotas/small?ref=master
   - github.com/operate-first/apps/cluster-scope/components/resourcequotas/medium?ref=master

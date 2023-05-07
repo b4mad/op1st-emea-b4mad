@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  name: argocd-b4mad-emea-operate-first-cloud
+  namespace: openshift-gitops
+spec:
+  rules:
+    - host: argocd.b4mad.emea.operate-first.cloud
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: openshift-gitops-server
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - argocd.b4mad.emea.operate-first.cloud
+      secretName: argocd-b4mad-emea-operate-first-cloud

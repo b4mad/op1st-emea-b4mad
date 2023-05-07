@@ -7,7 +7,7 @@ spec:
   destination:
     name: in-cluster
     namespace: openshift-gitops
-  project: nostromo
+  project: cluster-management
   source:
     path: manifests/applications/nostromo-openshift-gitops
     repoURL: https://github.com/b4mad/op1st-emea-b4mad.git

@@ -1,10 +1,15 @@
-apiVersion: v1
-kind: Secret
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
 metadata:
+  creationTimestamp: null
   name: op1st-emea-b4mad
   namespace: openshift-gitops
-  labels:
-    argocd.argoproj.io/secret-type: repository
-data:
-  type: git
-  url: https://github.com/b4mad/op1st-emea-b4mad
+spec:
+  encryptedData:
+    type: AgBz5zEL1IH1HI0PziRxPM7EioT2g47GgDi6wFmOb5/Il9wxcy7a+Xjsd5ciTbAkkHXpddbJoGBv1gxPd2wFGndgYqCnrfksbCqcTaw1XMRoqp9grhUxxc1UGcXD2Aw7DcRgB0doT4OjeYl7SpLFXDHUvESiCDWneN+ubx0qJGlpqgrENdYhyGgFg5RJlQ8c7TYrYBJceA1Oue3+OXkiZadl8VIWz95cJ0t5kgLVL5eAaE8Pk2QS3du4UZMAXv9e5fuErvYYuVaA5YO0HbRa7v4so1xSJyxmyf2TCgPwlHlMKE/1YwoUq3mnOA7QFWpwpRCxSY1+9xYSc+20iOGCXI98D47YHZiX/9duUiMN173Quj7e0j4eyGUlPIL7/wVK+fN+X+OW9/UD7SPudEKX43Mr8olVFR2dcDdwMteqXoOhjZMHZaWAdPzRNFN2hfxHZjc42fZpSzbW1ju1kJd1UnljQmiv5s938lcz8t4BOWeU+gdz1p/kK+xDWHOJI0oh3ziXKioAAT+tP4GKZ0ikUwrpcKl7Zxmzmd51Yq+85LscPf1uhihWrD4mSAFqvQ0qef9SxYirIhvGqAhwRK0SYCYHlG5tksSxLxm+HVtlVDemYEy20q4eeGcT3e7rY62d5DaQhFnSfriUNW7AIM6BkyrhBk56l6tGHMTvyYfL0oO2imSFgOqXrdehgP6ZdveyJXahJus=
+    url: AgBh/6rfql8uJspSsBLgoZDfxlxniS7mXUAXVHIyWK0rNRGlNqGOghDK2iFEuANcI3QYElZFHF+60C7wDA1kU96VVxXu8TyNctXmii+a9WnU0KF/Gf/go+v0SonWklKXKXyFybJg+/ILZrOoVB+MUWZuG6noIzLiGEC3uhIlHYq5GtlqZz8EhLFAWAU08VSFYnh5IcuzHtZw8M39u9OihOfi6AzIBoz7/BIx6wOqAcvR3+hOa7jXZPHMSKLNIEhwxjuQEl3DIbflkRqEkTQM3c03nnQi0TopQQXDlfANyXA6HvXaRMEJ9A7flKx0swxx82zs5kuq8aNS4uuzt5oHJTTP2vwC4dzaNTWJarEVZNiN8Za3RLmJ52/qbwjLC6IecSsgAA5rdbtfNeAP2J9npsOv4kWNNebHrZO+xftSEkJ99CsycvOtP+Bpo6aRuU6R0tFwemExDURUcRGVKRByGKiMb5BTai6aMrMiyroRroDKKRO65OLGO776VjWaxSuCoyVdxn6mddjZs2Z4/KoDaxs2jntyG/fHa7YC4mBEwyFI1LvxgruprkaWZeAtmQtvg7OoRz6xRt/sCtXNnCbKZcd3i2puqU28yrJIMTzfaIZ3DuYtK0Ril+5f17FscDG8SHkqysIbVK/ybAjGvI1zOS12ciPNKcph2GQYmUXsMpIUAnnSIEx+/RxXaOax8hG/P3EFeGG2NV1rtwBw5u2hi0YuIT1rjhkzaepay96gJEmnJ3TWp+ISS72PqQ==
+  template:
+    metadata:
+      creationTimestamp: null
+      name: op1st-emea-b4mad
+      namespace: openshift-gitops

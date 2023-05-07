@@ -18,11 +18,12 @@ resources:
 
   - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
-  - cluster-management.yaml
   - cluster-monitoring-config.yaml
   - openshift-gitops/
 
   - default-ingress-certificate.yaml
+
+  - openshift-gitops-integration.yaml
 
 components:
   - github.com/operate-first/apps/cluster-scope/components/resourcequotas/small?ref=master
