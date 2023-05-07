@@ -7,7 +7,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: argocd-manager-role
+  name: argocd-manager
 rules:
   - apiGroups:
       - "*"
@@ -23,12 +23,24 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: argocd-manager-role-binding
+  name: argocd-manager
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: argocd-manager-role
+  name: argocd-manager
 subjects:
   - kind: ServiceAccount
     name: argocd-manager
     namespace: kube-system
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: openshift-gitops-argocd-sealedsecrets-manager
+subjects:
+  - kind: ServiceAccount
+    name: argocd-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: bitnami-sealedsecrets-admin

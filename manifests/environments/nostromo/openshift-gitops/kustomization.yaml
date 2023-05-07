@@ -8,7 +8,10 @@ resources:
   - clusterrole.yaml
 
   - nostromo-gitops-application.yaml
-  - bitnami-sealedsecret-manager.yaml
+  - bitnami-sealedsecret-integration.yaml
+
+components:
+  - ../../components/openshift-gitops-integration
 
 patchesStrategicMerge:
   - |-

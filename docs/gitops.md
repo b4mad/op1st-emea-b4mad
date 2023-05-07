@@ -1,16 +1,11 @@
 ## adding a cluster to ArgoCD
 
-1. copy the cluster template to a temporary file
-2. edit the tmp file and add your credentials
-3. encrypt them and add a sealed secret to this repo
-
 ```bash
-cp manifests/applications/nostromo-openshift-gitops/clusters/cluster-template.yaml cluster-phohos.yaml
-vi cluster-phohos.yaml # add your credentials: kube-admin bearer token and url....
-kubeseal --namespace openshift-gitops \
-  --controller-namespace=sealed-secrets \
-  --output yaml \
-  --secret-file phobos.yaml >manifests/applications/nostromo-openshift-gitops/clusters/phobos.yaml
-git add manifests/applications/nostromo/openshift-gitops/clusters/phobos.yaml
-git commit -asSm "add phobos cluster to ArgoCD"
+go install github.com/hairyhenderson/gomplate/v4/cmd/gomplate@latest
+OP1ST_B4MAD_AUTHENTICATION_TOKEN=$(oc get secret --namespace kube-system argocd-manager -o jsonpath='{.data.token}')
+OP1ST_B4MAD_CLUSTER_NAME=$(oc get nodes -o json | jq '.items[0].metadata.name' | tr -d \")
+OP1ST_B4MAD_URL=$(oc whoami --show-server)
+cat manifests/applications/nostromo-openshift-gitops/clusters/cluster.tpl | gomplate >manifests/applications/nostromo-openshift-gitops/clusters/$(OP1ST_B4MAD_CLUSTER_NAME).yaml
+git add manifests/applications/nostromo/openshift-gitops/clusters/$(OP1ST_B4MAD_CLUSTER_NAME).yaml
+git commit -asSm "add $OP1ST_B4MAD_CLUSTER_NAME cluster to ArgoCD"
 ```
