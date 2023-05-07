@@ -11,7 +11,7 @@ resources:
   - bitnami-sealedsecret-integration.yaml
 
 components:
-  - ../../components/openshift-gitops-integration
+  - ../../../components/openshift-gitops-integration
 
 patchesStrategicMerge:
   - |-
