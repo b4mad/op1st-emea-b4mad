@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: lvmcluster-count-alert
+  namespace: openshift-monitoring
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: lvmcluster.rules
+      rules:
+        - alert: MoreThanOneLVMCluster
+          expr: count(kube_custom_resource_instances{custom_resource="lvmclusters.lvm.topolvm.io"}) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "More than one LVMCluster resource detected"
+            description: "More than one LVMCluster resource is present in any of the namespaces in the cluster. This alert triggers when this condition is met."

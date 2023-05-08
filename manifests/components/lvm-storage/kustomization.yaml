@@ -4,3 +4,4 @@ kind: Component
 resources:
   - operator-group.yaml
   - subscription.yaml
+  - alerting-rules.yaml
