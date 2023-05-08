@@ -7,7 +7,7 @@ spec:
   destination:
     namespace: op1st-prow
     server: https://kubernetes.default.svc
-  project: nostromo
+  project: op1st
   source:
     path: manifests/applications/prow
     repoURL: https://github.com/b4mad/op1st-emea-b4mad

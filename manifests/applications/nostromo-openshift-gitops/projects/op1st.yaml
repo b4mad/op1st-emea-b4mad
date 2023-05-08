@@ -1,0 +1,198 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: op1st
+spec:
+  destinations:
+    - name: phobos
+      namespace: "op1st-*"
+      server: "https://api.phobos.op1st.emea.operate-first.cloud:6443"
+    - name: nostromo
+      namespace: "op1st-*"
+      server: "https://kubernetes.default.svc"
+  sourceRepos:
+    - "*"
+  roles:
+    - name: project-admin
+      description: Read/Write access to this project only
+      policies:
+        - p, proj:op1st:project-admin, applications, get, op1st/*, allow
+        - p, proj:op1st:project-admin, applications, create, op1st/*, allow
+        - p, proj:op1st:project-admin, applications, update, op1st/*, allow
+        - p, proj:op1st:project-admin, applications, delete, op1st/*, allow
+        - p, proj:op1st:project-admin, applications, sync, op1st/*, allow
+        - p, proj:op1st:project-admin, applications, override, op1st/*, allow
+        - p, proj:op1st:project-admin, applications, action/*, op1st/*, allow
+      groups:
+        - op1st-plteng
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: Binding
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Endpoints
+    - group: ""
+      kind: Event
+    - group: ""
+      kind: LimitRange
+    - group: ""
+      kind: PersistentVolumeClaim
+    - group: ""
+      kind: Pod
+    - group: ""
+      kind: ReplicationController
+    - group: ""
+      kind: ResourceQuota
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: apps
+      kind: ControllerRevision
+    - group: apps
+      kind: DaemonSet
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: ReplicaSet
+    - group: apps
+      kind: StatefulSet
+    - group: apps.openshift.io
+      kind: DeploymentConfig
+    - group: argoproj.io
+      kind: Application
+    - group: argoproj.io
+      kind: CronWorkflow
+    - group: argoproj.io
+      kind: Workflow
+    - group: argoproj.io
+      kind: WorkflowTemplate
+    - group: authorization.openshift.io
+      kind: Role
+    - group: authorization.openshift.io
+      kind: RoleBinding
+    - group: authorization.openshift.io
+      kind: RoleBindingRestriction
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler
+    - group: batch
+      kind: CronJob
+    - group: batch
+      kind: Job
+    - group: build.openshift.io
+      kind: Build
+    - group: build.openshift.io
+      kind: BuildConfig
+    - group: extensions
+      kind: Ingress
+    - group: external-secrets.io
+      kind: ExternalSecret
+    - group: image.openshift.io
+      kind: ImageStream
+    - group: image.openshift.io
+      kind: ImageStreamImage
+    - group: image.openshift.io
+      kind: ImageStreamMapping
+    - group: image.openshift.io
+      kind: ImageStreamTag
+    - group: image.openshift.io
+      kind: ImageTag
+    - group: integreatly.org
+      kind: Grafana
+    - group: integreatly.org
+      kind: GrafanaDashboard
+    - group: integreatly.org
+      kind: GrafanaDataSource
+    - group: kafka.strimzi.io
+      kind: Kafka
+    - group: kafka.strimzi.io
+      kind: KafkaBridge
+    - group: kafka.strimzi.io
+      kind: KafkaConnect
+    - group: kafka.strimzi.io
+      kind: KafkaConnector
+    - group: kafka.strimzi.io
+      kind: KafkaConnectS2I
+    - group: kafka.strimzi.io
+      kind: KafkaMirrorMaker
+    - group: kafka.strimzi.io
+      kind: KafkaMirrorMaker2
+    - group: kafka.strimzi.io
+      kind: KafkaRebalance
+    - group: kafka.strimzi.io
+      kind: KafkaTopic
+    - group: kafka.strimzi.io
+      kind: KafkaUser
+    - group: logging.openshift.io
+      kind: ClusterLogForwarder
+    - group: logging.openshift.io
+      kind: ClusterLogging
+    - group: metering.openshift.io
+      kind: HiveTable
+    - group: metering.openshift.io
+      kind: MeteringConfig
+    - group: metering.openshift.io
+      kind: PrestoTable
+    - group: metering.openshift.io
+      kind: Report
+    - group: metering.openshift.io
+      kind: ReportDataSource
+    - group: metering.openshift.io
+      kind: ReportQuery
+    - group: metering.openshift.io
+      kind: StorageLocation
+    - group: metrics.k8s.io
+      kind: PodMetrics
+    - group: monitoring.coreos.com
+      kind: Alertmanager
+    - group: monitoring.coreos.com
+      kind: PodMonitor
+    - group: monitoring.coreos.com
+      kind: Prometheus
+    - group: monitoring.coreos.com
+      kind: PrometheusRule
+    - group: monitoring.coreos.com
+      kind: ServiceMonitor
+    - group: monitoring.coreos.com
+      kind: ThanosRuler
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+    - group: policy
+      kind: PodDisruptionBudget
+    - group: postgres-operator.crunchydata.com
+      kind: PostgresCluster
+    - group: quota.openshift.io
+      kind: AppliedClusterResourceQuota
+    - group: rbac.authorization.k8s.io
+      kind: Role
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+    - group: route.openshift.io
+      kind: Route
+    - group: tekton.dev
+      kind: Condition
+    - group: tekton.dev
+      kind: Pipeline
+    - group: tekton.dev
+      kind: PipelineResource
+    - group: tekton.dev
+      kind: PipelineRun
+    - group: tekton.dev
+      kind: Task
+    - group: tekton.dev
+      kind: TaskRun
+    - group: template.openshift.io
+      kind: Template
+    - group: template.openshift.io
+      kind: TemplateInstance
+    - group: triggers.tekton.dev
+      kind: EventListener
+    - group: triggers.tekton.dev
+      kind: TriggerBinding
+    - group: triggers.tekton.dev
+      kind: TriggerTemplate

@@ -3,7 +3,6 @@ kind: Kustomization
 
 resources:
   - argocd-openshift-gitops.yaml
-  - cluster-management.yaml
   - clusterrole.yaml
 
   - argocd.b4mad.emea.operate-first.cloud.yaml
