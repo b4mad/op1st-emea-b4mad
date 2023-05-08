@@ -5,14 +5,17 @@
 This repository implements [Operate First SIG/SRE Infrastructure Services](https://github.com/operate-first/community/issues/251)
 and partialy [Hybride Cloud Patterns: Multicluster DevSecOps](https://hybrid-cloud-patterns.io/patterns/devsecops/)
 
+We follow an app-of-apps pattern, where we have a single `kustomization.yaml` file that references all other manifests,
+it can be found in the `manifests/applications/kustomization.yaml` file.
+
 ## Directory Structure
 
 All kustomize manifests are located below the `manifests/` directory.
 
-### Resources
+### Component manifests
 
-Manifests that are generally useful or applicable are located in the `resources/` directory. These are not intended
-to be deployed directly, but rather used as a base for other (environment specific) manifests.
+Manifests that are generally useful or applicable are located in the `component/` directory. These are not intended
+to be deployed directly, but rather used as a reusable component for other (environment specific) manifests.
 
 ### Organizational Unit scoped manifests
 
@@ -36,6 +39,8 @@ On the nostromo environment we have deployed and configured the following infras
 
 * Red Hat OpenShift Pipelines
 * Red Hat OpenShift GitOps
+
+Both services are deployed on the nostromo environment.
 
 ## Usage
 
