@@ -1,7 +1,6 @@
 ---
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: openshift-monitoring
 
 resources:
-  - github.com/goern/operate-first-apps/tree/master/prow/overlays/nostromo
+  - https://github.com/goern/operate-first-apps//prow/overlays/nostromo?ref=master
