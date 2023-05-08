@@ -198,3 +198,5 @@ spec:
       kind: TriggerBinding
     - group: triggers.tekton.dev
       kind: TriggerTemplate
+    - group: cert-manager.io
+      kind: ClusterIssuer
