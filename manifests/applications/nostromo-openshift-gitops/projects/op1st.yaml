@@ -26,8 +26,10 @@ spec:
       groups:
         - op1st-plteng
   namespaceResourceWhitelist:
-    - group: "bitnami.com"
-      kind: "SealedSecret"
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+    - group: bitnami.com
+      kind: SealedSecret
     - group: ""
       kind: Binding
     - group: ""
