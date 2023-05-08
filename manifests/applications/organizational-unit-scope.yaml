@@ -10,7 +10,7 @@ spec:
   source:
     path: manifests/organizational-unit-scope
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
-    targetRevision: HEAD
+    targetRevision: main
   syncPolicy:
     retry:
       backoff:
