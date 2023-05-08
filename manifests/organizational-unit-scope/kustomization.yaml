@@ -8,7 +8,6 @@ resources:
   - console-links.yaml
   - github.com/redhat-cop/gitops-catalog/sealed-secrets-operator/overlays/default
   - github.com/redhat-cop/gitops-catalog/cert-manager-operator/operator/base?ref=main
-  - cluster-cert-manager.yaml
   - secrets/cloudflare-b4mad-racing-nostromo-dns01-solver.yaml
   - secrets/google-clouddns-nostromo-dns01-solver.yaml
   - letsencrypt-cluster-issuer.yaml
