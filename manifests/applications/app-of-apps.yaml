@@ -1,17 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: alertmanager-receivers
+  name: app-of-apps
   namespace: openshift-gitops
 spec:
   destination:
-    namespace: openshift-monitoring
     server: https://kubernetes.default.svc
-  project: cluster-management
+  project: default
   source:
-    path: manifests/applications/alertmanager-receivers
+    path: manifests/applications
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
     targetRevision: main
   syncPolicy:
     automated:
+      prune: true
       selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2

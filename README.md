@@ -6,7 +6,7 @@ This repository implements [Operate First SIG/SRE Infrastructure Services](https
 and partialy [Hybride Cloud Patterns: Multicluster DevSecOps](https://hybrid-cloud-patterns.io/patterns/devsecops/)
 
 We follow an app-of-apps pattern, where we have a single `kustomization.yaml` file that references all other manifests,
-it can be found in the `manifests/applications/kustomization.yaml` file.
+it can be found in the `manifests/applications/app-of-apps.yaml` file.
 
 ## Directory Structure
 

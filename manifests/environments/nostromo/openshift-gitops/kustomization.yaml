@@ -9,9 +9,9 @@ resources:
   - argocd.b4mad.emea.operate-first.cloud.yaml
 
   - bitnami-sealedsecret-integration.yaml
-  - nostromo-gitops-application.yaml
 
-  - ../../../applications/
+  - nostromo-gitops-application.yaml
+  - ../../../applications/app-of-apps.yaml
 
 components:
   - ../../../components/openshift-gitops-integration
