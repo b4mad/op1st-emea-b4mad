@@ -12,3 +12,5 @@ spec:
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
+    - group: "bitnami.com"
+      kind: "SealedSecret"

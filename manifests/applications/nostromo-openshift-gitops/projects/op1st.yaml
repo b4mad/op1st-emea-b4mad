@@ -11,7 +11,7 @@ spec:
       namespace: "op1st-*"
       server: "https://kubernetes.default.svc"
   sourceRepos:
-    - "*"
+    - "https://github.com/b4mad/op1st-emea-b4mad.git"
   roles:
     - name: project-admin
       description: Read/Write access to this project only
@@ -26,6 +26,8 @@ spec:
       groups:
         - op1st-plteng
   namespaceResourceWhitelist:
+    - group: "bitnami.com"
+      kind: "SealedSecret"
     - group: ""
       kind: Binding
     - group: ""
