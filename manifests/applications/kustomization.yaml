@@ -4,3 +4,4 @@ namespace: openshift-gitops
 
 resources:
   - alertmanager-receivers.yaml
+  - prow.yaml

@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: op1st-prow
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: op1st-prow
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: manifests/applications/prow
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
+  syncPolicy:
+    automated:
+      selfHeal: true
