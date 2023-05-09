@@ -1,0 +1,74 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  labels:
+    app: ghproxy
+  name: ghproxy
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ghproxy
+  labels:
+    app: ghproxy
+spec:
+  selector:
+    matchLabels:
+      app: ghproxy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ghproxy
+    spec:
+      containers:
+        - name: ghproxy
+          image: gcr.io/k8s-prow/ghproxy:v20230509-5e039b951c
+          args:
+            - --cache-dir=/cache
+            - --cache-sizeGB=9
+            - --serve-metrics=true
+          ports:
+            - name: main
+              containerPort: 8888
+            - name: metrics
+              containerPort: 9090
+          volumeMounts:
+            - name: cache
+              mountPath: /cache
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "10m"
+            limits:
+              memory: "128Mi"
+              cpu: "10m"
+      volumes:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: ghproxy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ghproxy
+  name: ghproxy
+spec:
+  ports:
+    - name: main
+      port: 80
+      protocol: TCP
+      targetPort: 8888
+    - name: metrics
+      port: 9090
+  selector:
+    app: ghproxy
+  type: ClusterIP
