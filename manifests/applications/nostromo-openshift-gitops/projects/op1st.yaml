@@ -25,11 +25,12 @@ spec:
         - p, proj:op1st:project-admin, applications, action/*, op1st/*, allow
       groups:
         - op1st-plteng
-  namespaceResourceWhitelist:
+  clusterResourceWhitelist:
     - group: apiextensions.k8s.io
       kind: CustomResourceDefinition
     - group: bitnami.com
       kind: SealedSecret
+  namespaceResourceWhitelist:
     - group: ""
       kind: Binding
     - group: ""
