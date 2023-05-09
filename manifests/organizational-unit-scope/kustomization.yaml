@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - op1st-rbac.yaml
   - b4mad-rbac.yaml
+  - cluster-console.yaml
   - console-custom-logo.yaml
   - console-links.yaml
   - github.com/redhat-cop/gitops-catalog/sealed-secrets-operator/overlays/default
@@ -11,3 +12,16 @@ resources:
   - secrets/cloudflare-b4mad-racing-nostromo-dns01-solver.yaml
   - secrets/google-clouddns-nostromo-dns01-solver.yaml
   - letsencrypt-cluster-issuer.yaml
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: operator.openshift.io/v1
+    kind: Console
+    metadata:
+       name: cluster
+    spec:
+       customization:
+          customProductName: 'op1st by #B4mad'
+          customLogoFile:
+             name: console-custom-logo
+             key: op1stb4mad-h50px.png
