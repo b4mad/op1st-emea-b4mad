@@ -14,6 +14,7 @@ resources:
   - ghproxy/
   - hook/
   - horologium/
+  - label_sync_cron_job.yaml
   - needs-rebase/
   - pipeline/
   - prow-controller-manager/
@@ -21,8 +22,6 @@ resources:
   - tide/
 
   - ingress.yaml
-
-  # - label_sync_job.yaml
 
   - secrets/cookie.yaml
   - secrets/github-oauth-config.yaml
