@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops
+  namespace: openshift-gitops
+spec:
+  destination:
+    name: in-cluster
+    namespace: openshift-gitops
+  project: cluster-management
+  source:
+    path: manifests/applications/gitops
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad.git
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - Validate=false
