@@ -9,7 +9,7 @@ resources:
 
   - bitnami-sealedsecret-integration.yaml
 
-  - nostromo-gitops-application.yaml
+  - gitops-application.yaml
   - ../../../applications/app-of-apps.yaml
 
 components:

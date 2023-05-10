@@ -8,10 +8,10 @@ export OP1ST_B4MAD_CLUSTER_NAME=$(oc get nodes -o json | jq '.items[0].metadata.
 export OP1ST_B4MAD_URL=$(oc whoami --show-server)
 
 # at this point: make sure, you are running kubeseal on nostromo, as that cluster needs to be able to unseal the secrets!
-cat manifests/applications/nostromo-openshift-gitops/clusters/cluster.tpl | gomplate | kubeseal --namespace openshift-gitops --controller-namespace=sealed-secrets -o yaml >manifests/applications/nostromo-openshift-gitops/clusters/${OP1ST_B4MAD_CLUSTER_NAME}.yaml
+cat manifests/applications/gitops/clusters/cluster.tpl | gomplate | kubeseal --namespace openshift-gitops --controller-namespace=sealed-secrets -o yaml >manifests/applications/gitops/clusters/${OP1ST_B4MAD_CLUSTER_NAME}.yaml
 pre-commit run --all-files
-git add manifests/applications/nostromo-openshift-gitops/clusters/${OP1ST_B4MAD_CLUSTER_NAME}.yaml
-git commit manifests/applications/nostromo-openshift-gitops/clusters/${OP1ST_B4MAD_CLUSTER_NAME}.yaml -sS -m "add ${OP1ST_B4MAD_CLUSTER_NAME} cluster to ArgoCD"
+git add manifests/applications/gitops/clusters/${OP1ST_B4MAD_CLUSTER_NAME}.yaml
+git commit manifests/applications/gitops/clusters/${OP1ST_B4MAD_CLUSTER_NAME}.yaml -sS -m "🔐 add ${OP1ST_B4MAD_CLUSTER_NAME} cluster to ArgoCD"
 ```
 
 ### References
