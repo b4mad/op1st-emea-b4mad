@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nostromo-openshift-gitops
+  name: gitops
   namespace: openshift-gitops
 spec:
   destination:
@@ -9,7 +9,7 @@ spec:
     namespace: openshift-gitops
   project: cluster-management
   source:
-    path: manifests/applications/nostromo-openshift-gitops
+    path: manifests/applications/gitops
     repoURL: https://github.com/b4mad/op1st-emea-b4mad.git
     targetRevision: main
   syncPolicy:
