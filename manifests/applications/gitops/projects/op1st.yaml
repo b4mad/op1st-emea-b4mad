@@ -35,9 +35,9 @@ spec:
       kind: ClusterRoleBinding
     - group: rbac.authorization.k8s.io
       kind: ClusterRole
-  namespaceResourceWhitelist:
     - group: operator.tekton.dev
       kind: TektonHub
+  namespaceResourceWhitelist:
     - group: bitnami.com
       kind: SealedSecret
     - group: ""
