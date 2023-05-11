@@ -92,7 +92,6 @@ branch-protection:
           protect: false
 
 deck:
-  skip_storage_path_validation: false
   spyglass:
     size_limit: 100000000
     lenses:
@@ -119,6 +118,9 @@ deck:
         required_files:
           - ^podinfo\.json$
   tide_update_period: 1s
+  skip_storage_path_validation: false
+  additional_allowed_buckets:
+    - op1st-emea-b4mad-prow
 
 tide:
   sync_period: 2m
