@@ -49,6 +49,7 @@ in_repo_config:
   enabled:
     b4mad: true
     operate-first: true
+    thoth-station: true
 
   allowed_clusters:
     "b4mad":
@@ -58,6 +59,8 @@ in_repo_config:
       ]
     "operate-first":
       ["api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"]
+    "thoth-station":
+      ["api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"]
 
 branch_cleaner:
   preserved_branches:
@@ -65,6 +68,9 @@ branch_cleaner:
       - main
       - master
     operate-first:
+      - main
+      - master
+    thoth-station:
       - main
       - master
 
@@ -77,6 +83,10 @@ branch-protection:
       required_status_checks:
         contexts:
           - op1st/prow/pre-commit
+      exclude:
+        - "^revert-" # don't protect revert branches
+        - "^dependabot/" # don't protect branches created by dependabot
+        - "^greenkeeper/" # don't protect branches created by greenkeeper
       include:
         - "^main"
         - "^master"
@@ -133,6 +143,7 @@ tide:
   merge_method:
     b4mad: squash
     operate-first: squash
+    thoth-station: squash
 
   queries:
     - orgs:
@@ -151,6 +162,7 @@ tide:
         - needs-rebase
     - orgs:
         - operate-first
+        - thoth-station
       labels:
         - approved
         - lgtm
