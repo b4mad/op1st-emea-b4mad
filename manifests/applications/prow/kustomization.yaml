@@ -37,6 +37,3 @@ configMapGenerator:
   - name: plugins
     files:
       - plugins.yaml
-
-generatorOptions:
-  disableNameSuffixHash: true
