@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: op1st-tekton
+spec:
+  destination:
+    name: ""
+    namespace: openshift-pipelines
+    server: "https://kubernetes.default.svc"
+  source:
+    path: manifests/applications/op1st-tekton
+    repoURL: "https://github.com/b4mad/op1st-emea-b4mad.git"
+    targetRevision: HEAD
+  sources: []
+  project: op1st

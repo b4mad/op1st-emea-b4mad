@@ -87,6 +87,7 @@ branch-protection:
         - "^revert-" # don't protect revert branches
         - "^dependabot/" # don't protect branches created by dependabot
         - "^greenkeeper/" # don't protect branches created by greenkeeper
+        - "^kebechet-" # don't protect kebechet branches
       restrictions:
         apps:
           - op1st-prow
@@ -116,6 +117,7 @@ branch-protection:
         - "^revert-" # don't protect revert branches
         - "^dependabot/" # don't protect branches created by dependabot
         - "^greenkeeper/" # don't protect branches created by greenkeeper
+        - "^kebechet-" # don't protect kebechet branches
       restrictions:
         apps:
           - op1st-prow

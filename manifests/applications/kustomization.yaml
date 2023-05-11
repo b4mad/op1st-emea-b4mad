@@ -6,3 +6,4 @@ resources:
   - alertmanager-receivers.yaml
   - organizational-unit-scope.yaml
   - prow.yaml
+  - tekton.yaml
