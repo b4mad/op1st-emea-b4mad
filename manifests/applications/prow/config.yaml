@@ -91,6 +91,8 @@ branch-protection:
         - "^main"
         - "^master"
       restrictions:
+        apps:
+          - op1st-prow
         users: []
         teams:
           - sourceops
@@ -100,8 +102,30 @@ branch-protection:
       repos:
         op1st-emea-b4mad:
           required_status_checks:
+            strict: true
             contexts:
               - op1st/prow/kustomize-build
+    thoth-station:
+      protect: true
+      allow_force_pushes: false
+      required_status_checks:
+        contexts:
+          - op1st/prow/pre-commit
+      exclude:
+        - "^revert-" # don't protect revert branches
+        - "^dependabot/" # don't protect branches created by dependabot
+        - "^greenkeeper/" # don't protect branches created by greenkeeper
+      include:
+        - "^main"
+        - "^master"
+      restrictions:
+        apps:
+          - op1st-prow
+        teams:
+          - sourceops
+        required_pull_request_reviews:
+          dismiss_stale_reviews: false
+          required_approving_review_count: 1
 
 deck:
   spyglass:
