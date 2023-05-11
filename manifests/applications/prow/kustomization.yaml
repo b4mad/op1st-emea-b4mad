@@ -18,6 +18,8 @@ resources:
   - needs-rebase/
   - pipeline/
   - prow-controller-manager/
+  - service_monitors.yaml
+  - sinker/
   - statusreconciler/
   - tide/
 
