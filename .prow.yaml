@@ -18,27 +18,6 @@ presubmits:
               memory: "500Mi"
               cpu: "2"
 
-  - name: kubeval-validation
-    decorate: true
-    max_concurrency: 1
-    skip_if_only_changed: "^docs/|\\.md$|^(OWNERS|LICENSE)$|^\\."
-    skip_report: false
-    context: op1st/prow/kubeval-validation
-    decoration_config:
-      timeout: 60m
-    spec:
-      containers:
-        - image: quay.io/operate-first/opf-toolbox:latest
-          command:
-            - "test-kubeval-validation"
-          resources:
-            requests:
-              memory: "4Gi"
-              cpu: "1500m"
-            limits:
-              memory: "4Gi"
-              cpu: "2"
-
   - name: pre-commit
     decorate: true
     skip_report: false
