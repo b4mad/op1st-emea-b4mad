@@ -1,9 +1,9 @@
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: label-sync
 spec:
-  schedule: "27 * * * *"
+  schedule: "32 * * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     metadata:
@@ -30,10 +30,10 @@ spec:
               resources:
                 requests:
                   memory: "64Mi"
-                  cpu: "125m"
+                  cpu: "250m"
                 limits:
                   memory: "64Mi"
-                  cpu: "125m"
+                  cpu: "250m"
           restartPolicy: Never
           volumes:
             - name: oauth
