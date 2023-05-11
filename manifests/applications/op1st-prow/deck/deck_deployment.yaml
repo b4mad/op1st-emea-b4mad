@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deck
+  labels:
+    app: deck
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: deck
+  template:
+    metadata:
+      labels:
+        app: deck
+    spec:
+      serviceAccountName: deck
+      terminationGracePeriodSeconds: 30
+      containers:
+        # TODO https://docs.prow.k8s.io/docs/components/core/deck/github-oauth-setup/#using-a-github-bot
+        - name: deck
+          image: gcr.io/k8s-prow/deck:v20230509-5e039b951c
+          args:
+            - --config-path=/etc/config/config.yaml
+            - --plugin-config=/etc/plugins/plugins.yaml
+            - --tide-url=http://tide/
+            - --hook-url=http://hook:8888/plugin-help
+            - --github-endpoint=http://ghproxy
+            - --github-endpoint=https://api.github.com
+            - --github-graphql-endpoint=http://ghproxy/graphql
+            - --s3-credentials-file=/etc/s3-credentials/service-account.json
+            - --spyglass=true
+            - --github-app-id=$(GITHUB_APP_ID)
+            - --github-app-private-key-path=/etc/github/cert
+            - --github-oauth-config-file=/etc/githuboauth/secret
+            - --oauth-url=/github-login
+            - --cookie-secret=/etc/cookie/secret
+          env:
+            - name: GITHUB_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-token
+                  key: appid
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: config
+              mountPath: /etc/config
+              readOnly: true
+            - name: github-token
+              mountPath: /etc/github
+              readOnly: true
+            - name: plugins
+              mountPath: /etc/plugins
+              readOnly: true
+            - name: s3-credentials
+              mountPath: /etc/s3-credentials
+              readOnly: true
+            - name: oauth-config
+              mountPath: /etc/githuboauth
+              readOnly: true
+            - name: cookie-secret
+              mountPath: /etc/cookie
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: 8081
+            initialDelaySeconds: 10
+            periodSeconds: 3
+            timeoutSeconds: 600
+      volumes:
+        - name: config
+          configMap:
+            name: config
+        - name: github-token
+          secret:
+            secretName: github-token
+        - name: plugins
+          configMap:
+            name: plugins
+        - name: s3-credentials
+          secret:
+            secretName: s3-credentials
+        - name: oauth-config
+          secret:
+            secretName: github-oauth-config
+        - name: cookie-secret
+          secret:
+            secretName: cookie
