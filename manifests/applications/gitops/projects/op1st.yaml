@@ -19,20 +19,20 @@ spec:
     - name: project-admin
       description: Read/Write access to this project only
       policies:
-        - p, proj:op1st:project-admin, applications, get, op1st/*, allow
-        - p, proj:op1st:project-admin, applications, create, op1st/*, allow
-        - p, proj:op1st:project-admin, applications, update, op1st/*, allow
-        - p, proj:op1st:project-admin, applications, delete, op1st/*, allow
-        - p, proj:op1st:project-admin, applications, sync, op1st/*, allow
+        - p, proj:op1st:project-admin, applications, get,      op1st/*, allow
+        - p, proj:op1st:project-admin, applications, create,   op1st/*, allow
+        - p, proj:op1st:project-admin, applications, update,   op1st/*, allow
+        - p, proj:op1st:project-admin, applications, delete,   op1st/*, allow
+        - p, proj:op1st:project-admin, applications, sync,     op1st/*, allow
         - p, proj:op1st:project-admin, applications, override, op1st/*, allow
         - p, proj:op1st:project-admin, applications, action/*, op1st/*, allow
-        - p, proj:op1st:project-admin, applications, get,    op1st/openshift-pipelines, allow
-        - p, proj:op1st:project-admin, applications, create, op1st/openshift-pipelines, allow
-        - p, proj:op1st:project-admin, applications, update, op1st/openshift-pipelines, allow
-        - p, proj:op1st:project-admin, applications, delete, op1st/openshift-pipelines, allow
-        - p, proj:op1st:project-admin, applications, sync,   op1st/openshift-pipelines, allow
-        - p, proj:op1st:project-admin, applications, override, op1st/openshift-pipelines, allow
-        - p, proj:op1st:project-admin, applications, action/*, op1st/openshift-pipelines, allow
+        - p, proj:op1st:project-admin, applications, get,      openshift-pipelines/*, allow
+        - p, proj:op1st:project-admin, applications, create,   openshift-pipelines/*, allow
+        - p, proj:op1st:project-admin, applications, update,   openshift-pipelines/*, allow
+        - p, proj:op1st:project-admin, applications, delete,   openshift-pipelines/*, allow
+        - p, proj:op1st:project-admin, applications, sync,     openshift-pipelines/*, allow
+        - p, proj:op1st:project-admin, applications, override, openshift-pipelines/*, allow
+        - p, proj:op1st:project-admin, applications, action/*, openshift-pipelines/*, allow
       groups:
         - op1st-plteng
   clusterResourceWhitelist:
@@ -43,6 +43,8 @@ spec:
     - group: rbac.authorization.k8s.io
       kind: ClusterRole
   namespaceResourceWhitelist:
+    - group: operator.tekton.dev
+      kind: TektonHub
     - group: bitnami.com
       kind: SealedSecret
     - group: ""
