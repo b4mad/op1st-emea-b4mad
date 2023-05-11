@@ -9,7 +9,7 @@ spec:
     server: https://kubernetes.default.svc
   project: op1st
   source:
-    path: manifests/applications/prow
+    path: manifests/applications/op1st-prow
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
     targetRevision: main
   syncPolicy:
