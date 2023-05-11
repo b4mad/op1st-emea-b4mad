@@ -80,9 +80,6 @@ spec:
         - name: config
           configMap:
             name: config
-        - name: job-config
-          configMap:
-            name: job-config
         - name: plugins
           configMap:
             name: plugins
