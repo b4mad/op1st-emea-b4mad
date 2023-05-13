@@ -19,9 +19,9 @@ spec:
               imagePullPolicy: IfNotPresent
               args:
                 - --config-path=/etc/config/config.yaml
+                - --github-token-path=/etc/github/oauth
                 - --github-endpoint=http://ghproxy
                 - --github-endpoint=https://api.github.com
-                - --github-oauth-config-file=/etc/githuboauth/secret
                 - --cookie-secret=/etc/cookie/secret
                 - --enable-apps-restrictions
                 - --confirm
@@ -29,8 +29,8 @@ spec:
                 - name: config
                   mountPath: /etc/config
                   readOnly: true
-                - name: oauth-config
-                  mountPath: /etc/githuboauth
+                - name: oauth
+                  mountPath: /etc/github
                   readOnly: true
                 - name: cookie-secret
                   mountPath: /etc/cookie
@@ -47,9 +47,9 @@ spec:
             - name: config
               configMap:
                 name: config
-            - name: oauth-config
+            - name: oauth
               secret:
-                secretName: github-oauth-config
+                secretName: oauth-token
             - name: cookie-secret
               secret:
                 secretName: cookie
