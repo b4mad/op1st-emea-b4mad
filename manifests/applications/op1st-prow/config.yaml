@@ -41,6 +41,11 @@ sinker:
   resync_period: 1m
   terminated_pod_ttl: 24h
 
+github_reporter:
+  job_types_to_report:
+    - presubmit
+    - postsubmit
+
 prowjob_namespace: op1st-prow
 pod_namespace: op1st-prow
 log_level: debug
