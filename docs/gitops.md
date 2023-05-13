@@ -1,6 +1,7 @@
 ## adding a cluster to ArgoCD
 
 ```bash
+<<<<<<< Updated upstream
 go install github.com/hairyhenderson/gomplate/v4/cmd/gomplate@latest
 export OP1ST_B4MAD_SECRET_NAME=<this needs to be set manually>
 export OP1ST_B4MAD_AUTHENTICATION_TOKEN=$(oc get secret --namespace kube-system ${OP1ST_B4MAD_SECRET_NAME} -o jsonpath='{.data.token}' | base64 --decode)
@@ -12,6 +13,16 @@ cat manifests/applications/gitops/clusters/cluster.tpl | gomplate | kubeseal --n
 pre-commit run --all-files
 git add manifests/applications/gitops/clusters/${OP1ST_B4MAD_CLUSTER_NAME}.yaml
 git commit manifests/applications/gitops/clusters/${OP1ST_B4MAD_CLUSTER_NAME}.yaml -sS -m "🔐 add ${OP1ST_B4MAD_CLUSTER_NAME} cluster to ArgoCD"
+=======
+cp manifests/applications/nostromo-openshift-gitops/clusters/cluster-template.yaml phohos.yaml
+vi phohos.yaml # add your credentials: kube-admin bearer token and url....
+kubeseal --namespace openshift-gitops \
+  --controller-namespace=sealed-secrets \
+  --output yaml \
+  --secret-file phobos.yaml >manifests/applications/nostromo-openshift-gitops/clusters/phobos.yaml
+git add manifests/applications/nostromo/openshift-gitops/clusters/phobos.yaml
+git commit -asSm "add phobos cluster to ArgoCD"
+>>>>>>> Stashed changes
 ```
 
 ### References
