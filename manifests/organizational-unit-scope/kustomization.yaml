@@ -8,7 +8,6 @@ resources:
   - console-custom-logo.yaml
   - console-links.yaml
   - github.com/redhat-cop/gitops-catalog/sealed-secrets-operator/overlays/default
-  - github.com/redhat-cop/gitops-catalog/cert-manager-operator/operator/base?ref=main
   - letsencrypt-cluster-issuer.yaml
 
 patchesStrategicMerge:
