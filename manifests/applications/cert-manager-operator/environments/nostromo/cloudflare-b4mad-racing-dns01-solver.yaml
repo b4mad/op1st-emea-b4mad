@@ -1,0 +1,14 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: cloudflare-b4mad-racing-dns01-solver
+  namespace: cert-manager
+spec:
+  encryptedData:
+    api-token: AgBPUb4P8a9fgsbCI8E0ht4GP9sujesDyZvE15agjXoUHn8QEkRFsyakNardExYfDEvjX6ysTw+Fnnw0s5mjn54/hEIaqk/P5O7n/9XBT57jYi8GFjTwxQPAdmY5fhThtwRcX9qaClE+MoP3VzIjImHS1onBJksYuq8VBlQK6JV9nQJZw9Dsadx2WwLH3dYt5x13XdYNSdk3vslYymrpz3azvPhIAKqKA4CRLetJ3RfjSpGp5qmTBvj7rr4776gdQ63iS+4XiIhQfj4sIVasiEaP9tHyGR4CdwAGcdDO21vmuCoNO6kATElwPSQ9xM6i01IPJhmLhu3+bZxhsQCwiCyFIydsWeQQLiOBjd7+fi9LyAbo59BDBc4xCpioMjP8JtSQaTFtDjq7g8c5OBb74wydzEdiBswuBjannEvtQi8NbSvUrMiYt5iZBVWBjMyNkepKo4kSHdeWPLJ52EoivKNFzQDQxct0h5LSsjGUGR1yXcrMI2inun1dA1gEoB4RycJfrVHqShomFaUawRh/v8dW+rDBoTciAXQ+miAiPveErvcXQJ0rImv3h24VSZtOhNbjQE+MM3u4L8HFSJR23kkPmYYIKyWjJqD6AA9SqCAwwdw+XsHHbHbEC+uw1dCX6Rd5IblYQkgYsnWNqnzOcgHstzle/AomuKZGhR6Rq6zihSeXTROgVVMY8YZoLolwkDuGEXgr87E5i/+Z16TsuexAU2QaHjRjaBQozgX6gAavnYBGEWXueghi
+  template:
+    metadata:
+      creationTimestamp: null
+      name: cloudflare-b4mad-racing-dns01-solver
+      namespace: cert-manager

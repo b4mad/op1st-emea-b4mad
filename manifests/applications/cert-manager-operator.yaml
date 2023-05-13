@@ -1,0 +1,40 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-operator-phobos
+spec:
+  destination:
+    name: ""
+    namespace: ""
+    server: "https://api.phobos.b4mad.emea.operate-first.cloud:6443"
+  source:
+    path: manifests/applications/cert-manager-operator/environments/phobos
+    repoURL: "https://github.com/b4mad/op1st-emea-b4mad.git"
+    targetRevision: HEAD
+  sources: []
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  project: cluster-management
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-operator-nostromo
+spec:
+  destination:
+    name: ""
+    namespace: ""
+    server: "https://kubernetes.default.svc"
+  source:
+    path: manifests/applications/cert-manager-operator/environments/nostromo
+    repoURL: "https://github.com/b4mad/op1st-emea-b4mad.git"
+    targetRevision: HEAD
+  sources: []
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  project: cluster-management
