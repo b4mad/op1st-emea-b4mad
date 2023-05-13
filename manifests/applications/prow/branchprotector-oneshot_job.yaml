@@ -30,4 +30,4 @@ spec:
             secretName: oauth-token
         - name: config
           configMap:
-            name: config-287bbg5t2c
+            name: config-d642hhgbk4
