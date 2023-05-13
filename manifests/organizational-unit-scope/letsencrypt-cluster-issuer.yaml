@@ -14,7 +14,7 @@ spec:
           cloudDNS:
             project: aicoe-prow # ja confusing, the title is `aicoe-operate-first`
             serviceAccountSecretRef:
-              name: google-clouddns-nostromo-dns01-solver
+              name: google-clouddns-dns01-solver
               key: aicoe-prow-96c1a6bfd097.json
         selector:
           dnsZones:
@@ -22,7 +22,7 @@ spec:
       - dns01:
           cloudflare:
             apiTokenSecretRef:
-              name: cloudflare-b4mad-racing-nostromo-dns01-solver
+              name: cloudflare-b4mad-racing-dns01-solver
               key: api-token
         selector:
           dnsZones:

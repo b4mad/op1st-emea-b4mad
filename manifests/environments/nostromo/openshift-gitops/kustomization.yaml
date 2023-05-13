@@ -10,7 +10,6 @@ resources:
   - bitnami-sealedsecret-integration.yaml
 
   - gitops-application.yaml
-  - ../../../applications/app-of-apps.yaml
 
 components:
   - ../../../components/openshift-gitops-integration

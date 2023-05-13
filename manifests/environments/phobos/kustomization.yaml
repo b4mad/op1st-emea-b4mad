@@ -16,7 +16,11 @@ resources:
   #  - grafana-operator/
   #  - crunchy-postgres/
 
+  - default-ingress-certificate.yaml
+
   - openshift-gitops-integration.yaml
+
+  - cert-manager/
 
 components:
   #  - github.com/operate-first/apps/cluster-scope/components/resourcequotas/small?ref=master
@@ -25,3 +29,14 @@ components:
 
   #  - ../../components/lvm-storage/
   - ../../components/openshift-gitops-integration
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: operator.openshift.io/v1
+    kind: IngressController
+    metadata:
+      name: default
+      namespace: openshift-ingress-operator
+    spec:
+      defaultCertificate:
+        name: default-ingress-certificate
