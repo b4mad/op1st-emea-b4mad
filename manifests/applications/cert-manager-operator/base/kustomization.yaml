@@ -9,3 +9,4 @@ commonAnnotations:
 resources:
   - github.com/redhat-cop/gitops-catalog/cert-manager-operator/operator/base?ref=main
   - cluster-cert-manager.yaml
+  - letsencrypt-cluster-issuer.yaml
