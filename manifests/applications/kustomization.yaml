@@ -4,6 +4,7 @@ namespace: openshift-gitops
 
 resources:
   - alertmanager-receivers.yaml
+  - cert-manager-operator.yaml
   - organizational-unit-scope.yaml
   - prow.yaml
   - tekton.yaml

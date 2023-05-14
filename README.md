@@ -37,10 +37,11 @@ environment.
 
 On the nostromo environment we have deployed and configured the following infrastructure services:
 
-* Red Hat OpenShift Pipelines
 * Red Hat OpenShift GitOps
+* Red Hat OpenShift Pipelines
+* Kubernetes Prow
 
-Both services are deployed on the nostromo environment.
+These services are deployed on the nostromo environment.
 
 ## Usage
 

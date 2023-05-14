@@ -14,6 +14,19 @@ resources:
 components:
   - ../../../components/openshift-gitops-integration
 
+configMapGenerator:
+  - name: argocd-cm
+    behavior: merge
+    envs:
+      - argocd-configs/envs
+  - name: argocd-rbac-cm
+    behavior: replace
+    files:
+      - argocd-configs/policy.csv
+      - argocd-configs/policy.default
+generatorOptions:
+  disableNameSuffixHash: true
+
 patchesStrategicMerge:
   - |-
     apiVersion: argoproj.io/v1alpha1
