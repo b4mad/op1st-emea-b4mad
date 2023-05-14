@@ -6,7 +6,6 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt
     cert-manager.io/common-name: paddock-test-2.b4mad.racing
   name: paddock-test-2.b4mad.racing
-  namespace: test
 spec:
   ingressClassName: openshift-default
   rules:
@@ -24,3 +23,19 @@ spec:
     - hosts:
         - paddock-test-2.b4mad.racing
       secretName: paddock-test-2.b4mad.racing
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: non-existing-test
+  name: non-existing-test
+spec:
+  selector:
+    app: non-existing-test
+  ports:
+    - name: main
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+  type: NodePort
