@@ -5,9 +5,10 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     cert-manager.io/common-name: paddock-test-2.b4mad.racing
-  name: test-b4mad-racing-tls-route
+  name: paddock-test-2.b4mad.racing
   namespace: test
 spec:
+  ingressClassName: openshift-default
   rules:
     - host: paddock-test-2.b4mad.racing
       http:

@@ -20,6 +20,7 @@ spec:
           dnsZones:
             - b4mad.emea.operate-first.cloud
       - dns01:
+          cnameStrategy: Follow
           cloudflare:
             apiTokenSecretRef:
               name: cloudflare-b4mad-racing-dns01-solver
@@ -27,6 +28,3 @@ spec:
         selector:
           dnsZones:
             - b4mad.racing
-      - http01:
-          ingress:
-            class: openshift-default
