@@ -13,11 +13,19 @@ spec:
           image: gcr.io/k8s-prow/branchprotector:latest
           args:
             - --config-path=/etc/config/config.yaml
-            - --github-token-path=/etc/github/oauth
+            - --github-app-id=$(GITHUB_APP_ID)
+            - --github-app-private-key-path=/etc/github/cert
+            # - --github-enabled-org=b4mad
             - --enable-apps-restrictions
             - --confirm
+          env:
+            - name: GITHUB_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-token
+                  key: appid
           volumeMounts:
-            - name: oauth
+            - name: github-token
               mountPath: /etc/github
               readOnly: true
             - name: config
@@ -25,9 +33,9 @@ spec:
               readOnly: true
       restartPolicy: Never
       volumes:
-        - name: oauth
+        - name: github-token
           secret:
-            secretName: oauth-token
+            secretName: github-token
         - name: config
           configMap:
-            name: config-d642hhgbk4
+            name: config-92gm82b4cf
