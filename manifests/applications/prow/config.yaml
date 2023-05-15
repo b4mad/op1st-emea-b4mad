@@ -133,6 +133,7 @@ branch-protection:
       repos:
         op1st-emea-b4mad:
           required_status_checks:
+            strict: true
             contexts:
               - op1st/prow/kustomize-build
         auddress:
@@ -226,7 +227,6 @@ tide:
     "*": https://prow.b4mad.emea.operate-first.cloud/pr
 
   merge_method:
-    AICoE: squash
     b4mad: squash
     operate-first: squash
     thoth-station: squash
