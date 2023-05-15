@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: openshift-gitops
 
 resources:
+  # - https://github.com/b4mad/racing/blob/main/manifests/racing.yaml
   - alertmanager-receivers.yaml
   - cert-manager-operator.yaml
   - organizational-unit-scope.yaml
