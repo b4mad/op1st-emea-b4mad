@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nmstate
+  namespace: openshift-gitops
+  annotations:
+    argocd-commenter.int128.github.io/deployment-url: https://api.github.com/repos/b4mad/op1st-emea-b4mad/deployments/nostromo
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  destination:
+    namespace: openshift-nmstate
+    server: https://kubernetes.default.svc
+  project: cluster-management
+  source:
+    path: manifests/applications/nmstate
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
