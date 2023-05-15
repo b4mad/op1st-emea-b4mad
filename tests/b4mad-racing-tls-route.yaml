@@ -4,12 +4,13 @@ kind: Ingress
 metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-    cert-manager.io/common-name: nostromo-test.b4mad.racing
-  name: test-b4mad-racing-tls-route
+    cert-manager.io/common-name: paddock-test-2.b4mad.racing
+  name: paddock-test-2.b4mad.racing
   namespace: test
 spec:
+  ingressClassName: openshift-default
   rules:
-    - host: nostromo-test.b4mad.racing
+    - host: paddock-test-2.b4mad.racing
       http:
         paths:
           - pathType: Prefix
@@ -21,5 +22,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - nostromo-test.b4mad.racing
-      secretName: nostromo-test.b4mad.racing
+        - paddock-test-2.b4mad.racing
+      secretName: paddock-test-2.b4mad.racing
