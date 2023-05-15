@@ -21,7 +21,6 @@ spec:
                 - --config-path=/etc/config/config.yaml
                 - --github-endpoint=http://ghproxy
                 - --github-endpoint=https://api.github.com
-                - --cookie-secret=/etc/cookie/secret
                 - --github-app-id=$(GITHUB_APP_ID)
                 - --github-app-private-key-path=/etc/github/cert
                 - --enable-apps-restrictions
@@ -36,9 +35,6 @@ spec:
                 - name: config
                   mountPath: /etc/config
                   readOnly: true
-                - name: cookie-secret
-                  mountPath: /etc/cookie
-                  readOnly: true
                 - name: github-token
                   mountPath: /etc/github
                   readOnly: true
@@ -47,9 +43,6 @@ spec:
             - name: config
               configMap:
                 name: config
-            - name: cookie-secret
-              secret:
-                secretName: cookie
             - name: github-token
               secret:
                 secretName: github-token
