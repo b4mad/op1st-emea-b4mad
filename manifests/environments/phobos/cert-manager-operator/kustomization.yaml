@@ -3,10 +3,10 @@ kind: Kustomization
 
 commonAnnotations:
   app.kubernetes.io/name: cert-manager-operator
-  app.kubernetes.io/part-of: op1st-emea-b4mad
-  org.opencontainers.image.source: https://github.com/b4mad/op1st-emea-b4mad.git
 
 resources:
   - github.com/redhat-cop/gitops-catalog/cert-manager-operator/operator/base?ref=main
   - cluster-cert-manager.yaml
   - letsencrypt-cluster-issuer.yaml
+  - google-clouddns-dns01-solver.yaml
+  - cloudflare-b4mad-racing-dns01-solver.yaml

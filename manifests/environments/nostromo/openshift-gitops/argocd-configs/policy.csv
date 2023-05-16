@@ -1,0 +1,2 @@
+# Give Openshift group (argocd-admins) the argocd admin role with unrestricted argocd access
+g, argocd-admins, role:admin

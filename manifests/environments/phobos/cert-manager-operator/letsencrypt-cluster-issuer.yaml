@@ -1,0 +1,30 @@
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    email: cert-admin@b4mad.net
+    privateKeySecretRef:
+      name: cluster-issuer-acme-letsencrypt
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+      - dns01:
+          cloudDNS:
+            project: aicoe-prow # ja confusing, the title is `aicoe-operate-first`
+            serviceAccountSecretRef:
+              name: google-clouddns-dns01-solver
+              key: aicoe-prow-96c1a6bfd097.json
+        selector:
+          dnsZones:
+            - b4mad.emea.operate-first.cloud
+      - dns01:
+          cnameStrategy: Follow
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-b4mad-racing-dns01-solver
+              key: api-token
+        selector:
+          dnsZones:
+            - b4mad.racing
