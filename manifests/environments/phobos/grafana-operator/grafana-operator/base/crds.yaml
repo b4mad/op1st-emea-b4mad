@@ -57,6 +57,16 @@ spec:
               folder:
                 description: folder assignment for dashboard
                 type: string
+              grafanaCom:
+                description: grafana.com/dashboards
+                properties:
+                  id:
+                    type: integer
+                  revision:
+                    type: integer
+                required:
+                - id
+                type: object
               gzipJson:
                 description: GzipJson the dashboard's JSON compressed with Gzip. Base64-encoded
                   when in YAML.
@@ -152,6 +162,10 @@ spec:
               contentUrl:
                 type: string
               hash:
+                type: string
+              lastResync:
+                description: Last time the dashboard was resynced
+                format: date-time
                 type: string
             type: object
         type: object
@@ -630,6 +644,15 @@ spec:
                           metadata:
                             description: 'Standard object''s metadata. More info:
                               https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
+                            properties:
+                              annotations:
+                                additionalProperties:
+                                  type: string
+                                type: object
+                              labels:
+                                additionalProperties:
+                                  type: string
+                                type: object
                             type: object
                           spec:
                             description: 'Specification of the desired behavior of
