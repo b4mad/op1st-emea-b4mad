@@ -10,11 +10,11 @@ commonAnnotations:
 resources:
   - ../../organizational-unit-scope/
 
-  #  - local-storage/
-  #  - lvm-storage/
+  - local-storage/
+  - lvm-storage/
 
-  #  - grafana-operator/
-  #  - crunchy-postgres/
+  - grafana-operator/
+  - crunchy-postgres/
 
   - default-ingress-certificate.yaml
 
@@ -25,7 +25,7 @@ components:
   #  - github.com/operate-first/apps/cluster-scope/components/resourcequotas/medium?ref=master
   #  - github.com/operate-first/apps/cluster-scope/components/resourcequotas/large?ref=master
 
-  #  - ../../components/lvm-storage/
+  - ../../components/lvm-storage/
   - ../../components/openshift-gitops-integration
 
 patchesStrategicMerge:

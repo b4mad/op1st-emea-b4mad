@@ -6,6 +6,7 @@ resources:
   # - https://github.com/b4mad/racing/blob/main/manifests/racing.yaml
   - alertmanager-receivers.yaml
   - cert-manager-operator.yaml
+  - environment-phobos.yaml
   - nmstate.yaml
   - nmstate-operator.yaml
   - organizational-unit-scope.yaml
