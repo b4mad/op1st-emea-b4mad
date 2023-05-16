@@ -10,7 +10,7 @@ spec:
   project: op1st
   source:
     path: manifests/applications/prow
-    repoURL: https://github.com/goern/op1st-emea-b4mad
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
     targetRevision: main
   syncPolicy:
     automated:
