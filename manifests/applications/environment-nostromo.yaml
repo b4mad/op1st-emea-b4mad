@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: environment-nostromo
+spec:
+  destination:
+    name: in-cluster
+  project: cluster-management
+  source:
+    path: manifests/environments/nostromo
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main

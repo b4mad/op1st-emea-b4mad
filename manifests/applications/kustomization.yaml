@@ -3,12 +3,12 @@ kind: Kustomization
 namespace: openshift-gitops
 
 resources:
-  # - https://github.com/b4mad/racing/blob/main/manifests/racing.yaml
   - alertmanager-receivers.yaml
-  - cert-manager-operator.yaml
+  - environment-nostromo.yaml
   - environment-phobos.yaml
-  - nmstate.yaml
   - nmstate-operator.yaml
+  - nmstate.yaml
   - organizational-unit-scope.yaml
   - prow.yaml
   - tekton.yaml
+  # - https://github.com/b4mad/racing/blob/main/manifests/racing.yaml

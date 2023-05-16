@@ -7,19 +7,18 @@ resources:
 
   - argocd.b4mad.emea.operate-first.cloud.yaml
 
-  - bitnami-sealedsecret-integration.yaml
+  - bitnami-sealedsecret_rbac.yaml
 
   - gitops-application.yaml
 
-components:
-  - ../../../components/openshift-gitops-integration
-
 configMapGenerator:
   - name: argocd-cm
+    namespace: openshift-gitops
     behavior: merge
     envs:
       - argocd-configs/envs
   - name: argocd-rbac-cm
+    namespace: openshift-gitops
     behavior: replace
     files:
       - argocd-configs/policy.csv
