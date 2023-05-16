@@ -14,7 +14,8 @@ spec:
       namespace: "openshift-pipelines"
       server: "https://kubernetes.default.svc"
   sourceRepos:
-    - "https://github.com/b4mad/op1st-emea-b4mad.git"
+    - https://github.com/b4mad/op1st-emea-b4mad.git
+    - https://github.com/goern/op1st-emea-b4mad
   roles:
     - name: project-admin
       description: Read/Write access to this project only
