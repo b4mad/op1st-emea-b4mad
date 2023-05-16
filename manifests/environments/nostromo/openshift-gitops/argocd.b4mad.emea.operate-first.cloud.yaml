@@ -6,6 +6,7 @@ metadata:
   name: argocd-b4mad-emea-operate-first-cloud
   namespace: openshift-gitops
 spec:
+  ingressClassName: openshift-default
   rules:
     - host: argocd.b4mad.emea.operate-first.cloud
       http:
