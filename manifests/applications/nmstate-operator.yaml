@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nmstate
+  name: nmstate-operator
   namespace: openshift-gitops
   annotations:
     argocd-commenter.int128.github.io/deployment-url: https://api.github.com/repos/b4mad/op1st-emea-b4mad/deployments/nostromo
@@ -13,7 +13,7 @@ spec:
   project: cluster-management
   source:
     path: nmstate/operator/
-    repoURL: github.com/redhat-cop/gitops-catalog/
+    repoURL: https://github.com/redhat-cop/gitops-catalog.git
     targetRevision: main
   syncPolicy:
     automated:
