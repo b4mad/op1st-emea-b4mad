@@ -32,3 +32,34 @@ subjects:
   - kind: ServiceAccount
     name: argocd-manager
     namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: openshift-gitops-environment-manager-role
+rules:
+  - apiGroups:
+      - "imageregistry.operator.openshift.io"
+    resources:
+      - "configs"
+    verbs:
+      - "patch"
+  - apiGroups:
+      - "monitoring.coreos.com"
+    resources:
+      - "prometheusrules"
+    verbs:
+      - "patch"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: openshift-gitops-environment-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argocd-manager-role
+subjects:
+  - kind: ServiceAccount
+    name: argocd-manager
+    namespace: kube-system
