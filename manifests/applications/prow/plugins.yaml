@@ -26,6 +26,11 @@ label:
     - triage/unresolved
 
 external_plugins:
+  AICoE:
+    - name: needs-rebase
+      events:
+        - issue_comment
+        - pull_request
   b4mad:
     - name: needs-rebase
       events:
@@ -51,12 +56,14 @@ welcome:
 
 lgtm:
   - repos:
+      - AICoE
       - b4mad
       - operate-first
       - thoth-station
 
 approve:
   - repos:
+      - AICoE
       - b4mad
       - operate-first
       - thoth-station
@@ -70,6 +77,7 @@ triggers:
     trusted_apps:
       - robozome-op1st
   - repos:
+      - AICoE
       - b4mad
       - operate-first
       - thoth-station
@@ -78,6 +86,22 @@ triggers:
       - dependabot
 
 plugins:
+  AICoE:
+    plugins:
+      - approve
+      - assign
+      - blockade
+      - blunderbuss
+      - help
+      - hold
+      - label
+      - lgtm
+      - lifecycle
+      - shrug
+      - size
+      - trigger
+      - verify-owners
+      - wip
   b4mad:
     plugins:
       - approve
