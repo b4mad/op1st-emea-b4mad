@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: label-sync
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      name: label-sync
+    spec:
+      containers:
+        - name: label-sync
+          image: gcr.io/k8s-prow/label_sync:v20230510-d63b2eb0d2
+          args:
+            - --config=/etc/config/labels.yaml
+            - --github-endpoint=http://ghproxy
+            - --github-endpoint=https://api.github.com
+            - --github-app-id=$(GITHUB_APP_ID)
+            - --github-app-private-key-path=/etc/github/cert
+            - --orgs=b4mad
+            - --confirm
+          env:
+            - name: GITHUB_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-token
+                  key: appid
+          volumeMounts:
+            - name: github-token
+              mountPath: /etc/github
+              readOnly: true
+            - name: labels
+              mountPath: /etc/config
+              readOnly: true
+      restartPolicy: Never
+      volumes:
+        - name: github-token
+          secret:
+            secretName: github-token
+        - name: labels
+          configMap:
+            name: label-config
