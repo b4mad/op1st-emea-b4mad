@@ -6,7 +6,5 @@ resources:
   - alertmanager-receivers.yaml
   - environment-nostromo.yaml
   - environment-phobos.yaml
-  - nmstate-operator.yaml
-  - nmstate.yaml
   - prow.yaml
   - tekton.yaml
