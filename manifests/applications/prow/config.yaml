@@ -47,7 +47,7 @@ github_reporter:
     - postsubmit
 
 prowjob_namespace: op1st-prow
-pod_namespace: op1st-prow
+pod_namespace: op1st-prow-test-pods
 log_level: debug
 
 in_repo_config:
