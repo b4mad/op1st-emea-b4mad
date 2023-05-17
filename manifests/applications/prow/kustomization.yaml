@@ -15,7 +15,7 @@ resources:
   - ghproxy/
   - hook/
   - horologium/
-  - label_sync_cron_job.yaml
+  - label-sync.yaml
   - needs-rebase/
   - pipeline/
   - prow-controller-manager/
