@@ -32,6 +32,7 @@ resources:
   - secrets/hmac-token.yaml
   - secrets/oauth-token.yaml
   - secrets/s3-credentials.yaml
+  - secrets/s3-credentials-test-pods.yaml
 
 configMapGenerator:
   - name: config
