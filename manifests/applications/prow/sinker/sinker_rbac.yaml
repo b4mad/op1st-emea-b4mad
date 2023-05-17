@@ -49,6 +49,23 @@ rules:
     verbs:
       - create
 ---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: test-pods
+  name: "sinker"
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - delete
+      - list
+      - watch
+      - get
+      - patch
+---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -60,3 +77,17 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: sinker
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: op1st-prow-test-pods
+  name: sinker
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sinker
+subjects:
+  - kind: ServiceAccount
+    name: sinker
+    namespace: op1st-prow
