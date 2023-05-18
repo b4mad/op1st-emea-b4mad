@@ -12,11 +12,6 @@ resources:
   - gitops-application.yaml
 
 configMapGenerator:
-  - name: argocd-cm
-    namespace: openshift-gitops
-    behavior: merge
-    envs:
-      - argocd-configs/envs
   - name: argocd-rbac-cm
     namespace: openshift-gitops
     behavior: replace
@@ -34,6 +29,8 @@ patchesStrategicMerge:
       name: openshift-gitops
       namespace: openshift-gitops
     spec:
+      usersAnonymousEnabled: true
+      statusBadgeEnabled: true
       server:
         insecure: true # so that our ingress can access the service via http (not https)
       rbac:
