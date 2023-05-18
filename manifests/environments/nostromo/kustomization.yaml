@@ -34,6 +34,7 @@ resources:
 
 components:
   - ../../components/lvm-storage/
+  - ../../components/nfd/
 
 patchesStrategicMerge:
   - |-
