@@ -11,16 +11,6 @@ resources:
 
   - gitops-application.yaml
 
-configMapGenerator:
-  - name: argocd-rbac-cm
-    namespace: openshift-gitops
-    behavior: replace
-    files:
-      - argocd-configs/policy.csv
-      - argocd-configs/policy.default
-generatorOptions:
-  disableNameSuffixHash: true
-
 patchesStrategicMerge:
   - |-
     apiVersion: argoproj.io/v1alpha1
@@ -33,9 +23,16 @@ patchesStrategicMerge:
       statusBadgeEnabled: true
       server:
         insecure: true # so that our ingress can access the service via http (not https)
+      sso:
+        provider: dex
+        dex:
+          openShiftOAuth: true
+          groups:
+            - b4mad-members
+            - cluster-admins
       rbac:
         policy: |
-          g, system:cluster-admins, role:admin
-          g, cluster-admins, role:admin
           g, b4mad-members, role:admin
+          g, cluster-admins, role:admin
+          g, system:cluster-admins, role:admin
         scopes: '[groups]'
