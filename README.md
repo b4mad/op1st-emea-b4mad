@@ -37,9 +37,9 @@ environment.
 
 On the nostromo environment we have deployed and configured the following infrastructure services:
 
-* Red Hat OpenShift GitOps
-* Red Hat OpenShift Pipelines
-* Kubernetes Prow
+* Red Hat OpenShift GitOps - [![App Status](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=gitops&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/gitops)
+* Red Hat OpenShift Pipelines - [![App Status](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=tekton&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/tekton)
+* Kubernetes Prow - [![App Status](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=prow&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/prow)
 
 These services are deployed on the nostromo environment.
 
