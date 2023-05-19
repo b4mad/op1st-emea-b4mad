@@ -10,3 +10,5 @@ spec:
     path: manifests/environments/phobos
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
     targetRevision: main
+  syncOptions:
+    - ServerSideApply=true
