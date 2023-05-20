@@ -30,9 +30,10 @@ resources:
   - secrets/github-oauth-config.yaml
   - secrets/github-token.yaml
   - secrets/hmac-token.yaml
+  - secrets/oauth-token-test-pods.yaml
   - secrets/oauth-token.yaml
-  - secrets/s3-credentials.yaml
   - secrets/s3-credentials-test-pods.yaml
+  - secrets/s3-credentials.yaml
 
 configMapGenerator:
   - name: config
