@@ -32,6 +32,7 @@ resources:
 components:
   - ../../components/lvm-storage/
   - ../../components/nfd/
+  - ../../components/sno-tuning/
 
 patchesStrategicMerge:
   - |-
