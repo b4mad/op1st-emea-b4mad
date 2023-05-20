@@ -28,6 +28,7 @@ resources:
 
   - secrets/cookie.yaml
   - secrets/github-oauth-config.yaml
+  - secrets/github-token-test-pods.yaml
   - secrets/github-token.yaml
   - secrets/hmac-token.yaml
   - secrets/oauth-token-test-pods.yaml
