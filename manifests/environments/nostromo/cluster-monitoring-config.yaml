@@ -5,9 +5,14 @@ metadata:
   namespace: openshift-monitoring
 data:
   config.yaml: |
-    grafana:
-      enabled: false
     alertmanagerMain:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: lvms-vg1
+          resources:
+            requests:
+              storage: 10Gi
+    grafana:
       enabled: false
     prometheusK8s:
       retention: 72h

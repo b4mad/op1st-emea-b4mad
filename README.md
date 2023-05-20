@@ -48,6 +48,7 @@ On the nostromo environment we have deployed and configured the following infras
 - Red Hat OpenShift GitOps
 - Red Hat OpenShift Pipelines
 - Kubernetes Prow
+- Operate First's Peribolos as a Service
 
 These services are deployed on the nostromo environment.
 
