@@ -13,4 +13,6 @@ spec:
     - group: "*"
       kind: "*"
     - group: "bitnami.com"
-      kind: "SealedSecret"
+      kind: "sealedsecret"
+    - group: "performance.openshift.io"
+      kind: "performanceprofiles"
