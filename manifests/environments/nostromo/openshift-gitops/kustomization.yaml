@@ -7,7 +7,8 @@ resources:
 
   - argocd.b4mad.emea.operate-first.cloud.yaml
 
-  - bitnami-sealedsecret_rbac.yaml
+  - rbac/bitnami-sealedsecrets.yaml
+  - rbac/openshift-performanceprofiles.yaml
 
   - gitops-application.yaml
 
