@@ -12,7 +12,6 @@ resources:
   - deployment.yaml
   - rolebinding.yaml
   - role.yaml
-  - route.yaml
   - serviceaccount.yaml
   - service.yaml
   - servicemonitor.yaml
