@@ -4,8 +4,6 @@ kind: Kustomization
 resources:
   - stubs/cluster-console.yaml
 
-  - idp/github-com.yaml
-
   - op1st-rbac.yaml
   - b4mad-rbac.yaml
   - console-custom-logo.yaml
