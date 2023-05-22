@@ -5,7 +5,7 @@ metadata:
   namespace: openshift-gitops
 spec:
   destination:
-    namespace: peribolos-as-a-service
+    namespace: op1st-peribolos
     server: https://kubernetes.default.svc
   project: op1st
   source:

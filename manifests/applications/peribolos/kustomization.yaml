@@ -1,10 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: peribolos-as-a-service
+namespace: op1st-peribolos
 
 commonLabels:
-  app.kubernetes.io/name: peribolos-as-service
+  app.kubernetes.io/name: peribolos
   app.kubernetes.io/managed-by: sig-services
 
 resources:
