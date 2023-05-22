@@ -10,6 +10,9 @@ commonAnnotations:
 resources:
   - ../../organizational-unit-scope/
 
+  - secrets/github-oauth-app.yaml
+  - idp/github-com.yaml
+
   - local-storage/
   - lvm-storage/
 
