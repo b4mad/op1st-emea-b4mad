@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: peribolos
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: peribolos-as-a-service
+    server: https://kubernetes.default.svc
+  project: op1st
+  source:
+    path: manifests/applications/peribolos
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

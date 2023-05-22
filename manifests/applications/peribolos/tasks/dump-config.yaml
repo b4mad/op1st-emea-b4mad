@@ -1,0 +1,175 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: dump-config
+spec:
+  params:
+    - name: REPO_NAME
+      type: string
+      default: .github
+    - name: SECRET_NAME
+      type: string
+  steps:
+    - name: dump-config
+      image: toolbox
+      volumeMounts:
+        - mountPath: /mnt/shared
+          name: shared-data
+        - mountPath: /mnt/secret
+          name: private-key
+      env:
+        - name: ORG_NAME
+          valueFrom:
+            secretKeyRef:
+              name: $(params.SECRET_NAME)
+              key: orgName
+        - name: APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: peribolos-controller
+              key: app_id
+      script: |
+        #!/bin/sh
+
+        peribolos --dump $ORG_NAME --github-app-id $APP_ID --github-app-private-key-path /mnt/secret/private_key --confirm > /mnt/shared/peribolos.yaml
+    - name: push-config
+      image: toolbox
+      volumeMounts:
+        - mountPath: /mnt/shared
+          name: shared-data
+        - mountPath: /mnt/secret
+          name: private-key
+      env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.SECRET_NAME)
+              key: token
+        - name: ORG_NAME
+          valueFrom:
+            secretKeyRef:
+              name: $(params.SECRET_NAME)
+              key: orgName
+        - name: APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: peribolos-controller
+              key: app_id
+      script: |
+        #!/bin/bash
+        REPO_REMOTE="https://x-access-token:$GITHUB_TOKEN@github.com/$ORG_NAME/$(params.REPO_NAME)"
+
+        DEFAULT_BRANCH=$( curl \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+          https://api.github.com/repos/$ORG_NAME/$(params.REPO_NAME) 2>/dev/null \
+          | yq e '.default_branch' - | sed 's/\"//g' )
+        echo -n $DEFAULT_BRANCH > /mnt/shared/default_branch
+
+        BRANCH_NAME="$(context.taskRun.name)"
+
+        git config --global user.email "$APP_ID+peribolos-service[bot]@users.noreply.github.com"
+        git config --global user.name "peribolos-service[bot]"
+
+        mkdir repo
+        cd repo
+
+        # Check if repo has no commits
+        if [ $( git ls-remote --heads $REPO_REMOTE | wc -l ) -eq "0" ]; then
+          echo "Repository empty, creating empty commit..."
+          git init -b $DEFAULT_BRANCH
+          git remote add origin $REPO_REMOTE
+          git commit --allow-empty -m "Initial commit"
+          git push --all origin
+        else
+          echo "Repository not empty, cloning..."
+          git clone $REPO_REMOTE .
+        fi
+        git checkout -b $BRANCH_NAME
+
+        echo "Getting peribolos config file..."
+        cp /mnt/shared/peribolos.yaml .
+
+        yq e -i '{ "orgs": {"'$ORG_NAME'": .}}' peribolos.yaml
+
+        echo "Commiting config to $BRANCH_NAME branch..."
+        git add peribolos.yaml
+        git commit -m "Add initial yaml config"
+        git push origin $BRANCH_NAME
+    - name: open-pr
+      image: python
+      volumeMounts:
+        - mountPath: /mnt/shared
+          name: shared-data
+      env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.SECRET_NAME)
+              key: token
+        - name: ORG_NAME
+          valueFrom:
+            secretKeyRef:
+              name: $(params.SECRET_NAME)
+              key: orgName
+      script: |
+        #!/usr/libexec/platform-python
+
+        """Generated from: https://hub.tekton.dev/tekton/task/github-open-pr"""
+
+        import json
+        import os
+        import sys
+        import http.client
+
+        github_token = os.environ['GITHUB_TOKEN']
+        org_name = os.environ['ORG_NAME']
+        default_branch = open("/mnt/shared/default_branch", "r").read()
+        repo_full_path = f"{org_name}/$(params.REPO_NAME)"
+
+        open_pr_url = f"/repos/{repo_full_path}/pulls"
+
+        data = {
+            "head": "$(context.taskRun.name)",
+            "base": default_branch,
+            "title": "Add initial peribolos configuration",
+            "body": """This PR will add the initial peribolos configuration file"""
+        }
+        print("Sending this data to GitHub: ")
+        print(data)
+
+        authHeader = "Bearer " + github_token
+
+        conn = http.client.HTTPSConnection("api.github.com")
+        conn.request(
+            "POST",
+            open_pr_url,
+            body=json.dumps(data),
+            headers={
+                "User-Agent": "Peribolos",
+                "Authorization": authHeader,
+                "Accept": "application/vnd.github.v3+json ",
+            })
+        resp = conn.getresponse()
+        if not str(resp.status).startswith("2"):
+            print("Error: %d" % (resp.status))
+            print(resp.read())
+            sys.exit(1)
+        else:
+            # https://docs.github.com/en/rest/reference/pulls#create-a-pull-request
+            body = json.loads(resp.read().decode())
+
+            print(f"GitHub pull request created for {repo_full_path}: "
+                  f'number={body["number"]} url={body["html_url"]}')
+
+  volumes:
+    - emptyDir: {}
+      name: shared-data
+    - name: private-key
+      secret:
+        secretName: peribolos-controller
+        items:
+          - key: private_key
+            path: private_key
+        optional: false
