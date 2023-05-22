@@ -10,6 +10,9 @@ commonLabels:
 resources:
   - ../../organizational-unit-scope/
 
+  - secrets/github-oauth-app.yaml
+  - idp/github-com.yaml
+
   - local-storage/
   - lvm-storage/
 
@@ -32,6 +35,7 @@ resources:
 components:
   - ../../components/lvm-storage/
   - ../../components/nfd/
+  - ../../components/sno-tuning/
 
 patchesStrategicMerge:
   - |-
