@@ -9,6 +9,7 @@ commonLabels:
 
 resources:
   - ../../organizational-unit-scope/
+  - secrets/github-oauth-app.yaml
 
   - local-storage/
   - lvm-storage/
