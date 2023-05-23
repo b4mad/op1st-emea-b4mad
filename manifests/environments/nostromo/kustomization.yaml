@@ -20,7 +20,7 @@ resources:
 
   - cert-manager-operator/
 
-  # - network-management/
+  - network-management/
 
   - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main

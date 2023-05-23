@@ -9,7 +9,7 @@ spec:
     interfaces:
       br-ex:
         ipv4:
-          auto-dns: false
+          auto-dns: true
           dhcp: true
     dns-resolver:
       config:
