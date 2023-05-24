@@ -14,7 +14,18 @@ spec:
     singular: grafanadashboard
   scope: Namespaced
   versions:
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - jsonPath: .status.NoMatchingInstances
+      name: No matching instances
+      type: boolean
+    - format: date-time
+      jsonPath: .status.lastResync
+      name: Last resync
+      type: date
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1beta1
     schema:
       openAPIV3Schema:
         description: GrafanaDashboard is the Schema for the grafanadashboards API
@@ -137,7 +148,7 @@ spec:
                   type: object
                 type: array
               resyncPeriod:
-                description: how often the dashboard is refreshed, defaults to 24h
+                description: how often the dashboard is refreshed, defaults to 5m
                   if not set
                 type: string
               url:
@@ -167,6 +178,8 @@ spec:
                 description: Last time the dashboard was resynced
                 format: date-time
                 type: string
+              uid:
+                type: string
             type: object
         type: object
     served: true
@@ -190,7 +203,14 @@ spec:
     singular: grafanadatasource
   scope: Namespaced
   versions:
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - jsonPath: .status.NoMatchingInstances
+      name: No matching instances
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1beta1
     schema:
       openAPIV3Schema:
         description: GrafanaDatasource is the Schema for the grafanadatasources API
@@ -307,13 +327,59 @@ spec:
                   type: object
                 type: array
               resyncPeriod:
-                description: how often the datasource is refreshed, defaults to 24h
+                description: how often the datasource is refreshed, defaults to 5m
                   if not set
                 type: string
-              secrets:
-                description: secrets used for variable expansion
+              valuesFrom:
+                description: environments variables from secrets or config maps
                 items:
-                  type: string
+                  properties:
+                    targetPath:
+                      type: string
+                    valueFrom:
+                      properties:
+                        configMapKeyRef:
+                          description: Selects a key of a ConfigMap.
+                          properties:
+                            key:
+                              description: The key to select.
+                              type: string
+                            name:
+                              description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                TODO: Add other useful fields. apiVersion, kind, uid?'
+                              type: string
+                            optional:
+                              description: Specify whether the ConfigMap or its key
+                                must be defined
+                              type: boolean
+                          required:
+                          - key
+                          type: object
+                          x-kubernetes-map-type: atomic
+                        secretKeyRef:
+                          description: Selects a key of a Secret.
+                          properties:
+                            key:
+                              description: The key of the secret to select from.  Must
+                                be a valid secret key.
+                              type: string
+                            name:
+                              description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                TODO: Add other useful fields. apiVersion, kind, uid?'
+                              type: string
+                            optional:
+                              description: Specify whether the Secret or its key must
+                                be defined
+                              type: boolean
+                          required:
+                          - key
+                          type: object
+                          x-kubernetes-map-type: atomic
+                      type: object
+                  required:
+                  - targetPath
+                  - valueFrom
+                  type: object
                 type: array
             required:
             - instanceSelector
@@ -352,7 +418,14 @@ spec:
     singular: grafanafolder
   scope: Namespaced
   versions:
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - jsonPath: .status.NoMatchingInstances
+      name: No matching instances
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1beta1
     schema:
       openAPIV3Schema:
         description: GrafanaFolder is the Schema for the grafanafolders API
@@ -421,7 +494,14 @@ spec:
                     type: object
                 type: object
                 x-kubernetes-map-type: atomic
-              json:
+              permissions:
+                description: raw json with folder permissions
+                type: string
+              resyncPeriod:
+                description: how often the folder is synced, defaults to 5m if not
+                  set
+                type: string
+              title:
                 type: string
             required:
             - instanceSelector
@@ -461,7 +541,17 @@ spec:
     singular: grafana
   scope: Namespaced
   versions:
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - jsonPath: .status.stage
+      name: Stage
+      type: string
+    - jsonPath: .status.stageStatus
+      name: Stage status
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1beta1
     schema:
       openAPIV3Schema:
         description: Grafana is the Schema for the grafanas API
