@@ -10,13 +10,6 @@ presubmits:
         - image: quay.io/operate-first/opf-toolbox:latest
           command:
             - "test-kustomize-build"
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "1500m"
-            limits:
-              memory: "500Mi"
-              cpu: "2"
 
   - name: pre-commit
     decorate: true
@@ -30,10 +23,3 @@ presubmits:
             - "pre-commit"
             - "run"
             - "--all-files"
-          resources:
-            requests:
-              memory: "500Mi"
-              cpu: "4"
-            limits:
-              memory: "2Gi"
-              cpu: "4"
