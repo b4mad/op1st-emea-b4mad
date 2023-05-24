@@ -67,6 +67,11 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 3
             timeoutSeconds: 600
+          resources:
+            requests:
+              memory: 512Mi
+            limits:
+              memory: 1024Mi
       volumes:
         - name: hmac
           secret:

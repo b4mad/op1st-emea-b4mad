@@ -51,6 +51,13 @@ spec:
             - name: config
               mountPath: /etc/config
               readOnly: true
+          resource:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 750m
+              memory: 512Mi
       volumes:
         - name: github-token
           secret:

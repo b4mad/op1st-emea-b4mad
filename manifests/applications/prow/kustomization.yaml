@@ -8,6 +8,7 @@ commonLabels:
 
 resources:
   - namespaces.yaml
+  - limitrange.yaml
 
   - customresourcedefinition.yaml
 
