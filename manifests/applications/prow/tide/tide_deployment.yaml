@@ -51,7 +51,7 @@ spec:
             - name: config
               mountPath: /etc/config
               readOnly: true
-          resource:
+          resources:
             requests:
               cpu: 500m
               memory: 512Mi
