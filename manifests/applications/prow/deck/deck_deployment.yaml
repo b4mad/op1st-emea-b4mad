@@ -24,7 +24,7 @@ spec:
       containers:
         # TODO https://docs.prow.k8s.io/docs/components/core/deck/github-oauth-setup/#using-a-github-bot
         - name: deck
-          image: gcr.io/k8s-prow/deck:v20230509-5e039b951c
+          image: deck
           args:
             - --config-path=/etc/config/config.yaml
             - --plugin-config=/etc/plugins/plugins.yaml

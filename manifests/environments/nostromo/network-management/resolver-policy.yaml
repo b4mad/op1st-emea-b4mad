@@ -1,0 +1,17 @@
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: host-bridge-dns-resolver
+spec:
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: ""
+  desiredState:
+    interfaces:
+      br-ex:
+        ipv4:
+          auto-dns: false
+          dhcp: true
+    dns-resolver:
+      config:
+        server:
+          - 192.168.0.1

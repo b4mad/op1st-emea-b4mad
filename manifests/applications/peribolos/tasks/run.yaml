@@ -1,0 +1,76 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: run
+spec:
+  params:
+    - name: REPO_NAME
+      type: string
+      default: ".github"
+    - name: SECRET_NAME
+      type: string
+    - name: CHECK_RUN_ID
+      type: string
+  steps:
+    - name: apply-peribolos
+      image: toolbox
+      volumeMounts:
+        - mountPath: /mnt/secret
+          name: private-key
+      env:
+        - name: ORG_NAME
+          valueFrom:
+            secretKeyRef:
+              name: $(params.SECRET_NAME)
+              key: orgName
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.SECRET_NAME)
+              key: token
+        - name: APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: peribolos-controller
+              key: app_id
+      script: |
+        #!/usr/bin/bash
+
+        echo "Updating check run to in-progress..."
+        curl -X PATCH \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          https://api.github.com/repos/$ORG_NAME/.github/check-runs/$(params.CHECK_RUN_ID) \
+          -d '{"status":"in_progress"}'
+
+        echo "Cloning repository..."
+        # Clone repository
+        git clone https://x-access-token:$GITHUB_TOKEN@github.com/$ORG_NAME/$(params.REPO_NAME)
+        cd $(params.REPO_NAME)
+
+        # Run Peribolos on the repository
+        echo "Running peribolos on commit $(git rev-parse --short HEAD)..."
+        peribolos --config-path peribolos.yaml --github-app-id $APP_ID --github-app-private-key-path /mnt/secret/private_key --fix-org --fix-org-members --min-admins=2 --fix-repos --fix-team-members --fix-teams --fix-team-repos --confirm --require-self=false
+
+        if [ $? -eq 0 ]; then
+          CONCLUSION="success"
+        else
+          CONCLUSION="failure"
+        fi
+
+        echo "Updating check run to completed with $CONCLUSION..."
+        curl -X PATCH \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          https://api.github.com/repos/$ORG_NAME/.github/check-runs/$(params.CHECK_RUN_ID) \
+          -d "{\"status\":\"completed\",\"conclusion\":\"$CONCLUSION\"}"
+
+  volumes:
+    - name: private-key
+      secret:
+        secretName: peribolos-controller
+        items:
+          - key: private_key
+            path: private_key
+        optional: false

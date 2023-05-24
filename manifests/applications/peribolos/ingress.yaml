@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/common-name: peribolos.b4mad.emea.operate-first.cloud
+  name: peribolos.b4mad.emea.operate-first.cloud
+spec:
+  ingressClassName: openshift-default
+  rules:
+    - host: peribolos.b4mad.emea.operate-first.cloud
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: controller
+                port:
+                  name: webhook
+  tls:
+    - hosts:
+        - peribolos.b4mad.emea.operate-first.cloud
+      secretName: peribolos.b4mad.emea.operate-first.cloud

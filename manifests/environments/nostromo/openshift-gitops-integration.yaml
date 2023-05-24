@@ -39,17 +39,25 @@ metadata:
   name: openshift-gitops-environment-manager-role
 rules:
   - apiGroups:
-      - "imageregistry.operator.openshift.io"
+      - imageregistry.operator.openshift.io
     resources:
-      - "configs"
+      - configs
     verbs:
-      - "patch"
+      - patch
   - apiGroups:
-      - "monitoring.coreos.com"
+      - monitoring.coreos.com
     resources:
-      - "prometheusrules"
+      - prometheusrules
+      - servicemonitors
     verbs:
-      - "patch"
+      - create
+      - patch
+  - apiGroups:
+      - nmstate.io
+    resources:
+      - nodenetworkconfigurationpolicies
+    verbs:
+      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
