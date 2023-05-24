@@ -38,6 +38,15 @@ kind: ClusterRole
 metadata:
   name: openshift-gitops-environment-manager-role
 rules:
+  - apiGroup: ""
+    resources:
+      - limitranges
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
   - apiGroups:
       - imageregistry.operator.openshift.io
     resources:
