@@ -5,4 +5,4 @@ kind: Kustomization
 resources:
   - nmstate-operator.yaml
   - nmstate.yaml
-  - resolver-policy.yaml
+  #- resolver-policy.yaml

@@ -3,6 +3,7 @@ kind: CronJob
 metadata:
   name: label-sync
 spec:
+  suspend: true
   schedule: "27 * * * *"
   concurrencyPolicy: Forbid
   jobTemplate:

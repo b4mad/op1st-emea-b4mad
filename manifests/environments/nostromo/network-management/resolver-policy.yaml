@@ -9,11 +9,9 @@ spec:
     interfaces:
       br-ex:
         ipv4:
-          auto-dns: true
+          auto-dns: false
           dhcp: true
     dns-resolver:
       config:
-        search:
-          - erdgeschoss.b4mad.net
         server:
           - 192.168.0.1
