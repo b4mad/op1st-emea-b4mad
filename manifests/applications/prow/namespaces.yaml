@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   annotations:
-    openshift.io/display-name: "op1st Prow"
+    openshift.io/display-name: "Operate First's Prow"
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
   name: op1st-prow
@@ -12,7 +12,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   annotations:
-    openshift.io/display-name: "op1st Prow"
+    openshift.io/display-name: "Operate First's Prow"
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
   name: op1st-prow-test-pods
