@@ -85,7 +85,6 @@ branch_cleaner:
       - master
 
 branch-protection:
-  allow_disabled_policies: true
   orgs:
     AICoE:
       protect: true
@@ -144,6 +143,7 @@ branch-protection:
       protect: true
       allow_force_pushes: false
       required_status_checks:
+        strict: true
         contexts:
           - op1st/prow/pre-commit
       exclude:
@@ -227,6 +227,7 @@ tide:
     "*": https://prow.b4mad.emea.operate-first.cloud/pr
 
   merge_method:
+    AICoE: squash
     b4mad: squash
     operate-first: squash
     thoth-station: squash

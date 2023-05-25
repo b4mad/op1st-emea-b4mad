@@ -1,4 +1,4 @@
 # Give Openshift group (argocd-admins) the argocd admin role with unrestricted argocd access
-g, system:cluster-admins, role:admin
-g, cluster-admins, role:admin
 g, b4mad-members, role:admin
+g, cluster-admins, role:admin
+g, system:cluster-admins, role:admin
