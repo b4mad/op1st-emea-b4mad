@@ -31,6 +31,8 @@ resources:
 
   - default-ingress-certificate.yaml
 
+  - github.com/redhat-cop/gitops-catalog/crunchy-postgres/operator/overlays/v5?ref=main
+
 components:
   - ../../components/lvm-storage/
   - ../../components/nfd/
