@@ -4,7 +4,7 @@ metadata:
   name: b4mad-racing
 spec:
   destination:
-    name: phobos
+    server: https://api.phobos.b4mad.emea.operate-first.cloud:6443
     namespace: b4mad-racing
   project: b4mad
   source:

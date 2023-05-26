@@ -6,10 +6,10 @@ spec:
   destinations:
     - name: phobos
       namespace: "b4mad-*"
-      server: "https://api.phobos.b4mad.emea.operate-first.cloud:6443"
+      server: https://api.phobos.b4mad.emea.operate-first.cloud:6443
     - name: nostromo
       namespace: "b4mad-*"
-      server: "https://kubernetes.default.svc"
+      server: https://kubernetes.default.svc
   sourceRepos:
     - "*"
   roles:
