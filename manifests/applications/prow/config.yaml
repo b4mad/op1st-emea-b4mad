@@ -106,9 +106,6 @@ branch-protection:
         required_pull_request_reviews:
           dismiss_stale_reviews: false
           required_approving_review_count: 1
-      repos:
-        okr:
-          protect: false
     b4mad:
       protect: true
       allow_force_pushes: false
@@ -135,10 +132,6 @@ branch-protection:
             strict: true
             contexts:
               - op1st/prow/kustomize-build
-        auddress:
-          protect: false
-        airdata:
-          protect: false
     thoth-station:
       protect: true
       allow_force_pushes: false
@@ -159,34 +152,7 @@ branch-protection:
         required_pull_request_reviews:
           dismiss_stale_reviews: false
           required_approving_review_count: 1
-      repos:
-        statusfy:
-          protect: false
-        statusfy-ops:
-          protect: false
-        stress-tests:
-          protect: false
-        thoth-ops:
-          protect: false
-        twitter-together:
-          protect: false
-        website-tooling:
-          protect: false
-        bz1816214-example:
-          protect: false
-        contra-env-infra:
-          protect: false
-        cuda:
-          protect: false
-        nvidia-usage-dashboard:
-          protect: false
-        pipelines-catalog:
-          protect: false
-        stub-api:
-          protect: false
         template-project:
-          protect: false
-        tensorflow:
           protect: false
 
 deck:
@@ -238,7 +204,6 @@ tide:
       excludedRepos:
         - b4mad/sirius
         - b4mad/airdata
-        - b4mad/auddress
       labels:
         - approved
       missingLabels:
