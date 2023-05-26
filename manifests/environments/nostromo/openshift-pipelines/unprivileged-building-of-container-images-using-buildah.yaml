@@ -4,6 +4,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: pipeline-1000
+  namespace: op1st-pipelines
 ---
 kind: SecurityContextConstraints
 metadata:
