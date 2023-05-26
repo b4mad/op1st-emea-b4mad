@@ -4,6 +4,7 @@ namespace: openshift-gitops
 
 resources:
   - alertmanager-receivers.yaml
+  - b4mad-racing.yaml
   - environment-nostromo.yaml
   - environment-phobos.yaml
   - peribolos.yaml
