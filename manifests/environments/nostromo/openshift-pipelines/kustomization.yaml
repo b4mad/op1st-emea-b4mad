@@ -2,4 +2,22 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
+  - stubs/chains-config.yaml
+
   - tekton-chains.yaml
+
+  - secrets/signing-secret.yaml
+
+patchesStrategicMerge:
+  - |-
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: chains-config
+      namespace: openshift-pipelines
+    data:
+      artifacts.oci.storage: ""
+      artifacts.oci.signer: cosign
+      artifacts.taskrun.format: in-toto
+      artifacts.taskrun.storage: oci
+      transparency.enabled: "true"
