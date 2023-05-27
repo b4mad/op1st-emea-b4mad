@@ -15,7 +15,7 @@ spec:
             - --config-path=/etc/config/config.yaml
             - --github-app-id=$(GITHUB_APP_ID)
             - --github-app-private-key-path=/etc/github/cert
-            # - --github-enabled-org=b4mad
+            - --github-enabled-org=AICoE
             - --enable-apps-restrictions
             - --confirm
           env:
@@ -38,4 +38,4 @@ spec:
             secretName: github-token
         - name: config
           configMap:
-            name: config-92gm82b4cf
+            name: config-kf69d2m6d6
