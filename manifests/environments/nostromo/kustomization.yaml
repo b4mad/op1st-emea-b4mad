@@ -8,6 +8,8 @@ commonLabels:
   app.kubernetes.io/part-of: b4mad-environments
 
 resources:
+  - stubs/cluster-version.yaml
+
   - ../../organizational-unit-scope/
 
   - secrets/github-oauth-app.yaml
@@ -24,7 +26,6 @@ resources:
 
   - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - openshift-gitops/
-  - openshift-gitops-integration.yaml
 
   - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
   - openshift-pipelines/
@@ -41,6 +42,14 @@ components:
   - ../../components/sno-tuning/
 
 patchesStrategicMerge:
+  - |-
+    apiVersion: config.openshift.io/v1
+    kind: ClusterVersion
+    metadata:
+      name: version
+    spec:
+      channel: stable-4.13
+
   - |-
     apiVersion: operator.openshift.io/v1
     kind: IngressController

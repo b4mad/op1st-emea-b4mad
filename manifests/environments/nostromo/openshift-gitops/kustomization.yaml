@@ -9,6 +9,7 @@ resources:
 
   - rbac/bitnami-sealedsecrets.yaml
   - rbac/openshift-performanceprofiles.yaml
+  - rbac/openshift-gitops-integration.yaml
 
   - gitops-application.yaml
 
