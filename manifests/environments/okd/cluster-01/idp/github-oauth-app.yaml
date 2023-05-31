@@ -1,0 +1,14 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: github-oauth-app
+  namespace: openshift-config
+spec:
+  encryptedData:
+    clientSecret: AgB4ycPD9J9rE1GVJXVzZr4Vtt0y3pOXWvgYFeiSlooyhXKySFXWVHMCKonC32efavwAHVWdR8HA0WbpznLfFZrTkSdBEOue+4LTj2pohclmWAaWORSvTgCITfFQXCqcSDSSOZry/ASJQhgT7DbwLs8GBOKrmNOSWAJ2EwMoy6gs7cR9QQcuKFUIRh/XhxILZH6rwO8wz5f4sn5FzjGBD48ddDNHmaCJ7RI769hMc+Ox4tZetZ2PA6CjM7SXB+DeE/PBqMiHepwIKY1Y77SVNvVywVGDOBD6SccX0QeIYyTg1HJKw8O6OZgHAH175XyvegMj4wkP8+9Rgb1pdK7xkiiK5Fzp2yqDs6vs7mPvy3HYJHt5W3N+V+txQ6wwr0JJibC8Cr867GxUtBgRI7LsqzrUoSG8tsyJh5eyynKM+kPIQHCDZXHYJvr5uMi6DMxDlXG0wf+ky52Db272UTPimllj6yP6TTWur9d/AJcxEtFfdw2fx648yrC9hlYkNCCtT9LDlUwwyU6JVUUdpQhlW0McXP2C71gAhpZTdCmQREqONZQ3f6B8yho6MoqZegnCjTIsznZvsgvt3+0q7LoR+xWdLX6lK0zRbosgpIYSJgryt4qIRROFWllXv+q39MQscKwnX+c57nZ7MviV6s6JXM59j78Bul9jcj2k+XWaCRshm0mn/nXfL/ilgXwGgjoCBG8LVXq2frhB11anc2AjC4q08QaZ4agtGiWAdxnBZ9RWXA826JWkljQB
+  template:
+    metadata:
+      creationTimestamp: null
+      name: github-oauth-app
+      namespace: openshift-config
