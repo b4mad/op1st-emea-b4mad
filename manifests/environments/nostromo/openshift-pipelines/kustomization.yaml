@@ -5,6 +5,7 @@ resources:
   - namespaces.yaml
 
   - stubs/chains-config.yaml
+  - stubs/tekton-config.yaml
 
   - tekton-chains.yaml
   - secrets/signing-secret.yaml
@@ -23,3 +24,16 @@ patchesStrategicMerge:
       artifacts.taskrun.storage: tekton
       artifacts.oci.storage: ""
       transparency.enabled: "true"
+
+  - |-
+    apiVersion: operator.tekton.dev/v1alpha1
+    kind: TektonConfig
+    metadata:
+      name: config
+    spec:
+      platforms:
+        openshift:
+          pipelinesAsCode:
+            enable: true
+            settings:
+              application-name: op1st Pipelines as Code
