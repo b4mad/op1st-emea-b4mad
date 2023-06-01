@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  name: argocd-operate-first-cloud
+  namespace: openshift-gitops
+spec:
+  ingressClassName: openshift-default
+  rules:
+    - host: argocd.operate-first.cloud
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: openshift-gitops-server
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - argocd.operate-first.cloud
+      secretName: argocd-operate-first-cloud

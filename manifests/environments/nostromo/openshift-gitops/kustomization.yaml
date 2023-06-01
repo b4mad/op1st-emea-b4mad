@@ -6,23 +6,13 @@ resources:
   - clusterrole.yaml
 
   - argocd.b4mad.emea.operate-first.cloud.yaml
+  - argocd.operate-first.cloud.yaml
 
   - rbac/bitnami-sealedsecrets.yaml
   - rbac/openshift-performanceprofiles.yaml
   - rbac/openshift-gitops-integration.yaml
 
   - gitops-application.yaml
-
-configMapGenerator:
-  - name: argocd-rbac-cm
-    namespace: openshift-gitops
-    behavior: replace
-    files:
-      - argocd-configs/policy.csv
-      - argocd-configs/policy.default
-
-generatorOptions:
-  disableNameSuffixHash: true
 
 patchesStrategicMerge:
   - |-
