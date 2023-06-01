@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tekton
+spec:
+  destination:
+    namespace: okd-team
+    server: https://api.cluster-01.okd.on.massopen.cloud:6443
+  source:
+    path: overlays/operate-first
+    repoURL: https://github.com/okd-project/okd-coreos-pipeline
+    targetRevision: HEAD
+  sources: []
+  project: op1st

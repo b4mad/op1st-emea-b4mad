@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: environment-cluster-01-okd
+spec:
+  destination:
+    name: in-cluster
+  project: cluster-management
+  source:
+    path: manifests/environments/okd/cluster-01
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
