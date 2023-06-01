@@ -131,6 +131,7 @@ branch-protection:
           required_status_checks:
             contexts:
               - op1st/prow/kustomize-build
+              - op1st/prow/pre-commit
     thoth-station:
       protect: true
       allow_force_pushes: false
