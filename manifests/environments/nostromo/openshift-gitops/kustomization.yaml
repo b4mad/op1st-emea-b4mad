@@ -6,7 +6,7 @@ resources:
   - clusterrole.yaml
 
   - argocd.b4mad.emea.operate-first.cloud.yaml
-  - argocd.operate-first.cloud.yaml
+  # - argocd.operate-first.cloud.yaml
 
   - rbac/bitnami-sealedsecrets.yaml
   - rbac/openshift-performanceprofiles.yaml
