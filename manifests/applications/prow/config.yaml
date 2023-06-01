@@ -144,6 +144,9 @@ branch-protection:
         - "^dependabot/" # don't protect branches created by dependabot
         - "^greenkeeper/" # don't protect branches created by greenkeeper
         - "^kebechet-" # don't protect kebechet branches
+      repos:
+        thoth-ops:
+          protect: false
       restrictions:
         apps:
           - op1st-prow
