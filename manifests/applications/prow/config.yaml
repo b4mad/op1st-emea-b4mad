@@ -212,9 +212,6 @@ tide:
   queries:
     - orgs:
         - b4mad
-      excludedRepos:
-        - b4mad/sirius
-        - b4mad/airdata
       labels:
         - approved
       missingLabels:
