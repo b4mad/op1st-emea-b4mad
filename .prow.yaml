@@ -2,6 +2,7 @@ presubmits:
   - name: kustomize-build
     decorate: true
     max_concurrency: 1
+    always_run: true
     skip_if_only_changed: "^docs/|\\.md$|^(OWNERS|LICENSE)$|^\\."
     skip_report: false
     context: op1st/prow/kustomize-build
