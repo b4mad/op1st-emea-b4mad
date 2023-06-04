@@ -6,7 +6,7 @@ metadata:
 spec:
   destination:
     server: https://kubernetes.default.svc
-  project: default
+  project: op1st
   source:
     path: manifests/applications
     repoURL: https://github.com/b4mad/op1st-emea-b4mad

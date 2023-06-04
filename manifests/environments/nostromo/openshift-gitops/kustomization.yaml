@@ -39,4 +39,4 @@ patchesStrategicMerge:
           g, cluster-admins, role:admin
           g, system:cluster-admins, role:admin
         scopes: '[groups]'
-        defaultPolicy: role:view
+        defaultPolicy: 'role:readonly'
