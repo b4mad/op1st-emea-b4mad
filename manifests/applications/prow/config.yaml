@@ -147,6 +147,14 @@ branch-protection:
       repos:
         thoth-ops:
           protect: false
+        statusfy-ops:
+          protect: false
+        statusfy:
+          protect: false
+        website-tooling:
+          protect: false
+        stress-tests:
+          protect: false
       restrictions:
         apps:
           - op1st-prow
