@@ -4,9 +4,11 @@ kind: Kustomization
 resources:
   - github.com/redhat-cop/gitops-catalog/cert-manager-operator/operator/base?ref=main
   - cluster-cert-manager.yaml
-  - letsencrypt-cluster-issuer.yaml
-  - google-clouddns-dns01-solver.yaml
+
   - cloudflare-b4mad-racing-dns01-solver.yaml
+  - google-clouddns-dns01-solver.yaml
+  - google-domains-certbot-dns01-solver.yaml
+  - letsencrypt-cluster-issuer.yaml
 
 patchesStrategicMerge:
   - |-

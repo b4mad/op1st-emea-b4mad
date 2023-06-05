@@ -11,8 +11,18 @@ spec:
     server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
       - dns01:
+          cnameStrategy: Follow
           cloudDNS:
-            project: aicoe-prow # ja confusing, the title is `aicoe-operate-first`
+            project: aicoe-prow
+            serviceAccountSecretRef:
+              name: google-domains-certbot-dns01-solver
+              key: aicoe-prow-73f3c1700679.json
+        selector:
+          dnsZones:
+            - operate-first.cloud
+      - dns01:
+          cloudDNS:
+            project: aicoe-prow
             serviceAccountSecretRef:
               name: google-clouddns-dns01-solver
               key: aicoe-prow-96c1a6bfd097.json
@@ -20,7 +30,6 @@ spec:
           dnsZones:
             - b4mad.emea.operate-first.cloud
       - dns01:
-          cnameStrategy: Follow
           cloudflare:
             apiTokenSecretRef:
               name: cloudflare-b4mad-racing-dns01-solver
