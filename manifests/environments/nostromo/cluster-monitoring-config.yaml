@@ -5,17 +5,25 @@ metadata:
   namespace: openshift-monitoring
 data:
   config.yaml: |
+    alertmanager:
+      enabled: true
+      enableAlertmanagerConfig: true
     alertmanagerMain:
+      enableUserAlertmanagerConfig: true  # https://docs.openshift.com/container-platform/4.13/monitoring/enabling-alert-routing-for-user-defined-projects.html#enabling-the-platform-alertmanager-instance-for-user-defined-alert-routing_enabling-alert-routing-for-user-defined-projects
       volumeClaimTemplate:
         spec:
           storageClassName: lvms-vg1
           resources:
             requests:
               storage: 10Gi
+    enableUserWorkload: true  # https://docs.openshift.com/container-platform/4.12/monitoring/enabling-monitoring-for-user-defined-projects.html#enabling-monitoring-for-user-defined-projects_enabling-monitoring-for-user-defined-projects
     grafana:
       enabled: false
     prometheusK8s:
-      retention: 72h
+      externalLabels:
+        region: emea
+        org: b4mad
+        environment: nostromo
       retentionSize: 30GB
       volumeClaimTemplate:
         spec:
@@ -23,4 +31,3 @@ data:
           resources:
             requests:
               storage: 40Gi
-    enableUserWorkload: true  # https://docs.openshift.com/container-platform/4.12/monitoring/enabling-monitoring-for-user-defined-projects.html#enabling-monitoring-for-user-defined-projects_enabling-monitoring-for-user-defined-projects
