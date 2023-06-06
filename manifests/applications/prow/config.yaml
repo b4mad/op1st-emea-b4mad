@@ -132,6 +132,25 @@ branch-protection:
             contexts:
               - op1st/prow/kustomize-build
               - op1st/prow/pre-commit
+    operate-first:
+      protect: true
+      allow_force_pushes: false
+      required_status_checks:
+        contexts:
+          - op1st/prow/pre-commit
+      exclude:
+        - "^revert-" # don't protect revert branches
+        - "^dependabot/" # don't protect branches created by dependabot
+        - "^greenkeeper/" # don't protect branches created by greenkeeper
+        - "^kebechet-" # don't protect kebechet branches
+      restrictions:
+        apps:
+          - op1st-prow
+        users: []
+        teams: []
+        required_pull_request_reviews:
+          dismiss_stale_reviews: false
+          required_approving_review_count: 1
     thoth-station:
       protect: true
       allow_force_pushes: false
@@ -163,8 +182,6 @@ branch-protection:
         required_pull_request_reviews:
           dismiss_stale_reviews: false
           required_approving_review_count: 1
-        template-project:
-          protect: false
 
 deck:
   spyglass:
