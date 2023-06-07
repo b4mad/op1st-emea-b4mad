@@ -20,7 +20,7 @@ patchesStrategicMerge:
       name: chains-config
       namespace: openshift-pipelines
     data:
-      artifacts.taskrun.format: tekton
+      artifacts.taskrun.format: in-toto
       artifacts.taskrun.storage: tekton
       artifacts.oci.storage: ""
       transparency.enabled: "true"
