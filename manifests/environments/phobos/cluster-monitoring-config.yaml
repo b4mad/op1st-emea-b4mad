@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+    alertmanager:
+      enabled: false
+    enableUserWorkload: true
+    grafana:
+      enabled: false
+    prometheusK8s:
+      externalLabels:
+        region: emea
+        org: b4mad
+        environment: phobos
