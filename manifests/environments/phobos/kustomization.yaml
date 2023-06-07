@@ -15,7 +15,7 @@ resources:
 
   - cert-manager-operator/
 
-  - grafana-operator/
+  # - grafana-operator/
   - crunchy-postgres/
 
   - default-ingress-certificate.yaml
