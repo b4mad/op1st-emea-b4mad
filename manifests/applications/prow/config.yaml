@@ -169,19 +169,24 @@ branch-protection:
       repos:
         thoth-ops:
           protect: false
-          required_status_checks: []
+          required_status_checks:
+            contexts: []
         statusfy-ops:
           protect: false
-          required_status_checks: []
+          required_status_checks:
+            context: []
         statusfy:
           protect: false
-          required_status_checks: []
+          required_status_checks:
+            context: []
         website-tooling:
           protect: false
-          required_status_checks: []
+          required_status_checks:
+            context: []
         stress-tests:
           protect: false
-          required_status_checks: []
+          required_status_checks:
+            context: []
       restrictions:
         apps:
           - op1st-prow
