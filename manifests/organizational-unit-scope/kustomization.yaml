@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - stubs/cluster-console.yaml
+  - stubs/custom-logo.yaml
 
   - op1st-rbac.yaml
   - b4mad-rbac.yaml
@@ -23,3 +24,11 @@ patchesStrategicMerge:
           customLogoFile:
              name: console-custom-logo
              key: op1stb4mad-h50px.png
+  - |-
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: custom-logo
+      namespace: openshift-console
+      annotations:
+        argocd.argoproj.io/compare-options: IgnoreExtraneous
