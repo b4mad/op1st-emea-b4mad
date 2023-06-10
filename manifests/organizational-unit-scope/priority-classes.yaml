@@ -1,0 +1,16 @@
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: op1st-critical-service
+value: 100000000
+globalDefault: false
+description: "This priority class should be used for critical Operate First service pods only."
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: op1st-normal-services
+value: 10000000
+globalDefault: false
+description: "This priority class should be used for normal Operate First service pods only."

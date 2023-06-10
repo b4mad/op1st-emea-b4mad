@@ -9,6 +9,8 @@ resources:
   - console-custom-logo.yaml
   - console-links.yaml
 
+  - priority-classes.yaml
+
   - github.com/redhat-cop/gitops-catalog/sealed-secrets-operator/overlays/default
 
 patchesStrategicMerge:
