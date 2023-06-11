@@ -178,6 +178,8 @@ branch-protection:
           protect: false
         stress-tests:
           protect: false
+        twitter-together:
+          protect: false
       restrictions:
         apps:
           - op1st-prow

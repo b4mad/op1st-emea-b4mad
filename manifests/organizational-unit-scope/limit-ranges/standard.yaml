@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: standard
+spec:
+  limits:
+    - type: Pod
+      max:
+        cpu: 2000m
+        memory: 1Gi
+      min:
+        cpu: 200m
+        memory: 64Mi
+    - type: Container
+      max:
+        cpu: 2000m
+        memory: 2Gi
+      min:
+        cpu: 100m
+        memory: 64Mi
+      default:
+        cpu: 500m
+        memory: 256Mi
+      defaultRequest:
+        cpu: 250m
+        memory: 128Mi
+      maxLimitRequestRatio:
+        cpu: "10"
+    - type: openshift.io/Image
+      max:
+        storage: 1Gi
+    - type: openshift.io/ImageStream
+      max:
+        openshift.io/images: 30
+    - type: PersistentVolumeClaim
+      min:
+        storage: 2Gi
+      max:
+        storage: 50Gi
