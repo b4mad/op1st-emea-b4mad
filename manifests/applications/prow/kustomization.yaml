@@ -8,7 +8,6 @@ commonLabels:
 
 resources:
   - namespaces.yaml
-  - github.com/b4mad/op1st-emea-b4mad/blob/main/manifests/organizational-unit-scope/limit-ranges/standard.yaml
 
   - customresourcedefinition.yaml
 
