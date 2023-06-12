@@ -3,6 +3,10 @@ kind: Kustomization
 
 resources:
   - stubs/openshift-gitops.yaml
+
+  - github.com/b4mad/op1st-emea-b4mad/blob/main/manifests/organizational-unit-scope/limit-ranges/standard.yaml
+  - github.com/b4mad/op1st-emea-b4mad/blob/main/manifests/organizational-unit-scope/resource-quotas/extra-large.yaml
+
   - clusterrole.yaml
 
   - argocd.b4mad.emea.operate-first.cloud.yaml
@@ -26,6 +30,10 @@ patchesStrategicMerge:
       statusBadgeEnabled: true
       server:
         insecure: true # so that our ingress can access the service via http (not https)
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
       sso:
         provider: dex
         dex:
