@@ -24,10 +24,10 @@ inhibit_rules:
 receivers:
   - name: Critical
     webhook_configs:
-      - url: "http://github-receiver.op1st-alertreceiver.svc.cluster.local:9393/v1/receiver"
+      - url: "http://hookedgo.op1st-alertreceiver.svc.cluster.local:8080/webhook/v1alpha1"
   - name: Default
     webhook_configs:
-      - url: "http://github-receiver.op1st-alertreceiver.svc.cluster.local:9393/v1/receiver"
+      - url: "http://hookedgo.op1st-alertreceiver.svc.cluster.local:8080/webhook/v1alpha1"
   - name: "null"
   - name: Watchdog
 route:
