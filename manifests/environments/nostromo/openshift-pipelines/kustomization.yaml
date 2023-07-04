@@ -37,3 +37,5 @@ patchesStrategicMerge:
             enable: true
             settings:
               application-name: op1st Pipelines as Code
+              custom-console-url: >-
+                https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/
