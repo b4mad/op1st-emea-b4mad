@@ -5,16 +5,17 @@ metadata:
 spec:
   destinations:
     - name: phobos
-      namespace: "op1st-*"
-      server: "https://api.phobos.op1st.emea.operate-first.cloud:6443"
+      namespace: op1st-*
+      server: https://api.phobos.op1st.emea.operate-first.cloud:6443
     - name: in-cluster-op1st
-      namespace: "op1st-*"
-      server: "https://kubernetes.default.svc"
+      namespace: op1st-*
+      server: https://kubernetes.default.svc
     - name: in-cluster-openshift-pipelines
-      namespace: "openshift-pipelines"
-      server: "https://kubernetes.default.svc"
+      namespace: openshift-pipelines
+      server: https://kubernetes.default.svc
   sourceRepos:
-    - "https://github.com/b4mad/op1st-emea-b4mad.git"
+    - https://github.com/b4mad/op1st-emea-b4mad.git
+    - https://codeberg.org/goern/HookedGo.git
   roles:
     - name: project-admin
       description: Read/Write access to this project only
