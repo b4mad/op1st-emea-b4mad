@@ -4,14 +4,17 @@ metadata:
   name: op1st
 spec:
   destinations:
-    - name: phobos
+    - name: phobos-op1st-all
       namespace: op1st-*
       server: https://api.phobos.op1st.emea.operate-first.cloud:6443
-    - name: in-cluster-op1st
+    - name: in-cluster-op1st-all
       namespace: op1st-*
       server: https://kubernetes.default.svc
     - name: in-cluster-openshift-pipelines
       namespace: openshift-pipelines
+      server: https://kubernetes.default.svc
+    - name: in-cluster-openshift-monitoring
+      namespace: openshift-monitoring
       server: https://kubernetes.default.svc
   sourceRepos:
     - https://github.com/b4mad/op1st-emea-b4mad.git
