@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+commonLabels:
+  app.kubernetes.io/name: cluster-01
+  app.kubernetes.io/managed-by: openshift-gitops
+  app.kubernetes.io/part-of: okd-environments
+
+resources:
+  - local-storage/
+  - lvm-storage/
+
+  - sealed-secrets/
+
+  - idp/
+
+  - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
+  - openshift-pipelines/

@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  namespace: openshift-gitops
+  name: okd
+spec:
+  destinations:
+    - namespace: "*"
+      server: "*"
+  sourceRepos:
+    - "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+    - group: "bitnami.com"
+      kind: "SealedSecret"

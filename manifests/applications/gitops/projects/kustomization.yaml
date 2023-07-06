@@ -6,4 +6,5 @@ namespace: openshift-gitops
 resources:
   - b4mad.yaml
   - cluster-management.yaml
+  - okd.yaml
   - op1st.yaml
