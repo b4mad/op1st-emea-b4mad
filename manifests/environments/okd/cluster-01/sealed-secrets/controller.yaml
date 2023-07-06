@@ -1,4 +1,10 @@
 ---
+kind: Project
+apiVersion: project.openshift.io/v1
+metadata:
+  name: sealed-secrets
+  creationTimestamp: null
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
