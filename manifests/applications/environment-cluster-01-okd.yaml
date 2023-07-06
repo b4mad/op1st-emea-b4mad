@@ -4,7 +4,7 @@ metadata:
   name: environment-cluster-01-okd
 spec:
   destination:
-    name: in-cluster
+    name: cluster-01-okd
   project: cluster-management
   source:
     path: manifests/environments/okd/cluster-01
