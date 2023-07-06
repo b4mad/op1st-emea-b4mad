@@ -12,7 +12,7 @@ resources:
   - local-storage/
   - lvm-storage/
 
-  - sealed-secrets/
+  - github.com/redhat-cop/gitops-catalog/sealed-secrets-operator/overlays/default
 
   - idp/
 
