@@ -9,12 +9,12 @@ commonLabels:
 resources:
   - argocd-integration.yaml
 
-  - local-storage/
-  - lvm-storage/
+  # - local-storage/
+  # - lvm-storage/
 
   - github.com/redhat-cop/gitops-catalog/sealed-secrets-operator/overlays/default
 
   - idp/
 
-  - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
-  - openshift-pipelines/
+  # - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
+  # - openshift-pipelines/
