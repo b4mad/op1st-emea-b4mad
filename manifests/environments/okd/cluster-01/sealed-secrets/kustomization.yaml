@@ -7,12 +7,4 @@ commonLabels:
   app.kubernetes.io/part-of: okd-environments
 
 resources:
-  - local-storage/
-  - lvm-storage/
-
-  - sealed-secrets/
-
-  - idp/
-
-  - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
-  - openshift-pipelines/
+  - controller.yaml # from https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.22.0/controller.yaml
