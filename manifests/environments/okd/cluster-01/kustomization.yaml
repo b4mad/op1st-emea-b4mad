@@ -7,6 +7,8 @@ commonLabels:
   app.kubernetes.io/part-of: okd-environments
 
 resources:
+  - argocd-integration.yaml
+
   - local-storage/
   - lvm-storage/
 
