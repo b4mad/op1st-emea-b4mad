@@ -7,7 +7,7 @@ spec:
     namespace: okd-team
     server: https://api.cluster-01.okd.on.massopen.cloud:6443
   source:
-    path: overlays/operate-first
+    path: overlays/bare-metal-moc
     repoURL: https://github.com/okd-project/okd-coreos-pipeline
     targetRevision: HEAD
   sources: []
