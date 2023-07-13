@@ -14,7 +14,7 @@ resources:
 
   - cert-manager-operator/
 
-  # - grafana-operator/
+  - grafana-operator/
   - crunchy-postgres/
 
   - cluster-monitoring-config.yaml
