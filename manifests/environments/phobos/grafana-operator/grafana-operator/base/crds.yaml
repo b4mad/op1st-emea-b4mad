@@ -49,6 +49,24 @@ spec:
                 description: allow to import this resources from an operator in a
                   different namespace
                 type: boolean
+              configMapRef:
+                description: dashboard from configmap
+                properties:
+                  key:
+                    description: The key to select.
+                    type: string
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                  optional:
+                    description: Specify whether the ConfigMap or its key must be
+                      defined
+                    type: boolean
+                required:
+                - key
+                type: object
+                x-kubernetes-map-type: atomic
               contentCacheDuration:
                 description: Cache duration for dashboards fetched from URLs
                 type: string
@@ -63,6 +81,99 @@ spec:
                   required:
                   - datasourceName
                   - inputName
+                  type: object
+                type: array
+              envFrom:
+                description: environments variables from secrets or config maps
+                items:
+                  properties:
+                    configMapKeyRef:
+                      description: Selects a key of a ConfigMap.
+                      properties:
+                        key:
+                          description: The key to select.
+                          type: string
+                        name:
+                          description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            TODO: Add other useful fields. apiVersion, kind, uid?'
+                          type: string
+                        optional:
+                          description: Specify whether the ConfigMap or its key must
+                            be defined
+                          type: boolean
+                      required:
+                      - key
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    secretKeyRef:
+                      description: Selects a key of a Secret.
+                      properties:
+                        key:
+                          description: The key of the secret to select from.  Must
+                            be a valid secret key.
+                          type: string
+                        name:
+                          description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            TODO: Add other useful fields. apiVersion, kind, uid?'
+                          type: string
+                        optional:
+                          description: Specify whether the Secret or its key must
+                            be defined
+                          type: boolean
+                      required:
+                      - key
+                      type: object
+                      x-kubernetes-map-type: atomic
+                  type: object
+                type: array
+              envs:
+                description: environments variables as a map
+                items:
+                  properties:
+                    configMapKeyRef:
+                      description: Selects a key of a ConfigMap.
+                      properties:
+                        key:
+                          description: The key to select.
+                          type: string
+                        name:
+                          description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            TODO: Add other useful fields. apiVersion, kind, uid?'
+                          type: string
+                        optional:
+                          description: Specify whether the ConfigMap or its key must
+                            be defined
+                          type: boolean
+                      required:
+                      - key
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    name:
+                      type: string
+                    secretKeyRef:
+                      description: Selects a key of a Secret.
+                      properties:
+                        key:
+                          description: The key of the secret to select from.  Must
+                            be a valid secret key.
+                          type: string
+                        name:
+                          description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            TODO: Add other useful fields. apiVersion, kind, uid?'
+                          type: string
+                        optional:
+                          description: Specify whether the Secret or its key must
+                            be defined
+                          type: boolean
+                      required:
+                      - key
+                      type: object
+                      x-kubernetes-map-type: atomic
+                    value:omitempty:
+                      description: Inline evn value
+                      type: string
+                  required:
+                  - name
                   type: object
                 type: array
               folder:
@@ -207,6 +318,10 @@ spec:
     - jsonPath: .status.NoMatchingInstances
       name: No matching instances
       type: boolean
+    - format: date-time
+      jsonPath: .status.lastResync
+      name: Last resync
+      type: date
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
@@ -394,6 +509,12 @@ spec:
               hash:
                 type: string
               lastMessage:
+                type: string
+              lastResync:
+                description: Last time the datasource was resynced
+                format: date-time
+                type: string
+              uid:
                 type: string
             type: object
         type: object
@@ -600,7 +721,7 @@ spec:
                 properties:
                   metadata:
                     description: ObjectMeta contains only a [subset of the fields
-                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta).
+                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta).
                     properties:
                       annotations:
                         additionalProperties:
@@ -8740,7 +8861,7 @@ spec:
                 properties:
                   metadata:
                     description: ObjectMeta contains only a [subset of the fields
-                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta).
+                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta).
                     properties:
                       annotations:
                         additionalProperties:
@@ -9090,7 +9211,7 @@ spec:
                 properties:
                   metadata:
                     description: ObjectMeta contains only a [subset of the fields
-                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta).
+                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta).
                     properties:
                       annotations:
                         additionalProperties:
@@ -9246,7 +9367,7 @@ spec:
                 properties:
                   metadata:
                     description: ObjectMeta contains only a [subset of the fields
-                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta).
+                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta).
                     properties:
                       annotations:
                         additionalProperties:
@@ -9384,7 +9505,7 @@ spec:
                 properties:
                   metadata:
                     description: ObjectMeta contains only a [subset of the fields
-                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta).
+                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta).
                     properties:
                       annotations:
                         additionalProperties:
@@ -9749,7 +9870,7 @@ spec:
                     type: array
                   metadata:
                     description: ObjectMeta contains only a [subset of the fields
-                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta).
+                      included in k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#objectmeta-v1-meta).
                     properties:
                       annotations:
                         additionalProperties:
