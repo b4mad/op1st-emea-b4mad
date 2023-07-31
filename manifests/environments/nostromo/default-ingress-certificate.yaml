@@ -25,6 +25,5 @@ spec:
     algorithm: RSA
     encoding: PKCS1
     size: 4096
-  renewBefore: 1440h
   dnsNames:
     - "*.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud"
