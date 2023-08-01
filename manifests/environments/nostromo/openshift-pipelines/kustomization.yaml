@@ -4,7 +4,6 @@ kind: Kustomization
 resources:
   - namespaces.yaml
 
-  - stubs/chains-config.yaml
   - stubs/tekton-config.yaml
 
   - tekton-chains.yaml
@@ -13,18 +12,6 @@ resources:
   - unprivileged-building-of-container-images-using-buildah.yaml
 
 patchesStrategicMerge:
-  - |-
-    apiVersion: v1
-    kind: ConfigMap
-    metadata:
-      name: chains-config
-      namespace: openshift-pipelines
-    data:
-      artifacts.taskrun.format: in-toto
-      artifacts.taskrun.storage: tekton
-      artifacts.oci.storage: ""
-      transparency.enabled: "true"
-
   - |-
     apiVersion: operator.tekton.dev/v1alpha1
     kind: TektonConfig
