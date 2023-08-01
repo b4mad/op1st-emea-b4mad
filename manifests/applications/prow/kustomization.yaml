@@ -49,40 +49,40 @@ configMapGenerator:
 images:
   - name: tide
     newName: gcr.io/k8s-prow/tide
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: branchprotector
     newName: gcr.io/k8s-prow/branchprotector
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: label_sync
     newName: gcr.io/k8s-prow/label_sync
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: status-reconciler
     newName: gcr.io/k8s-prow/status-reconciler
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: sinker
     newName: gcr.io/k8s-prow/sinker
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: prow-controller-manager
     newName: gcr.io/k8s-prow/prow-controller-manager
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: pipeline
     newName: gcr.io/k8s-prow/pipeline
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: needs-rebase
     newName: gcr.io/k8s-prow/needs-rebase
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: horologium
     newName: gcr.io/k8s-prow/horologium
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: hook
     newName: gcr.io/k8s-prow/hook
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: ghproxy
     newName: gcr.io/k8s-prow/ghproxy
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: deck
     newName: gcr.io/k8s-prow/deck
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
   - name: crier
     newName: gcr.io/k8s-prow/crier
-    newTag: v20230630-9eecc0f38f
+    newTag: v20230801-526a7e0f2c
