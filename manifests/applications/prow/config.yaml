@@ -263,7 +263,6 @@ tide:
         - AICoE/manage-dependencies-tutorial
         - AICoE/s2i-custom-notebook
         - AICoE/sefkhet-abwy
-        - AICoE/internal-data-hub
       labels:
         - approved
       missingLabels:

@@ -4,7 +4,7 @@ metadata:
   name: prow
   namespace: openshift-gitops
   annotations:
-    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: emea-ops
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: emea
 spec:
   destination:
     namespace: op1st-prow
