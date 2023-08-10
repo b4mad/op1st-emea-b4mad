@@ -15,7 +15,7 @@ spec:
             - --config-path=/etc/config/config.yaml
             - --github-app-id=$(GITHUB_APP_ID)
             - --github-app-private-key-path=/etc/github/cert
-            - --github-enabled-org=AICoE
+            - --github-enabled-org=b4mad
             - --enable-apps-restrictions
             - --confirm
           env:
