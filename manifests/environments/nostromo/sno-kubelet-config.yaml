@@ -1,0 +1,13 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: sno-config
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      custom-kubelet: enabled
+  kubeletConfig:
+    maxPods: 600
+    podsPerCore: 25
+    systemReserved:
+      memory: 4Gi

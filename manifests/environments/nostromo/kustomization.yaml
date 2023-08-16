@@ -10,6 +10,8 @@ commonLabels:
 resources:
   - stubs/cluster-version.yaml
 
+  - sno-kubelet-config.yaml
+
   - ../../organizational-unit-scope/
 
   - secrets/github-oauth-app.yaml
