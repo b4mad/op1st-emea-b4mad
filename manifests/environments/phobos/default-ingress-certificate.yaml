@@ -16,11 +16,11 @@ spec:
       - "#B4mad"
   issuerRef:
     kind: ClusterIssuer
-    name: letsencrypt-via-google-clouddns
+    name: letsencrypt
   secretName: default-ingress-certificate
   secretTemplate:
     annotations:
-      app.kubernetes.io/part-of: op1st-emea-b4mad-nostromo
+      app.kubernetes.io/part-of: op1st-emea-b4mad-phobos
   privateKey:
     algorithm: RSA
     encoding: PKCS1
