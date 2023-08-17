@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-racing
+spec:
+  project: b4mad
+  source:
+    repoURL: "https://github.com/goern/racing.git"
+    path: manifests/env/nostromo-stage
+    targetRevision: nostromo-stage
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: b4mad-racing-stage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

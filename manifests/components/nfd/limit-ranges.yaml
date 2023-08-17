@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: nfd
+spec:
+  limits:
+    - type: Pod
+      max:
+        cpu: 300m
+        memory: 256Mi
+      min:
+        cpu: 200m
+        memory: 64Mi
