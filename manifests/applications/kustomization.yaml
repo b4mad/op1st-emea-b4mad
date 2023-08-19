@@ -11,4 +11,3 @@ resources:
   - environment-phobos.yaml
   - peribolos.yaml
   - prow.yaml
-  - tekton.yaml

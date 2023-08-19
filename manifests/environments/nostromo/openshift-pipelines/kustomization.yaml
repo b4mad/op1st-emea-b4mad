@@ -9,7 +9,7 @@ resources:
   - tekton-chains.yaml
   - secrets/signing-secret.yaml
 
-  - unprivileged-building-of-container-images-using-buildah.yaml
+  # - unprivileged-building-of-container-images-using-buildah.yaml
 
 patchesStrategicMerge:
   - |-
@@ -23,6 +23,10 @@ patchesStrategicMerge:
           pipelinesAsCode:
             enable: true
             settings:
+              auto-configure-new-github-repo: true 
+              hub-catalog-name: tekton
+              hub-url: https://api.hub.tekton.dev/v1
+              remote-tasks: true
               application-name: op1st Pipelines as Code
               custom-console-name: op1st Pipelines as Code
               custom-console-url: >-
