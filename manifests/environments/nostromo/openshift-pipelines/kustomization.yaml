@@ -23,10 +23,10 @@ patchesStrategicMerge:
           pipelinesAsCode:
             enable: true
             settings:
-              auto-configure-new-github-repo: true 
+              auto-configure-new-github-repo: "true" 
               hub-catalog-name: tekton
               hub-url: https://api.hub.tekton.dev/v1
-              remote-tasks: true
+              remote-tasks: "true"
               application-name: op1st Pipelines as Code
               custom-console-name: op1st Pipelines as Code
               custom-console-url: >-
