@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: b4mad-racing
+  name: b4mad-racing-nostromo-stage
 spec:
   project: b4mad
   source:
