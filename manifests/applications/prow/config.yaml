@@ -48,7 +48,7 @@ github_reporter:
 
 prowjob_namespace: op1st-prow
 pod_namespace: op1st-prow-test-pods
-log_level: debug
+log_level: info
 
 in_repo_config:
   enabled:
