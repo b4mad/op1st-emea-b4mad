@@ -29,8 +29,8 @@ resources:
   - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - openshift-gitops/
 
-  - https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
-  - openshift-pipelines/
+  #- https://github.com/redhat-cop/gitops-catalog/openshift-pipelines-operator/overlays/latest?ref=main
+  #- openshift-pipelines/
 
   - cluster-monitoring-config.yaml
 
