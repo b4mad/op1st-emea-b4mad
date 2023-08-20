@@ -30,7 +30,6 @@ resources:
   - openshift-gitops/
 
   - openshift-pipelines-operator/
-  #- openshift-pipelines/
 
   - cluster-monitoring-config.yaml
 
