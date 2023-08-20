@@ -43,6 +43,10 @@ spec:
       kind: ClusterRole
     - group: operator.tekton.dev
       kind: TektonHub
+    - group: operator.tekton.dev
+      kind: TektonConfig
+    - group: operator.tekton.dev
+      kind: TektonChain
   namespaceResourceWhitelist:
     - group: bitnami.com
       kind: SealedSecret
