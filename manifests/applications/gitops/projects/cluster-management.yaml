@@ -14,3 +14,5 @@ spec:
       kind: "*"
     - group: "bitnami.com"
       kind: "SealedSecret"
+    - group: "apiextensions.k8s.io"
+      kind: "customresourcedefinitions"
