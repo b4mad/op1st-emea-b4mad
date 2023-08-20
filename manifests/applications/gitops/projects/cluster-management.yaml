@@ -14,5 +14,13 @@ spec:
       kind: "*"
     - group: bitnami.com
       kind: SealedSecret
+    - group: grafana.integreatly.org
+      kind: GrafanaDashboard
+    - group: grafana.integreatly.org
+      kind: GrafanaDataSource
+    - group: grafana.integreatly.org
+      kind: GrafanaFolder
+    - group: grafana.integreatly.org
+      kind: Grafana
     - group: apiextensions.k8s.io
       kind: CustomResourceDefinition

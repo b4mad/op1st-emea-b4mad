@@ -10,6 +10,7 @@ resources:
   - argocd.operate-first.cloud.yaml
 
   - rbac/bitnami-sealedsecrets.yaml
+  - rbac/integreatly-grafana.yaml
   - rbac/openshift-performanceprofiles.yaml
   - rbac/openshift-gitops-integration.yaml
 
