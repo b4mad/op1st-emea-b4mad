@@ -10,3 +10,6 @@ spec:
     path: manifests/environments/nostromo
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
     targetRevision: main
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
