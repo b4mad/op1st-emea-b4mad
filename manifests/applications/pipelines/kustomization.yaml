@@ -7,9 +7,8 @@ resources:
   - stubs/tekton-config.yaml
 
   - tekton-chains.yaml
-  # - secrets/signing-secret.yaml
 
-  # - unprivileged-building-of-container-images-using-buildah.yaml
+  - unprivileged-building-of-container-images-using-buildah/
 
 patchesStrategicMerge:
   - |-

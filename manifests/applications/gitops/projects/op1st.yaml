@@ -41,12 +41,16 @@ spec:
       kind: ClusterRoleBinding
     - group: rbac.authorization.k8s.io
       kind: ClusterRole
+    - group: security.openshift.io
+      kind: SecurityContextConstraints
     - group: operator.tekton.dev
       kind: TektonHub
     - group: operator.tekton.dev
       kind: TektonConfig
     - group: operator.tekton.dev
       kind: TektonChain
+    - group: tekton.dev
+      kind: ClusterTask
   namespaceResourceWhitelist:
     - group: bitnami.com
       kind: SealedSecret
