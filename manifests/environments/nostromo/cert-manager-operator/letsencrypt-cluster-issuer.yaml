@@ -37,3 +37,11 @@ spec:
         selector:
           dnsZones:
             - b4mad.racing
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-b4mad-net-dns01-solver
+              key: api-token
+        selector:
+          dnsZones:
+            - b4mad.net
