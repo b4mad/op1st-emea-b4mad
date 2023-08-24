@@ -20,6 +20,7 @@ data:
     grafana:
       enabled: false
     prometheusK8s:
+      collectionProfile: full
       externalLabels:
         region: emea
         org: b4mad
