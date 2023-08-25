@@ -5,7 +5,7 @@ metadata:
   namespace: openshift-gitops
   annotations:
     notifications.argoproj.io/subscribe.on-sync-succeeded.slack: emea
-    argocd-image-updater.argoproj.io/write-back-method: git:secret:openshift-gitops/repo-1874065271
+    argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/git-branch: main:argocd-image-updater-{{.SHA256}}
     argocd-image-updater.argoproj.io/write-back-target: kustomization
     argocd-image-updater.argoproj.io/hookedgo.update-strategy: latest
