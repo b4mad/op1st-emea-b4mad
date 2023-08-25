@@ -5,6 +5,9 @@ metadata:
   namespace: openshift-gitops
   annotations:
     notifications.argoproj.io/subscribe.on-sync-succeeded.slack: emea
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
+    argocd-image-updater.argoproj.io/hookedgo.update-strategy: latest
 spec:
   destination:
     namespace: op1st-prow
