@@ -2,14 +2,27 @@
 
 ![Op1st by #B4mad][op1stb4mad]
 
+This repository implements [Operate First SIG/SRE Infrastructure Services](https://github.com/operate-first/community/issues/251)
+
+and partialy [Hybride Cloud Patterns: Multicluster DevSecOps](https://hybrid-cloud-patterns.io/patterns/devsecops/)
+
 ## Service Status
 
-[![CI/Pipelines](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=tekton&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/tekton)
- [![CI/Prow](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=prow&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/prow)
- [![CD/GitOps](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=gitops&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/gitops)
+### Operate First Infrastructure Services
 
-This repository implements [Operate First SIG/SRE Infrastructure Services](https://github.com/operate-first/community/issues/251)
-and partialy [Hybride Cloud Patterns: Multicluster DevSecOps](https://hybrid-cloud-patterns.io/patterns/devsecops/)
+On the nostromo environment we have deployed and configured the following infrastructure services:
+
+- Red Hat OpenShift GitOps [![CD/GitOps](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=gitops&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/gitops)
+- Red Hat OpenShift Pipelines [![CI/Pipelines](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=pipelines&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/pipelines)
+- Kubernetes Prow [![CI/Prow](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=prow&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/prow)
+- Operate First's Peribolos as a Service [![Community/Peribolos](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=peribolos&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/peribolos)
+
+These services are deployed on the nostromo environment.
+
+### Hosted community services
+
+- [#B4mad Racing](https://b4mad.racing/) [![#B4mad Racing](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=b4mad-racing&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/b4mad-racing)
+- [OKD Community](https://okd.io/) [![OKD Community](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=environment-cluster-01-okd&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/environment-cluster-01-okd)
 
 We follow an app-of-apps pattern, where we have a single `kustomization.yaml` file that references all other manifests,
 it can be found in the `manifests/applications/app-of-apps.yaml` file.
@@ -40,17 +53,6 @@ ou or cluster scoped manifests. They implement a specific functionality/configur
 environment.
 
 A few of the configurations [recommended for Single-Node OpenShift](https://docs.openshift.com/container-platform/4.12/scalability_and_performance/ztp_far_edge/ztp-reference-cluster-configuration-for-vdu.html) have been implemented as well.
-
-## Infrastructure Services
-
-On the nostromo environment we have deployed and configured the following infrastructure services:
-
-- Red Hat OpenShift GitOps
-- Red Hat OpenShift Pipelines
-- Kubernetes Prow
-- Operate First's Peribolos as a Service
-
-These services are deployed on the nostromo environment.
 
 ## Usage
 
