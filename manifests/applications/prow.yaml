@@ -10,17 +10,17 @@ metadata:
     argocd-image-updater.argoproj.io/write-back-target: kustomization
     argocd-image-updater.argoproj.io/hookedgo.update-strategy: latest
     argocd-image-updater.argoproj.io/image-list: >
-      branchprotector=gcr.io/k8s-prow/branchprotector, 
-      crier=gcr.io/k8s-prow/crier, 
-      deck=gcr.io/k8s-prow/deck, 
-      ghproxy=gcr.io/k8s-prow/ghproxy, 
-      hook=gcr.io/k8s-prow/hook, 
-      horologium=gcr.io/k8s-prow/horologium, 
-      needs-rebase=gcr.io/k8s-prow/needs-rebase, 
-      pipelines=gcr.io/k8s-prow/pipelines, 
-      prow-controller-manager=gcr.io/k8s-prow/prow-controller-manager, 
-      sinker=gcr.io/k8s-prow/sinker, 
-      status-reconciler=gcr.io/k8s-prow/status-reconciler, 
+      branchprotector=gcr.io/k8s-prow/branchprotector,
+      crier=gcr.io/k8s-prow/crier,
+      deck=gcr.io/k8s-prow/deck,
+      ghproxy=gcr.io/k8s-prow/ghproxy,
+      hook=gcr.io/k8s-prow/hook,
+      horologium=gcr.io/k8s-prow/horologium,
+      needs-rebase=gcr.io/k8s-prow/needs-rebase,
+      pipelines=gcr.io/k8s-prow/pipelines,
+      prow-controller-manager=gcr.io/k8s-prow/prow-controller-manager,
+      sinker=gcr.io/k8s-prow/sinker,
+      status-reconciler=gcr.io/k8s-prow/status-reconciler,
       tide=gcr.io/k8s-prow/tide
 spec:
   destination:

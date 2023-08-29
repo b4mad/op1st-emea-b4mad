@@ -4,29 +4,28 @@ kind: Kustomization
 resources:
   - github.com/redhat-cop/gitops-catalog/cert-manager-operator/operator/base?ref=main
   - cluster-cert-manager.yaml
-
   - cloudflare-b4mad-racing-dns01-solver.yaml
   - cloudflare-b4mad-net-dns01-solver.yaml
   - google-clouddns-dns01-solver.yaml
   - google-domains-certbot-dns01-solver.yaml
   - letsencrypt-cluster-issuer.yaml
 
-patchesStrategicMerge:
-  - |-
-    apiVersion: operator.openshift.io/v1alpha1
-    kind: CertManager
-    metadata:
-      name: cluster
-    spec:
-      controllerConfig:
-        overrideArgs:
-          - "--acme-http01-solver-nameservers=8.8.8.8:53,1.1.1.1:53"
-          - "--dns01-recursive-nameservers=8.8.8.8:53,1.1.1.1:53"
-          - "--dns01-recursive-nameservers-only"
-          - "--v=6"
-      webhookConfig:
-        overrideArgs:
-          - "--v=6"
-      cainjectorConfig:
-        overrideArgs:
-          - "--v=6"
+patches:
+  - patch: |-
+      apiVersion: operator.openshift.io/v1alpha1
+      kind: CertManager
+      metadata:
+        name: cluster
+      spec:
+        controllerConfig:
+          overrideArgs:
+            - "--acme-http01-solver-nameservers=8.8.8.8:53,1.1.1.1:53"
+            - "--dns01-recursive-nameservers=8.8.8.8:53,1.1.1.1:53"
+            - "--dns01-recursive-nameservers-only"
+            - "--v=6"
+        webhookConfig:
+          overrideArgs:
+            - "--v=6"
+        cainjectorConfig:
+          overrideArgs:
+            - "--v=6"

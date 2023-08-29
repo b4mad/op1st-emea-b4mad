@@ -12,4 +12,3 @@ spec:
       creationTimestamp: null
       name: cloudflare-b4mad-net-dns01-solver
       namespace: cert-manager
-

@@ -1,40 +1,29 @@
----
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-commonLabels:
-  app.kubernetes.io/name: nostromo
-  app.kubernetes.io/managed-by: openshift-gitops
-  app.kubernetes.io/part-of: b4mad-environments
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/managed-by: openshift-gitops
+      app.kubernetes.io/name: nostromo
+      app.kubernetes.io/part-of: b4mad-environments
 
 resources:
   - stubs/cluster-version.yaml
-
   - sno-kubelet-config.yaml
-
   - ../../organizational-unit-scope/
-
   - secrets/github-oauth-app.yaml
   - idp/github-com.yaml
-
   - local-storage/
   - lvm-storage/
-
   - persistent-image-registry/
-
   - cert-manager-operator/
-
   - network-management/
-
   - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - openshift-gitops/
-
   - openshift-pipelines-operator/
-
   - cluster-monitoring-config.yaml
-
   - default-ingress-certificate.yaml
-
   - crunchy-postgres/
   - grafana-operator/
 
@@ -43,21 +32,20 @@ components:
   - ../../components/nfd/
   - ../../components/sno-tuning/
 
-patchesStrategicMerge:
-  - |-
-    apiVersion: config.openshift.io/v1
-    kind: ClusterVersion
-    metadata:
-      name: version
-    spec:
-      channel: stable-4.13
-
-  - |-
-    apiVersion: operator.openshift.io/v1
-    kind: IngressController
-    metadata:
-      name: default
-      namespace: openshift-ingress-operator
-    spec:
-      defaultCertificate:
-        name: default-ingress-certificate
+patches:
+  - patch: |-
+      apiVersion: config.openshift.io/v1
+      kind: ClusterVersion
+      metadata:
+        name: version
+      spec:
+        channel: stable-4.13
+  - patch: |-
+      apiVersion: operator.openshift.io/v1
+      kind: IngressController
+      metadata:
+        name: default
+        namespace: openshift-ingress-operator
+      spec:
+        defaultCertificate:
+          name: default-ingress-certificate
