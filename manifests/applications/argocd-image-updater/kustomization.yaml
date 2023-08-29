@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: openshift-gitops
+
+resources:
+  - https://github.com/argoproj-labs/argocd-image-updater/manifests/base
+
+images:
+  - name: quay.io/argoprojlabs/argocd-image-updater:latest
+    newTag: v0.12.2
