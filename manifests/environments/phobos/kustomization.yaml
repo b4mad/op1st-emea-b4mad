@@ -6,28 +6,28 @@ commonAnnotations:
   app.kubernetes.io/part-of: op1st-emea-b4mad-phobos
   org.opencontainers.image.source: https://github.com/b4mad/op1st-emea-b4mad.git
 
+
+
+
+
+
+
 resources:
-  - ../../organizational-unit-scope/
-
-  - local-storage/
-  - lvm-storage/
-
-  - cert-manager-operator/
-
-  - grafana-operator/
-  - crunchy-postgres/
-
-  - cluster-monitoring-config.yaml
-
-  - default-ingress-certificate.yaml
-
-  - openshift-gitops-integration.yaml
+- ../../organizational-unit-scope/
+- local-storage/
+- lvm-storage/
+- cert-manager-operator/
+- grafana-operator/
+- crunchy-postgres/
+- cluster-monitoring-config.yaml
+- default-ingress-certificate.yaml
+- openshift-gitops-integration.yaml
 
 components:
-  - ../../components/lvm-storage/
+- ../../components/lvm-storage/
 
-patchesStrategicMerge:
-  - |-
+patches:
+- patch: |-
     apiVersion: operator.openshift.io/v1
     kind: IngressController
     metadata:
