@@ -14,6 +14,8 @@ resources:
   - rbac/openshift-performanceprofiles.yaml
   - rbac/openshift-gitops-integration.yaml
 
+  - secrets/op1st-argocd-b4mad-installation.yaml
+
   - gitops-application.yaml
 
 patchesStrategicMerge:
