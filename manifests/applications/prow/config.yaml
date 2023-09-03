@@ -93,6 +93,7 @@ branch-protection:
         - "^dependabot/" # don't protect branches created by dependabot
         - "^greenkeeper/" # don't protect branches created by greenkeeper
         - "^kebechet-" # don't protect kebechet branches
+        - "^argocd-image-updater-" # don't protect branches created by argocd-image-updater
       restrictions:
         apps:
           - op1st-prow
