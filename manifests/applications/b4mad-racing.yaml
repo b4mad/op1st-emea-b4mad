@@ -14,3 +14,9 @@ spec:
   syncPolicy:
     syncOptions:
       - Validate=false
+  ignoreDifferences:
+    - group: apps.openshift.io
+      kind: DeploymentConfig
+      jsonPointers:
+        - /spec/template/spec/containers/0/image
+        - /spec/template/spec/containers/1/image
