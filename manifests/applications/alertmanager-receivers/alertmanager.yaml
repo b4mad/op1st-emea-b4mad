@@ -23,11 +23,15 @@ inhibit_rules:
       - severity = info
 receivers:
   - name: Critical
-    webhook_configs:
-      - url: "http://hookedgo.op1st-alertreceiver.svc.cluster.local:8080/webhook/v1alpha1"
+    slack_configs:
+      - channel: "#racing-ops"
+        api_url: >-
+          https://discord.com/api/webhooks/1151130717800116354/GtOSer8vq9e5jdteGzhad5QyT8-v16BRi3yY6SDraQJeUVRomxTUjPFmmnA6mIrLGQjc/slack
   - name: Default
-    webhook_configs:
-      - url: "http://hookedgo.op1st-alertreceiver.svc.cluster.local:8080/webhook/v1alpha1"
+    slack_configs:
+      - channel: "#racing-ops"
+        api_url: >-
+          https://discord.com/api/webhooks/1151130717800116354/GtOSer8vq9e5jdteGzhad5QyT8-v16BRi3yY6SDraQJeUVRomxTUjPFmmnA6mIrLGQjc/slack
   - name: "null"
   - name: Watchdog
 route:
