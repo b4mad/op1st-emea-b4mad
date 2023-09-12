@@ -26,6 +26,7 @@ resources:
   - default-ingress-certificate.yaml
   - crunchy-postgres/
   - grafana-operator/
+  - alertmanager-receivers/
 
 components:
   - ../../components/lvm-storage/
