@@ -9,6 +9,7 @@ labels:
       app.kubernetes.io/part-of: b4mad-environments
 
 resources:
+  - admin-acks/
   - stubs/cluster-version.yaml
   - sno-kubelet-config.yaml
   - ../../organizational-unit-scope/
