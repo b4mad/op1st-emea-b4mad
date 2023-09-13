@@ -1,0 +1,16 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: b4mad-racing-stage-user-1
+  namespace: b4mad-racing-stage
+spec:
+  encryptedData:
+    CONSOLE_ACCESS_KEY: AgAvwszzgX8cQ00s6XlV2gXfjUgjvvi7d3z6sh3/zjbmpPwkR0ci2r7O2Dy1WLj4RemnuYs/cUrfFVgZa7AXIxvVEfNE21pqPR8/fkFzMSKXqhICPJpvogyL25CjhNax819/wrlV5IRAZC+Us/rYD8ZTgY2rsx5TP4fSdaf9H1OuhSn/oZegQk0y6I+gtXDkiWNGAgmcdx/WTjD1j67GDjn11xcmzhqgYh0SNFKRycGfc1JjUyYS6mE0lI4+AowncDdnHcXJyM2AzClINZqtulJQEmqRH8xT4bdbYoNDPcdaQx4QhLpcHePQkDQZTYRSE0oOPsT7OA5eG3WLnLQ8Aun5vEk3+j//Hn38X7IqKA+I9YkOZ1piyjzj4CuQrnfLJmApoWPl9D+/UcZbMEizdMWV19JgK8pgMbeD3OTrk6CEcy8vJcQ/JC6z3k/PCkuazVTFcxbqkyO0eTE3yJJ1tN8/1jNKqIgLI4y8kRIHdmJJcnE48pU0c0Uca9U4ql/Umvh5SuHNAa+hr8zaa8dwLBlOzY2tDjvHGH1pTWFdxaRXUGXvIdnlYLLMoylpR7bf0uBRhsa+5T0O5DHLkdoVV8kGHNA1BWNJTeSuMxBARBj+oo0/iHzidBv/zKPvz16LtkYH/IkP4x7YZWIx/WR4i1AYoH8tZ3JzKOKIURWte2u2m2aDb8vcNd0u0lrHxlQ75y55s2Fwsl/93FoN4P7nbLhVb7icbw==
+    CONSOLE_SECRET_KEY: AgBEOQg+5Q6LkARNzkgtSAeD3V91WcHNApvOeEQr/hifs6tYaXfKy+65wtJLC9WFLb75+FfVa/6E+v8UWZHGhWe1UQtyQd0JjvnlKb+BJc4f1+ecGIgLykULSvYtB07aJiIiElCTI7aMpN5dPf0XP2NYuLOhj4C/pVy+c8Pzgr3qHowbuMow1//SCk2aGpebZJ/P0hoRRKdiBeIZFnHfYVLQ1Z+O4G88c6BYrJ9qwu8cP/fVkV8K8Mjoyq4br56qFf3YwPVVfRb+hDZtTZPCLmmer9DGpZeVINuB0tZ85j3KjrbUPYPNxRBqw89w+cD6pUJfJ5+yWOaSzxxJCN9YWWb2QeHB2uWvj1qRE9VLHYo/W8TYrzwYsxaLmXYpULw/mwtcO00UvQMrmsMDn9/uvwSp7h6G/5cT+dM61OQJ0XZ/icbwG7PF+WY+BA9gXEXdZIxfYxo7ITna+FvsABgxeZEI9BY6c2DeIKhpx8WLZsFdrrTz+MPT6BYe0OAIxgb1raGMkOMlUQZkdS5fwtcaQ/BvlT3Kom6TdRAk3YJDcYc+0uJFTF2/9wtxaIdSgRpA3LdWvy3L/t8daTCY4YTx8evhEpBnXy5jy9fl7mX9qc/yRiN1kONGlCkX2TmgjvGq3SdN0gH/JUUbO0Zz3vTKoJ4yLKX3NfBHqqTqoK97A4473V2lbZStvH6sfphh5CRHaiKXC94wHr+pLaHn3IDl0Pl/FTYhGNoKPpEJijSQDii+1rPE31uYmsrJ
+  template:
+    metadata:
+      creationTimestamp: null
+      name: b4mad-racing-stage-user-1
+      namespace: b4mad-racing-stage
+

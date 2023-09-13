@@ -57,22 +57,3 @@ spec:
   serviceAccountName: b4mad-racing-stage-sa
   users:
     - name: b4mad-racing-stage-user-1
----
-apiVersion: v1
-data:
-  config.env: ZXhwb3J0IE1JTklPX1JPT1RfUEFTU1dPUkQ9InhnZDJHRUEzb1JRdmluTzdBZWtuZnFoNTlVM3Q4aThodWlCSHdQMk4iCmV4cG9ydCBNSU5JT19ST09UX1VTRVI9IkhFU1lDOFkyVEkyMTVZTTBNM0ZQIgo=
-kind: Secret
-metadata:
-  creationTimestamp: null
-  name: b4mad-racing-stage-env-configuration
-  namespace: b4mad-racing-stage
----
-apiVersion: v1
-data:
-  CONSOLE_ACCESS_KEY: QVhHVURWUUwxTzFKQ1ZZVkdGUUs=
-  CONSOLE_SECRET_KEY: UE8ycnhEejl2RUo4VFdJZ3lpd2ZOZVVFTHJtU0lhRUx2QXBvejBoMQ==
-kind: Secret
-metadata:
-  creationTimestamp: null
-  name: b4mad-racing-stage-user-1
-  namespace: b4mad-racing-stage
