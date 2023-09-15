@@ -28,6 +28,7 @@ resources:
   - crunchy-postgres/
   - grafana-operator/
   - alertmanager-receivers/
+  - alerting/
 
 components:
   - ../../components/lvm-storage/

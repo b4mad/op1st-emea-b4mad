@@ -17,6 +17,7 @@ resources:
   - cluster-monitoring-config.yaml
   - default-ingress-certificate.yaml
   - openshift-gitops-integration.yaml
+  - alerting/
 
 components:
   - ../../components/lvm-storage/

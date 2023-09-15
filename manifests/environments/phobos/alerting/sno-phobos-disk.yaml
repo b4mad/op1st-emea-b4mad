@@ -1,0 +1,24 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  creationTimestamp: null
+  name: sno-phobos-disk
+  namespace: openshift-monitoring
+spec:
+  groups:
+    - name: DiskUsage
+      rules:
+        - alert: HostDiskFull
+          expr: >-
+            sort_desc(
+              (
+               max without (mountpoint, fstype, pod) (node_filesystem_avail_bytes{job="node-exporter", fstype!="", instance="phobos", cluster="", device="/dev/sda4"})
+               /
+               max without (mountpoint, fstype, pod) (node_filesystem_size_bytes{job="node-exporter", fstype!="", instance="phobos", cluster="",device="/dev/sda4"})
+              )
+            )*100 < 20
+          labels:
+            severity: critical
+          for: 10m
+          annotations:
+            message: "/dev/sda4 (the most important disk on a SNO) is < 20% of available bytes."
