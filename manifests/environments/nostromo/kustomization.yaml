@@ -9,26 +9,27 @@ labels:
       app.kubernetes.io/part-of: b4mad-environments
 
 resources:
-  - admin-acks/
-  - stubs/cluster-version.yaml
-  - sno-kubelet-config.yaml
   - ../../organizational-unit-scope/
-  - secrets/github-oauth-app.yaml
+
+  - admin-acks/
+  - alerting/
+  - alertmanager-receivers/
+  - cert-manager-operator/
+  - cluster-monitoring-config.yaml
+  - crunchy-postgres/
+  - default-ingress-certificate.yaml
+  - grafana-operator/
+  - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - idp/github-com.yaml
   - local-storage/
   - lvm-storage/
-  - persistent-image-registry/
-  - cert-manager-operator/
   - network-management/
-  - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - openshift-gitops/
   - openshift-pipelines-operator/
-  - cluster-monitoring-config.yaml
-  - default-ingress-certificate.yaml
-  - crunchy-postgres/
-  - grafana-operator/
-  - alertmanager-receivers/
-  - alerting/
+  - persistent-image-registry/
+  - secrets/github-oauth-app.yaml
+  - sno-kubelet-config.yaml
+  - stubs/cluster-version.yaml
 
 components:
   - ../../components/lvm-storage/
