@@ -7,17 +7,19 @@ commonAnnotations:
   org.opencontainers.image.source: https://github.com/b4mad/op1st-emea-b4mad.git
 
 resources:
-  - admin-acks/
   - ../../organizational-unit-scope/
+
+  - admin-acks/
+  - alerting/
+  - alertmanager-receivers/
+  - cert-manager-operator/
+  - cluster-monitoring-config.yaml
+  - crunchy-postgres/
+  - default-ingress-certificate.yaml
+  - grafana-operator/
   - local-storage/
   - lvm-storage/
-  - cert-manager-operator/
-  - grafana-operator/
-  - crunchy-postgres/
-  - cluster-monitoring-config.yaml
-  - default-ingress-certificate.yaml
   - openshift-gitops-integration.yaml
-  - alerting/
 
 components:
   - ../../components/lvm-storage/
