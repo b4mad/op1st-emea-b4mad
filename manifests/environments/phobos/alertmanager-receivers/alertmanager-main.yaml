@@ -15,4 +15,3 @@ spec:
       name: alertmanager-main
       namespace: openshift-monitoring
     type: Opaque
-

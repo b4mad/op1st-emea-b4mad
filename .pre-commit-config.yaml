@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.1
+    rev: v1.5.4
     hooks:
       - id: remove-tabs
 
@@ -23,3 +23,8 @@ repos:
     rev: v2.1.1
     hooks:
       - id: forbid-secrets
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: 3.8.2
+    hooks:
+      - id: commitizen

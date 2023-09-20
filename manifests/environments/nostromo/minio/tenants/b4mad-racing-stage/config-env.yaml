@@ -12,4 +12,3 @@ spec:
       creationTimestamp: null
       name: b4mad-racing-stage-env-configuration
       namespace: b4mad-racing-stage
-
