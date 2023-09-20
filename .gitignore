@@ -1,5 +1,13 @@
-*.key
+.decrypted*
+secrets/**decrypted**
 secret-*
-tmp.d
+tmp.d/
+.vscode/
+.env
+**.env
+**.crt
+**.key
+ssh-keys/
+gpg-keys/
 must-gather/
 scratch.txt
