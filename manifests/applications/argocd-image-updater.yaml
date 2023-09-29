@@ -15,7 +15,7 @@ spec:
   destination:
     namespace: op1st-prow
     server: https://kubernetes.default.svc
-  project: op1st
+  project: cluster-management
   source:
     path: manifests/applications/argocd-image-updater
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
