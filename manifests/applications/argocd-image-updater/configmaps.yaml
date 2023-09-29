@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/name: argocd-image-updater-config
+    app.kubernetes.io/part-of: argocd-image-updater
+  name: argocd-image-updater-config
+  namespace: openshift-gitops
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/name: argocd-image-updater-ssh-config
+    app.kubernetes.io/part-of: argocd-image-updater
+  name: argocd-image-updater-ssh-config
+  namespace: openshift-gitops
