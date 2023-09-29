@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: openshift-gitops
 
 resources:
+  - argocd-image-updater.yaml
   - b4mad-racing-nostromo-stage.yaml
   - b4mad-racing.yaml
   - environment-cluster-01-okd.yaml

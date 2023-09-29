@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-image-updater
+  namespace: openshift-gitops
+  annotations:
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: emea
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main:argocd-image-updater-{{.SHA256}}
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
+    argocd-image-updater.argoproj.io/hookedgo.update-strategy: latest
+    argocd-image-updater.argoproj.io/image-list: >
+      argocd-image-updater=quay.io/argoprojlabs/argocd-image-updater
+spec:
+  destination:
+    namespace: op1st-prow
+    server: https://kubernetes.default.svc
+  project: op1st
+  source:
+    path: manifests/applications/argocd-image-updater
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
