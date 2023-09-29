@@ -78,24 +78,24 @@ images:
   newName: gcr.io/k8s-prow/crier
   newTag: v20230801-526a7e0f2c
 - name: gcr.io/k8s-prow/branchprotector
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/crier
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/deck
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/ghproxy
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/hook
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/horologium
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/needs-rebase
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/prow-controller-manager
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/sinker
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/status-reconciler
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
 - name: gcr.io/k8s-prow/tide
-  newTag: v20230901-e9e5d470a5
+  newTag: v20230927-f8b8856dbc
