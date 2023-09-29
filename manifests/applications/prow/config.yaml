@@ -17,10 +17,10 @@ plank:
         timeout: 2h
         grace_period: 15m
         utility_images:
-          clonerefs: gcr.io/k8s-prow/clonerefs:v20230630-9eecc0f38f
-          initupload: gcr.io/k8s-prow/initupload:v20230630-9eecc0f38f
-          entrypoint: gcr.io/k8s-prow/entrypoint:v20230630-9eecc0f38f
-          sidecar: gcr.io/k8s-prow/sidecar:v20230630-9eecc0f38f
+          clonerefs: gcr.io/k8s-prow/clonerefs:v20230927-4613add0a1
+          initupload: gcr.io/k8s-prow/initupload:v20230927-4613add0a1
+          entrypoint: gcr.io/k8s-prow/entrypoint:v20230927-4613add0a1
+          sidecar: gcr.io/k8s-prow/sidecar:v20230927-4613add0a1
         resources:
           clonerefs:
             requests:
@@ -36,10 +36,10 @@ plank:
               cpu: 100m
 
 sinker:
-  max_pod_age: 24h
-  max_prowjob_age: 36h
   resync_period: 1m
-  terminated_pod_ttl: 24h
+  max_prowjob_age: 48h
+  max_pod_age: 48h
+  terminated_pod_ttl: 30m
 
 github_reporter:
   job_types_to_report:
@@ -48,7 +48,7 @@ github_reporter:
 
 prowjob_namespace: op1st-prow
 pod_namespace: op1st-prow-test-pods
-log_level: info
+log_level: debug
 
 in_repo_config:
   enabled:
@@ -57,11 +57,7 @@ in_repo_config:
     thoth-station: true
 
   allowed_clusters:
-    "b4mad":
-      [
-        "api.phobos.b4mad.emea.operate-first.cloud:6443",
-        "api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443",
-      ]
+    "b4mad": ["api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"]
     "operate-first":
       ["api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"]
     "thoth-station":
