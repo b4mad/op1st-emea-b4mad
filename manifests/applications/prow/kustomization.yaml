@@ -80,7 +80,7 @@ images:
 - name: gcr.io/k8s-prow/branchprotector
   newTag: v20230930-5a0076ef61
 - name: gcr.io/k8s-prow/crier
-  newTag: v20230927-f8b8856dbc
+  newTag: v20230930-5a0076ef61
 - name: gcr.io/k8s-prow/deck
   newTag: v20230930-5a0076ef61
 - name: gcr.io/k8s-prow/ghproxy
