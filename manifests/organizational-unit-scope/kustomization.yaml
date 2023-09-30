@@ -2,26 +2,23 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - stubs/cluster-console.yaml
-
-  - op1st-rbac.yaml
   - b4mad-rbac.yaml
   - console-custom-logo.yaml
   - console-links.yaml
-
-  - priority-classes.yaml
-
   - github.com/redhat-cop/gitops-catalog/sealed-secrets-operator/overlays/default
+  - op1st-rbac.yaml
+  - priority-classes.yaml
+  - stubs/cluster-console.yaml
 
-patchesStrategicMerge:
-  - |-
-    apiVersion: operator.openshift.io/v1
-    kind: Console
-    metadata:
-       name: cluster
-    spec:
-       customization:
-          customProductName: 'op1st by #B4mad'
-          customLogoFile:
-             name: console-custom-logo
-             key: op1stb4mad-h50px.png
+patches:
+  - patch: |-
+      apiVersion: operator.openshift.io/v1
+      kind: Console
+      metadata:
+         name: cluster
+      spec:
+         customization:
+            customProductName: 'op1st by #B4mad'
+            customLogoFile:
+               name: console-custom-logo
+               key: op1stb4mad-h50px.png
