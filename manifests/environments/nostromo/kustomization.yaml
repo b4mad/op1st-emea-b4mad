@@ -16,8 +16,9 @@ resources:
   - alertmanager-receivers/
   - cert-manager-operator/
   - cluster-monitoring-config.yaml
+  - cluster-version.yaml
   - crunchy-postgres/
-  - default-ingress-certificate.yaml
+  - default-ingress/
   - grafana-operator/
   - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - idp/github-com.yaml
@@ -29,7 +30,6 @@ resources:
   - persistent-image-registry/
   - secrets/github-oauth-app.yaml
   - sno-kubelet-config.yaml
-  - stubs/cluster-version.yaml
 
 components:
   - ../../components/lvm-storage/
@@ -43,13 +43,4 @@ patches:
       metadata:
         name: version
       spec:
-        channel: stable-4.13
-  - patch: |-
-      apiVersion: operator.openshift.io/v1
-      kind: IngressController
-      metadata:
-        name: default
-        namespace: openshift-ingress-operator
-      spec:
-        defaultCertificate:
-          name: default-ingress-certificate
+        channel: fast-4.13
