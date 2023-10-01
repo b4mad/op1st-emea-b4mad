@@ -4,33 +4,32 @@ kind: Kustomization
 resources:
   - namespaces.yaml
 
+  - secrets/op1st-pipelines-coderberg-org.yaml
   - stubs/tekton-config.yaml
-
   - tekton-chains.yaml
-
   - unprivileged-building-of-container-images-using-buildah/
 
-patchesStrategicMerge:
-  - |-
-    apiVersion: operator.tekton.dev/v1alpha1
-    kind: TektonConfig
-    metadata:
-      name: config
-    spec:
-      platforms:
-        openshift:
-          pipelinesAsCode:
-            enable: true
-            settings:
-              auto-configure-new-github-repo: "true"
-              hub-catalog-name: tekton
-              hub-url: https://api.hub.tekton.dev/v1
-              remote-tasks: "true"
-              application-name: op1st Pipelines as Code
-              custom-console-name: op1st Pipelines as Code
-              custom-console-url: >-
-                https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
-              custom-console-url-pr-details: >-
-                https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1beta1~PipelineRun/{{ pr }}
-              custom-console-url-pr-tasklog: >-
-                https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1beta1~PipelineRun/{{ pr }}/logs/{{ task }}
+patches:
+  - patch: |-
+      apiVersion: operator.tekton.dev/v1alpha1
+      kind: TektonConfig
+      metadata:
+        name: config
+      spec:
+        platforms:
+          openshift:
+            pipelinesAsCode:
+              enable: true
+              settings:
+                auto-configure-new-github-repo: "true"
+                hub-catalog-name: tekton
+                hub-url: https://api.hub.tekton.dev/v1
+                remote-tasks: "true"
+                application-name: op1st Pipelines as Code
+                custom-console-name: op1st Pipelines as Code
+                custom-console-url: >-
+                  https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
+                custom-console-url-pr-details: >-
+                  https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1beta1~PipelineRun/{{ pr }}
+                custom-console-url-pr-tasklog: >-
+                  https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1beta1~PipelineRun/{{ pr }}/logs/{{ task }}
