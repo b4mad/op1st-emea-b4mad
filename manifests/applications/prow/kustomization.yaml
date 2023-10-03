@@ -78,7 +78,7 @@ images:
   newName: gcr.io/k8s-prow/crier
   newTag: v20230801-526a7e0f2c
 - name: gcr.io/k8s-prow/branchprotector
-  newTag: v20230930-5a0076ef61
+  newTag: v20231003-e23b6604b5
 - name: gcr.io/k8s-prow/crier
   newTag: v20231003-e23b6604b5
 - name: gcr.io/k8s-prow/deck
