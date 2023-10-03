@@ -94,9 +94,8 @@ plugins:
       - help
       - hold
       - label
-      - lgtm
       - lifecycle
-      - shrug
+      - override
       - size
       - trigger
       - verify-owners
@@ -113,7 +112,6 @@ plugins:
       - lgtm
       - lifecycle
       - override
-      - shrug
       - size
       - transfer-issue
       - trigger
@@ -131,7 +129,6 @@ plugins:
       - lgtm
       - lifecycle
       - override
-      - shrug
       - size
       - transfer-issue
       - trigger
