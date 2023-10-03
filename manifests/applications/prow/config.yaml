@@ -17,10 +17,10 @@ plank:
         timeout: 2h
         grace_period: 15m
         utility_images:
-          clonerefs: gcr.io/k8s-prow/clonerefs:v20230927-4613add0a1
-          initupload: gcr.io/k8s-prow/initupload:v20230927-4613add0a1
-          entrypoint: gcr.io/k8s-prow/entrypoint:v20230927-4613add0a1
-          sidecar: gcr.io/k8s-prow/sidecar:v20230927-4613add0a1
+          clonerefs: "gcr.io/k8s-prow/clonerefs:v20230930-5a0076ef61"
+          initupload: "gcr.io/k8s-prow/initupload:v20230930-5a0076ef61"
+          entrypoint: "gcr.io/k8s-prow/entrypoint:v20230930-5a0076ef61"
+          sidecar: "gcr.io/k8s-prow/sidecar:v20230930-5a0076ef61"
         resources:
           clonerefs:
             requests:
@@ -63,18 +63,6 @@ in_repo_config:
     "thoth-station":
       ["api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"]
 
-branch_cleaner:
-  preserved_branches:
-    b4mad:
-      - main
-      - master
-    operate-first:
-      - main
-      - master
-    thoth-station:
-      - main
-      - master
-
 branch-protection:
   allow_disabled_policies: true
   orgs:
@@ -96,9 +84,9 @@ branch-protection:
         users: []
         teams:
           - sourceops
-        required_pull_request_reviews:
-          dismiss_stale_reviews: false
-          required_approving_review_count: 1
+      required_pull_request_reviews:
+        dismiss_stale_reviews: false
+        required_approving_review_count: 1
       repos:
         op1st-emea-b4mad:
           required_status_checks:
@@ -124,14 +112,13 @@ branch-protection:
           - op1st-prow
         users: []
         teams: []
-        required_pull_request_reviews:
-          dismiss_stale_reviews: false
-          required_approving_review_count: 1
+      required_pull_request_reviews:
+        dismiss_stale_reviews: false
+        required_approving_review_count: 1
     thoth-station:
       protect: true
       allow_force_pushes: false
       required_status_checks:
-        strict: true
         contexts:
           - op1st/prow/pre-commit
       exclude:
@@ -157,9 +144,9 @@ branch-protection:
           - op1st-prow
         teams:
           - sourceops
-        required_pull_request_reviews:
-          dismiss_stale_reviews: false
-          required_approving_review_count: 1
+      required_pull_request_reviews:
+        dismiss_stale_reviews: false
+        required_approving_review_count: 1
 
 deck:
   spyglass:
@@ -210,6 +197,7 @@ tide:
         - approved
       missingLabels:
         - do-not-merge
+        - do-not-merge/blocked-paths
         - do-not-merge/hold
         - do-not-merge/invalid-owners-file
         - do-not-merge/work-in-progress
@@ -222,6 +210,7 @@ tide:
         - lgtm
       missingLabels:
         - do-not-merge
+        - do-not-merge/blocked-paths
         - do-not-merge/hold
         - do-not-merge/invalid-owners-file
         - do-not-merge/work-in-progress

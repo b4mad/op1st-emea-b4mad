@@ -64,6 +64,12 @@ approve:
     ignore_review_state: false
     lgtm_acts_as_approve: false
 
+branch_cleaner:
+  preserved_branches:
+    b4mad: ["master", "main"]
+    operate-first: ["master", "main"]
+    thoth-station: ["master", "main"]
+
 triggers:
   - repos:
       - operate-first/apps
@@ -84,6 +90,7 @@ plugins:
       - assign
       - blockade
       - blunderbuss
+      - branchcleaner
       - help
       - hold
       - label
@@ -99,6 +106,7 @@ plugins:
       - approve
       - assign
       - blockade
+      - branchcleaner
       - help
       - hold
       - label
@@ -116,6 +124,7 @@ plugins:
       - approve
       - assign
       - blockade
+      - branchcleaner
       - help
       - hold
       - label
