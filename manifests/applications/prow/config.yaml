@@ -233,3 +233,22 @@ tide:
             skip-unknown-contexts: false
           probot-template:
             skip-unknown-contexts: false
+
+presubmits:
+  b4mad/op1st-b4mad-emea:
+    - name: validate-prow-yaml
+      always_run: true
+      decorate: true
+      extra_refs:
+        - org: b4mad
+          repo: op1st-b4mad-emea
+          base_ref: main
+      spec:
+        containers:
+          - image: gcr.io/k8s-prow/checkconfig:v20231003-e23b6604b5
+            command:
+              - /ko-app/checkconfig
+            args:
+              - --plugin-config=../op1st-b4mad-emea/manifests/applications/prow/plugins.yaml
+              - --config-path=../op1st-b4mad-emea/manifests/applications/prow/config.yaml
+              - --prow-yaml-repo-name=$(REPO_OWNER)/$(REPO_NAME)
