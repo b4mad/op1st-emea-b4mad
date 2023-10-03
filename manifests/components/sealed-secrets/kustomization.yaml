@@ -7,6 +7,7 @@ resources:
   - namespace.yaml
 
   - https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.0/controller.yaml
+  - monitoring_alerting.yaml
 
 patches:
   - patch: |-
