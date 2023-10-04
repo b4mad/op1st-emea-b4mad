@@ -1,0 +1,10 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: argocd
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: grafana
+  folder: ArgoCD
+  url: https://raw.githubusercontent.com/b4mad/op1st/main/manifests/applications/monitoring/dashboards/argocd.json

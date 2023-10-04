@@ -1,0 +1,22 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: openshift-monitoring-prometheus
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - access: proxy
+      editable: true
+      isDefault: true
+      jsonData:
+        httpHeaderName1: "Authorization"
+        timeInterval: 5s
+        tlsSkipVerify: true
+      name: Prometheus
+      secureJsonData:
+        httpHeaderValue1: "Bearer ${BEARER_TOKEN}"
+      type: prometheus
+      url: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+  name: openshift-monitoring-prometheus.yaml
