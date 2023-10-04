@@ -19,6 +19,7 @@ resources:
   - cluster-version.yaml
   - crunchy-postgres/
   - default-ingress/
+  - grafana-operator/
   - idp/github-com.yaml
   - local-storage/
   - lvm-storage/
