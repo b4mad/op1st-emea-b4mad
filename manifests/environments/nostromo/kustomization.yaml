@@ -20,7 +20,6 @@ resources:
   - crunchy-postgres/
   - default-ingress/
   - grafana-operator/
-  - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - idp/github-com.yaml
   - local-storage/
   - lvm-storage/

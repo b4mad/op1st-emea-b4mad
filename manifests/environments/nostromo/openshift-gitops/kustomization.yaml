@@ -2,49 +2,48 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
+  - https://github.com/redhat-cop/gitops-catalog/openshift-gitops-operator/operator/overlays/latest?ref=main
   - stubs/openshift-gitops.yaml
-
   - clusterrole.yaml
-
-  - argocd.b4mad.emea.operate-first.cloud.yaml
-  - argocd.operate-first.cloud.yaml
 
   - rbac/bitnami-sealedsecrets.yaml
   - rbac/integreatly-grafana.yaml
   - rbac/openshift-performanceprofiles.yaml
   - rbac/openshift-gitops-integration.yaml
-
   - secrets/op1st-argocd-b4mad-installation.yaml
+
+  - argocd.b4mad.emea.operate-first.cloud.yaml
+  - argocd.operate-first.cloud.yaml
 
   - gitops-application.yaml
 
-patchesStrategicMerge:
-  - |-
-    apiVersion: argoproj.io/v1alpha1
-    kind: ArgoCD
-    metadata:
-      name: openshift-gitops
-      namespace: openshift-gitops
-    spec:
-      usersAnonymousEnabled: true
-      statusBadgeEnabled: true
-      server:
-        insecure: true # so that our ingress can access the service via http (not https)
-        resources:
-          requests:
-            cpu: 250m
-            memory: 256Mi
-      sso:
-        provider: dex
-        dex:
-          openShiftOAuth: true
-          groups:
-            - b4mad-members
-            - cluster-admins
-      rbac:
-        policy: |
-          g, b4mad-members, role:admin
-          g, cluster-admins, role:admin
-          g, system:cluster-admins, role:admin
-        scopes: '[groups]'
-        defaultPolicy: 'role:readonly'
+patches:
+  - patch: |-
+      apiVersion: argoproj.io/v1alpha1
+      kind: ArgoCD
+      metadata:
+        name: openshift-gitops
+        namespace: openshift-gitops
+      spec:
+        usersAnonymousEnabled: true
+        statusBadgeEnabled: true
+        server:
+          insecure: true # so that our ingress can access the service via http (not https)
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+        sso:
+          provider: dex
+          dex:
+            openShiftOAuth: true
+            groups:
+              - b4mad-members
+              - cluster-admins
+        rbac:
+          policy: |
+            g, b4mad-members, role:admin
+            g, cluster-admins, role:admin
+            g, system:cluster-admins, role:admin
+          scopes: '[groups]'
+          defaultPolicy: 'role:readonly'
