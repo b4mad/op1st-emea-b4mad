@@ -128,12 +128,14 @@ spec:
       kind: ImageStreamTag
     - group: image.openshift.io
       kind: ImageTag
-    - group: integreatly.org
+    - group: grafana.integreatly.org
       kind: Grafana
-    - group: integreatly.org
+    - group: grafana.integreatly.org
       kind: GrafanaDashboard
-    - group: integreatly.org
+    - group: grafana.integreatly.org
       kind: GrafanaDataSource
+    - group: grafana.integreatly.org
+      kind: GrafanaFolder
     - group: kafka.strimzi.io
       kind: Kafka
     - group: kafka.strimzi.io

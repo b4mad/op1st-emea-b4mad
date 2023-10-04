@@ -220,7 +220,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: grafana-operator-controller-manager
-    namespace: default
+    namespace: grafana-operator
 roleRef:
   kind: ClusterRole
   name: grafana-operator-permissions

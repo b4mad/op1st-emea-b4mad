@@ -1,7 +1,7 @@
 bases:
   - ../../base
 
-namespace: grafana
+namespace: grafana-operator
 
 resources:
   - rbac.yaml

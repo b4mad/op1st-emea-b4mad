@@ -1,9 +1,7 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana-operator-controller-manager
-  namespace: default
   labels:
     app: grafana-operator-controller-manager
 spec:
@@ -22,7 +20,7 @@ spec:
             - --health-probe-bind-address=:8081
             - --metrics-bind-address=0.0.0.0:9090
             - --leader-elect
-          image: ghcr.io/grafana-operator/grafana-operator:v5.0.0
+          image: ghcr.io/grafana-operator/grafana-operator:v5.4.1
           imagePullPolicy: Always
           ports:
             - containerPort: 9090

@@ -9,6 +9,7 @@ resources:
   - environment-cluster-01-okd.yaml
   - environment-nostromo.yaml
   - environment-phobos.yaml
+  - monitoring.yaml
   - peribolos.yaml
   - pipelines.yaml
   - prow.yaml
