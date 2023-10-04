@@ -70,6 +70,7 @@ rules:
     resources:
       - prometheusrules
       - servicemonitors
+      - podmonitors
     verbs:
       - create
       - patch
