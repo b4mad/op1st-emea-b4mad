@@ -17,7 +17,7 @@ repos:
   - id: end-of-file-fixer
   - id: trailing-whitespace
   repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
+  rev: v4.5.0
 - hooks:
   - id: forbid-secrets
   repo: https://github.com/onedr0p/sops-pre-commit
@@ -25,4 +25,4 @@ repos:
 - hooks:
   - id: commitizen
   repo: https://github.com/commitizen-tools/commitizen
-  rev: 3.10.0
+  rev: 3.12.0
