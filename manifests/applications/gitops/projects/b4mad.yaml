@@ -28,3 +28,13 @@ spec:
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace
+    - group: argoproj.io
+      kind: RolloutManager
+    - group: argoproj.io
+      kind: Rollout
+    - group: argoproj.io
+      kind: AnalysisTemplate
+    - group: argoproj.io
+      kind: AnalysisRun
+    - group: argoproj.io
+      kind: Experiment
