@@ -16,7 +16,7 @@ patches:
       metadata:
         name: config
       spec:
-        pipelines:
+        pipeline:
           enable-provenance-in-status: true
         platforms:
           openshift:
