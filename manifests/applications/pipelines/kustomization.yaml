@@ -16,6 +16,8 @@ patches:
       metadata:
         name: config
       spec:
+        pipelines:
+          enable-provenance-in-status: true
         platforms:
           openshift:
             pipelinesAsCode:
@@ -33,3 +35,10 @@ patches:
                   https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1beta1~PipelineRun/{{ pr }}
                 custom-console-url-pr-tasklog: >-
                   https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1beta1~PipelineRun/{{ pr }}/logs/{{ task }}
+        pruner:
+          resources:
+            - taskrun
+            - pipelinerun
+          keep: 10
+          prune-per-resource: true
+          schedule: "* 8 * * *"
