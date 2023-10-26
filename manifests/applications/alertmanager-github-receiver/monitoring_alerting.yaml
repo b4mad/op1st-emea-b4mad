@@ -1,0 +1,15 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: github-receiver
+  creationTimestamp: null
+spec:
+  endpoints:
+    - interval: 30s
+      port: "9990"
+      scheme: http
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: github-receiver
+      app.kubernetes.io/name: alertmanager

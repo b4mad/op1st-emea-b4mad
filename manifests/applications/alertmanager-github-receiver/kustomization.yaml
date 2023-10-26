@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: op1st-alertmanager
+
+commonLabels:
+  app.kubernetes.io/name: alertmanager
+  app.kubernetes.io/component: github-receiver
+
+resources:
+  - namespace.yaml
+
+  - deployment.yaml
+  - service.yaml
+  - monitoring_alerting.yaml
+
+images:
+  - name: alertmanager-github-receiver
+    newName: quay.io/b4mad/alertmanager-github-receiver@sha256:a8005a8fd36ecb6531a70ef7a433bcf2354c667209c351484e2b8a8c5df5ffed
