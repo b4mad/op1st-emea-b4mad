@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  issue-label: cluster/nostromo
+  org: operate-first
+  repo: alerts
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: alertmanager-github-receiver

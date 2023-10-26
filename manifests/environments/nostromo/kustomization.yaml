@@ -14,6 +14,7 @@ resources:
   - admin-acks/
   - alerting/
   - alertmanager-receivers/
+  - alertmanager-github-receiver/
   - cert-manager-operator/
   - cluster-monitoring-config.yaml
   - cluster-version.yaml

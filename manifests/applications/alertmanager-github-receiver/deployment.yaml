@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: github-receiver
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: github-receiver
+          image: alertmanager-github-receiver
+          env:
+            - name: GITHUB_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-secrets
+                  key: auth-token
+            - name: GITHUB_ISSUE_LABEL
+              valueFrom:
+                configMapKeyRef:
+                  name: github-config
+                  key: issue-label
+            - name: GITHUB_ORG
+              valueFrom:
+                configMapKeyRef:
+                  name: github-config
+                  key: org
+            - name: GITHUB_REPO
+              valueFrom:
+                configMapKeyRef:
+                  name: github-config
+                  key: repo
+          args:
+            - --label=$(GITHUB_ISSUE_LABEL)
+            - --authtoken=$(GITHUB_AUTH_TOKEN)
+            - --org=$(GITHUB_ORG)
+            - --repo=$(GITHUB_REPO)
+            - --enable-inmemory=false
+            - --enable-auto-close=true
+            - --label-on-resolved=resolved
+          ports:
+            - containerPort: 9393
+              name: receiver
+            - containerPort: 9990
+              name: metrics
+          resources:
+            limits:
+              cpu: 250m
+              memory: 100Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi

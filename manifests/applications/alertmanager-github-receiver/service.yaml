@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: github-receiver
+spec:
+  ports:
+    - port: 9393
+      targetPort: receiver
+      name: receiver
+    - port: 9990
+      targetPort: metrics
+      name: metrics
+  type: ClusterIP
