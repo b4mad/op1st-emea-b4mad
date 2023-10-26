@@ -4,7 +4,6 @@ metadata:
   name: nmstate-operator
   namespace: openshift-gitops
   annotations:
-    argocd-commenter.int128.github.io/deployment-url: https://api.github.com/repos/b4mad/op1st-emea-b4mad/deployments/nostromo
     argocd.argoproj.io/sync-wave: "1"
 spec:
   destination:
