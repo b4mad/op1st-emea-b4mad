@@ -18,17 +18,17 @@ spec:
             - name: GITHUB_ISSUE_LABEL
               valueFrom:
                 configMapKeyRef:
-                  name: github-config
+                  name: alertmanager-github-receiver
                   key: issue-label
             - name: GITHUB_ORG
               valueFrom:
                 configMapKeyRef:
-                  name: github-config
+                  name: alertmanager-github-receiver
                   key: org
             - name: GITHUB_REPO
               valueFrom:
                 configMapKeyRef:
-                  name: github-config
+                  name: alertmanager-github-receiver
                   key: repo
           args:
             - --label=$(GITHUB_ISSUE_LABEL)
