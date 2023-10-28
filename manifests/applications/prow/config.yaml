@@ -37,8 +37,8 @@ plank:
 
 sinker:
   resync_period: 1m
-  max_prowjob_age: 48h
-  max_pod_age: 48h
+  max_prowjob_age: 72h
+  max_pod_age: 72h
   terminated_pod_ttl: 30m
 
 github_reporter:
@@ -48,7 +48,7 @@ github_reporter:
 
 prowjob_namespace: op1st-prow
 pod_namespace: op1st-prow-test-pods
-log_level: debug
+log_level: info
 
 in_repo_config:
   enabled:
@@ -180,7 +180,7 @@ deck:
     - op1st-emea-b4mad-prow
 
 tide:
-  sync_period: 2m
+  sync_period: 1m
 
   pr_status_base_urls:
     "*": https://prow.b4mad.emea.operate-first.cloud/pr
