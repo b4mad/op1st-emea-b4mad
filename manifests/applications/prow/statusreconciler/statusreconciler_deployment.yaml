@@ -26,7 +26,7 @@ spec:
             - --github-endpoint=http://ghproxy
             - --github-endpoint=https://api.github.com
             - --s3-credentials-file=/etc/s3-credentials/service-account.json
-            - --status-path=s3://op1st-emea-b4mad-prow/status-reconciler-status
+            - --status-path=s3://op1st-emea-b4mad-prow/status-reconciler-status.yaml
             - --github-app-id=$(GITHUB_APP_ID)
             - --github-app-private-key-path=/etc/github/cert
           env:
