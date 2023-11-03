@@ -5,6 +5,7 @@ metadata:
   annotations:
     openshift.io/display-name: "Operate First's Prow"
     openshift.io/requester: goern
+    openshift.io/cluster-monitoring: "true"
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
   name: op1st-prow
@@ -15,6 +16,7 @@ metadata:
   annotations:
     openshift.io/display-name: "Operate First's Prow"
     openshift.io/requester: goern
+    openshift.io/cluster-monitoring: "true"
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
   name: op1st-prow-test-pods

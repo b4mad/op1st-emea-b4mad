@@ -4,6 +4,7 @@ kind: Namespace
 metadata:
   annotations:
     openshift.io/display-name: "Operate First's Pipelines"
+    openshift.io/cluster-monitoring: "true"
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
   name: op1st-pipelines

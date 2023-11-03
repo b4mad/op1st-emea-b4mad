@@ -225,6 +225,13 @@ tide:
     from-branch-protection: true
     skip-unknown-contexts: true
     orgs:
+      b4mad:
+        repos:
+          .github:
+            required_status_checks:
+              contexts:
+                - op1st/prow/peribolos
+                - op1st/prow/pre-commit
       operate-first:
         repos:
           peribolos-as-a-service:
