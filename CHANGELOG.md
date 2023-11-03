@@ -1,3 +1,32 @@
+## v0.1.0 (2023-11-03)
+
+### Feat
+
+- add more secrets, add cluster-monitoring to some namespaces, refined which prow jobs are required for b4mad/.github repo
+- **alertmanager**: add more group_by keys
+- **alertmanager**: add github-receiver to alertmanager-main.yaml config
+- add nostromos's sealed secrets master key
+- **sig-sre**: add a github alert receiver, so that alertmanager will open and close issues on operate-first/alers repo
+- **op1st-pipelines**: enable pruner of (Task|Pipeline)Runs
+- **gitops**: bounce apiVersion of cluster-wide ArgoCD resource
+- **gitops**: enable Argo Rollouts for b4mad project
+- **monitoring**: add argocd dashboard
+- **monitoring**: add op1st monitoring dashboards
+
+### Fix
+
+- **sig-sre**: fix wrong configmap name in alertmanager-github-receiver deployment
+- **op1st-pipelines**: fix a typo
+- annotate op1st-pipelines-coderberg-org to be used for github.com too
+- annotate op1st-pipelines-coderberg-org to be used for github.com too
+- **op1st-pipelines**: add github.com to the known host config of ssh
+
+### Refactor
+
+- add some more secrets we have
+- **prow**: rename status reconciler status file on s3
+- **argocd**: remove argocd-commenter annotations from ArgoCD Applications
+
 ## v0.1.0-dev2 (2023-10-04)
 
 ## v0.1.0-dev1 (2023-10-04)
