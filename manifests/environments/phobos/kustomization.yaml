@@ -9,6 +9,8 @@ commonAnnotations:
 resources:
   - ../../organizational-unit-scope/
 
+  - stubs/openshift-storage.yaml
+
   - admin-acks/
   - alerting/
   - alertmanager-receivers/
@@ -25,6 +27,14 @@ components:
   - ../../components/lvm-storage/
 
 patches:
+  - patch: |-
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: openshift-storage
+        annotations:
+          openshift.io/cluster-monitoring: "true"
+
   - patch: |-
       apiVersion: operator.openshift.io/v1
       kind: IngressController

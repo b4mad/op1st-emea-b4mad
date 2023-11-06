@@ -11,6 +11,8 @@ labels:
 resources:
   - ../../organizational-unit-scope/
 
+  - stubs/openshift-storage.yaml
+
   - admin-acks/
   - alerting/
   - alertmanager-receivers/
@@ -37,6 +39,14 @@ components:
   - ../../components/sno-tuning/
 
 patches:
+  - patch: |-
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: openshift-storage
+        annotations:
+          openshift.io/cluster-monitoring: "true"
+
   - patch: |-
       apiVersion: config.openshift.io/v1
       kind: ClusterVersion
