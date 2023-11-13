@@ -14,3 +14,5 @@ resources:
   - peribolos.yaml
   - pipelines.yaml
   - prow.yaml
+
+  - https://codeberg.org/goern/bn-bruecken/raw/branch/main/manifests/nostromo-dev.yaml
