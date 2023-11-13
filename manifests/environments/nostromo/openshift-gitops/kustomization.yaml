@@ -26,6 +26,7 @@ patches:
         name: openshift-gitops
         namespace: openshift-gitops
       spec:
+        url: https://argocd.operate-first.cloud
         usersAnonymousEnabled: true
         statusBadgeEnabled: true
         server:
