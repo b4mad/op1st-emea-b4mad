@@ -37,6 +37,7 @@ components:
   - ../../components/lvm-storage/
   - ../../components/nfd/
   - ../../components/sno-tuning/
+  - ../../components/strimzi-kafka-operator/
 
 patches:
   - patch: |-
