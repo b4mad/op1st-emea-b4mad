@@ -15,4 +15,4 @@ resources:
   - pipelines.yaml
   - prow.yaml
 
-  - https://codeberg.org/goern/bn-bruecken/raw/branch/main/manifests/nostromo-dev.yaml
+  - https://codeberg.org/goern/bn-bruecken-app/raw/branch/main/manifests/nostromo-dev.yaml
