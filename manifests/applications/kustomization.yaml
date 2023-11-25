@@ -16,4 +16,3 @@ resources:
   - prow.yaml
 
   - https://codeberg.org/goern/bn-bruecken-app/raw/branch/main/manifests/nostromo-dev.yaml
-  - https://codeberg.org/goern/bn-bruecken-app/raw/branch/main/manifests/production.yaml
