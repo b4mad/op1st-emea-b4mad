@@ -10,4 +10,4 @@ spec:
     maxPods: 600
     podsPerCore: 25
     systemReserved:
-      memory: 4Gi
+      memory: 1Gi
