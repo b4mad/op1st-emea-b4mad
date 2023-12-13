@@ -28,13 +28,14 @@ resources:
   - lvm-storage/
   - network-management/
   - openshift-gitops/
-  - openshift-pipelines-operator/
   - persistent-image-registry/
   - secrets/github-oauth-app.yaml
   - sno-kubelet-config.yaml
 
 components:
   - ../../components/openshift-cert-manager-operator/
+  - ../../components/openshift-gitops-operator/
+  - ../../components/openshift-pipelines-operator/
   - ../../components/lvm-storage/
   - ../../components/nfd/
   - ../../components/sno-tuning/

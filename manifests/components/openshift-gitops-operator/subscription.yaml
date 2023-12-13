@@ -3,8 +3,6 @@ kind: Subscription
 metadata:
   name: openshift-gitops-operator
   namespace: openshift-operators
-  annotations:
-    argocd.argoproj.io/sync-wave: "-5"
 spec:
   channel: gitops-1.11
   installPlanApproval: Automatic
