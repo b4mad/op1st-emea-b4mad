@@ -24,6 +24,7 @@ resources:
   - openshift-gitops-integration.yaml
 
 components:
+  - ../../components/openshift-cert-manager-operator/
   - ../../components/lvm-storage/
 
 patches:
