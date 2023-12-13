@@ -6,26 +6,24 @@ spec:
   limits:
     - type: Pod
       max:
-        cpu: 2000m
+        cpu: 1000m
         memory: 1Gi
       min:
-        cpu: 200m
+        cpu: 100m
         memory: 64Mi
     - type: Container
       max:
-        cpu: 2000m
+        cpu: 500m
         memory: 2Gi
       min:
         cpu: 100m
         memory: 64Mi
       default:
-        cpu: 500m
+        cpu: 100m
         memory: 256Mi
       defaultRequest:
-        cpu: 250m
+        cpu: 100m
         memory: 128Mi
-      maxLimitRequestRatio:
-        cpu: "10"
     - type: openshift.io/Image
       max:
         storage: 1Gi
