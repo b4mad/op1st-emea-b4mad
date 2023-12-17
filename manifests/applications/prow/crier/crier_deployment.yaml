@@ -40,7 +40,7 @@ spec:
               memory: 64Mi
             requests:
               cpu: 100m
-              memory: 65Mi
+              memory: 64Mi
           ports:
             - name: metrics
               containerPort: 9090

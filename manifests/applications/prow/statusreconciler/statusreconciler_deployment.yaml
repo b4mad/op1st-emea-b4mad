@@ -41,7 +41,7 @@ spec:
               memory: 64Mi
             requests:
               cpu: 100m
-              memory: 65Mi
+              memory: 64Mi
           volumeMounts:
             - name: github-token
               mountPath: /etc/github
