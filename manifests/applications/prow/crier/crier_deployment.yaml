@@ -34,6 +34,13 @@ spec:
                 secretKeyRef:
                   name: github-token
                   key: appid
+          resource:
+            limits:
+              cpu: 100m
+              memory: 64Mi
+            requests:
+              cpu: 100m
+              memory: 65Mi
           ports:
             - name: metrics
               containerPort: 9090

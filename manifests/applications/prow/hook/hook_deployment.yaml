@@ -41,6 +41,13 @@ spec:
               containerPort: 8888
             - name: metrics
               containerPort: 9090
+          resource:
+            limits:
+              cpu: 100m
+              memory: 64Mi
+            requests:
+              cpu: 100m
+              memory: 65Mi
           volumeMounts:
             - name: hmac
               mountPath: /etc/webhook

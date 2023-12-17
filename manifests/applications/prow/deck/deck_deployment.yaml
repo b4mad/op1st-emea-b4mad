@@ -22,7 +22,6 @@ spec:
       serviceAccountName: deck
       terminationGracePeriodSeconds: 30
       containers:
-        # TODO https://docs.prow.k8s.io/docs/components/core/deck/github-oauth-setup/#using-a-github-bot
         - name: deck
           image: deck
           args:
@@ -34,7 +33,7 @@ spec:
             - --github-endpoint=https://api.github.com
             - --github-graphql-endpoint=http://ghproxy/graphql
             - --s3-credentials-file=/etc/s3-credentials/service-account.json
-            - --spyglass=true
+            - --spyglass=false
             - --github-app-id=$(GITHUB_APP_ID)
             - --github-app-private-key-path=/etc/github/cert
             - --github-oauth-config-file=/etc/githuboauth/secret
@@ -49,6 +48,13 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+          resource:
+            limits:
+              cpu: 100m
+              memory: 64Mi
+            requests:
+              cpu: 100m
+              memory: 65Mi
           volumeMounts:
             - name: config
               mountPath: /etc/config
