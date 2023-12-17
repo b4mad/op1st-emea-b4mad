@@ -35,6 +35,13 @@ spec:
                 secretKeyRef:
                   name: github-token
                   key: appid
+          resources:
+            limits:
+              cpu: 100m
+              memory: 64Mi
+            requests:
+              cpu: 100m
+              memory: 65Mi
           volumeMounts:
             - name: github-token
               mountPath: /etc/github

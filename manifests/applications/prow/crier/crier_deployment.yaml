@@ -34,7 +34,7 @@ spec:
                 secretKeyRef:
                   name: github-token
                   key: appid
-          resource:
+          resources:
             limits:
               cpu: 100m
               memory: 64Mi
