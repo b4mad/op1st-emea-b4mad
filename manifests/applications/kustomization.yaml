@@ -7,7 +7,6 @@ resources:
   - argocd-image-updater.yaml
   - b4mad-racing-nostromo-stage.yaml
   - b4mad-racing.yaml
-  - environment-cluster-01-okd.yaml
   - environment-nostromo.yaml
   - environment-phobos.yaml
   - monitoring.yaml
