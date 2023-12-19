@@ -54,13 +54,10 @@ in_repo_config:
   enabled:
     b4mad: true
     operate-first: true
-    thoth-station: true
 
   allowed_clusters:
     "b4mad": ["api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"]
     "operate-first":
-      ["api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"]
-    "thoth-station":
       ["api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"]
 
 branch-protection:
@@ -115,38 +112,6 @@ branch-protection:
       required_pull_request_reviews:
         dismiss_stale_reviews: false
         required_approving_review_count: 1
-    thoth-station:
-      protect: true
-      allow_force_pushes: false
-      required_status_checks:
-        contexts:
-          - op1st/prow/pre-commit
-      exclude:
-        - "^revert-" # don't protect revert branches
-        - "^dependabot/" # don't protect branches created by dependabot
-        - "^greenkeeper/" # don't protect branches created by greenkeeper
-        - "^kebechet-" # don't protect kebechet branches
-      repos:
-        thoth-ops:
-          protect: false
-        statusfy-ops:
-          protect: false
-        statusfy:
-          protect: false
-        website-tooling:
-          protect: false
-        stress-tests:
-          protect: false
-        twitter-together:
-          protect: false
-      restrictions:
-        apps:
-          - op1st-prow
-        teams:
-          - sourceops
-      required_pull_request_reviews:
-        dismiss_stale_reviews: false
-        required_approving_review_count: 1
 
 deck:
   spyglass:
@@ -188,7 +153,6 @@ tide:
   merge_method:
     b4mad: squash
     operate-first: squash
-    thoth-station: squash
 
   queries:
     - orgs:
@@ -204,7 +168,6 @@ tide:
         - needs-rebase
     - orgs:
         - operate-first
-        - thoth-station
       labels:
         - approved
         - lgtm
