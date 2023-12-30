@@ -16,9 +16,11 @@ spec:
     - name: in-cluster-openshift-monitoring
       namespace: openshift-monitoring
       server: https://kubernetes.default.svc
+    - name: in-cluster-openshift-gitops
+      namespace: openshift-gitops
+      server: https://kubernetes.default.svc
   sourceRepos:
     - https://github.com/b4mad/op1st-emea-b4mad.git
-    - https://codeberg.org/goern/HookedGo.git
   roles:
     - name: project-admin
       description: Read/Write access to this project only
