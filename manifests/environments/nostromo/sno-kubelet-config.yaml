@@ -3,6 +3,7 @@ kind: KubeletConfig
 metadata:
   name: sno-config
 spec:
+  autoSizingReserved: true
   machineConfigPoolSelector:
     matchLabels:
       custom-kubelet: enabled
