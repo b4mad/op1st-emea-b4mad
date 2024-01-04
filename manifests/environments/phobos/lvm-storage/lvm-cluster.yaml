@@ -6,15 +6,16 @@ metadata:
 spec:
   storage:
     deviceClasses:
-    - name: vg1
-      nodeSelector:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/hostname
-            operator: In
-            values:
-            - phobos
-      thinPoolConfig:
-        name: thin-pool-1
-        overprovisionRatio: 10
-        sizePercent: 90
+      - fstype: xfs
+        name: vg1
+        nodeSelector:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - phobos
+        thinPoolConfig:
+          name: thin-pool-1
+          overprovisionRatio: 10
+          sizePercent: 90
