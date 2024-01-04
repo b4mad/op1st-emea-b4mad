@@ -6,7 +6,8 @@ metadata:
 spec:
   storage:
     deviceClasses:
-      - name: vg1
+      - fstype: xfs
+        name: vg1
         thinPoolConfig:
           name: thin-pool-1
           overprovisionRatio: 10
