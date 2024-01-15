@@ -1,0 +1,14 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: cloudflare-feeldata-app-dns01-solver
+  namespace: cert-manager
+spec:
+  encryptedData:
+    api-token: AgAM+iSepRygLuyvbmXR3H1qX1ZIL5DLon6ZTI+lkUcXWJ9AkvYFGGJHDqurp6dq/5YXAsHMx+8PNksRXgbVip0JXkavbefTaIlL4OO+he8BwjSEXIZBt2PstoVjQDokQ3ZTT001DBj0QVKhHt8iz6vTOFU7Yxj6biHJaXcKdWt84VBJh8fZn7kqNKnXoZKYmlAeLmZyL3gL1EyzUG8/MobJnG4BrHQYYAJNdYqtW22EAQNPjajZy5OVwSJzk1VkeXl5QZ8/nlkI56l0hNpAePqibMFc9Rv2o3guhd1k+vGrWU89octCA6Uo5pcNt85mofLA9nVRCXXve61xR1Es68bdyCNt4HqZgHagt+1gLr7Uflfnxzufc3PO3eBo7NnvO6W0bkjmKcNX7LuIkvnEOGP86A6STXX3ZqsIwGFeCR1WTPKRhteF8v3Un8coD8B2FQbleb9jbCzl0FTQ7zTBANBJ7NMN5wj6iIXBIXXsEUeE5LufQm2IbjcYvsTmVx3UxCitI6JxzkHpTOPifwXSqxRywJz4/ABEDCvWkiOvfZUqLeAifaqtmEYXpR5N1U7ZYi3exVRgxn9GgKIObbu+uzq1hAIaRsazD7byT5p4tSudeEwhRHN5eAJlNoNU1ooE9jT8n5tRkXgH0vxsbrNiYXv+XXGZlIwejYkXS8+BcKPxM6HQXw1zIoMJYhgzg11uzauTPMcXK24sN+gpVswiekCV9mqKMrALG3rgoiCYsYLNNDoOzRkHYyZX
+  template:
+    metadata:
+      creationTimestamp: null
+      name: cloudflare-feeldata-app-dns01-solver
+      namespace: cert-manager

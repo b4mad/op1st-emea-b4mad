@@ -45,3 +45,11 @@ spec:
         selector:
           dnsZones:
             - b4mad.net
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-feeldata-app-dns01-solver
+              key: api-token
+        selector:
+          dnsZones:
+            - feeldata.app
