@@ -35,13 +35,13 @@ resources:
 components:
   - ../../components/operators/nmstate/
   - ../../components/operators/openshift-cert-manager/
-  - ../../components/openshift-gitops-operator/
-  - ../../components/openshift-pipelines-operator/
-  - ../../components/lvm-storage/
-  - ../../components/local-storage/
-  - ../../components/nfd/
-  - ../../components/sno-tuning/
-  - ../../components/strimzi-kafka-operator/
+  - ../../components/operators/openshift-gitops/
+  - ../../components/operators/openshift-pipelines/
+  - ../../components/operators/lvm-storage/
+  - ../../components/operators/local-storage/
+  - ../../components/operators/nfd/
+  - ../../components/operators/sno-tuning/
+  - ../../components/operators/strimzi-kafka/
 
 patches:
   - patch: |-
