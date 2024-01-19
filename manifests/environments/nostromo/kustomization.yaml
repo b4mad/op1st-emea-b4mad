@@ -15,8 +15,8 @@ resources:
 
   - admin-acks/
   - alerting/
-  - alertmanager-receivers/
   - alertmanager-github-receiver/
+  - alertmanager-receivers/
   - cert-manager/
   - cluster-monitoring-config.yaml
   - cluster-version.yaml
@@ -26,6 +26,7 @@ resources:
   - idp/github-com.yaml
   - local-storage/
   - lvm-storage/
+  - network-management/
   - openshift-gitops/
   - persistent-image-registry/
   - secrets/github-oauth-app.yaml
