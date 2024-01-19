@@ -33,7 +33,7 @@ resources:
 
 components:
   - ../../components/operators/nmstate/
-  - ../../components/openshift-cert-manager-operator/
+  - ../../components/operators/openshift-cert-manager/
   - ../../components/openshift-gitops-operator/
   - ../../components/openshift-pipelines-operator/
   - ../../components/lvm-storage/
