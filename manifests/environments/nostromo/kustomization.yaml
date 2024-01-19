@@ -26,13 +26,13 @@ resources:
   - idp/github-com.yaml
   - local-storage/
   - lvm-storage/
-  - network-management/
   - openshift-gitops/
   - persistent-image-registry/
   - secrets/github-oauth-app.yaml
   - sno-kubelet-config.yaml
 
 components:
+  - ../../components/operators/nmstate/
   - ../../components/openshift-cert-manager-operator/
   - ../../components/openshift-gitops-operator/
   - ../../components/openshift-pipelines-operator/
