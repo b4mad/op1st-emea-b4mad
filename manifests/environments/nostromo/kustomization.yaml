@@ -37,6 +37,7 @@ components:
   - ../../components/openshift-gitops-operator/
   - ../../components/openshift-pipelines-operator/
   - ../../components/lvm-storage/
+  - ../../components/local-storage/
   - ../../components/nfd/
   - ../../components/sno-tuning/
   - ../../components/strimzi-kafka-operator/
