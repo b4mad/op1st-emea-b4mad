@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: feeldata
+spec:
+  destinations:
+    - name: nostromo
+      namespace: "feeldata*"
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - "*"
+  roles:
+    - name: project-admin
+      description: Read/Write access to this project only
+      policies:
+        - p, proj:b4mad:project-admin, applications, get, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, create, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, update, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, delete, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, sync, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, override, b4mad/*, allow
+        - p, proj:b4mad:project-admin, applications, action/*, b4mad/*, allow
+      groups:
+        - b4mad-members
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: argoproj.io
+      kind: RolloutManager
+    - group: argoproj.io
+      kind: Rollout
+    - group: argoproj.io
+      kind: AnalysisTemplate
+    - group: argoproj.io
+      kind: AnalysisRun
+    - group: argoproj.io
+      kind: Experiment
