@@ -6,7 +6,7 @@ resources:
   - alertmanager-github-receiver.yaml
   - argocd-image-updater.yaml
   # - b4mad-racing-nostromo-stage.yaml
-  # - b4mad-racing.yaml
+  - b4mad-racing.yaml
   - environment-nostromo.yaml
   - environment-phobos.yaml
   - monitoring.yaml
