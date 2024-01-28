@@ -6,14 +6,14 @@ spec:
   limits:
     - type: Pod
       max:
-        cpu: 500m
+        cpu: 250m
         memory: 1Gi
       min:
         cpu: 100m
         memory: 64Mi
     - type: Container
       max:
-        cpu: 500m
+        cpu: 250m
         memory: 2Gi
       min:
         cpu: 100m
