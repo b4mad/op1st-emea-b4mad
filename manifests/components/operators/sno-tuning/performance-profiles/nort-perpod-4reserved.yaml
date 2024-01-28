@@ -5,8 +5,8 @@ metadata:
   name: nort-perpod-4reserved
 spec:
   cpu:
-    isolated: 2-5,8-11
-    reserved: 0-1,6-7
+    isolated: 2-11
+    reserved: 0-1
   machineConfigPoolSelector:
     pools.operator.machineconfiguration.openshift.io/master: ""
   nodeSelector:

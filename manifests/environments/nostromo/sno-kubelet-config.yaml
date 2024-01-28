@@ -3,12 +3,11 @@ kind: KubeletConfig
 metadata:
   name: sno-config
 spec:
-  autoSizingReserved: true
   machineConfigPoolSelector:
     matchLabels:
       custom-kubelet: enabled
   kubeletConfig:
     maxPods: 600
-    podsPerCore: 25
+    podsPerCore: 50
     systemReserved:
       memory: 1Gi
