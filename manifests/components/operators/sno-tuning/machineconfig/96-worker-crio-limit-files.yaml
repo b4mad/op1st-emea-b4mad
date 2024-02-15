@@ -21,4 +21,4 @@ spec:
           mode: 420
           overwrite: true
           path: /etc/crio/crio.conf.d/50-ulimits
-osImageURL: ""
+    osImageURL: ""
