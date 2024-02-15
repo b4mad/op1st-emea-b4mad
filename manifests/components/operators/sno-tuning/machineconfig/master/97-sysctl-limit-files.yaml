@@ -2,8 +2,8 @@ apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
   labels:
-    machineconfiguration.openshift.io/role: worker
-  name: 97-worker-sysctl-limit-files
+    machineconfiguration.openshift.io/role: master
+  name: 97-sysctl-limit-files
 spec:
   config:
     ignition:

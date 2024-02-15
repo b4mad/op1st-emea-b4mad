@@ -2,9 +2,9 @@ apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 
 resources:
-  - machineconfig/04-accelerated-container-startup-master.yaml
-  - machineconfig/96-worker-crio-limit-files.yaml
-  - machineconfig/97-worker-sysctl-limit-files.yaml
+  - machineconfig/master/04-accelerated-container-startup.yaml
+  - machineconfig/master/96-crio-limit-files.yaml
+  - machineconfig/master/97-sysctl-limit-files.yaml
 
   - performance-profiles/nort-perpod-4reserved.yaml
 

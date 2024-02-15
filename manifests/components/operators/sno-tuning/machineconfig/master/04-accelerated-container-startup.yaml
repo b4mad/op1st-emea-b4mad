@@ -3,7 +3,7 @@ kind: MachineConfig
 metadata:
   labels:
     machineconfiguration.openshift.io/role: master
-  name: 04-accelerated-container-startup-master
+  name: 04-accelerated-container-startup
 spec:
   config:
     ignition:
