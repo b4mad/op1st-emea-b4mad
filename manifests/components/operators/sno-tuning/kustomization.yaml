@@ -3,8 +3,8 @@ kind: Component
 
 resources:
   - machineconfig/master/04-accelerated-container-startup.yaml
-  - machineconfig/master/96-crio-limit-files.yaml
-  - machineconfig/master/97-sysctl-limit-files.yaml
+  # - machineconfig/master/96-crio-limit-files.yaml
+  # - machineconfig/master/97-sysctl-limit-files.yaml
 
   - performance-profiles/nort-perpod-4reserved.yaml
 
