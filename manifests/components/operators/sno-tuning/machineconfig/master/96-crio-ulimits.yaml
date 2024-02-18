@@ -3,7 +3,7 @@ kind: MachineConfig
 metadata:
   labels:
     machineconfiguration.openshift.io/role: master
-  name: 97-sysctl-limit-files
+  name: 96-crio-limit-files
 spec:
   config:
     ignition:
@@ -17,8 +17,8 @@ spec:
     storage:
       files:
         - contents:
-            source: data:text/plain;charset=utf-8;base64,ZnMubnJfb3Blbj0yMDk3MTUz
+            source: data:text/plain;charset=utf-8;base64,W2NyaW8ucnVudGltZV0KCmRlZmF1bHRfdWxpbWl0cz1bCgkibm9maWxlPTIwOTcxNTM6MjA5NzE1MyIsCl0=
           mode: 420
           overwrite: true
-          path: /etc/sysctl.d/10-files.conf
+          path: /etc/crio/crio.conf.d/50-ulimits
     osImageURL: ""
