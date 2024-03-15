@@ -58,4 +58,4 @@ patches:
       metadata:
         name: version
       spec:
-        channel: fast-4.14
+        channel: fast-4.15
