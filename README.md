@@ -58,3 +58,7 @@ A few of the configurations [recommended for Single-Node OpenShift](https://docs
 To configure a specific environment, run `kustomize build manifests/environments/nostromo | oc apply -f -`
 
 [op1stb4mad]: images/op1stb4mad.svg "Op1st by #B4mad"
+
+## Funding
+
+If you like this project, or depend on it, feel free to support it via the [drips.network](https://www.drips.network) and check out https://www.drips.network/app/projects/github/b4mad/op1st-emea-b4mad
