@@ -22,7 +22,6 @@ These services are deployed on the nostromo environment.
 ### Hosted community services
 
 - [#B4mad Racing](https://b4mad.racing/) [![#B4mad Racing](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=b4mad-racing&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/b4mad-racing)
-- [OKD Community](https://okd.io/) [![OKD Community](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=environment-cluster-01-okd&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/environment-cluster-01-okd)
 
 We follow an app-of-apps pattern, where we have a single `kustomization.yaml` file that references all other manifests,
 it can be found in the `manifests/applications/app-of-apps.yaml` file.
