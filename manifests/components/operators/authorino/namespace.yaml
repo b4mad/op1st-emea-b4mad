@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/display-name: "Authorino Operator"
+  labels:
+    openshift.io/cluster-monitoring: "true"
+  name: authorino-operator
+spec:
+  finalizers:
+    - kubernetes
