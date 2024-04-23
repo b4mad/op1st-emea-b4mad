@@ -1,0 +1,11 @@
+# implements https://docs.openshift.com/container-platform/4.15/edge_computing/ztp-reference-cluster-configuration-for-vdu.html#ztp-sno-du-configuring-crun-container-runtime_sno-configure-for-vdu
+apiVersion: machineconfiguration.openshift.io/v1
+kind: ContainerRuntimeConfig
+metadata:
+  name: enable-crun-master
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      pools.operator.machineconfiguration.openshift.io/master: ""
+  containerRuntimeConfig:
+    defaultRuntime: crun

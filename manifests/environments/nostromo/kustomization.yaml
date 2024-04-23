@@ -33,6 +33,7 @@ resources:
   - sno-kubelet-config.yaml
 
 components:
+  - ../../components/sno-tuning/
   - ../../components/operators/nmstate/
   - ../../components/operators/openshift-cert-manager/
   - ../../components/operators/openshift-gitops/
@@ -40,7 +41,6 @@ components:
   - ../../components/operators/lvm-storage/
   - ../../components/operators/local-storage/
   - ../../components/operators/nfd/
-  - ../../components/operators/sno-tuning/
   - ../../components/operators/strimzi-kafka/
 
 patches:

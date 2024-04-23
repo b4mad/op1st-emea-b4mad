@@ -1,0 +1,9 @@
+# implements https://docs.openshift.com/container-platform/4.15/edge_computing/ztp-reference-cluster-configuration-for-vdu.html#ztp-sno-du-reducing-resource-usage-with-olm-pprof_sno-configure-for-vdu
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: collect-profiles-config
+  namespace: openshift-operator-lifecycle-manager
+data:
+  pprof-config.yaml: |
+    disabled: True
