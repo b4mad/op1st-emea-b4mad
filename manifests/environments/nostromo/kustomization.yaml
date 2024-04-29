@@ -11,6 +11,7 @@ labels:
 resources:
   - ../../organizational-unit-scope/
 
+  - stubs/cluster-version.yaml
   - stubs/openshift-storage.yaml
 
   - admin-acks/
@@ -19,9 +20,8 @@ resources:
   - alertmanager-receivers/
   - cert-manager/
   - cluster-monitoring-config.yaml
-  - cluster-version.yaml
   - crunchy-postgres/
-  - default-ingress/
+  - custom-certificates/
   - grafana-operator/
   - idp/github-com.yaml
   - local-storage/

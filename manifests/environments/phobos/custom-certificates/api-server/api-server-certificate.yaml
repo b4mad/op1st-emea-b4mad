@@ -1,0 +1,27 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: api-server-certificate
+  namespace: openshift-config
+spec:
+  subject:
+    organizations:
+      - "#B4mad"
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
+  secretName: api-server-certificate
+  secretTemplate:
+    annotations:
+      app.kubernetes.io/part-of: op1st-emea-b4mad-phobos
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 4096
+    rotationPolicy: Always
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    - "*.phobos.b4mad.emea.operate-first.cloud"
+    - "*.apps.phobos.b4mad.emea.operate-first.cloud"

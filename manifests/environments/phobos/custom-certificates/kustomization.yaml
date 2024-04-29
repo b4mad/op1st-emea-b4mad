@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - stubs/cluster-openshift-config.yaml
+  - stubs/default-openshift-ingress-operator.yaml
+
+  - api-server/api-server-certificate.yaml
+  - default-ingress/default-ingress-certificate.yaml
+
+patches:
+  - patch: |-
+      apiVersion: operator.openshift.io/v1
+      kind: IngressController
+      metadata:
+        name: default
+        namespace: openshift-ingress-operator
+      spec:
+        defaultCertificate:
+          name: default-ingress-certificate
+
+  - patch: |-
+      apiVersion: config.openshift.io/v1
+      kind: APIServer
+      metadata:
+        name: cluster
+        namespace: openshift-config
+      spec:
+        servingCerts:
+          namedCertificates:
+          - names:
+            - api.phobos.b4mad.emea.operate-first.cloud
+            servingCertificate:
+              name: api-server-certificate
