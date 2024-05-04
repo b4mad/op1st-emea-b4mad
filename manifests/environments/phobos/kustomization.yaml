@@ -16,7 +16,8 @@ resources:
   - alertmanager-receivers/
   - cert-manager-operator/
   - cluster-monitoring-config.yaml
-  - crunchy-postgres/
+  - operatorhubio-catalog/
+  - cloudnative-pg/
   - custom-certificates/
   - grafana-operator/
   - local-storage/
