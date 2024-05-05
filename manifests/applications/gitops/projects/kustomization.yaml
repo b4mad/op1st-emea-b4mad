@@ -6,5 +6,4 @@ resources:
   - b4mad.yaml
   - cluster-management.yaml
   - goern-stuff.yaml
-  - okd.yaml
   - op1st.yaml
