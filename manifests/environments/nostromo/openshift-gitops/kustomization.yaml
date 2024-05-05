@@ -11,9 +11,6 @@ resources:
   - rbac/openshift-gitops-integration.yaml
   - secrets/op1st-argocd-b4mad-installation.yaml
 
-  - argocd.b4mad.emea.operate-first.cloud.yaml
-  - argocd.operate-first.cloud.yaml
-
   - gitops-application.yaml
 
   - stubs/openshift-gitops.yaml

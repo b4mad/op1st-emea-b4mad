@@ -4,5 +4,4 @@ kind: Kustomization
 namespace: openshift-gitops
 
 resources:
-  - cluster-01-okd.yaml
   - phobos.yaml
