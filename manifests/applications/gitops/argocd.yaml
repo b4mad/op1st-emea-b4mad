@@ -10,7 +10,7 @@ spec:
       enabled: false
     grpc:
       ingress:
-        enabled: false
+        enabled: true
     ingress:
       enabled: false
     insecure: true
@@ -28,11 +28,11 @@ spec:
   grafana:
     enabled: false
   monitoring:
-    enabled: false
+    enabled: true
   notifications:
     enabled: true
   prometheus:
-    enabled: false
+    enabled: true
   sso:
     dex:
       groups:
