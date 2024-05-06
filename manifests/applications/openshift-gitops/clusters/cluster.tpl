@@ -12,7 +12,4 @@ stringData:
   config: |
     {
       "bearerToken": "{{.Env.OP1ST_B4MAD_AUTHENTICATION_TOKEN}}",
-      "tlsClientConfig": {
-        "insecure": true
-      }
     }
