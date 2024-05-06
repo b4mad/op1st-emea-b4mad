@@ -8,6 +8,7 @@ spec:
   server:
     autoscale:
       enabled: false
+    host: argocd.b4mad.emea.operate-first.cloud
     grpc:
       ingress:
         enabled: true
@@ -38,7 +39,7 @@ spec:
       config: |
         connectors:
         - config:
-            issuer: https://kubernetes.default.svc
+            issuer: https://kubernetes.default.svc.cluster.local
             redirectURI: https://argocd.b4mad.emea.operate-first.cloud/api/dex/callback
           id: openshift
           name: OpenShift
