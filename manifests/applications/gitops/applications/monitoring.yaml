@@ -1,15 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: peribolos
-  namespace: openshift-gitops
+  name: monitoring
+  namespace: op1st-gitops
 spec:
   destination:
-    namespace: op1st-peribolos
-    server: https://kubernetes.default.svc
+    namespace: op1st-monitoring
+    server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
   project: op1st
   source:
-    path: manifests/applications/peribolos
+    path: manifests/applications/monitoring
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
     targetRevision: main
   syncPolicy:

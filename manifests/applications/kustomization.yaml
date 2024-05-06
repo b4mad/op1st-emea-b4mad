@@ -5,15 +5,8 @@ namespace: openshift-gitops
 resources:
   - alertmanager-github-receiver.yaml
   - argocd-image-updater.yaml
-  # - b4mad-racing-nostromo-stage.yaml
   - b4mad-racing.yaml
   - environment-nostromo.yaml
   - environment-phobos.yaml
   - op1st-gitops.yaml
-  - monitoring.yaml
-  - peribolos.yaml
   - pipelines.yaml
-  - prow.yaml
-
-  # - https://codeberg.org/goern/bn-bruecken-app/raw/branch/main/manifests/nostromo-dev.yaml
-  # - https://codeberg.org/b4mad/racing-website-manifests/raw/branch/main/applications/dev.yaml
