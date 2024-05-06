@@ -25,3 +25,6 @@ spec:
         - p, proj:op1st:project-admin, applications, action/*, op1st/*, allow
       groups:
         - op1st-plteng
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
