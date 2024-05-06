@@ -15,7 +15,7 @@ spec:
   destination:
     namespace: op1st-prow
     server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
-  project: cluster-management
+  project: op1st
   source:
     path: manifests/applications/argocd-image-updater
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
