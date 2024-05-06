@@ -27,6 +27,7 @@ resources:
   - local-storage/
   - lvm-storage/
   - network-management/
+  - openshift-gitops-integration.yaml
   - openshift-gitops/
   - persistent-image-registry/
   - secrets/github-oauth-app.yaml

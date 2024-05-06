@@ -2,7 +2,7 @@
 
 ```bash
 go install github.com/hairyhenderson/gomplate/v4/cmd/gomplate@latest
-export OP1ST_B4MAD_SECRET_NAME=<this needs to be set manually>
+export OP1ST_B4MAD_SECRET_NAME=argocd-manager # this is default for op1st
 export OP1ST_B4MAD_AUTHENTICATION_TOKEN=$(oc get secret --namespace kube-system ${OP1ST_B4MAD_SECRET_NAME} -o jsonpath='{.data.token}' | base64 --decode)
 export OP1ST_B4MAD_CLUSTER_NAME=$(oc get nodes -o json | jq '.items[0].metadata.name' | tr -d \")
 export OP1ST_B4MAD_URL=$(oc whoami --show-server)
