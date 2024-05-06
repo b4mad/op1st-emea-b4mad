@@ -27,3 +27,6 @@ subjects:
   - kind: ServiceAccount
     name: argocd-argocd-application-controller
     namespace: op1st-gitops
+  - kind: ServiceAccount
+    name: argocd-manager
+    namespace: kube-system
