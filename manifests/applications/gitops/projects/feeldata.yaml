@@ -22,3 +22,6 @@ spec:
         - p, proj:b4mad:project-admin, applications, action/*, b4mad/*, allow
       groups:
         - b4mad-members
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
