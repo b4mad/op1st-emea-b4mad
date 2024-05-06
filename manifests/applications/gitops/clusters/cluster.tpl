@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: {{.Env.OP1ST_B4MAD_CLUSTER_NAME}}
-  namespace: openshift-gitops
+  namespace: op1st-gitops
   labels:
     argocd.argoproj.io/secret-type: cluster
 type: Opaque
