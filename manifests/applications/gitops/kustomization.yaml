@@ -4,12 +4,14 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - argocd.yaml
+  - argocd-gpg-keys.yaml
   - rbac.yaml
   - redis-fix.yaml
 
   - clusters/
   - projects/
   # - repositories/
+
   - applications/alertmanager-github-receiver.yaml
   - applications/argocd-image-updater.yaml
   - applications/b4mad-racing.yaml
