@@ -89,6 +89,7 @@ spec:
   tls:
     ca: {}
   redis:
+    autotls: openshift
     resources:
       limits:
         cpu: 500m
