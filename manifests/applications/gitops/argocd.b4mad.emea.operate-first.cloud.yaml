@@ -4,7 +4,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
   name: argocd-b4mad-emea-operate-first-cloud
-  namespace: openshift-gitops
+  namespace: op1st-gitops
 spec:
   ingressClassName: openshift-default
   rules:
@@ -15,7 +15,7 @@ spec:
             path: /
             backend:
               service:
-                name: openshift-gitops-server
+                name: op1st-gitops-server
                 port:
                   number: 80
   tls:

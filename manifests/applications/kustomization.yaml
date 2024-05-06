@@ -9,6 +9,7 @@ resources:
   - b4mad-racing.yaml
   - environment-nostromo.yaml
   - environment-phobos.yaml
+  - gitops.yaml
   - monitoring.yaml
   - peribolos.yaml
   - pipelines.yaml

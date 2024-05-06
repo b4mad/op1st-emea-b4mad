@@ -9,7 +9,7 @@ spec:
     namespace: openshift-gitops
   project: cluster-management
   source:
-    path: manifests/applications/gitops
+    path: manifests/applications/openshift-gitops
     repoURL: https://github.com/b4mad/op1st-emea-b4mad.git
     targetRevision: main
   syncPolicy:

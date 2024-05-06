@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: op1st-gitops
+    server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
+  project: op1st
+  source:
+    path: manifests/applications/gitops
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
