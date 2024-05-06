@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - argocd.yaml
+  - rbac.yaml
   - redis-fix.yaml
 
   - clusters/
