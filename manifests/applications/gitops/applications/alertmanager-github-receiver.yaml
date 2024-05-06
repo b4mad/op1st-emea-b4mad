@@ -2,11 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: alertmanager-github-receiver
-  namespace: openshift-gitops
+  namespace: op1st-gitops
 spec:
   destination:
     namespace: op1st-alertmanager
-    server: https://kubernetes.default.svc
+    server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
   project: op1st
   source:
     path: manifests/applications/alertmanager-github-receiver
