@@ -4,6 +4,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: argocd-redis
+  namespace: op1st-gitops
 rules:
   - apiGroups:
       - security.openshift.io
@@ -18,6 +19,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: argocd-redis
+  namespace: op1st-gitops
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
