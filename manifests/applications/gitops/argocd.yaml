@@ -42,7 +42,7 @@ spec:
             redirectURI: https://argocd.b4mad.emea.operate-first.cloud/api/dex/callback
           id: openshift
           name: OpenShift
-          type: openidconnect
+          type: openshift
       groups:
         - b4mad-members
         - cluster-admins
