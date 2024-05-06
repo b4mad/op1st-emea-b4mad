@@ -9,8 +9,6 @@ spec:
       server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
   sourceRepos:
     - "*"
-  signatureKeys:
-    - keyID: 280DB66A3E8C012E
   roles:
     - name: project-admin
       description: Read/Write access to this project only
