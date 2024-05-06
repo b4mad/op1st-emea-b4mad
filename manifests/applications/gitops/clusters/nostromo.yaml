@@ -17,4 +17,3 @@ spec:
       name: nostromo
       namespace: op1st-gitops
     type: Opaque
----
