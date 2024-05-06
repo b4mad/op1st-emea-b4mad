@@ -35,6 +35,14 @@ spec:
     enabled: true
   sso:
     dex:
+      config: |
+        connectors:
+        - config:
+            issuer: https://kubernetes.default.svc
+            redirectURI: https://argocd.b4mad.emea.operate-first.cloud/api/dex/callback
+          id: openshift
+          name: OpenShift
+          type: openidconnect
       groups:
         - b4mad-members
         - cluster-admins
