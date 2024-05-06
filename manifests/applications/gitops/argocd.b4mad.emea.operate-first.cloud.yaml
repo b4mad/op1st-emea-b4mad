@@ -15,7 +15,7 @@ spec:
             path: /
             backend:
               service:
-                name: op1st-gitops-server
+                name: argocd-server
                 port:
                   number: 80
   tls:

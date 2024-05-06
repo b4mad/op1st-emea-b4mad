@@ -4,3 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - argocd.yaml
+
+  - clusters/
+  - projects/
+  # - repositories/
