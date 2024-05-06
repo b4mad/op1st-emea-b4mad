@@ -42,6 +42,9 @@ subjects:
   - kind: ServiceAccount
     name: argocd-manager
     namespace: kube-admin
+  - kind: ServiceAccount
+    name: openshift-gitops-argocd-application-controller
+    namespace: openshift-gitops
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
