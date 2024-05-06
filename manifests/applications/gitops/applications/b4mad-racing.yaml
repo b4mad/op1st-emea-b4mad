@@ -2,6 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: b4mad-racing
+  namespace: op1st-gitops
 spec:
   destination:
     server: https://api.phobos.b4mad.emea.operate-first.cloud:6443
@@ -9,7 +10,7 @@ spec:
   project: b4mad
   source:
     path: manifests/env/phobos
-    repoURL: https://github.com/b4mad/racing.git
+    repoURL: https://github.com/b4mad/racing-manifests.git
     targetRevision: main
   syncPolicy:
     syncOptions:

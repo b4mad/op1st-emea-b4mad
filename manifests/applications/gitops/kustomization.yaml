@@ -12,6 +12,7 @@ resources:
   # - repositories/
   - applications/alertmanager-github-receiver.yaml
   - applications/argocd-image-updater.yaml
+  - applications/b4mad-racing.yaml
   - applications/monitoring.yaml
   - applications/prow.yaml
   - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/dev.yaml
