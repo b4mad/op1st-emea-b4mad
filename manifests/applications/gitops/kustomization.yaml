@@ -10,7 +10,7 @@ resources:
   - clusters/
   - projects/
   # - repositories/
-  - applications/alertmanager-github-reciever.yaml
+  - applications/alertmanager-github-receiver.yaml
   - applications/argocd-image-updater.yaml
   - applications/monitoring.yaml
   - applications/prow.yaml
