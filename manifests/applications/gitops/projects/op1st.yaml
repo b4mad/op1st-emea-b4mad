@@ -4,12 +4,12 @@ metadata:
   name: op1st
 spec:
   destinations:
-    - name: phobos-op1st-all
+    - name: phobos
       namespace: op1st-*
       server: https://api.phobos.op1st.emea.operate-first.cloud:6443
-    - name: in-cluster-op1st-all
+    - name: nostromo
       namespace: op1st-*
-      server: https://kubernetes.default.svc
+      server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
   sourceRepos:
     - https://github.com/b4mad/op1st-emea-b4mad.git
   roles:
