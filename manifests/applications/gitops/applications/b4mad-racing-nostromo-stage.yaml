@@ -9,8 +9,8 @@ spec:
     path: manifests/env/nostromo-stage
     targetRevision: nostromo-stage
   destination:
-    server: "https://kubernetes.default.svc"
-    namespace: b4mad-racing-stage
+    server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
+    namespace: b4mad-racing-nostromo-stage
   syncPolicy:
     automated:
       prune: true
