@@ -21,6 +21,7 @@ resources:
   - cert-manager/
   - cluster-monitoring-config.yaml
   - crunchy-postgres/
+  - https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.23/releases/cnpg-1.23.2.yaml
   - custom-certificates/
   - grafana-operator/
   - idp/github-com.yaml
