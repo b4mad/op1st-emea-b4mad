@@ -8,7 +8,7 @@ spec:
     name: in-cluster
   project: cluster-management
   source:
-    path: manifests/applications/gitops
+    path: manifests/applications/op1st-gitops
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
     targetRevision: main
   syncPolicy:
