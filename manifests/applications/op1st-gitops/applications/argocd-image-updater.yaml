@@ -13,7 +13,7 @@ metadata:
       argocd-image-updater=quay.io/argoprojlabs/argocd-image-updater
 spec:
   destination:
-    namespace: op1st-prow
+    namespace: op1st-gitops
     server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
   project: op1st
   source:
