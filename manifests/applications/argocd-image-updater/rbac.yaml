@@ -1,0 +1,26 @@
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: argocd-image-updater
+rules:
+  - apiGroups:
+      - "argoproj.io"
+    resources:
+      - "applications"
+    verbs:
+      - "get"
+      - "watch"
+      - "list"
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: argocd-image-updater
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argocd-image-updater
+subjects:
+  - kind: ServiceAccount
+    name: argocd-image-updater

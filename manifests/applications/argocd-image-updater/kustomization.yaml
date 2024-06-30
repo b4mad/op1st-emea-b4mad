@@ -8,6 +8,7 @@ resources:
   - configmaps.yaml
   - deployment.yaml
   - service_account.yaml
+  - rbac.yaml
   - service_monitors.yaml
   - service.yaml
 
