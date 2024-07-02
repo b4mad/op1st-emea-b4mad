@@ -7,14 +7,14 @@ metadata:
     volume.kubernetes.io/selected-node: bridge
     volume.kubernetes.io/storage-provisioner: topolvm.io
   finalizers:
-    - kubernetes.io/pvc-protection
+  - kubernetes.io/pvc-protection
   name: image-registry-storage
   namespace: openshift-image-registry
 spec:
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   resources:
     requests:
-      storage: 50Gi
+      storage: 100Gi
   storageClassName: lvms-vg1
   volumeMode: Filesystem
