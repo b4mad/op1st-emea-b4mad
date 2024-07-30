@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - cpk-registration.yaml
-  - https://github.com/redhat-cop/gitops-catalog/crunchy-postgres-operator/operator/overlays/v5?ref=main
+  - Subscription.yaml
