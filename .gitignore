@@ -11,3 +11,4 @@ ssh-keys/
 gpg-keys/
 must-gather/
 scratch.txt
+secrets/nostromo/cpk_token
