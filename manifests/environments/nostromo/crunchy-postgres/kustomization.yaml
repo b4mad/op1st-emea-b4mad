@@ -3,4 +3,4 @@ kind: Kustomization
 
 resources:
   - cpk-registration.yaml
-  - Subscription.yaml
+  - subscription.yaml
