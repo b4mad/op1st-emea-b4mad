@@ -16,6 +16,7 @@ spec:
                   values:
                     - phobos
         thinPoolConfig:
+          chunkSizeCalculationPolicy: Static
           name: thin-pool-1
           overprovisionRatio: 10
           sizePercent: 90
