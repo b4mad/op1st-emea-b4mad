@@ -1,28 +1,5 @@
 repos:
-- hooks:
-  - id: remove-tabs
-  repo: https://github.com/Lucas-C/pre-commit-hooks
-  rev: v1.5.4
-- hooks:
-  - id: trailing-whitespace
-  - id: check-merge-conflict
-  - id: end-of-file-fixer
-  - args:
-    - --maxkb=750
-    id: check-added-large-files
-  - id: check-case-conflict
-  - args:
-    - --allow-multiple-documents
-    id: check-yaml
-  - id: end-of-file-fixer
-  - id: trailing-whitespace
-  repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.5.0
-- hooks:
-  - id: forbid-secrets
-  repo: https://github.com/onedr0p/sops-pre-commit
-  rev: v2.1.1
-- hooks:
-  - id: commitizen
-  repo: https://github.com/commitizen-tools/commitizen
-  rev: v3.13.0
+-   repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+    -   id: gitleaks
