@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/description: "Keycloak project"
+    openshift.io/display-name: "Keycloak"
+  labels:
+    kubernetes.io/metadata.name: keycloak
+    name: keycloak
+  name: b4mad-keycloak

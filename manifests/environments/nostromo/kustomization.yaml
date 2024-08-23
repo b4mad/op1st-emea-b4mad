@@ -33,6 +33,8 @@ resources:
   - secrets/github-oauth-app.yaml
   - sno-kubelet-config.yaml
 
+  - keycloak/
+
 components:
   - ../../components/sno-tuning/
   - ../../components/operators/nmstate/

@@ -1,0 +1,9 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: keycloak
+  namespace: b4mad-keycloak
+spec:
+  targetNamespaces:
+    - b4mad-keycloak
+  upgradeStrategy: Default
