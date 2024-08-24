@@ -1,0 +1,11 @@
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: KeycloakRealmImport
+metadata:
+  name: erdgeschoss
+spec:
+  keycloakCRName: b4mad-erdgeschoss
+  realm:
+    id: erdgeschoss
+    realm: erdgeschoss
+    displayName: "erd/G/eschoss"
+    enabled: true

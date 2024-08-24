@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: b4mad-keycloak
+
+commonLabels:
+  app.kubernetes.io/name: iam
+  app.kubernetes.io/component: keycloak
+  app.kubernetes.io/instance: erdgeschoss
+
+resources:
+  - postgres.yaml
+  - certificate.yaml
+  - keycloak.yaml
+
+  - realms/erdgeschoss.b4mad.net.yaml

@@ -1,0 +1,30 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: b4mad-erdgeschoss-keycloak
+spec:
+  secretName: tls-secret
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 4096
+
+  usages:
+    - server auth
+    - client auth
+
+  subject:
+    organizations:
+      - b4mad
+    organizationalUnits:
+      - erdgeschoss
+
+  commonName: keycloak.erdgeschoss.b4mad.net
+
+  dnsNames:
+    - keycloak.erdgeschoss.b4mad.net
+
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+    group: cert-manager.io

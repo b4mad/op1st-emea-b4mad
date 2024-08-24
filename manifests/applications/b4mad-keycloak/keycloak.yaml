@@ -1,0 +1,23 @@
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: Keycloak
+metadata:
+  name: b4mad-erdgeschoss
+spec:
+  instances: 1
+  db:
+    vendor: postgres
+    host: erdgeschoss-primary
+    usernameSecret:
+      name: erdgeschoss-pguser-keycloak
+      key: user
+    passwordSecret:
+      name: erdgeschoss-pguser-keycloak
+      key: password
+  http:
+    tlsSecret: tls-secret
+  hostname:
+    hostname: keycloak.erdgeschoss.b4mad.net
+  ingress:
+    className: openshift-default
+  proxy:
+    headers: xforwarded
