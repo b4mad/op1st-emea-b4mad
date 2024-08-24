@@ -1,0 +1,31 @@
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+    - github:
+        clientID: 4191123883e22ad261fb
+        clientSecret:
+          name: github-oauth-app
+        organizations:
+          - b4mad
+      mappingMethod: claim
+      name: github-com
+      type: GitHub
+    - mappingMethod: claim
+      name: keycloak-erdgeschoss-b4mad
+      openID:
+        claims:
+          email:
+            - email
+          name:
+            - name
+          preferredUsername:
+            - preferred_username
+        clientID: openshift-nostromo
+        clientSecret:
+          name: keycloak-erdgeschoss-b4mad-net-secret
+        extraScopes: []
+        issuer: "https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss-dev"
+      type: OpenID

@@ -23,17 +23,16 @@ resources:
   - crunchy-postgres/
   - custom-certificates/
   - grafana-operator/
-  - idp/github-com.yaml
+  - identity-providers.yaml
   - local-storage/
   - lvm-storage/
   - network-management/
   - openshift-gitops-integration.yaml
   - openshift-gitops/
   - persistent-image-registry/
-  - secrets/github-oauth-app.yaml
+  - secrets/oauth-clients/github-oauth-app.yaml
+  - secrets/oauth-clients/keycloak-erdgeschoss-b4mad-net-secret.yaml
   - sno-kubelet-config.yaml
-
-  - keycloak/
 
 components:
   - ../../components/sno-tuning/
