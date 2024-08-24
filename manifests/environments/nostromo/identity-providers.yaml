@@ -27,5 +27,5 @@ spec:
         clientSecret:
           name: keycloak-erdgeschoss-b4mad-net-secret
         extraScopes: []
-        issuer: "https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss-dev"
+        issuer: "https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss"
       type: OpenID
