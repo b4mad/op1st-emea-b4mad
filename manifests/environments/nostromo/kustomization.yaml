@@ -34,6 +34,8 @@ resources:
   - secrets/oauth-clients/keycloak-erdgeschoss-b4mad-net-secret.yaml
   - sno-kubelet-config.yaml
 
+  - keycloak/
+
 components:
   - ../../components/sno-tuning/
   - ../../components/operators/nmstate/
