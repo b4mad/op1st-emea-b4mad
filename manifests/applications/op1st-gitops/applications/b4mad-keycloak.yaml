@@ -7,7 +7,7 @@ spec:
   destination:
     namespace: b4mad-keycloak
     server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
-  project: op1st
+  project: b4mad
   source:
     path: manifests/applications/b4mad-keycloak
     repoURL: https://github.com/b4mad/op1st-emea-b4mad
