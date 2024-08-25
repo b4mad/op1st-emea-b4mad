@@ -21,3 +21,8 @@ spec:
     className: openshift-default
   proxy:
     headers: xforwarded
+  additionalOptions:
+    - name: metrics-enabled
+      value: "true"
+    - name: health-enabled
+      value: "true"
