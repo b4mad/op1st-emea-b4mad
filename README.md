@@ -6,7 +6,7 @@ This repository implements [Operate First SIG/SRE Infrastructure Services](https
 
 and partialy [Hybride Cloud Patterns: Multicluster DevSecOps](https://hybrid-cloud-patterns.io/patterns/devsecops/)
 
-It is also available via [radicle](https://radicle.xyz/guides/user) as [rad:z2y94Zx8RUfQBNQD2nSpPLN5CW7NQ](https://app.radicle.xyz/nodes/seed.radicle.garden/rad:z2y94Zx8RUfQBNQD2nSpPLN5CW7NQ)
+It is also available via [radicle](https://radicle.xyz/guides/user) as [rad:z2y94Zx8RUfQBNQD2nSpPLN5CW7NQ](https://app.radicle.xyz/nodes/radicle.b4mad.net/rad:z2y94Zx8RUfQBNQD2nSpPLN5CW7NQ).
 
 ## Service Status
 
