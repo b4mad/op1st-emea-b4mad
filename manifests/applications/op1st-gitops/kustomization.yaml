@@ -13,6 +13,7 @@ resources:
   # - repositories/
 
   - applications/b4mad-keycloak.yaml
+  - applications/b4mad-radicle.yaml
   - applications/alertmanager-github-receiver.yaml
   - applications/argocd-image-updater.yaml
   - applications/b4mad-racing.yaml

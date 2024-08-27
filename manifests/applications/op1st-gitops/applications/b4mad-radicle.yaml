@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-radicle
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: b4mad-radicle
+    server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
+  source:
+    path: "."
+    repoURL: https://codeberg.org/goern/radicle-kubernetes
+    targetRevision: HEAD
+  sources: []
+  project: b4mad
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
