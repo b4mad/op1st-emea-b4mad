@@ -42,12 +42,25 @@ rules:
       - ""
     resources:
       - limitranges
+      - resourcequotas
     verbs:
       - create
       - delete
       - get
       - list
       - patch
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+      - validatingwebhookconfigurations
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
   - apiGroups:
       - scheduling.k8s.io
     resources:
