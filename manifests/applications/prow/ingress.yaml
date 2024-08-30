@@ -5,6 +5,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     cert-manager.io/common-name: prow.b4mad.emea.operate-first.cloud
+    kubernetes.io/ingress.allow-http: "false"
   name: prow.b4mad.emea.operate-first.cloud
 spec:
   ingressClassName: openshift-default
@@ -37,6 +38,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     cert-manager.io/common-name: prow.operate-first.cloud
+    kubernetes.io/ingress.allow-http: "false"
   name: prow.operate-first.cloud
 spec:
   ingressClassName: openshift-default

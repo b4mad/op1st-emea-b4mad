@@ -4,6 +4,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     cert-manager.io/common-name: peribolos.b4mad.emea.operate-first.cloud
+    kubernetes.io/ingress.allow-http: "false"
   name: peribolos.b4mad.emea.operate-first.cloud
 spec:
   ingressClassName: openshift-default
