@@ -5,20 +5,25 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     kubernetes.io/ingress.allow-http: "false"
+    route.openshift.io/termination: reencrypt
 spec:
+  defaultBackend:
+    service:
+      name: b4mad-erdgeschoss-service
+      port:
+        name: https
   ingressClassName: openshift-default
   tls:
     - hosts:
         - keycloak.erdgeschoss.b4mad.net
-      secretName: keycloak-tls-secret
+      secretName: tls-ingress
   rules:
     - host: keycloak.erdgeschoss.b4mad.net
       http:
         paths:
-          - path: "/"
-            pathType: ImplementationSpecific
+          - pathType: ImplementationSpecific
             backend:
               service:
                 name: b4mad-erdgeschoss-service
                 port:
-                  number: 8443
+                  name: https

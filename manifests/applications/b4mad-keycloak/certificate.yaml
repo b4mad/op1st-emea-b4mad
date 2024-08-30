@@ -3,7 +3,7 @@ kind: Certificate
 metadata:
   name: b4mad-erdgeschoss-keycloak
 spec:
-  secretName: tls-secret
+  secretName: tls-backend
   privateKey:
     algorithm: RSA
     encoding: PKCS1

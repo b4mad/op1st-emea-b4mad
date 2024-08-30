@@ -14,7 +14,7 @@ spec:
       name: erdgeschoss-pguser-keycloak
       key: password
   http:
-    tlsSecret: tls-secret
+    tlsSecret: tls-backend
   hostname:
     hostname: keycloak.erdgeschoss.b4mad.net
   ingress:

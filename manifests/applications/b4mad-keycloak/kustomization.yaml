@@ -12,6 +12,6 @@ resources:
   - postgres.yaml
   - certificate.yaml
   - keycloak.yaml
-  - ingress.yaml
+  # - ingress.yaml
 
   - realms/erdgeschoss.b4mad.net.yaml
