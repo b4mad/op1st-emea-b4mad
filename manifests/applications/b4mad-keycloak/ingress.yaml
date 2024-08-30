@@ -4,7 +4,7 @@ metadata:
   name: b4mad-erdgeschoss
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-    allow-http: "false"
+    kubernetes.io/ingress.allow-http: "false"
 spec:
   ingressClassName: openshift-default
   tls:
