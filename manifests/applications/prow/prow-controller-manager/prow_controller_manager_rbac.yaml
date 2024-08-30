@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   namespace: op1st-prow
-  name: "prow-controller-manager"1
+  name: "prow-controller-manager"
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
