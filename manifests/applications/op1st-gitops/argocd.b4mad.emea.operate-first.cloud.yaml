@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.allow-http: "false"
   name: argocd-b4mad-emea-operate-first-cloud
   namespace: op1st-gitops
 spec:
