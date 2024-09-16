@@ -17,13 +17,14 @@ On the nostromo environment we have deployed and configured the following infras
 - Operate First GitOps [![CD/GitOps](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=op1st-gitops&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/op1st-gitops)
 - Operate First Pipelines [![CI/Pipelines](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=pipelines&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/pipelines)
 - Kubernetes Prow [![CI/Prow](https://argocd.b4mad.emea.operate-first.cloud/api/badge?name=prow&revision=true)](https://argocd.b4mad.emea.operate-first.cloud/applications/prow)
-- Operate First's Peribolos as a Service [![Community/Peribolos](https://argocd.b4mad.emea.operate-first.cloud/api/badge?name=peribolos&revision=true)](https://argocd.b4mad.emea.operate-first.cloud/applications/peribolos)
+- Open Policy Agent Gatekeeper [![App Status](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=gatekeeper&revision=true&showAppName=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/gatekeeper)
 
 These services are deployed on the nostromo environment.
 
 ### Hosted community services
 
 - [#B4mad Racing](https://b4mad.racing/) [![#B4mad Racing](https://argocd.b4mad.emea.operate-first.cloud/api/badge?name=b4mad-racing&revision=true)](https://argocd.b4mad.emea.operate-first.cloud/applications/b4mad-racing)
+- Operate First's Peribolos as a Service [![Community/Peribolos](https://argocd.b4mad.emea.operate-first.cloud/api/badge?name=peribolos&revision=true)](https://argocd.b4mad.emea.operate-first.cloud/applications/peribolos)
 
 We follow an app-of-apps pattern, where we have a single `kustomization.yaml` file that references all other manifests,
 it can be found in the `manifests/applications/app-of-apps.yaml` file.

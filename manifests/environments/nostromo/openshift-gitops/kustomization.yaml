@@ -12,7 +12,6 @@ resources:
   - secrets/op1st-argocd-b4mad-installation.yaml
 
   - gitops-application.yaml
-  - gatekeeper.yaml
 
   - stubs/openshift-gitops.yaml
 

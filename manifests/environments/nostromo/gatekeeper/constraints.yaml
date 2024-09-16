@@ -1,0 +1,105 @@
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: redhat
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "openshift-*"
+  parameters:
+    repos:
+      - "quay.io/argoprojlabs/argocd-image-updater"
+      - "quay.io/openshift-release-dev"
+      - "registry.access.redhat.com/"
+      - "registry.connect.redhat.com/crunchydata/postgres-operator"
+      - "registry.redhat.io"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: op1st-b4mad
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "op1st-*"
+  parameters:
+    repos:
+      - "codeberg.org/goern"
+      - "docker.io/bitnami/sealed-secrets-controller"
+      - "docker.io/grafana"
+      - "gcr.io/k8s-prow/"
+      - "openpolicyagent/"
+      - "quay.io/argoprojlabs"
+      - "quay.io/b4mad"
+      - "quay.io/k3rnel-pan1c/uptime-kuma"
+      - "quay.io/openshift-release-dev"
+      - "quay.io/operate-first/"
+      - "registry.access.redhat.com/"
+      - "registry.redhat.io"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: b4mad-projects
+spec:
+  enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "b4mad-*"
+  parameters:
+    repos:
+      - "ghcr.io/matrix-org/"
+      - "image-registry.openshift-image-registry.svc:5000"
+      - "quay.io/b4mad/"
+      - "quay.io/keycloak"
+      - "registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest"
+      - "registry.developers.crunchydata.com/crunchydata/crunchy-postgres"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sHttpsOnly
+metadata:
+  name: ingress-https-only
+spec:
+  enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: ["extensions", "networking.k8s.io"]
+        kinds: ["Ingress"]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sBlockWildcardIngress
+metadata:
+  name: block-wildcard-ingress
+spec:
+  enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: ["extensions", "networking.k8s.io"]
+        kinds: ["Ingress"]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sStorageClass
+metadata:
+  name: storageclass-required
+spec:
+  enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["PersistentVolumeClaim"]
+      - apiGroups: ["apps"]
+        kinds: ["StatefulSet"]
+  parameters:
+    includeStorageClassesInMessage: true

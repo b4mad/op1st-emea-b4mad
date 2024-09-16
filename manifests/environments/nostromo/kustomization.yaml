@@ -9,8 +9,6 @@ labels:
       app.kubernetes.io/part-of: b4mad-environments
 
 resources:
-  - github.com/open-policy-agent/gatekeeper-library/library
-
   - ../../organizational-unit-scope/
 
   - stubs/cluster-version.yaml
@@ -24,6 +22,7 @@ resources:
   - cluster-monitoring-config.yaml
   - crunchy-postgres/
   - custom-certificates/
+  - gatekeeper/
   - grafana-operator/
   - identity-providers.yaml
   - local-storage/
