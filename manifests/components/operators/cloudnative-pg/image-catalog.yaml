@@ -1,0 +1,10 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ClusterImageCatalog
+metadata:
+  name: postgresql
+spec:
+  images:
+    - major: 14
+      image: ghcr.io/cloudnative-pg/postgresql:14.13-14
+    - major: 16
+      image: ghcr.io/cloudnative-pg/postgresql:16.4-14

@@ -17,6 +17,7 @@ spec:
       - "quay.io/openshift-release-dev"
       - "registry.access.redhat.com/"
       - "registry.connect.redhat.com/crunchydata/postgres-operator"
+      - "registry.connect.redhat.com/enterprisedb"
       - "registry.redhat.io"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
@@ -41,10 +42,26 @@ spec:
       - "quay.io/argoprojlabs"
       - "quay.io/b4mad"
       - "quay.io/k3rnel-pan1c/uptime-kuma"
-      - "quay.io/openshift-release-dev"
       - "quay.io/operate-first/"
       - "registry.access.redhat.com/"
       - "registry.redhat.io"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: cnpg
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "cnpg-system"
+  parameters:
+    repos:
+      - "ghcr.io/cloudnative-pg/cloudnative-pg"
+      - "registry.connect.redhat.com/enterprisedb"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sAllowedRepos
@@ -60,12 +77,40 @@ spec:
       - "b4mad-*"
   parameters:
     repos:
+      - "ghcr.io/cloudnative-pg/cloudnative-pg"
       - "ghcr.io/matrix-org/"
       - "image-registry.openshift-image-registry.svc:5000"
       - "quay.io/b4mad/"
       - "quay.io/keycloak"
       - "registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest"
       - "registry.developers.crunchydata.com/crunchydata/crunchy-postgres"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: feeldata-projects
+spec:
+  enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "feeldata-*"
+  parameters:
+    repos:
+      - "gcr.io/tekton-releases/github.com/tektoncd/pipeline"
+      - "ghcr.io/cloudnative-pg/cloudnative-pg"
+      - "image-registry.openshift-image-registry.svc:5000"
+      - "mcr.microsoft.com/playwright"
+      - "quay.io/argoproj/argocd"
+      - "quay.io/fedora/nodejs-20"
+      - "quay.io/goern/opf-toolbox"
+      - "registry.access.redhat.com/ubi9/buildah"
+      - "registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest"
+      - "registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer"
+      - "registry.developers.crunchydata.com/crunchydata/crunchy-postgres"
+      - "registry.redhat.io/openshift-pipelines/"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sHttpsOnly

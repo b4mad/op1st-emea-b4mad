@@ -38,15 +38,16 @@ resources:
   - keycloak/
 
 components:
-  - ../../components/sno-tuning/
+  - ../../components/operators/cloudnative-pg/
+  - ../../components/operators/local-storage/
+  - ../../components/operators/lvm-storage/
+  - ../../components/operators/nfd/
   - ../../components/operators/nmstate/
   - ../../components/operators/openshift-cert-manager/
   - ../../components/operators/openshift-gitops/
   - ../../components/operators/openshift-pipelines/
-  - ../../components/operators/lvm-storage/
-  - ../../components/operators/local-storage/
-  - ../../components/operators/nfd/
   - ../../components/operators/strimzi-kafka/
+  - ../../components/sno-tuning/
 
 patches:
   - patch: |-

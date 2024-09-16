@@ -1,0 +1,9 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: cloudnative-pg
+  namespace: cnpg-system
+spec:
+  targetNamespaces:
+    - cnpg-system
+  upgradeStrategy: Default

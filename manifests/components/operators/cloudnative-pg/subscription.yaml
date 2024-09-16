@@ -1,0 +1,14 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  labels:
+    operators.coreos.com/cloudnative-pg.cnpg-system: ""
+  name: cloudnative-pg
+  namespace: cnpg-system
+spec:
+  channel: stable-v1
+  installPlanApproval: Automatic
+  name: cloudnative-pg
+  source: certified-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: cloudnative-pg.v1.24.0
