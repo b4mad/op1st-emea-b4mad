@@ -4,6 +4,7 @@ namespace: openshift-gitops
 
 resources:
   - environment-nostromo.yaml
+  - nostromo-gatekeeper.yaml
   - environment-phobos.yaml
   - op1st-gitops.yaml
   - pipelines.yaml

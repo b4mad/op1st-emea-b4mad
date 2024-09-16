@@ -9,6 +9,8 @@ labels:
       app.kubernetes.io/part-of: b4mad-environments
 
 resources:
+  - github.com/open-policy-agent/gatekeeper-library/library
+
   - ../../organizational-unit-scope/
 
   - stubs/cluster-version.yaml
