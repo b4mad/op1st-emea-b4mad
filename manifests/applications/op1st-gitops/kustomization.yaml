@@ -24,3 +24,4 @@ resources:
   - applications/prow.yaml
   - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/dev.yaml
   - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/stage.yaml
+  - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/prod.yaml
