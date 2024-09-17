@@ -5,5 +5,5 @@ metadata:
     openshift.io/display-name: "Operate First GitOps"
     openshift.io/cluster-monitoring: "true"
   labels:
-    argocd.argoproj.io/managed-by: op1st-gitops
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
   name: op1st-gitops
