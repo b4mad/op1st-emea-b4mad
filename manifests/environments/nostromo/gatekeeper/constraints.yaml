@@ -2,7 +2,7 @@
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sRequiredLabels
 metadata:
-  name: all-must-have-owner
+  name: namespaces-must-have-owner
 spec:
   enforcementAction: warn
   match:
@@ -15,8 +15,27 @@ spec:
   parameters:
     message: "All namespaces must have an `owner` label that points to an org email"
     labels:
-      - key: owner
-        allowedRegex: "^[a-zA-Z]+.@b4mad.net$"
+      - key: b4mad.operate-first.cloud/owner
+        allowedRegex: "^[a-zA-Z]+.b4mad.net$"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: namespaces-must-have-manager
+spec:
+  enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Namespace"]
+    namespaces:
+      - "b4mad-*"
+      - "feeldata-*"
+  parameters:
+    message: "All namespaces must have an `managed-by` label"
+    labels:
+      - key: argocd.argoproj.io/managed-by
+        allowedRegex: "^op1st-gitops$"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sImageDigests
