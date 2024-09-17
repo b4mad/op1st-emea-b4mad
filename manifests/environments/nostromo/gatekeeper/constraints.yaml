@@ -153,8 +153,11 @@ spec:
       - "feeldata-*"
   parameters:
     repos:
+      - "codeberg.org/feeldata"
       - "gcr.io/tekton-releases/github.com/tektoncd/pipeline"
+      - "ghcr.io/cloudnative-pg/pgbouncer"
       - "ghcr.io/cloudnative-pg/cloudnative-pg"
+      - "ghcr.io/cloudnative-pg/postgresql"
       - "image-registry.openshift-image-registry.svc:5000"
       - "mcr.microsoft.com/playwright"
       - "quay.io/argoproj/argocd"
