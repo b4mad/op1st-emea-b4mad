@@ -67,6 +67,7 @@ spec:
   parameters:
     repos:
       - "quay.io/argoprojlabs/argocd-image-updater"
+      - "quay.io/community-operator-pipeline-prod/keycloak-operator"
       - "quay.io/openshift-release-dev"
       - "registry.access.redhat.com/"
       - "registry.connect.redhat.com/crunchydata/postgres-operator"
