@@ -3,8 +3,11 @@ kind: Namespace
 metadata:
   annotations:
     openshift.io/description: "Keycloak project"
-    openshift.io/display-name: "Keycloak"
+    openshift.io/display-name: "#B4mad erd/G/eschoss Identity and Access Management"
+    openshift.io/cluster-monitoring: "true"
+  creationTimestamp: null
   labels:
     kubernetes.io/metadata.name: keycloak
     name: keycloak
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
   name: b4mad-keycloak

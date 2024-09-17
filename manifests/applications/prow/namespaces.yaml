@@ -7,7 +7,7 @@ metadata:
     openshift.io/requester: goern
     openshift.io/cluster-monitoring: "true"
   labels:
-    argocd.argoproj.io/managed-by: openshift-gitops
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
   name: op1st-prow
 ---
 apiVersion: v1
@@ -18,5 +18,5 @@ metadata:
     openshift.io/requester: goern
     openshift.io/cluster-monitoring: "true"
   labels:
-    argocd.argoproj.io/managed-by: openshift-gitops
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
   name: op1st-prow-test-pods
