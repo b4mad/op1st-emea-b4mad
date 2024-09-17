@@ -2,6 +2,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: ClusterImageCatalog
 metadata:
   name: postgresql
+  namespace: cnpg-system
 spec:
   images:
     - major: 14
