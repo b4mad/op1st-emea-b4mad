@@ -97,6 +97,7 @@ spec:
       - "quay.io/b4mad"
       - "quay.io/k3rnel-pan1c/uptime-kuma"
       - "quay.io/operate-first/"
+      - "quay.io/thoth-station"
       - "registry.access.redhat.com/"
       - "registry.redhat.io"
 ---
