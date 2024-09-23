@@ -96,6 +96,7 @@ spec:
             - "openpolicyagent/"
             - "quay.io/argoprojlabs"
             - "quay.io/b4mad"
+            - "quay.io/buildah/stable"
             - "quay.io/k3rnel-pan1c/uptime-kuma"
             - "quay.io/operate-first/"
             - "quay.io/thoth-station"
