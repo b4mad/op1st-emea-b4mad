@@ -13,6 +13,7 @@ resources:
 
 secretGenerator:
   - name: op1st-b4mad-login
+    namespace: openshift-config
     files:
       - console-customization/login-template.html
     options:
