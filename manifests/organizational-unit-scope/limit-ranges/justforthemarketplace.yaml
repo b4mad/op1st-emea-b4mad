@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  creationTimestamp: null
+  name: just-for-the-marketplace
+  namespace: openshift-marketplace
+spec:
+  limits:
+    - max:
+        cpu: 1000m
+        memory: 512Mi
+      type: Pod
+    - default:
+        cpu: 750m
+        memory: 128Mi
+      defaultRequest:
+        cpu: 500m
+        memory: 16Mi
+      type: Container

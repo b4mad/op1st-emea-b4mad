@@ -29,3 +29,6 @@ spec:
         extraScopes: []
         issuer: "https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss"
       type: OpenID
+  templates:
+    login:
+      name: op1st-b4mad-login
