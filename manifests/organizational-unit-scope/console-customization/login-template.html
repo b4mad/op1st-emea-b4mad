@@ -11,55 +11,59 @@ oauthConfig:
 
 -->
 <html>
-  <head>
-    <title>Login</title>
+
+<head>
+    <title>op1st Login</title>
     <style type="text/css">
-      body {
-        font-family: "Open Sans", Helvetica, Arial, sans-serif;
-        font-size: 14px;
-        margin: 15px;
-      }
+        body {
+            font-family: "Open Sans", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            margin: 15px;
+        }
 
-      input {
-        margin-bottom: 10px;
-        width: 300px;
-      }
+        input {
+            margin-bottom: 10px;
+            width: 300px;
+        }
 
-      .error {
-        color: red;
-        margin-bottom: 10px;
-      }
+        .error {
+            color: red;
+            margin-bottom: 10px;
+        }
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
 
     {{ if .Error }}
-      <div class="error">{{ .Error }}</div>
-      <!-- Error code: {{ .ErrorCode }} -->
+    <div class="error">{{ .Error }}</div>
+    <!-- Error code: {{ .ErrorCode }} -->
     {{ end }}
 
     <!-- Identity provider name: {{ .ProviderName }} -->
     <form action="{{ .Action }}" method="POST">
-      <input type="hidden" name="{{ .Names.Then }}" value="{{ .Values.Then }}">
-      <input type="hidden" name="{{ .Names.CSRF }}" value="{{ .Values.CSRF }}">
+        <input type="hidden" name="{{ .Names.Then }}" value="{{ .Values.Then }}">
+        <input type="hidden" name="{{ .Names.CSRF }}" value="{{ .Values.CSRF }}">
 
-      <div>
-        <label for="inputUsername">Username</label>
-      </div>
-      <div>
-        <input type="text" id="inputUsername" autofocus="autofocus" type="text" name="{{ .Names.Username }}" value="{{ .Values.Username }}">
-      </div>
+        <div>
+            <label for="inputUsername">Username</label>
+        </div>
+        <div>
+            <input type="text" id="inputUsername" autofocus="autofocus" type="text" name="{{ .Names.Username }}"
+                value="{{ .Values.Username }}">
+        </div>
 
-      <div>
-        <label for="inputPassword">Password</label>
-      </div>
-      <div>
-        <input type="password" id="inputPassword" type="password" name="{{ .Names.Password }}" value="">
-      </div>
+        <div>
+            <label for="inputPassword">Password</label>
+        </div>
+        <div>
+            <input type="password" id="inputPassword" type="password" name="{{ .Names.Password }}" value="">
+        </div>
 
-      <button type="submit">Log In</button>
+        <button type="submit">Log In</button>
 
     </form>
 
-  </body>
+</body>
+
 </html>
