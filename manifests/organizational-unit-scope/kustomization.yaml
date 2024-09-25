@@ -11,14 +11,6 @@ resources:
   - priority-classes.yaml
   - stubs/cluster-console.yaml
 
-secretGenerator:
-  - name: op1st-b4mad-login
-    namespace: openshift-config
-    files:
-      - console-customization/login-template.html
-    options:
-      disableNameSuffixHash: true
-
 patches:
   - patch: |-
       apiVersion: operator.openshift.io/v1

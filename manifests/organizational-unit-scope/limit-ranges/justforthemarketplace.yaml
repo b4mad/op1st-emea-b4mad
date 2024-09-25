@@ -6,10 +6,6 @@ metadata:
   namespace: openshift-marketplace
 spec:
   limits:
-    - max:
-        cpu: 1000m
-        memory: 512Mi
-      type: Pod
     - default:
         cpu: 750m
         memory: 128Mi
