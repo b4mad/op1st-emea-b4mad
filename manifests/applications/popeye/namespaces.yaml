@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/display-name: "Operate First's very own Popey"
+  creationTimestamp: null
+  labels:
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
+  name: op1st-popeye

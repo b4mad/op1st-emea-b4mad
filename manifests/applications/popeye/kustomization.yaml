@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespaces.yaml
+
+  - cronjob.yaml
+  - rbac.yaml
+  - service_account.yaml
+
+images:
+  - name: popeye
+    newName: docker.io/derailed/popeye
+    digest: sha256:37547e87d6a0bd1aadc860d63ca44551000174cf42f10eef96b7a9ff0930fc46
