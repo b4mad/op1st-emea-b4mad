@@ -5,6 +5,8 @@ commonLabels:
   app.kubernetes.io/managed-by: op1st-emea-b4mad
 resources:
   - namespaces.yaml
+  - limit-range.yaml
+  - resource_quota.yaml
   - customresourcedefinition.yaml
   - branchprotector.yaml
   - label-sync.yaml
