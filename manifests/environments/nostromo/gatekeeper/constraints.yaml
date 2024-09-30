@@ -104,6 +104,7 @@ spec:
       - "quay.io/thoth-station"
       - "registry.access.redhat.com/"
       - "registry.redhat.io"
+      - "us-docker.pkg.dev/k8s-infra-prow/images/"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sAllowedRepos
