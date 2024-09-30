@@ -17,10 +17,10 @@ plank:
         timeout: 2h
         grace_period: 15m
         utility_images:
-          clonerefs: "gcr.io/k8s-prow/clonerefs:v20240805-37a08f946"
-          initupload: "gcr.io/k8s-prow/initupload:v20240805-37a08f946"
-          entrypoint: "gcr.io/k8s-prow/entrypoint:v20240805-37a08f946"
-          sidecar: "gcr.io/k8s-prow/sidecar:v20240805-37a08f946"
+          clonerefs: us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:ko-v20240925-cd0465d2b
+          initupload: us-docker.pkg.dev/k8s-infra-prow/images/initupload:ko-v20240925-cd0465d2b
+          entrypoint: us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:ko-v20240925-cd0465d2b
+          sidecar: us-docker.pkg.dev/k8s-infra-prow/images/sidecar:ko-v20240925-cd0465d2b
         resources:
           clonerefs:
             requests:
@@ -215,7 +215,7 @@ presubmits:
           base_ref: main
       spec:
         containers:
-          - image: gcr.io/k8s-prow/checkconfig:v20231003-e23b6604b5
+          - image: us-docker.pkg.dev/k8s-infra-prow/images/checkconfig:ko-v20240925-cd0465d2b
             command:
               - /ko-app/checkconfig
             args:

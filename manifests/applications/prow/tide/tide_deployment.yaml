@@ -53,7 +53,7 @@ spec:
               readOnly: true
           resources:
             requests:
-              cpu: 250m
+              cpu: 50m
               memory: 256Mi
       volumes:
         - name: github-token

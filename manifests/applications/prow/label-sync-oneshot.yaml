@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
         - name: label-sync
-          image: gcr.io/k8s-prow/label_sync:latest
+          image: label_sync
           args:
             - --config=/etc/config/labels.yaml
             - --github-endpoint=http://ghproxy
