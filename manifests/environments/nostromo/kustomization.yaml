@@ -46,7 +46,6 @@ components:
   - ../../components/operators/openshift-cert-manager/
   - ../../components/operators/openshift-gitops/
   - ../../components/operators/openshift-pipelines/
-  - ../../components/operators/strimzi-kafka/
   - ../../components/sno-tuning/
 
 patches:
