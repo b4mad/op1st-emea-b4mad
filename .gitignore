@@ -12,6 +12,7 @@ gpg-keys/
 must-gather/
 scratch.txt
 secrets/nostromo/cpk_token
+secrets/nostromo/alertmanager.yaml
 
 .vscode/
 __pycache__/
