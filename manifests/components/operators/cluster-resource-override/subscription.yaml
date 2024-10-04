@@ -4,7 +4,9 @@ metadata:
   name: clusterresourceoverride
   namespace: clusterresourceoverride-operator
 spec:
-  channel: "4.16"
+  channel: stable
+  installPlanApproval: Automatic
   name: clusterresourceoverride
   source: redhat-operators
   sourceNamespace: openshift-marketplace
+  startingCSV: clusterresourceoverride-operator.v4.16.0-202409202304
