@@ -12,6 +12,7 @@ resources:
   - ../../organizational-unit-scope/
 
   - stubs/cluster-version.yaml
+  - stubs/node-cluster.yaml
   - stubs/openshift-storage.yaml
 
   - admin-acks/
@@ -58,3 +59,11 @@ patches:
         name: version
       spec:
         channel: fast-4.16
+
+  - patch: |-
+      apiVersion: config.openshift.io/v1
+      kind: Node
+      metadata:
+        name: cluster
+      spec:
+        cgroupMode: v2
