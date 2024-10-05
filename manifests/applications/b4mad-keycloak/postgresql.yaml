@@ -1,0 +1,75 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  creationTimestamp: null
+  name: keycloak
+spec:
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://nostromo-cnpg/b4mad-keycloak/
+      s3Credentials:
+        accessKeyId:
+          key: ACCESS_KEY_ID
+          name: aws-creds
+        secretAccessKey:
+          key: ACCESS_SECRET_KEY
+          name: aws-creds
+      wal:
+        compression: gzip
+        encryption: AES256
+        maxParallel: 8
+    retentionPolicy: 30d
+    target: prefer-standby
+    volumeSnapshot:
+      className: lvms-vg1
+      online: true
+      onlineConfiguration:
+        immediateCheckpoint: true
+        waitForArchive: true
+      snapshotOwnerReference: none
+  bootstrap:
+    initdb:
+      database: keycloak
+      encoding: UTF8
+      localeCType: C
+      localeCollate: C
+      owner: keycloak
+  instances: 3
+  monitoring:
+    customQueriesConfigMap:
+      - key: queries
+        name: cnpg-default-monitoring
+    disableDefaultQueries: false
+    enablePodMonitor: true
+  storage:
+    resizeInUseVolumes: true
+    size: 2Gi
+    storageClass: lvms-vg1
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  creationTimestamp: null
+  name: pooler-keycloak
+spec:
+  cluster:
+    name: keycloak
+  instances: 1
+  pgbouncer:
+    parameters:
+      default_pool_size: "2"
+      max_client_conn: "100"
+    paused: false
+    poolMode: session
+  type: rw
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: daily
+spec:
+  schedule: "0 0 3 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: keycloak
