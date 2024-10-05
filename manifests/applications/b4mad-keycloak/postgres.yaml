@@ -31,7 +31,7 @@ spec:
           requests:
             storage: 1Gi
       name: one
-      replicas: 1
+      replicas: 0
   port: 5432
   postgresVersion: 14
   users:
