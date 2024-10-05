@@ -6,12 +6,12 @@ spec:
   instances: 1
   db:
     vendor: postgres
-    host: erdgeschoss-primary
+    host: postgresql-rw.b4mad-keycloak.svc.cluster.local
     usernameSecret:
-      name: erdgeschoss-pguser-keycloak
+      name: postgresql-app
       key: user
     passwordSecret:
-      name: erdgeschoss-pguser-keycloak
+      name: postgresql-app
       key: password
   http:
     tlsSecret: tls-backend

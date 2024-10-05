@@ -3,7 +3,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   creationTimestamp: null
-  name: keycloak
+  name: postgresql
 spec:
   backup:
     barmanObjectStore:
@@ -31,10 +31,13 @@ spec:
   bootstrap:
     initdb:
       database: keycloak
-      encoding: UTF8
-      localeCType: C
-      localeCollate: C
       owner: keycloak
+      import:
+        type: microservice
+        databases:
+          - keycloak
+        source:
+          externalCluster: erdgeschoss
   instances: 3
   monitoring:
     customQueriesConfigMap:
@@ -46,19 +49,34 @@ spec:
     resizeInUseVolumes: true
     size: 2Gi
     storageClass: lvms-vg1
+  externalClusters:
+    - name: erdgeschoss
+      connectionParameters:
+        host: erdgeschoss-primary.b4mad-keycloak.svc
+        user: keycloak
+        dbname: keycloak
+      password:
+        name: erdgeschoss-pguser-keycloak
+        key: password
+  postgresql:
+    parameters:
+      pgaudit.log: "all, -misc"
+      pgaudit.log_catalog: "off"
+      pgaudit.log_parameter: "off"
+      pgaudit.log_relation: "off"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Pooler
 metadata:
   creationTimestamp: null
-  name: pooler-keycloak
+  name: pooler-postgresql
 spec:
   cluster:
-    name: keycloak
+    name: postgresql
   instances: 1
   pgbouncer:
     parameters:
-      default_pool_size: "2"
+      default_pool_size: "4"
       max_client_conn: "100"
     paused: false
     poolMode: session
@@ -72,4 +90,4 @@ spec:
   schedule: "0 0 3 * * *"
   backupOwnerReference: self
   cluster:
-    name: keycloak
+    name: postgresql

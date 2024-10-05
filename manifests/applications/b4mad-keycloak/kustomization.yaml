@@ -12,7 +12,6 @@ resources:
   - postgres.yaml
   - certificate.yaml
   - keycloak.yaml
-  # - ingress.yaml
   - aws-creds.yaml
   - postgresql.yaml
 
