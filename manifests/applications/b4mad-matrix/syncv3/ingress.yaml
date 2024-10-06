@@ -18,7 +18,7 @@ spec:
               service:
                 name: syncv3
                 port:
-                  name: syncv3
+                  name: http
   tls:
     - hosts:
         - syncv3.matrix.erdgeschoss.b4mad.net

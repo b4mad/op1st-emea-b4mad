@@ -5,15 +5,16 @@ namespace: b4mad-matrix
 
 commonLabels:
   app.kubernetes.io/name: matrix
+  app.kubernetes.io/managed-by: op1st-emea-b4mad
   app.kubernetes.io/component: dendrite
-  app.kubernetes.io/instance: erdgeschoss
 
 resources:
   - namespace.yaml
   - serviceaccount.yaml
 
-  #  - postgresql.yaml
-  #
+  - aws-creds.yaml
+  - postgresql.yaml
+
   - deployment.yaml
   - ingress.yaml
   - pvc.yaml
@@ -22,13 +23,7 @@ resources:
   - service.yaml
   - monitoring_and_alertings.yaml
 
-  - syncv3/
-
 images:
   - name: dendrite-monolith
     newName: ghcr.io/matrix-org/dendrite-monolith
-    newTag: v0.13.8
-
-  - name: sliding-sync
-    newName: ghcr.io/matrix-org/sliding-sync
-    newTag: v0.99.19
+    digest: sha256:11b9929698581c975b6891b45e04629d76da8a70c43e7f5d293f662dbbf33194
