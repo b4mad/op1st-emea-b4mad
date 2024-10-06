@@ -31,4 +31,4 @@ images:
 
   - name: sliding-sync
     newName: ghcr.io/matrix-org/sliding-sync
-    newTag: v0.99.18
+    newTag: v0.99.19
