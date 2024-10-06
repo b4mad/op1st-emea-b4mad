@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: b4mad-matrix
+
+commonLabels:
+  app.kubernetes.io/name: matrix
+  app.kubernetes.io/component: dendrite
+  app.kubernetes.io/instance: erdgeschoss
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+
+  #  - postgresql.yaml
+  #
+  - deployment.yaml
+  - ingress.yaml
+  - pvc.yaml
+  #  - secrets/dendrite-conf.yaml
+  #  - secrets/rest.yaml
+  - service.yaml
+  - monitoring_and_alertings.yaml
+
+  - syncv3/
+
+images:
+  - name: dendrite-monolith
+    newName: ghcr.io/matrix-org/dendrite-monolith
+    newTag: v0.13.8
+
+  - name: sliding-sync
+    newName: ghcr.io/matrix-org/sliding-sync
+    newTag: v0.99.18

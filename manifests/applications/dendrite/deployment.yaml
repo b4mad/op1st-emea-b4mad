@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dendrite
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    spec:
+      volumes:
+        - name: conf
+          secret:
+            secretName: dendrite-conf
+        - name: signing-key
+          secret:
+            secretName: dendrite-signing-key
+        - name: jetstream
+          persistentVolumeClaim:
+            claimName: jetstream
+        - name: media
+          persistentVolumeClaim:
+            claimName: media
+        - name: search
+          persistentVolumeClaim:
+            claimName: search
+      containers:
+        - name: dendrite
+          image: dendrite-monolith
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--config"
+            - "/etc/dendrite/dendrite.yaml"
+          ports:
+            - name: http
+              containerPort: 8008
+              protocol: TCP
+          resources:
+            limits:
+              memory: 2048Mi
+              cpu: 500m
+            requests:
+              memory: 512Mi
+              cpu: 50m
+          volumeMounts:
+            - mountPath: /etc/dendrite/
+              name: conf
+            - mountPath: /etc/dendrite/secrets/
+              name: signing-key
+            - mountPath: /data/media
+              name: media
+            - mountPath: /data/jetstream
+              name: jetstream
+            - mountPath: /data/search
+              name: search
+          livenessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+            httpGet:
+              path: /_dendrite/monitor/health
+              port: http
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+            httpGet:
+              path: /_dendrite/monitor/health
+              port: http
+          startupProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+            httpGet:
+              path: /_dendrite/monitor/up
+              port: http
