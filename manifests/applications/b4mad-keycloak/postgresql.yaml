@@ -60,10 +60,7 @@ spec:
         key: password
   postgresql:
     parameters:
-      pgaudit.log: "all, -misc"
-      pgaudit.log_catalog: "off"
-      pgaudit.log_parameter: "off"
-      pgaudit.log_relation: "off"
+      pgaudit.log: "none, -misc"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Pooler
