@@ -4,6 +4,7 @@ metadata:
   name: b4mad-erdgeschoss
 spec:
   instances: 1
+  image: quay.io/b4mad/keycloak-op1st:26.0.0-0
   db:
     vendor: postgres
     host: postgresql-rw.b4mad-keycloak.svc.cluster.local
