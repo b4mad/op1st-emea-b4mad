@@ -3,6 +3,7 @@ kind: Keycloak
 metadata:
   name: b4mad-erdgeschoss
 spec:
+  image: keycloak
   instances: 1
   db:
     vendor: postgres
