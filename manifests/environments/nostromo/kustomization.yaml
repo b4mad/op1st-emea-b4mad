@@ -22,7 +22,6 @@ resources:
   - cert-manager/
   - cluster-monitoring-config.yaml
   - cluster-resource-override.yaml
-  - crunchy-postgres/
   - custom-certificates/
   - gatekeeper/
   - grafana-operator/
