@@ -12,7 +12,6 @@ configurations:
   - kustomizeconfig/keycloak_image.yaml
 
 resources:
-  - postgres.yaml
   - certificate.yaml
   - keycloak.yaml
   - aws-creds.yaml
