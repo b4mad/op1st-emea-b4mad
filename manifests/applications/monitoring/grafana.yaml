@@ -52,7 +52,7 @@ spec:
       disable_login_form: "false"
     auth.anonymous:
       enabled: "true"
-      org_name: "Operate First by #B4mad"
+      org_name: "Operate First by \#B4mad"
       org_role: Viewer
     auth.generic_oauth:
       enabled: "true"

@@ -8,6 +8,6 @@ resources:
   - deployment.yaml
 
 images:
-  - name: ghcr.io/grafana-operator/grafana-operator
+  - name: grafana-operator
     newName: ghcr.io/grafana-operator/grafana-operator
-    newTag: v5.4.1
+    newTag: v5.4.2
