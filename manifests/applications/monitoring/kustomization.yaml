@@ -5,6 +5,7 @@ resources:
   - namespaces.yaml
 
   - grafana.yaml
+  - grafana-oauth.yaml
   - ingress.yaml
 
   - dashboards/
