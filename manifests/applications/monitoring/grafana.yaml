@@ -49,7 +49,7 @@ spec:
     security:
       allow_embedding: "true"
     auth:
-      disable_login_form: "true"
+      disable_login_form: "false"
     auth.anonymous:
       enabled: "true"
       org_name: "Operate First by #B4mad"
