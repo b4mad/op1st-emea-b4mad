@@ -39,6 +39,8 @@ spec:
                     secretKeyRef:
                       key: GF_SECURITY_ADMIN_PASSWORD
                       name: grafana-admin-credentials
+                - name: GF_SERVER_ROOT_URL
+                  value: https://monitoring.b4mad.emea.operate-first.cloud
           volumes:
             - name: grafana-data
               persistentVolumeClaim:
