@@ -47,7 +47,7 @@ spec:
     enablePodMonitor: true
   storage:
     resizeInUseVolumes: true
-    size: 8Gi
+    size: 12Gi
     storageClass: lvms-vg1
   externalClusters:
     - name: erdgeschoss
