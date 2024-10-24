@@ -1,0 +1,29 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: b4mad-matrix
+
+commonLabels:
+  app.kubernetes.io/name: matrix
+  app.kubernetes.io/managed-by: op1st-emea-b4mad
+  app.kubernetes.io/component: dendrite
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+
+  - aws-creds.yaml
+  - postgresql.yaml
+
+  - deployment.yaml
+  - ingress.yaml
+  - pvc.yaml
+  #  - secrets/dendrite-conf.yaml
+  #  - secrets/rest.yaml
+  - service.yaml
+  - monitoring_and_alertings.yaml
+
+images:
+  - name: dendrite-monolith
+    newName: ghcr.io/matrix-org/dendrite-monolith
+    digest: sha256:11b9929698581c975b6891b45e04629d76da8a70c43e7f5d293f662dbbf33194

@@ -1,0 +1,31 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dendrite
+spec:
+  endpoints:
+    - path: /metrics
+      port: http
+      scheme: http
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: dendrite
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: dendrite
+  labels:
+    openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus
+spec:
+  groups:
+    - name: dendrite
+      rules:
+        - alert: DendriteDown
+          for: 1m
+          expr: dendrite_up == 0
+          labels:
+            severity: critical
+          annotations:
+            message: Dendrite is NOT up!

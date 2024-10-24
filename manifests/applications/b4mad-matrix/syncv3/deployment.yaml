@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sliding-sync
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    spec:
+      containers:
+        - name: syncv3
+          image: sliding-sync
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: syncv3
+              containerPort: 8008
+              protocol: TCP
+          resources:
+            limits:
+              memory: 128Mi
+              cpu: 250m
+            requests:
+              memory: 48Mi
+              cpu: 50m
+          envFrom:
+            - prefix: SYNCV3_
+              secretRef:
+                name: syncv3
