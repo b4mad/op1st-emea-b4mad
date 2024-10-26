@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/common-name: matrix.erdgeschoss.b4mad.net
+    kubernetes.io/ingress.allow-http: "false"
+  name: matrix.erdgeschoss.b4mad.net
+spec:
+  ingressClassName: openshift-default
+  rules:
+    - host: matrix.erdgeschoss.b4mad.net
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: dendrite
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - matrix.erdgeschoss.b4mad.net
+      secretName: matrix.erdgeschoss.b4mad.net

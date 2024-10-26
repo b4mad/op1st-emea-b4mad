@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/common-name: syncv3.matrix.erdgeschoss.b4mad.net
+    kubernetes.io/ingress.allow-http: "false"
+  name: syncv3.matrix.erdgeschoss.b4mad.net
+spec:
+  ingressClassName: openshift-default
+  rules:
+    - host: syncv3.matrix.erdgeschoss.b4mad.net
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: syncv3
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - syncv3.matrix.erdgeschoss.b4mad.net
+      secretName: syncv3.matrix.erdgeschoss.b4mad.net

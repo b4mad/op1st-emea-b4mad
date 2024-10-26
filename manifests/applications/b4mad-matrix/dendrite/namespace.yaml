@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/display-name: "#B4mad Matrix"
+    openshift.io/cluster-monitoring: "true"
+  creationTimestamp: null
+  labels:
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
+  name: b4mad-matrix
