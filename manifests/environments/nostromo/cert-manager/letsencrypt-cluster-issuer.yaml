@@ -45,6 +45,7 @@ spec:
         selector:
           dnsZones:
             - b4mad.net
+            - b4mad.industries
       - dns01:
           cloudflare:
             apiTokenSecretRef:
