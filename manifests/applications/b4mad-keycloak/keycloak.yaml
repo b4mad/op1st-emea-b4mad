@@ -14,6 +14,13 @@ spec:
     passwordSecret:
       name: postgresql-app
       key: password
+  resources:
+    requests:
+      cpu: 1200m
+      memory: 896Mi
+    limits:
+      cpu: 2
+      memory: 3Gi
   http:
     tlsSecret: tls-backend
   hostname:
