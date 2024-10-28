@@ -7,7 +7,6 @@ metadata:
     openshift.io/cluster-monitoring: "true"
   creationTimestamp: null
   labels:
-    clusterresourceoverrides.admission.autoscaling.openshift.io/enabled: "true"
     kubernetes.io/metadata.name: keycloak
     name: keycloak
     b4mad.operate-first.cloud/owner: goern.b4mad.net
