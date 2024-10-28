@@ -16,10 +16,10 @@ spec:
       key: password
   resources:
     requests:
-      cpu: 1200m
+      cpu: 1000m
       memory: 896Mi
     limits:
-      cpu: 2
+      cpu: 1000m
       memory: 3Gi
   http:
     tlsSecret: tls-backend
