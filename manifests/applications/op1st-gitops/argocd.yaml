@@ -17,7 +17,7 @@ spec:
     insecure: true
     resources:
       limits:
-        cpu: 500m
+        cpu: 250m
         memory: 256Mi
       requests:
         cpu: 250m
@@ -54,7 +54,7 @@ spec:
       openShiftOAuth: true
       resources:
         limits:
-          cpu: 500m
+          cpu: 250m
           memory: 256Mi
         requests:
           cpu: 250m
@@ -64,10 +64,10 @@ spec:
   applicationSet:
     resources:
       limits:
-        cpu: "2"
+        cpu: 500m
         memory: 1Gi
       requests:
-        cpu: 250m
+        cpu: 100m
         memory: 512Mi
     webhookServer:
       ingress:
@@ -84,7 +84,7 @@ spec:
   repo:
     resources:
       limits:
-        cpu: "1"
+        cpu: 500m
         memory: 1Gi
       requests:
         cpu: 250m
@@ -105,17 +105,17 @@ spec:
     autotls: openshift
     resources:
       limits:
-        cpu: 500m
+        cpu: 250m
         memory: 256Mi
       requests:
-        cpu: 250m
+        cpu: 100m
         memory: 128Mi
   usersAnonymousEnabled: true
   controller:
     processors: {}
     resources:
       limits:
-        cpu: "2"
+        cpu: 1000m
         memory: 2Gi
       requests:
         cpu: 250m
