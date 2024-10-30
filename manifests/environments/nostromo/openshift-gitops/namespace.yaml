@@ -5,5 +5,4 @@ metadata:
     openshift.io/display-name: "Red Hat OpenShift GitOps"
   labels:
     openshift.io/cluster-monitoring: "true"
-    clusterresourceoverrides.admission.autoscaling.openshift.io/enabled: "true"
   name: openshift-gitops

@@ -8,7 +8,6 @@ metadata:
     openshift.io/cluster-monitoring: "true"
   labels:
     b4mad.operate-first.cloud/owner: goern.b4mad.net
-    clusterresourceoverrides.admission.autoscaling.openshift.io/enabled: "true"
   name: op1st-prow
 ---
 apiVersion: v1
@@ -20,5 +19,4 @@ metadata:
     openshift.io/cluster-monitoring: "true"
   labels:
     b4mad.operate-first.cloud/owner: goern.b4mad.net
-    clusterresourceoverrides.admission.autoscaling.openshift.io/enabled: "true"
   name: op1st-prow-test-pods

@@ -39,7 +39,6 @@ resources:
   - keycloak/
 
 components:
-  - ../../components/operators/cluster-resource-override/
   - ../../components/operators/cloudnative-pg/
   - ../../components/operators/local-storage/
   - ../../components/operators/lvm-storage/
