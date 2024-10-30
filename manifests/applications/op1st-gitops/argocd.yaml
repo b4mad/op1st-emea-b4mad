@@ -64,11 +64,11 @@ spec:
   applicationSet:
     resources:
       limits:
-        cpu: 500m
-        memory: 1Gi
+        cpu: 250m
+        memory: 512Mi
       requests:
         cpu: 100m
-        memory: 512Mi
+        memory: 128Mi
     webhookServer:
       ingress:
         enabled: false
@@ -84,11 +84,11 @@ spec:
   repo:
     resources:
       limits:
-        cpu: 500m
-        memory: 1Gi
-      requests:
         cpu: 250m
-        memory: 256Mi
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
   resourceExclusions: |
     - apiGroups:
       - tekton.dev
@@ -105,17 +105,17 @@ spec:
     autotls: openshift
     resources:
       limits:
-        cpu: 250m
-        memory: 256Mi
-      requests:
         cpu: 100m
         memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 64Mi
   usersAnonymousEnabled: true
   controller:
     processors: {}
     resources:
       limits:
-        cpu: 1000m
+        cpu: 500m
         memory: 2Gi
       requests:
         cpu: 250m
