@@ -2,6 +2,7 @@ kind: ResourceQuota
 apiVersion: v1
 metadata:
   name: op1st-gitops
+  namespace: op1st-gitops
 spec:
   hard:
     limits.cpu: "2"
