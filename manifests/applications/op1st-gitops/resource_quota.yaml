@@ -1,0 +1,10 @@
+kind: ResourceQuota
+apiVersion: v1
+metadata:
+  name: op1st-gitops
+spec:
+  hard:
+    limits.cpu: "2"
+    limits.memory: 4Gi
+    requests.cpu: "1"
+    requests.memory: 1Gi
