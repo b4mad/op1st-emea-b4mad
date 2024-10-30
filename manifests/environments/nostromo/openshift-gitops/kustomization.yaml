@@ -30,6 +30,9 @@ patches:
         server:
           insecure: true # so that our ingress can access the service via http (not https)
           resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
             requests:
               cpu: 250m
               memory: 256Mi
@@ -47,7 +50,7 @@ patches:
               cpu: 500m 
               memory: 512Mi
             requests:
-              cpu: 250m
+              cpu: 100m
               memory: 256Mi
         dex:
           resources:
@@ -55,7 +58,7 @@ patches:
               cpu: 250m
               memory: 256Mi
             requests:
-              cpu: 250m
+              cpu: 100m
               memory: 128Mi
         redis:
           resources:
