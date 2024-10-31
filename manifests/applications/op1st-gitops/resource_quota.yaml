@@ -5,7 +5,7 @@ metadata:
   namespace: op1st-gitops
 spec:
   hard:
-    limits.cpu: "2"
-    limits.memory: 4Gi
-    requests.cpu: "1"
-    requests.memory: 1Gi
+    limits.cpu: "3"
+    limits.memory: 5Gi
+    requests.cpu: 1500m
+    requests.memory: 3Gi
