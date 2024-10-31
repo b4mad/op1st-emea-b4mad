@@ -22,7 +22,7 @@ resources:
   - applications/b4mad-radicle.yaml
   - applications/alertmanager-github-receiver.yaml
   - applications/argocd-image-updater.yaml
-  # - applications/b4mad-racing.yaml
+  - applications/b4mad-racing.yaml
   - applications/monitoring.yaml
   - applications/op1st-popeye.yaml
   - applications/prow.yaml
