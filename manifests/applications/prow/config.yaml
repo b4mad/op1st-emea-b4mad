@@ -8,19 +8,19 @@ plank:
   pod_unscheduled_timeout: 5m
   default_decoration_config_entries:
     - config:
+        timeout: 2h
+        grace_period: 15m
+        utility_images:
+          clonerefs: "us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:v20240802-66b115076"
+          initupload: "us-docker.pkg.dev/k8s-infra-prow/images/initupload:v20240802-66b115076"
+          entrypoint: "us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:v20240802-66b115076"
+          sidecar: "us-docker.pkg.dev/k8s-infra-prow/images/sidecar:v20240802-66b115076"
         gcs_configuration:
           bucket: s3://op1st-emea-b4mad-prow/prow-logs
           path_strategy: explicit
           default_org: "b4mad"
           default_repo: "b4mad"
         s3_credentials_secret: s3-credentials
-        timeout: 2h
-        grace_period: 15m
-        utility_images:
-          clonerefs: us-docker.pkg.dev/k8s-infra-prow/images/clonerefs:ko-v20240925-cd0465d2b
-          initupload: us-docker.pkg.dev/k8s-infra-prow/images/initupload:ko-v20240925-cd0465d2b
-          entrypoint: us-docker.pkg.dev/k8s-infra-prow/images/entrypoint:ko-v20240925-cd0465d2b
-          sidecar: us-docker.pkg.dev/k8s-infra-prow/images/sidecar:ko-v20240925-cd0465d2b
         resources:
           clonerefs:
             requests:
@@ -34,6 +34,7 @@ plank:
           sidecar:
             requests:
               cpu: 100m
+        blobless_fetch: true
 
 sinker:
   resync_period: 1m
@@ -145,7 +146,7 @@ deck:
     - op1st-emea-b4mad-prow
 
 tide:
-  sync_period: 1m
+  sync_period: 2m
 
   pr_status_base_urls:
     "*": https://prow.b4mad.emea.operate-first.cloud/pr

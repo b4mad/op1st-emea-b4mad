@@ -42,40 +42,40 @@ configMapGenerator:
 images:
   - name: tide
     newName: us-docker.pkg.dev/k8s-infra-prow/images/tide
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: branchprotector
     newName: us-docker.pkg.dev/k8s-infra-prow/images/branchprotector
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: label_sync
     newName: gcr.io/k8s-staging-test-infra/label_sync
     newTag: v20240801-a5d9345e59
   - name: status-reconciler
     newName: us-docker.pkg.dev/k8s-infra-prow/images/status-reconciler
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: sinker
     newName: us-docker.pkg.dev/k8s-infra-prow/images/sinker
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: prow-controller-manager
     newName: us-docker.pkg.dev/k8s-infra-prow/images/prow-controller-manager
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: pipeline
     newName: us-docker.pkg.dev/k8s-infra-prow/images/pipeline
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: needs-rebase
     newName: us-docker.pkg.dev/k8s-infra-prow/images/needs-rebase
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: horologium
     newName: us-docker.pkg.dev/k8s-infra-prow/images/horologium
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: hook
     newName: us-docker.pkg.dev/k8s-infra-prow/images/hook
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: ghproxy
     newName: us-docker.pkg.dev/k8s-infra-prow/images/ghproxy
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: deck
     newName: us-docker.pkg.dev/k8s-infra-prow/images/deck
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d
   - name: crier
     newName: us-docker.pkg.dev/k8s-infra-prow/images/crier
-    newTag: v20241002-8442fff47
+    newTag: v20241029-f945d434d

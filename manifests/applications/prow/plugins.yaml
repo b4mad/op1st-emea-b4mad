@@ -52,8 +52,7 @@ approve:
   - repos:
       - b4mad
       - operate-first
-    require_self_approval: true
-    ignore_review_state: false
+    require_self_approval: false
     lgtm_acts_as_approve: false
 
 branch_cleaner:
