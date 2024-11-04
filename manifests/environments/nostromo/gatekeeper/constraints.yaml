@@ -101,6 +101,7 @@ spec:
       - "quay.io/buildah/stable"
       - "quay.io/k3rnel-pan1c/uptime-kuma"
       - "quay.io/operate-first/"
+      - "quay.io/sclorg/python-311-c9s"
       - "quay.io/thoth-station"
       - "registry.access.redhat.com/"
       - "registry.redhat.io"
