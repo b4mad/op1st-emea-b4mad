@@ -1,9 +1,10 @@
----
 apiVersion: performance.openshift.io/v2
 kind: PerformanceProfile
 metadata:
   name: nort-perpod-4reserved
 spec:
+  additionalKernelArgs:
+    - cpufreq.default_governor=schedutil
   cpu:
     isolated: 2-11
     reserved: 0-1
