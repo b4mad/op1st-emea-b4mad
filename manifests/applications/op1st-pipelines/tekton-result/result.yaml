@@ -15,6 +15,5 @@ spec:
   logs_buffer_size: 32768
   logging_pvc_name: tekton-logs
   auth_disable: true
-  tls_hostname_override: tekton-results.b4mad.emea.operate-first.cloud
   server_port: 8080
   prometheus_port: 9090
