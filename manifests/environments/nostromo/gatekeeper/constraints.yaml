@@ -95,6 +95,7 @@ spec:
       - "docker.io/grafana"
       - "gcr.io/k8s-prow/"
       - "gcr.io/tekton-releases"
+      - "ghcr.io/cloudnative-pg/cloudnative-pg"
       - "openpolicyagent/"
       - "quay.io/argoprojlabs"
       - "quay.io/b4mad"
@@ -143,8 +144,6 @@ spec:
       - "image-registry.openshift-image-registry.svc:5000"
       - "quay.io/b4mad/"
       - "quay.io/keycloak"
-      - "registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest"
-      - "registry.developers.crunchydata.com/crunchydata/crunchy-postgres"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sAllowedRepos
