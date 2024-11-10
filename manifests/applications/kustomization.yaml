@@ -10,4 +10,4 @@ resources:
   - nostromo-gatekeeper.yaml
   - environment-phobos.yaml
   - op1st-gitops.yaml
-  - pipelines.yaml
+  - op1st-pipelines.yaml

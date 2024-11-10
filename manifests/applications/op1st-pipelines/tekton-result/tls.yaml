@@ -1,0 +1,25 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tekton-result-tls
+spec:
+  secretName: tektont-result-tls
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  isCA: false
+  usages:
+    - server auth
+    - client auth
+  subject:
+    organizations:
+      - cert-manager
+  dnsNames:
+    - tekton-results.b4mad.emea.operate-first.cloud
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+    group: cert-manager.io

@@ -1,0 +1,75 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  creationTimestamp: null
+  name: postgresql
+spec:
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://nostromo-cnpg/op1st-pipelines/
+      s3Credentials:
+        accessKeyId:
+          key: ACCESS_KEY_ID
+          name: aws-creds
+        secretAccessKey:
+          key: ACCESS_SECRET_KEY
+          name: aws-creds
+      wal:
+        compression: gzip
+        encryption: AES256
+        maxParallel: 8
+    retentionPolicy: 30d
+    target: prefer-standby
+    volumeSnapshot:
+      className: lvms-vg1
+      online: true
+      onlineConfiguration:
+        immediateCheckpoint: true
+        waitForArchive: true
+      snapshotOwnerReference: none
+  bootstrap:
+    initdb:
+      database: result
+      owner: result
+  instances: 1
+  monitoring:
+    customQueriesConfigMap:
+      - key: queries
+        name: cnpg-default-monitoring
+    disableDefaultQueries: false
+    enablePodMonitor: true
+  storage:
+    resizeInUseVolumes: true
+    size: 2Gi
+    storageClass: lvms-vg1
+  postgresql:
+    parameters:
+      pgaudit.log: "none, -misc"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  creationTimestamp: null
+  name: pooler-postgresql
+spec:
+  cluster:
+    name: postgresql
+  instances: 1
+  pgbouncer:
+    parameters:
+      default_pool_size: "4"
+      max_client_conn: "100"
+    paused: false
+    poolMode: session
+  type: rw
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: daily
+spec:
+  schedule: "0 0 2 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: postgresql
