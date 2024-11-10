@@ -10,6 +10,7 @@ resources:
   - tekton-result/tekton-logs.yaml
   - tekton-result/postgresql.yaml
   - tekton-result/result.yaml
+  - tekton-result/tls.yaml
   - unprivileged-building-of-container-images-using-buildah/
 
 patches:
