@@ -95,6 +95,7 @@ spec:
       - "docker.io/grafana"
       - "gcr.io/k8s-prow/"
       - "gcr.io/tekton-releases"
+      - "ghcr.io/cloudnative-pg/cloudnative-pg"
       - "ghcr.io/cloudnative-pg/pgbouncer"
       - "ghcr.io/cloudnative-pg/postgresql"
       - "openpolicyagent/"
