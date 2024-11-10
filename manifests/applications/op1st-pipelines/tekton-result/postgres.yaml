@@ -32,6 +32,8 @@ spec:
     initdb:
       database: result
       owner: result
+      secret:
+        name: tekton-result-postgres
   instances: 1
   monitoring:
     customQueriesConfigMap:
