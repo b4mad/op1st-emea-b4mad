@@ -238,3 +238,5 @@ spec:
       kind: ScheduledBackup
     - group: postgresql.cnpg.io
       kind: Pooler
+    - group: cert-manager.io
+      kind: Certificate
