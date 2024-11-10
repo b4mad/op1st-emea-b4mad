@@ -51,6 +51,8 @@ spec:
       kind: TektonConfig
     - group: operator.tekton.dev
       kind: TektonChain
+    - group: operator.tekton.dev
+      kind: TektonResult
     - group: tekton.dev
       kind: ClusterTask
   namespaceResourceWhitelist:
@@ -230,3 +232,9 @@ spec:
       kind: TriggerTemplate
     - group: cert-manager.io
       kind: ClusterIssuer
+    - group: postgresql.cnpg.io
+      kind: Cluster
+    - group: postgresql.cnpg.io
+      kind: ScheduledBackup
+    - group: postgresql.cnpg.io
+      kind: Pooler
