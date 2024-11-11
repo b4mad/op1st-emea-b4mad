@@ -23,6 +23,8 @@ patches:
       metadata:
         name: config
       spec:
+        chain:
+          artifacts.taskrun.format: tekton
         pipeline:
           enable-provenance-in-status: true
         platforms:

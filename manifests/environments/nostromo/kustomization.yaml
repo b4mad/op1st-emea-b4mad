@@ -12,6 +12,7 @@ resources:
   - ../../organizational-unit-scope/
 
   - stubs/cluster-version.yaml
+  - stubs/configs-samples.yaml
   - stubs/node-cluster.yaml
   - stubs/openshift-storage.yaml
 
@@ -65,3 +66,11 @@ patches:
         name: cluster
       spec:
         cgroupMode: v2
+
+  - patch: |-
+      apiVersion: samples.operator.openshift.io/v1
+      kind: Config
+      metadata:
+        name: cluster
+      spec:
+        managementState: Removed
