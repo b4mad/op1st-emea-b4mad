@@ -39,11 +39,21 @@ metadata:
   name: openshift-gitops-environment-manager-role
 rules:
   - apiGroups:
+      - "samples.operator.openshift.io"
+    resources:
+      - "configs"
+    verbs:
+      - get
+      - delete
+      - list
+      - update
+      - patch
+  - apiGroups:
       - "config.gatekeeper.sh"
       - "templates.gatekeeper.sh"
       - "constraints.gatekeeper.sh"
     resources:
-      - "*" 
+      - "*"
     verbs:
       - create
       - delete
