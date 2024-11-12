@@ -94,6 +94,7 @@ spec:
       - "docker.io/derailed/popeye"
       - "docker.io/grafana"
       - "gcr.io/k8s-prow/"
+      - "gcr.io/k8s-staging-kustomize/kustomize"
       - "gcr.io/tekton-releases"
       - "ghcr.io/cloudnative-pg/cloudnative-pg"
       - "ghcr.io/cloudnative-pg/pgbouncer"
