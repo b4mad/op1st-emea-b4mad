@@ -98,6 +98,7 @@ spec:
       - "ghcr.io/cloudnative-pg/cloudnative-pg"
       - "ghcr.io/cloudnative-pg/pgbouncer"
       - "ghcr.io/cloudnative-pg/postgresql"
+      - "ghcr.io/gitleaks/gitleaks"
       - "openpolicyagent/"
       - "quay.io/argoprojlabs"
       - "quay.io/b4mad"

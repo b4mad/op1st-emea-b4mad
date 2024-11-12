@@ -1,10 +1,9 @@
----
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: code-linters
   annotations:
-    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-event: "[push]"
     pipelinesascode.tekton.dev/on-target-branch: "[main]"
     pipelinesascode.tekton.dev/max-keep-runs: "2"
     pipelinesascode.tekton.dev/task: "[git-clone]"
@@ -19,7 +18,7 @@ spec:
       - name: repo_url
       - name: revision
     tasks:
-      - name: fetchit
+      - name: clone-source
         params:
           - name: url
             value: $(params.repo_url)
@@ -31,34 +30,16 @@ spec:
           - name: output
             workspace: source
 
-      - name: pre-commit
+      - name: gitleaks
         runAfter:
-          - fetchit
+          - clone-source
         taskSpec:
           workspaces:
             - name: source
           steps:
-            - name: pre-commit
-              image: quay.io/thoth-station/thoth-precommit-py38:v0.15.0
+            - name: gitleaks
+              image: ghcr.io/gitleaks/gitleaks:latest
               workingDir: $(workspaces.source.path)
-              script: |
-                pre-commit run --all-files
-        workspaces:
-          - name: source
-            workspace: source
-
-      - name: black
-        runAfter:
-          - fetchit
-        taskSpec:
-          workspaces:
-            - name: source
-          steps:
-            - name: black
-              image: registry.gitlab.com/pipeline-components/black:latest
-              workingDir: $(workspaces.source.path)
-              script: |
-                black --check --verbose -- .
         workspaces:
           - name: source
             workspace: source
@@ -73,4 +54,4 @@ spec:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 5Gi
+              storage: 2Gi
