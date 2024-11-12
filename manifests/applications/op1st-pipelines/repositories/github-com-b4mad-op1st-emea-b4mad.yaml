@@ -1,0 +1,7 @@
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  creationTimestamp: null
+  name: github-com-b4mad-op1st-emea-b4mad
+spec:
+  url: https://github.com/b4mad/op1st-emea-b4mad

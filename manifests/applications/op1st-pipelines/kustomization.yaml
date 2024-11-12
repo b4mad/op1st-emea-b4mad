@@ -16,6 +16,8 @@ resources:
   - tekton-result/tls.yaml
   - unprivileged-building-of-container-images-using-buildah/
 
+  - repositories/github-com-b4mad-op1st-emea-b4mad.yaml
+
 patches:
   - patch: |-
       apiVersion: operator.tekton.dev/v1alpha1
