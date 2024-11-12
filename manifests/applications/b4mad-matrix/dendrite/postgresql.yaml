@@ -81,7 +81,7 @@ kind: ScheduledBackup
 metadata:
   name: prod-daily
 spec:
-  schedule: "0 0 4 * * *"
+  schedule: "0 30 4 * * *"
   backupOwnerReference: self
   cluster:
     name: prod
