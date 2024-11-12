@@ -40,6 +40,10 @@ spec:
             - name: gitleaks
               image: ghcr.io/gitleaks/gitleaks:latest
               workingDir: $(workspaces.source.path)
+              args:
+                - git
+                - $(workspaces.source.path)
+                - --verbose
         workspaces:
           - name: source
             workspace: source
