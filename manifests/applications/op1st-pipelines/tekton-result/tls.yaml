@@ -1,9 +1,9 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: tekton-result-tls
+  name: tekton-results-tls
 spec:
-  secretName: tekton-result-tls
+  secretName: tekton-results-tls
   privateKey:
     algorithm: RSA
     encoding: PKCS1
