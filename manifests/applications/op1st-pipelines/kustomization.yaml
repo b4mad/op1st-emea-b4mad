@@ -26,7 +26,8 @@ patches:
         name: config
       spec:
         chain:
-          artifacts.taskrun.format: tekton
+          artifacts.taskrun.format: slsa/v2alpha4 
+          artifacts.pipelinerun.format: slsa/v2alpha4
         pipeline:
           enable-provenance-in-status: true
         platforms:
