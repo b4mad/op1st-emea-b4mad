@@ -3,7 +3,7 @@ kind: Certificate
 metadata:
   name: tekton-result-tls
 spec:
-  secretName: tektont-result-tls
+  secretName: tekton-result-tls
   privateKey:
     algorithm: RSA
     encoding: PKCS1
