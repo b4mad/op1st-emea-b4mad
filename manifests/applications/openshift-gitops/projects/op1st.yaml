@@ -230,6 +230,8 @@ spec:
       kind: TriggerBinding
     - group: triggers.tekton.dev
       kind: TriggerTemplate
+    - group: pipelinesascode.tekton.dev
+      kind: Repository
     - group: cert-manager.io
       kind: ClusterIssuer
     - group: postgresql.cnpg.io
