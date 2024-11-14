@@ -3,7 +3,7 @@ kind: TektonResult
 metadata:
   name: result
 spec:
-  targetNamespace: op1st-pipelines
+  targetNamespace: openshift-pipelines
   logs_api: true
   log_level: debug
   db_host: pooler-postgresql
@@ -13,7 +13,7 @@ spec:
   logs_path: /logs
   logs_type: File
   logs_buffer_size: 32768
-  logging_pvc_name: tekton-logs
+  logging_pvc_name: tekton-results-logs
   auth_disable: true
   server_port: 8080
   prometheus_port: 9090

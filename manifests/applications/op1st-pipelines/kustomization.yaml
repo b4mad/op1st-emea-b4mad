@@ -9,11 +9,11 @@ resources:
   - secrets/op1st-pipelines-coderberg-org.yaml
   - stubs/tekton-config.yaml
   - tekton-chains.yaml
-  - tekton-result/tekton-logs.yaml
-  - tekton-result/postgres.yaml
-  - tekton-result/tekton-results-postgres.yaml
-  - tekton-result/result.yaml
-  - tekton-result/tls.yaml
+  - tekton-results/logs.yaml
+  - tekton-results/postgres.yaml
+  - tekton-results/database.yaml
+  - tekton-results/result.yaml
+  - tekton-results/tls.yaml
   - unprivileged-building-of-container-images-using-buildah/
 
   - repositories/github-com-b4mad-op1st-emea-b4mad.yaml
