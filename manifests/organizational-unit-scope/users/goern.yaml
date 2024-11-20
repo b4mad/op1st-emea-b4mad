@@ -1,0 +1,9 @@
+kind: User
+apiVersion: user.openshift.io/v1
+metadata:
+  name: goern
+  creationTimestamp: null
+fullName: Christoph Görn
+identities:
+  - "github-com:260331"
+  - "keycloak-erdgeschoss-b4mad:14a4d56f-db6d-43fb-9988-982e4a6390f2"

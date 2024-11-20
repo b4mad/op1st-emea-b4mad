@@ -4,6 +4,10 @@ kind: Kustomization
 resources:
   - ../components/operators/sealed-secrets/
 
+  - users/durandom.yaml
+  - users/goern.yaml
+  - groups/b4mad-admins.yaml
+  - groups/b4mad-members.yaml
   - b4mad-rbac.yaml
   - console-custom-logo.yaml
   - console-links.yaml
