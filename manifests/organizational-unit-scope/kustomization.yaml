@@ -6,6 +6,7 @@ resources:
 
   - users/durandom.yaml
   - users/goern.yaml
+  - users/schwesig.yaml
   - groups/b4mad-admins.yaml
   - groups/b4mad-members.yaml
   - b4mad-rbac.yaml
