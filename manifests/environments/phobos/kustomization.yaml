@@ -20,6 +20,7 @@ resources:
   - cloudnative-pg/
   - custom-certificates/
   - grafana-operator/
+  - identity-providers.yaml
   - local-storage/
   - lvm-storage/
   - openshift-gitops-integration.yaml
