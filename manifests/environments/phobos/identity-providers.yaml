@@ -6,12 +6,11 @@ metadata:
 spec:
   identityProviders:
     - github:
-        clientID: ddc959f2945e438f0006
+        clientID: 8e75998108014d94c9b7
         clientSecret:
-          name: github-client-secret-9h457
+          name: github-oauth-app
         organizations:
           - b4mad
-        teams: []
       mappingMethod: claim
       name: github-com
       type: GitHub
