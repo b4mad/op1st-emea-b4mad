@@ -89,6 +89,7 @@ spec:
       - "op1st-*"
   parameters:
     repos:
+      - "cgr.dev/chainguard/git"
       - "codeberg.org/goern"
       - "docker.io/bitnami/sealed-secrets-controller"
       - "docker.io/derailed/popeye"
