@@ -33,7 +33,7 @@ spec:
       database: tekton-results
       owner: result
       secret:
-        name: tekton-result-postgres
+        name: tekton-results-postgres
   instances: 1
   monitoring:
     customQueriesConfigMap:
