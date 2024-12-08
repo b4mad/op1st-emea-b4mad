@@ -30,7 +30,7 @@ spec:
       snapshotOwnerReference: none
   bootstrap:
     initdb:
-      database: result
+      database: tekton-result
       owner: result
       secret:
         name: tekton-result-postgres
