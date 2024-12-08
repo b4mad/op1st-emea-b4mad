@@ -74,6 +74,9 @@ spec:
       - "registry.connect.redhat.com/crunchydata/postgres-operator"
       - "registry.connect.redhat.com/enterprisedb"
       - "registry.redhat.io"
+      - "ghcr.io/cloudnative-pg/cloudnative-pg"
+      - "ghcr.io/cloudnative-pg/pgbouncer"
+      - "ghcr.io/cloudnative-pg/postgresql"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sAllowedRepos

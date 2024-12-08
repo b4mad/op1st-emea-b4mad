@@ -1,0 +1,17 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: tekton-results-postgres
+  namespace: openshift-pipelines
+spec:
+  encryptedData:
+    POSTGRES_PASSWORD: AgA4dd2+ImVlRTz/NJf6BLgQcig4ENoB4XuglX0wcDPfOzpfnoqZh2veeeA6opxxPixLCBCFXFbp/Hg9U0kud9EfPWDQ5No3YHTBNTPVMoz+m3IsiPE6gKvgCkZ47jWptxU6otfDBxaaZ4JyaOq+Wsn2aHYDBdv8kPEVbZabtSixn8Jzp5GnRp6ySHAmESQ72MxjwsA0mfvO6SRwiYww7zVVQD9ZJsjilzBDKh4AczOjVidOjB5idASO0fEgK2Dx7w03WMv+HjdRuHB0d1EWeB6Nyzx45QhQfx4lTBrIkH2sYJW5/vgZyTKa2Wjncl0Sj/MTOmhZvxmBhNmP0RAuPGrmwfycmIbJTX+JtcVv/EkWq0VO7b6IHW3mX1jJbHwlNseOMw30+satHMN1jtuki8Qx9D+d6ePy44xF9MMZoAAITKMWdoUPqxtEOVZUzlsaqDlmReI9pcz66G8Zt6/rFC/XmYC5WaGTZ3GENWRFeMYsRmZm3jVnEtJp3p1XqlrjKz/czPCxF4ngJvK/6SVEVXylSBkKAPwK19pp7cXEdueqdKhn1NF3dWYytHIYqRJTxtpvR58lJb2/Bg3P+oI7b+84t1yP80iiuzX+cEUCgaP1xiZCAsiQBcuB+g0L+hqK/VlQtn4Y5XLkScTya2uzoCmyUS7RlCRCuJGW9lo1TMmHl4pvtENVwKsl0h+PhBu0tNm6+RoDh2ZP2CAqZHhNMJXB+0+QwZgpI1E=
+    POSTGRES_USER: AgCCQU9/CozpoDOii2uUyZpLX77IPs5zzhQC5nhjz/uUwbBCm34MDNKpze3eg3/nO61A3U5SVlsK2HcmSsW2Uf1VNQuGBosE5I2h6xbr6lEcvcv8S6LDw1rcj0VWpTTSatjbWEi7yo/0kCqOIanW3LTMNN/VAyfThuHWpfzJVqAHPqPDk+Wh/l2NjBuzY6m1Jv+Pct5l6b+k/vY4Lfkk1TUo7IQXeH11+jEsG+Z4jl8rEY2aUFb21Mb7/1oDaBFWX6LUPTnsmjOMsnZ8onPplOE9DnOlTVClAPoS7F5qk37ASfLRsjksc81XUKK0/lGEtriRhPlPebH0RHghDaeTZUicUDIi2j9V/xMeL+ZzDIGWcFW+DcdE0BPhMWlIFVQGRr0FqZcW5RgWN0D/WViO3IV7SSrzsZ9yA/CC0j9Xm6y8luQM/lBKABSg7W+CipPrd/6RW54+Lql2a+T18gWLnfHd9jP2s4NXNEVbnCMtFk4T7HQVEG9kUpP0M+6NLxXOH7fSJRzaiovTDMRALKBYZHGRPVLyXqpDpC5LVlU6PcDgYyGULnaq8Ul9Ff8j8aZ0clG75TzowSAt+EUMTMXE0V6nf+PZprZfi9Xu2HGnb0TAczNgTTzK7GAgUtSYnQPNyksyGFbCHCsRD7P/5JXIA04Dbfv3A/gAcW+aYHBMClodj0U01sQJ4uEaiY7CLy+g3P6Iz4KHjNw=
+  template:
+    metadata:
+      creationTimestamp: null
+      name: tekton-results-postgres
+      namespace: openshift-pipelines
+    type: kubernetes.io/basic-auth
+---
