@@ -1,0 +1,9 @@
+version = 0.2.0
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false
+
+[tool.semantic_release]
+commit_author = "Christoph Görn <goern@b4mad.net>"
+version_toml = ["release.toml:version"]
