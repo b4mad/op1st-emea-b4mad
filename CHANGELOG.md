@@ -1,6 +1,23 @@
 # CHANGELOG
 
 
+## v0.2.1 (2024-12-08)
+
+### Bug Fixes
+
+- **nostromo**: Name of the postgresql secret
+  ([`0e8d963`](https://github.com/goern/op1st-emea-b4mad/commit/0e8d963edcd6cd8176d238ac091eed8b34864531))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+### Features
+
+- **nostromo**: Use fast-4.17 as an update channel
+  ([`6944472`](https://github.com/goern/op1st-emea-b4mad/commit/6944472c62e30090e3f35c1788a6b5dd7cb45024))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+
 ## v0.2.0 (2024-12-08)
 
 ### Build System
