@@ -2,6 +2,8 @@ apiVersion: v1
 data:
     POSTGRES_USER: ENC[AES256_GCM,data:5bOZ6xzLEwg=,iv:5rrssa5mra0G3lPDHrFZeqO64rYRqVih64+glY6fzME=,tag:+ypKNGuhG/RH85qwIVLDjw==,type:str]
     POSTGRES_PASSWORD: ENC[AES256_GCM,data:sElcK3y4ldgwCfL5XPqcdx2dBFRKyyh6rhNitcrQgvg=,iv:s3jxBN6fdLQNX5efdSCQSKU4wCqQpgeThU05R53KtJ4=,tag:8XXv5yrJoG2yQprAqsKneQ==,type:str]
+    username: ENC[AES256_GCM,data:MsC2rGs92YE=,iv:N3ZkHsOlU4IN2C6JxuMg11i/c/3resTIyW3Ew9J6qsI=,tag:5eNPVBrK/UmEXC/n7SnsUg==,type:str]
+    password: ENC[AES256_GCM,data:VJWt0yinh6A9bkuNViGiqpE2SuWhQ02qVL273BW8MBI=,iv:rLC3w0vGsSl+r4wjHUsqMQ8qFUZGzEitTry4YzYs+yw=,tag:OOcLUGE3CK0ot2CeqiD4sg==,type:str]
 kind: Secret
 metadata:
     name: tekton-results-postgres
@@ -12,8 +14,8 @@ sops:
     azure_kv: []
     hc_vault: []
     age: []
-    lastmodified: "2024-12-08T11:25:26Z"
-    mac: ENC[AES256_GCM,data:iCYDytx9KOXWN2SepQ8ftzBIFTxonQrgch8K1mnlBNimNmhvcr5JEqGszYX7GaPnjyUprewcI7LlATBeohmrFOagwnGBLhUxoirnQwnjBiQcdfriqWZfNdSBZdlPkcwDffjGoAU5qKZAGWd5M87MFhl0lJ7Uro1zF1KXISJ34ss=,iv:OcV7O80aq/tIqDdFIXsstJfS86e0SO309E1c2Td4xVw=,tag:kwCZE7f7aS06dnupg+ZLTA==,type:str]
+    lastmodified: "2024-12-08T11:33:35Z"
+    mac: ENC[AES256_GCM,data:MRekIanCKfdWfoJCQz1aVSXvP06OhnlhBDf90NGUZ6DmvLJ8cIxuTkXdQN9d7QbsiAs4snwscA589L8LdvVFRaAYPMik/t/lS/uaZd85QMq0LcfB98hT8T75OojeK8lTUXVE4GpdLEnJ29aNPTyDyetbPkV/P/yf0gUClygShKc=,iv:T2JCRcxYksotXE9q7F8v2IV9f0wunzQyE/VBrzdm1QQ=,tag:QvNAPR7Lik42n1XrTadwRw==,type:str]
     pgp:
         - created_at: "2024-11-10T12:14:19Z"
           enc: |-
