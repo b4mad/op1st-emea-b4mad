@@ -1,6 +1,16 @@
 # CHANGELOG
 
 
+## v0.2.0 (2024-12-08)
+
+### Build System
+
+- Add release management config
+  ([`139327d`](https://github.com/goern/op1st-emea-b4mad/commit/139327d5c56e481d9ad7446f17411492f9d800b6))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+
 ## v0.1.0-rc.1 (2024-12-08)
 
 ### Bug Fixes
