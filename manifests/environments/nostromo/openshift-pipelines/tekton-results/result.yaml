@@ -6,7 +6,7 @@ spec:
   targetNamespace: openshift-pipelines
   logs_api: true
   log_level: debug
-  db_host: pooler-postgresql
+  db_host: postgresql-rw
   db_port: 5432
   is_external_db: true
   db_enable_auto_migration: true
