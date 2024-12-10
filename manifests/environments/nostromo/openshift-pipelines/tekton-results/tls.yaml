@@ -16,8 +16,10 @@ spec:
     - client auth
   subject:
     organizations:
-      - cert-manager
+      - "#B4mad"
+  commonName: tekton-results.b4mad.emea.operate-first.cloud
   dnsNames:
+    - tekton-results-api-service.openshift-pipelines.svc.cluster.local
     - tekton-results.b4mad.emea.operate-first.cloud
   issuerRef:
     name: letsencrypt
