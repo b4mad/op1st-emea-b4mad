@@ -17,9 +17,8 @@ spec:
   subject:
     organizations:
       - "#B4mad"
-  commonName: tekton-results.b4mad.emea.operate-first.cloud
+  commonName: tekton-results-api-service.openshift-pipelines.svc.cluster.local
   dnsNames:
-    - tekton-results-api-service.openshift-pipelines.svc.cluster.local
     - tekton-results.b4mad.emea.operate-first.cloud
   issuerRef:
     name: letsencrypt
