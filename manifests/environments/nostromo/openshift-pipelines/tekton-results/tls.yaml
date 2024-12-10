@@ -20,6 +20,7 @@ spec:
   commonName: tekton-results-api-service.openshift-pipelines.svc.cluster.local
   dnsNames:
     - tekton-results.b4mad.emea.operate-first.cloud
+    - tekton-results-api-service.openshift-pipelines.svc.cluster.local
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
