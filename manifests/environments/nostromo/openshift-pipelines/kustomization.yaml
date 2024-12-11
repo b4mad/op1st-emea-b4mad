@@ -12,4 +12,4 @@ resources:
   - tekton-results/logs.yaml
   - tekton-results/postgres.yaml
   - tekton-results/result.yaml
-  - tekton-results/tls.yaml
+  # - tekton-results/tls.yaml
