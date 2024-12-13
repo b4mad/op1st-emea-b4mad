@@ -89,7 +89,13 @@ spec:
       - apiGroups: [""]
         kinds: ["Pod"]
     namespaces:
-      - "op1st-*"
+      - op1st-alertmanager
+      - op1st-alertreceiver
+      - op1st-gitops
+      - op1st-monitoring
+      - op1st-peribolos
+      - op1st-popeye
+      - op1st-uptime
   parameters:
     repos:
       - "codeberg.org/goern"
@@ -121,9 +127,10 @@ spec:
       - apiGroups: [""]
         kinds: ["Pod"]
     namespaces:
-      - "op1st-pipelines"
-      - "op1st-prow"
-      - "feeldata-dev"
+      - op1st-pipelines
+      - op1st-prow
+      - op1st-prow-test-pods
+      - feeldata-dev
   parameters:
     repos:
       - "cgr.dev/chainguard/git"
