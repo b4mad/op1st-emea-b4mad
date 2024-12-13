@@ -1,6 +1,56 @@
 # CHANGELOG
 
 
+## v0.2.2 (2024-12-13)
+
+### Bug Fixes
+
+- **openshift-pipelines**: Manually create tekton-results-tls secret, as ACME is not able to do so
+  (SAN issue)
+  ([`1876e44`](https://github.com/goern/op1st-emea-b4mad/commit/1876e4439d1bf0620c2fe45fe03975420e86a2a9))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **nostromo**: Add SAN to tekton-results tls cert
+  ([`c7dcbbb`](https://github.com/goern/op1st-emea-b4mad/commit/c7dcbbb08aadb74afb1c31a72a2c5971348b65a1))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **nostromo**: Add SAN to tekton-results tls cert
+  ([`bc6dbd1`](https://github.com/goern/op1st-emea-b4mad/commit/bc6dbd17b26c36b8278ef35b0253d9f5b1baaa66))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **nostromo**: Add SAN to tekton-results tls cert
+  ([`7bf0bd4`](https://github.com/goern/op1st-emea-b4mad/commit/7bf0bd409f9d9a9c7f677d1f8158be445d879166))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+### Build System
+
+- Remove cz config
+  ([`9e82c80`](https://github.com/goern/op1st-emea-b4mad/commit/9e82c8052dc999894a069cf227d0fcc85d4c0e72))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+### Features
+
+- **nostromo**: Update OpenShift Pipelines to v1.17
+  ([`2655d33`](https://github.com/goern/op1st-emea-b4mad/commit/2655d330b5ba04e125c46f1c370d8fd080e361cc))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- Add codeberg.org/toolbxs/bxbdbt, so that it can be used in op1st-pipelines
+  ([`c09c287`](https://github.com/goern/op1st-emea-b4mad/commit/c09c28729c1742a054fdb76a7a2d48eda2c3a8e0))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **nostromo**: Remove NFD deployment
+  ([`d6e897a`](https://github.com/goern/op1st-emea-b4mad/commit/d6e897a58f0fb80536db1491264ce612d20ed373))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+
 ## v0.2.1 (2024-12-08)
 
 ### Bug Fixes
