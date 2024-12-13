@@ -92,9 +92,7 @@ spec:
       - "op1st-*"
   parameters:
     repos:
-      - "cgr.dev/chainguard/git"
       - "codeberg.org/goern"
-      - "codeberg.org/toolbxs/bxbdbt"
       - "docker.io/bitnami/sealed-secrets-controller"
       - "docker.io/derailed/popeye"
       - "docker.io/grafana"
@@ -116,6 +114,25 @@ spec:
       - "registry.access.redhat.com/"
       - "registry.redhat.io"
       - "us-docker.pkg.dev/k8s-infra-prow/images/"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRepos
+metadata:
+  name: op1st-pipelines
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "op1st-pipelines"
+      - "feeldata-dev"
+  parameters:
+    repos:
+      - "cgr.dev/chainguard/git"
+      - "codeberg.org/toolbxs/bxbdbt"
+      - "quay.io/skopeo/stable:v1"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sAllowedRepos
