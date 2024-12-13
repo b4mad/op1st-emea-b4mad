@@ -94,6 +94,7 @@ spec:
     repos:
       - "cgr.dev/chainguard/git"
       - "codeberg.org/goern"
+      - "codeberg.org/toolbxs/bxbdbt"
       - "docker.io/bitnami/sealed-secrets-controller"
       - "docker.io/derailed/popeye"
       - "docker.io/grafana"
