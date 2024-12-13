@@ -96,24 +96,19 @@ spec:
       - "docker.io/bitnami/sealed-secrets-controller"
       - "docker.io/derailed/popeye"
       - "docker.io/grafana"
-      - "gcr.io/k8s-prow/"
-      - "gcr.io/k8s-staging-kustomize/kustomize"
       - "gcr.io/tekton-releases"
       - "ghcr.io/cloudnative-pg/cloudnative-pg"
       - "ghcr.io/cloudnative-pg/pgbouncer"
       - "ghcr.io/cloudnative-pg/postgresql"
-      - "ghcr.io/gitleaks/gitleaks"
       - "openpolicyagent/"
       - "quay.io/argoprojlabs"
       - "quay.io/b4mad"
-      - "quay.io/buildah/stable"
       - "quay.io/k3rnel-pan1c/uptime-kuma"
       - "quay.io/operate-first/"
       - "quay.io/sclorg/python-311-c9s"
       - "quay.io/thoth-station"
       - "registry.access.redhat.com/"
       - "registry.redhat.io"
-      - "us-docker.pkg.dev/k8s-infra-prow/images/"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sAllowedRepos
@@ -127,12 +122,22 @@ spec:
         kinds: ["Pod"]
     namespaces:
       - "op1st-pipelines"
+      - "op1st-prow"
       - "feeldata-dev"
   parameters:
     repos:
       - "cgr.dev/chainguard/git"
       - "codeberg.org/toolbxs/bxbdbt"
-      - "quay.io/skopeo/stable:v1"
+      - "gcr.io/k8s-prow/"
+      - "gcr.io/k8s-staging-kustomize/kustomize"
+      - "gcr.io/tekton-releases/github.com/tektoncd/pipeline"
+      - "ghcr.io/gitleaks/gitleaks"
+      - "quay.io/buildah/stable"
+      - "quay.io/operate-first/"
+      - "quay.io/skopeo/stable"
+      - "registry.redhat.io/openshift-pipelines/"
+      - "registry.redhat.io/rhel8/buildah"
+      - "us-docker.pkg.dev/k8s-infra-prow/images/"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sAllowedRepos
@@ -186,7 +191,6 @@ spec:
   parameters:
     repos:
       - "codeberg.org/feeldata"
-      - "gcr.io/tekton-releases/github.com/tektoncd/pipeline"
       - "ghcr.io/cloudnative-pg/pgbouncer"
       - "ghcr.io/cloudnative-pg/cloudnative-pg"
       - "ghcr.io/cloudnative-pg/postgresql"
@@ -195,11 +199,9 @@ spec:
       - "quay.io/argoproj/argocd"
       - "quay.io/fedora/nodejs-20"
       - "quay.io/goern/opf-toolbox"
-      - "registry.access.redhat.com/ubi9/buildah"
       - "registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest"
       - "registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer"
       - "registry.developers.crunchydata.com/crunchydata/crunchy-postgres"
-      - "registry.redhat.io/openshift-pipelines/"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sHttpsOnly
