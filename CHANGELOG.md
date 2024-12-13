@@ -1,6 +1,38 @@
 # CHANGELOG
 
 
+## v0.2.3 (2024-12-13)
+
+### Chores
+
+- **nostromo**: Reencrypt github oauth authentication app secret
+  ([`c681c16`](https://github.com/goern/op1st-emea-b4mad/commit/c681c16f56421356777d02cc5ff4a8946f2c450f))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+### Features
+
+- **pipelines**: Be specific about the namespaces in gatekeepers constraints
+  ([`fa274a9`](https://github.com/goern/op1st-emea-b4mad/commit/fa274a90ab0b06f052e553c81623647722da8915))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **pipelines**: Allow more image repositories for op1st-pipelines
+  ([`4fa840b`](https://github.com/goern/op1st-emea-b4mad/commit/4fa840b09938c06463e54104370657ab01b09d34))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **pipelines**: Allow quay.io/skopeo/stable:v1 for op1st-pipelines
+  ([`b2d9d03`](https://github.com/goern/op1st-emea-b4mad/commit/b2d9d03ba13fb73ffa4458986283d82042816f7e))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **pipelines**: Configure cluster resolver
+  ([`f0b7992`](https://github.com/goern/op1st-emea-b4mad/commit/f0b7992b2ae38e0a24286572d43fa9c66f3f3e7d))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+
 ## v0.2.2 (2024-12-13)
 
 ### Bug Fixes
