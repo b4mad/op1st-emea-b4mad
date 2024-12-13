@@ -24,6 +24,15 @@ patches:
           {}
         pipeline:
           enable-provenance-in-status: true
+          enable-bundles-resolver: true
+          enable-hub-resolver: true
+          hub-resolver-config:
+            default-tekton-hub-catalog: Tekton 
+            default-artifact-hub-task-catalog: tekton-catalog-tasks 
+            default-artifact-hub-pipeline-catalog: tekton-catalog-pipelines 
+            default-kind: task 
+            default-type: artifact 
+          enable-cluster-resolver: true
         platforms:
           openshift:
             pipelinesAsCode:
