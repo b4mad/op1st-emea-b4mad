@@ -5,9 +5,11 @@ namespace: op1st-pipelines
 
 resources:
   - namespaces.yaml
+  - stubs/tekton-config.yaml
 
   - secrets/op1st-pipelines-coderberg-org.yaml
-  - stubs/tekton-config.yaml
+  - secrets/codeberg-pusher.yaml
+  - serviceaccount.yaml
   - tekton-chains.yaml
   - unprivileged-building-of-container-images-using-buildah/
 

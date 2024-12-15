@@ -4,6 +4,8 @@ kind: Kustomization
 namespace: openshift-pipelines
 
 resources:
+  - namespace.yaml
+
   - secrets/pipelines-as-code.yaml
 
   - tekton-results/database.yaml
