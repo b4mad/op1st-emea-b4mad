@@ -5,11 +5,9 @@ metadata:
   namespace: openshift-monitoring
 data:
   config.yaml: |
-    alertmanager:
+    AlertmanagerMainConfig:
       enabled: false
     enableUserWorkload: true
-    grafana:
-      enabled: false
     prometheusK8s:
       externalLabels:
         region: emea

@@ -5,20 +5,16 @@ metadata:
   namespace: openshift-monitoring
 data:
   config.yaml: |
-    alertmanager:
+    alertmanagerMain: # https://docs.openshift.com/container-platform/4.17/observability/monitoring/config-map-reference-for-the-cluster-monitoring-operator.html#alertmanagermainconfig
       enabled: true
-      enableAlertmanagerConfig: true
-    alertmanagerMain:
-      enableUserAlertmanagerConfig: true  # https://docs.openshift.com/container-platform/4.13/monitoring/enabling-alert-routing-for-user-defined-projects.html#enabling-the-platform-alertmanager-instance-for-user-defined-alert-routing_enabling-alert-routing-for-user-defined-projects
+      enableUserAlertmanagerConfig: true 
       volumeClaimTemplate:
         spec:
           storageClassName: lvms-vg1
           resources:
             requests:
               storage: 10Gi
-    enableUserWorkload: true  # https://docs.openshift.com/container-platform/4.12/monitoring/enabling-monitoring-for-user-defined-projects.html#enabling-monitoring-for-user-defined-projects_enabling-monitoring-for-user-defined-projects
-    grafana:
-      enabled: false
+    enableUserWorkload: true 
     prometheusK8s:
       collectionProfile: full
       externalLabels:
