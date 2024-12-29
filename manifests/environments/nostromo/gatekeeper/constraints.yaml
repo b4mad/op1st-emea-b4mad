@@ -130,7 +130,6 @@ spec:
       - op1st-pipelines
       - op1st-prow
       - op1st-prow-test-pods
-      - feeldata-dev
   parameters:
     repos:
       - "cgr.dev/chainguard/git"
@@ -198,18 +197,25 @@ spec:
       - "feeldata-*"
   parameters:
     repos:
+      - "cgr.dev/chainguard/git"
       - "codeberg.org/feeldata"
-      - "ghcr.io/cloudnative-pg/pgbouncer"
+      - "gcr.io/k8s-staging-kustomize/kustomize"
+      - "gcr.io/tekton-releases/github.com/tektoncd/pipeline"
       - "ghcr.io/cloudnative-pg/cloudnative-pg"
+      - "ghcr.io/cloudnative-pg/pgbouncer"
       - "ghcr.io/cloudnative-pg/postgresql"
+      - "ghcr.io/gitleaks/gitleaks"
       - "image-registry.openshift-image-registry.svc:5000"
       - "mcr.microsoft.com/playwright"
       - "quay.io/argoproj/argocd"
+      - "quay.io/buildah/stable"
       - "quay.io/fedora/nodejs-20"
       - "quay.io/goern/opf-toolbox"
-      - "registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest"
-      - "registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer"
-      - "registry.developers.crunchydata.com/crunchydata/crunchy-postgres"
+      - "quay.io/operate-first/"
+      - "quay.io/skopeo/stable"
+      - "registry.redhat.io/openshift-pipelines/"
+      - "registry.redhat.io/rhel8/buildah"
+      - "registry.redhat.io/rhel8/skopeo"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sHttpsOnly
