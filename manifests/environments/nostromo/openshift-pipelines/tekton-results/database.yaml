@@ -34,7 +34,7 @@ spec:
       owner: result
       secret:
         name: tekton-results-postgres
-  instances: 1
+  instances: 3
   monitoring:
     customQueriesConfigMap:
       - key: queries
