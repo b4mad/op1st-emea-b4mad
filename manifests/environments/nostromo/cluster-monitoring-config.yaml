@@ -13,7 +13,7 @@ data:
           storageClassName: lvms-vg1
           resources:
             requests:
-              storage: 10Gi
+              storage: 12Gi
     enableUserWorkload: true 
     prometheusK8s:
       collectionProfile: full
@@ -27,4 +27,4 @@ data:
           storageClassName: lvms-vg1
           resources:
             requests:
-              storage: 40Gi
+              storage: 42Gi
