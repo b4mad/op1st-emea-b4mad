@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/display-name: "#B4mad Renovate Bot"
+    openshift.io/cluster-monitoring: "true"
+  creationTimestamp: null
+  labels:
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
+    argocd.argoproj.io/managed-by: op1st-gitops
+  name: b4mad-renovate

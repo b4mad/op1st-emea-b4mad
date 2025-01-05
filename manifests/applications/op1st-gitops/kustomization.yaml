@@ -18,11 +18,12 @@ resources:
   - projects/
   # - repositories/
 
-  - applications/b4mad-keycloak.yaml
-  - applications/b4mad-radicle.yaml
   - applications/alertmanager-github-receiver.yaml
   - applications/argocd-image-updater.yaml
+  - applications/b4mad-keycloak.yaml
   - applications/b4mad-racing.yaml
+  - applications/b4mad-radicle.yaml
+  - applications/b4mad-renovate.yaml
   - applications/monitoring.yaml
   - applications/op1st-popeye.yaml
   - applications/prow.yaml

@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renovate
+spec:
+  schedule: "@hourly"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - image: renovate
+              name: renovate
+              envFrom:
+                - secretRef:
+                    name: renovate
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /opt/renovate/
+                - name: work-volume
+                  mountPath: /tmp/renovate/
+                - name: ssh-key-volume
+                  readOnly: true
+                  mountPath: "/home/ubuntu/.ssh"
+                - name: cache
+                  mountPath: "/home/ubuntu/.cache"
+          restartPolicy: Never
+          volumes:
+            - name: config-volume
+              configMap:
+                name: renovate
+            - name: work-volume
+              emptyDir: {}
+            - name: ssh-key-volume
+              secret:
+                secretName: ssh-key-secret
+            - name: cache
+              emptyDir: {}

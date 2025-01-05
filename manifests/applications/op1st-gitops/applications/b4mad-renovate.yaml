@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-renovate
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: b4mad-renovate
+    server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
+  source:
+    path: manifests/applications/b4mad-renovate
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
+  sources: []
+  project: b4mad
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
