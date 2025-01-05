@@ -15,12 +15,13 @@ data:
           "make readme"
         ],
         "repositories": [
-          "goern/semmel",
-          "goern/bxbdbt",
           "feeldata/feeldata.app",
           "feeldata/manifests",
-          "toolbxs/fedora-toolbox-handy-41",
-          "toolbxs/code-insiders",
+          "goern/bxbdbt",
+          "goern/semmel",
+          "goern/sops2sealedsecret",
           "toolbxs/borgmatic"
+          "toolbxs/code-insiders",
+          "toolbxs/fedora-toolbox-handy-41",
         ],
     };
