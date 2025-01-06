@@ -20,7 +20,7 @@ data:
           "goern/bxbdbt",
           "goern/semmel",
           "goern/sops2sealedsecret",
-          "toolbxs/borgmatic"
+          "toolbxs/borgmatic",
           "toolbxs/code-insiders",
           "toolbxs/fedora-toolbox-handy-41",
         ],
