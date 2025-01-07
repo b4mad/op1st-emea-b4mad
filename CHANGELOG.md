@@ -1,6 +1,91 @@
 # CHANGELOG
 
 
+## v0.3.0 (2025-01-07)
+
+### Bug Fixes
+
+- A typo in the readme
+  ([`b2568f3`](https://github.com/goern/op1st-emea-b4mad/commit/b2568f3f326e2ac5b85c7353ee1d00355396c83c))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **b4mad-renovate**: Missed a ,
+  ([`a4b1edb`](https://github.com/goern/op1st-emea-b4mad/commit/a4b1edbc629f50adf136009294020764c61f27e0))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **nostromo**: Adjust some storage configs in cluster-monitoring-config
+  ([`cb600f3`](https://github.com/goern/op1st-emea-b4mad/commit/cb600f3d2d3d62828ec688f396d075fa3d0479f3))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **nostromo**: Had do manually approve a hugh list of CSR, they were blocking internal/external
+  cluster-communication
+  ([`0e3dc46`](https://github.com/goern/op1st-emea-b4mad/commit/0e3dc46044ae6b76fbbce3c86d4f67aa298a0501))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- Codeberg pusher secret re-encrypted
+  ([`f0c9da0`](https://github.com/goern/op1st-emea-b4mad/commit/f0c9da097e4ddff002bc3736d757d5e2e7fb298c))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- Codeberg pusher secret
+  ([`cb426d0`](https://github.com/goern/op1st-emea-b4mad/commit/cb426d07889f17be2fc69b197745c1c8dc2fdb77))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+### Chores
+
+- **b4mad-renovate**: Add goern/sops2sealedsecret
+  ([`da7e797`](https://github.com/goern/op1st-emea-b4mad/commit/da7e797598cdea7902e86298d1f5112d0c842839))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- **openshift-pipelines**: Use 3 instances of pgsql for tekton-results
+  ([`f7df742`](https://github.com/goern/op1st-emea-b4mad/commit/f7df7422b46f3ab409aa203f2f3810b2d750137c))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- Update cnpg operator min. versions
+  ([`eabff26`](https://github.com/goern/op1st-emea-b4mad/commit/eabff26034971562ed26f0ad90da23d15e5a57af))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- Increase pvc size for pgsql for tekton-results
+  ([`5f64376`](https://github.com/goern/op1st-emea-b4mad/commit/5f643760264f2285c8f0c06e3ec157a78a822f2a))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- Update allowed image repos for feeldata projects
+  ([`b832395`](https://github.com/goern/op1st-emea-b4mad/commit/b8323950ad456f1d9e2d95e9116def04e1c67d5e))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- Migrate tekton-hub to its own application
+  ([`a143821`](https://github.com/goern/op1st-emea-b4mad/commit/a143821977b77d47e95ea90f6690adba20a0c916))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+### Features
+
+- **nostromo**: Add b4mad-renovate app to cluster
+  ([`9b59793`](https://github.com/goern/op1st-emea-b4mad/commit/9b597932d2a94312b641f07afa87b90dbce9b37e))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- Update monitoring for OCP4.17
+  ([`32c8393`](https://github.com/goern/op1st-emea-b4mad/commit/32c839325fd8736bbe92162ffd600425dc9bf242))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+- Add registry.redhat.io/rhel8/skopeo, so that it can be used in op1st-pipelines
+  ([`989a4fd`](https://github.com/goern/op1st-emea-b4mad/commit/989a4fd839feba9f37fbb716c8fc30463ef1f91f))
+
+Signed-off-by: Christoph Görn <goern@b4mad.net>
+
+
 ## v0.2.3 (2024-12-13)
 
 ### Chores
