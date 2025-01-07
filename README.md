@@ -15,7 +15,7 @@ It is also available via [radicle](https://radicle.xyz/guides/user) as [rad:z2y9
 On the nostromo environment we have deployed and configured the following infrastructure services:
 
 - Operate First GitOps [![CD/GitOps](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=op1st-gitops&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/op1st-gitops)
-- Operate First Pipelines [![CI/Pipelines](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=pipelines&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/pipelines)
+- Operate First Pipelines [![CI/Pipelines](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=op1st-pipelines&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/op1st-pipelines)
 - Kubernetes Prow [![CI/Prow](https://argocd.b4mad.emea.operate-first.cloud/api/badge?name=prow&revision=true)](https://argocd.b4mad.emea.operate-first.cloud/applications/prow)
 - Open Policy Agent Gatekeeper [![App Status](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=gatekeeper&revision=true&showAppName=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/gatekeeper)
 

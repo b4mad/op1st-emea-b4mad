@@ -1,19 +1,22 @@
 apiVersion: v1
 data:
-    token: ENC[AES256_GCM,data:WEumQVQUeyK4b0I8vLvPVt3YD0kD0ZXSMcffeICj44S7hix7yck1cCXjQ7NO+bv1Xm1kXQELS4g=,iv:/WuJtO3+rGHOIv/Lj+taZYmYgxmUwwSb70SmkvXwym4=,tag:/ti8PWsF9sa3HnNZAkY5sA==,type:str]
+    password: ENC[AES256_GCM,data:+sSq4xvRLj0sd899U7gvLw4OwH21h8Op4Q6+FOM4H5u8alyzZdRQeBsZPzQgdgngMPvypTAxRs4=,iv:fiApiKHhMXLKEtfRu1EtKwFb+TPCFxkeNERULJ31vvU=,tag:K0blRjMOq/HvhQHuswbVMw==,type:str]
     username: ENC[AES256_GCM,data:VyYRlXnpoPm+2Wxq+YKfC5O4p54=,iv:2kwUwsM3a+0NOcJugEkxc4qihxpY7GxVYEy6xXJoCTw=,tag:rO6hGwqQ58BRYf4OmSoLrQ==,type:str]
 kind: Secret
 metadata:
     creationTimestamp: null
     name: codeberg-org-b4mad-renovate-user-renovate-bot
+    annotations:
+        tekton.dev/git-0: https://codeberg.org
+type: kubernetes.io/basic-auth
 sops:
     kms: []
     gcp_kms: []
     azure_kv: []
     hc_vault: []
     age: []
-    lastmodified: "2025-01-05T20:23:01Z"
-    mac: ENC[AES256_GCM,data:ZTS/uBeUbhCfSCJdqQJUh6d1F7gRXYZknZAADnTequzz0eJCfe2PylNMRGmktndxs8St8aLCd1114qojqtb1Jaceq2SlKHs/SXDUEA34bBAxP6SPSSl7NjI3Tl28PJjwehuq4U9vHCRYjLbnOjY9/14qE62E0zsBQ6wWQH69RWE=,iv:3FcZEQbYfZZz5URmj+GVrtWvCuImJuaYECODx8Gd85E=,tag:3DLXMwg9BWmoE1ue3DaS9g==,type:str]
+    lastmodified: "2025-01-06T11:00:56Z"
+    mac: ENC[AES256_GCM,data:K+DI3RtokVipV+2xnDdyq6PWn7jvfcSPxAmsPTkcvgMzEVtYCRl3JesIc2t7lLG0ENUl323m7/slxxEPrwVbuvDvwja2ZZhzip8GfeOi23NJvN1u6erC6accxJ/1kaLPY+0KQFR9tP9ww2p++Mdk32v12zcQlSwnZQxGaQf8bWs=,iv:fVr0Ddf85gmpsplvoSLTsO9cvhE8DuE0jwUbd+4diS8=,tag:v2qw7gMIazCtmmbpIYd5vw==,type:str]
     pgp:
         - created_at: "2025-01-05T20:23:01Z"
           enc: |-
