@@ -43,7 +43,7 @@ spec:
     enablePodMonitor: true
   storage:
     resizeInUseVolumes: true
-    size: 8Gi
+    size: 10Gi
     storageClass: lvms-vg1
   postgresql:
     parameters:
