@@ -7,6 +7,7 @@ resources:
   - namespaces.yaml
   - stubs/tekton-config.yaml
 
+  - secrets/signing-secret.yaml
   - secrets/op1st-pipelines-coderberg-org.yaml
   - secrets/codeberg-pusher.yaml
   - serviceaccount.yaml
@@ -23,7 +24,14 @@ patches:
         name: config
       spec:
         chain:
-          {}
+          artifacts.oci.format: simplesigning
+          artifacts.oci.storage: oci
+          artifacts.pipelinerun.format: in-toto
+          artifacts.pipelinerun.storage: oci
+          artifacts.taskrun.format: in-toto
+          artifacts.taskrun.storage: oci
+          disabled: false
+          options: {}
         pipeline:
           enable-provenance-in-status: true
           enable-bundles-resolver: true
