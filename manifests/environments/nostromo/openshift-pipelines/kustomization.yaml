@@ -8,6 +8,7 @@ resources:
 
   - secrets/pipelines-as-code.yaml
 
+  - tekton-results/aws-creds.yaml
   - tekton-results/database.yaml
   - tekton-results/logs.yaml
   - tekton-results/postgres.yaml
