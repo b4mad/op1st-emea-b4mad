@@ -26,7 +26,6 @@ resources:
   - applications/b4mad-renovate.yaml
   - applications/monitoring.yaml
   - applications/op1st-popeye.yaml
-  - applications/prow.yaml
   - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/dev.yaml
   # - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/stage.yaml
   - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/prod.yaml
