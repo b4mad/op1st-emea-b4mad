@@ -7,7 +7,6 @@ resources:
   - namespaces.yaml
   - stubs/tekton-config.yaml
 
-  - secrets/signing-secret.yaml
   - secrets/op1st-pipelines-coderberg-org.yaml
   - secrets/codeberg-pusher.yaml
   - serviceaccount.yaml
