@@ -15,6 +15,7 @@ data:
           "make readme"
         ],
         "repositories": [
+          "b4mad/hash-B4mad-op1st",
           "feeldata/feeldata.app",
           "feeldata/manifests",
           "goern/bxbdbt",

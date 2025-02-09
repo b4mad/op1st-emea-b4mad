@@ -1,0 +1,19 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: codeberg-org-b4mad-renovate-user-renovate-bot
+  namespace: op1st-pipelines
+spec:
+  encryptedData:
+    password: AgApe4M9jJcLnvxsC3XflNzzEseUbgrSUv6JQzhKqVkii88LgzCY1vVt93PohsFOHyyAVw1zJTkXfCOhpLjbzFR3kC7iFKw2ff9a97XfbegAG6S3COMgbmu4e9ZJdKuSXBfWp7QdSpRgVDFpMYReJeA4FwKI2S2JkggL3NHwv6YDRUTB/nZ5c60UMvnufumfITkJfopCL+FkBhJOoWv/v8RdTwAO4skpfwep/M/lg86Gh2QXh+aq0BR57lUYLtwRhCO7wCe56CJxb+5PmbEvXm/PtSZVIe0iwDyrGSYqrlpcnh+zDcJNzxIwBTuRFzsRUXinxmZLDcZnHV4adbu9bXc5Tzr94R04S5ks1AsiVtls+hcDYH1aHNWo4dm81UzJD4mHXZHuXlXoE7PjRSf8f3v+DKgSBzWXr0xx/7DqUv43tCtl97IeNnm9lDwtM0xNkzK6oYHGRXLLSJdgCSuDhrHKe+4/cc5k9A4P7ngzpAB3VPv0vHXYGoPHC6skVPxz9MMHyIWD8Tgexw5Ela1P41ABi7PcHFh1JzjFTXLYyriJeLgNxaLxnSZHVyGjwOyQQVW+i/ex0TProFivxYn3KJXeW1xfkxlmwm7p9HezhiRZnqmlGa/mKWWV/d5vgI4+Lgsia6IkiwhpGz01tQy4gsf1ZpKX0ymuKKfZNqrfwnhIbHy/EccV+uc4WP3rh4Jk8/klmm6dm8O0PhwmS08sBZIl4iA0nh2IHtDlcfo8EFbYNsbwqZxHr02t
+    username: AgB3f4pL97uS1uKkXgCMIj+iGx1TBXRqnzWxeYlFRAvVQcCPsdVVFfkGFcXlMpAcKyWYxQzWLgGLNOrmgglppQJOyKl9cHPoq/lpSgs61bKxCOhMJ0ychJynp3TqTCWey4iqR6BLR5zk8NuhIsjzSJG9cfQEUnFbvWVd7AyQZ7qPCmpR1f4MuPsLwWh6RLaujn6RBotw/CtcX0wzMaqcE4wa03+IeaNL1yxU6/zpizK5u1cAMNHApEAbNB4kdqT2q9MTDwtxMsRUhE892mBdIuTXquXhMGiGzKI44sjHo3q8pYfjkm+pW+P1L/OoGzqfWVAP8iGgfsJ9cn3zO2uD74qvPGnFIV8YCcNndeHY6qpXLlQtP0ZWCLpZeKJdK9WacqhX2k0uXdG+syU/b1TAc4CzdSBmW2V+sW+OP7AwnRAGUCUmotq3tSl/fQv4GnioBaEIYrX+NMVi2haZQrzicHUHEUCpw/B2e+yC3wsaKQtV6wBzXLly75Dp3bTRqu/awyBCErNnJLtUKq+BBBuYhiKhVyqnZYQBSuxMXxnstmE7e2VGSAWwLMWuYma5XWaLIcjDjc+KodrXyOF3JmiMS10gajtFb7nAmiC7ihD724+Zl1fJFaQ7g7qfjiQLAgJg3sICzqbHs3VuiPw/BWjGNNUbiMqlP3d66oVoUuQyMNU+d4JJCFbziSJIixxcQduWa13OXyNs42MrYV5533Utlw==
+  template:
+    metadata:
+      annotations:
+        tekton.dev/git-0: https://codeberg.org
+      creationTimestamp: null
+      name: codeberg-org-b4mad-renovate-user-renovate-bot
+      namespace: op1st-pipelines
+    type: kubernetes.io/basic-auth
+---
