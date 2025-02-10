@@ -11,6 +11,7 @@ resources:
   - config.yaml
   - cronjob.yaml
   - environment.yaml
+  - codeberg-org-b4mad-renovate-ssh.yaml
   - namespace.yaml
 
 images:
