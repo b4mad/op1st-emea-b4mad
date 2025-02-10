@@ -3,7 +3,7 @@ useDefault = true
 
 [[rules]]
 id = "generic-api-key"
-[[allowlists]]
+[[rules.allowlists]]
 condition = "AND"
-regexes = ['''^Ag[a-zA-Z0-9+/]{500,}={0,2}$''']
 paths = ['''(?i).*\.ya?ml$''']
+regexes = ['''^Ag[a-zA-Z0-9+/]{500,}={0,2}$''']
