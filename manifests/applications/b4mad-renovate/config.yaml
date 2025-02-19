@@ -16,6 +16,8 @@ data:
         ],
         "repositories": [
           "b4mad/hash-B4mad-op1st",
+          "b4mad/semantic-release",
+          "b4mad/hugo.containerimage",
           "feeldata/feeldata.app",
           "feeldata/manifests",
           "goern/bxbdbt",
