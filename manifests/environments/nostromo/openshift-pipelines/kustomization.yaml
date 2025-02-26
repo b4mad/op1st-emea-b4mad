@@ -6,7 +6,7 @@ namespace: openshift-pipelines
 resources:
   - namespace.yaml
 
-  - secrets/signing-secret.yaml
+  # - secrets/signing-secret.yaml
   - secrets/pipelines-as-code.yaml
 
   - tekton-results/aws-creds.yaml
