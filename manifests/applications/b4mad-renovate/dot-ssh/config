@@ -1,5 +1,6 @@
 Host codeberg.org 
  GSSAPIAuthentication no
  IdentitiesOnly yes
- IdentityFile ~/.ssh/id_rsa
+ IdentityFile ~/.ssh/b4mad-renovate
+ 
 
