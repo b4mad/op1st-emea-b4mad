@@ -13,7 +13,7 @@ spec:
       - "b4mad-*"
       - "feeldata-*"
   parameters:
-    message: "All namespaces must have an `owner` label that points to an org email"
+    message: "All application namespaces must have an `owner` label that points to an org email"
     labels:
       - key: b4mad.operate-first.cloud/owner
         allowedRegex: "^[a-zA-Z]+.b4mad.net$"
@@ -32,7 +32,7 @@ spec:
       - "b4mad-*"
       - "feeldata-*"
   parameters:
-    message: "All namespaces must have an `managed-by` label"
+    message: "All application namespaces must have an `managed-by` label"
     labels:
       - key: argocd.argoproj.io/managed-by
         allowedRegex: "^op1st-gitops$"
@@ -177,11 +177,22 @@ spec:
       - "b4mad-*"
   parameters:
     repos:
+      - "codeberg.org/b4mad/"
+      - "docker.io/ollama/ollama"
+      - "docker.io/qdrant/qdrant"
+      - "docker.io/renovate/renovate"
+      - "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/"
       - "ghcr.io/cloudnative-pg/cloudnative-pg"
+      - "ghcr.io/cloudnative-pg/pgbouncer"
+      - "ghcr.io/cloudnative-pg/postgresql"
+      - "ghcr.io/element-hq/"
       - "ghcr.io/matrix-org/"
       - "image-registry.openshift-image-registry.svc:5000"
       - "quay.io/b4mad/"
-      - "quay.io/keycloak"
+      - "quay.io/castawayegr/open-webui"
+      - "quay.io/keycloak/"
+      - "registry.redhat.io/openshift-pipelines/"
+      - "registry.redhat.io/rhel8/buildah"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sAllowedRepos
