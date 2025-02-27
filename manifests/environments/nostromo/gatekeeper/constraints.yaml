@@ -181,6 +181,7 @@ spec:
       - "docker.io/ollama/ollama"
       - "docker.io/qdrant/qdrant"
       - "docker.io/renovate/renovate"
+      - "gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/"
       - "ghcr.io/cloudnative-pg/cloudnative-pg"
       - "ghcr.io/cloudnative-pg/pgbouncer"
       - "ghcr.io/cloudnative-pg/postgresql"
@@ -190,7 +191,7 @@ spec:
       - "quay.io/b4mad/"
       - "quay.io/castawayegr/open-webui"
       - "quay.io/keycloak/"
-      - "registry.redhat.io/openshift-pipelines/pipelines-entrypoint-rhel8"
+      - "registry.redhat.io/openshift-pipelines/"
       - "registry.redhat.io/rhel8/buildah"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
