@@ -7,3 +7,4 @@ resources:
   - operator-group.yaml
   - pod-monitor.yaml
   - subscription.yaml
+  - cluster-monitoring.yaml
