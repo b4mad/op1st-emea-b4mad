@@ -7,8 +7,9 @@ resources:
   - namespaces.yaml
   - stubs/tekton-config.yaml
 
-  - secrets/op1st-pipelines-coderberg-org.yaml
+  - secrets/codeberg-op1st-gitops.yaml
   - secrets/codeberg-pusher.yaml
+  - secrets/op1st-pipelines-coderberg-org.yaml
   - serviceaccount.yaml
   - tekton-chains.yaml
   - unprivileged-building-of-container-images-using-buildah/
