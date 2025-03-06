@@ -2,13 +2,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - cluster-cert-manager.yaml
-  - cloudflare-b4mad-racing-dns01-solver.yaml
   - cloudflare-b4mad-net-dns01-solver.yaml
+  - cloudflare-b4mad-racing-dns01-solver.yaml
   - cloudflare-feeldata-app-dns01-solver.yaml
+  - cluster-cert-manager.yaml
   - google-clouddns-dns01-solver.yaml
   - google-domains-certbot-dns01-solver.yaml
   - letsencrypt-cluster-issuer.yaml
+  - ovh-machdenstaat-de-dns01-solver.yaml
 
 patches:
   - patch: |-
