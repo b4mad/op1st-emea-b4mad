@@ -10,5 +10,5 @@ resources:
 
 images:
   - name: popeye
-    newName: docker.io/derailed/popeye
-    digest: sha256:37547e87d6a0bd1aadc860d63ca44551000174cf42f10eef96b7a9ff0930fc46
+    newName: quay.io/derailed/popeye
+    digest: sha256:ee3e66d023e736eec64edd6ac86a36e33b6a389ff508994ba356cc20b756e5c4

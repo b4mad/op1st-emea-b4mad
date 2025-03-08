@@ -19,6 +19,9 @@ spec:
                 - --all-namespaces
                 - --force-exit-zero
                 - --clear
+              env:
+                name: TERM
+                value: xterm-256color
               resources:
                 limits:
                   cpu: 100m
