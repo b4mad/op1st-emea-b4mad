@@ -18,8 +18,6 @@ resources:
 
   - admin-acks/
   - alerting/
-  - alertmanager-github-receiver/
-  - alertmanager-receivers/
   - cert-manager/
   - cluster-monitoring-config.yaml
   - cluster-resource-override.yaml
