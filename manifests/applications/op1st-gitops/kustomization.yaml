@@ -13,6 +13,7 @@ resources:
   - rbac.yaml
   - redis-fix.yaml
   - resource_quota.yaml
+  - network-policies.yaml
 
   - clusters/
   - projects/
