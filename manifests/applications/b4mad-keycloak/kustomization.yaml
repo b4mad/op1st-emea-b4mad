@@ -17,6 +17,7 @@ resources:
   - aws-creds.yaml
   - postgresql.yaml
   - network-policy.yaml
+  - pod-disruption-budget.yaml
 
   - realms/erdgeschoss.b4mad.net.yaml
 
