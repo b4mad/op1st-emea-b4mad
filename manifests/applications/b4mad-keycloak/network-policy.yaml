@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: keycloak-network-policy
+  name: keycloak
 spec:
   podSelector:
     matchLabels:
@@ -71,7 +71,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: postgresql-network-policy
+  name: postgresql
 spec:
   podSelector:
     matchLabels:

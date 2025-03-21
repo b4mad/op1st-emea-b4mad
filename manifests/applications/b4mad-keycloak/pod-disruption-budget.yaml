@@ -1,0 +1,20 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: keycloak
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: server
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pooler
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      cnpg.io/poolerName: pooler-postgresql
