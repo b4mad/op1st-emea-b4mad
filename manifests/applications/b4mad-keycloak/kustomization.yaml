@@ -16,6 +16,7 @@ resources:
   - keycloak.yaml
   - aws-creds.yaml
   - postgresql.yaml
+  - network-policy.yaml
 
   - realms/erdgeschoss.b4mad.net.yaml
 
