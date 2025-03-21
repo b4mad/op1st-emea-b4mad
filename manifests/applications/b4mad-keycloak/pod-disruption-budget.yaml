@@ -7,6 +7,7 @@ spec:
   minAvailable: 1
   selector:
     matchLabels:
+      app.kubernetes.io/instance: b4mad-erdgeschoss
       app.kubernetes.io/component: server
 ---
 apiVersion: policy/v1
