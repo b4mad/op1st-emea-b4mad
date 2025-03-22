@@ -4,8 +4,8 @@ metadata:
     name: renovate
 type: Opaque
 stringData:
-    GITHUB_COM_TOKEN: ENC[AES256_GCM,data:6V/+qmbVajKsTc5xMM5++cS2Ia8a5MvGrotxmzIYsGwn08vUYP9l7A==,iv:+vnvOlJQpPYpEby1pR0mqFgBILgrGp1I1VeXK0t3KjA=,tag:qQgbmwbfhDKRkSHm5tH/2Q==,type:str]
-    LOG_LEVEL: ENC[AES256_GCM,data:ICx1DXY=,iv:wxEiDjKA1R7Zt0geHDW0lc3xOvrbrfMnAsjTvY7YEGY=,tag:/6JTUphNYMQghEx+VbkKoQ==,type:str]
+    GITHUB_COM_TOKEN: ENC[AES256_GCM,data:wLJ+Yl8YSIFV6EyM/bHmtlpHN6brpTxj1sDxRz2mYHtwsc0n3q8s3Q==,iv:S1YM9/wb5nXfD1k7yIMCtPeW+kiSWePVj5P/5amAEXo=,tag:qYC1+Cr9ChGc5FFWHFvBng==,type:str]
+    LOG_LEVEL: ENC[AES256_GCM,data:q0ot7A==,iv:NUp9dpuYOdfnkjLWQ0AEziNqUX39ETYu9UrYrdYsblY=,tag:sFuQjlR/eYlpm7v9KuMO5w==,type:str]
     RENOVATE_TOKEN: ENC[AES256_GCM,data:sEHbSGdDsKxxqH4hBiNSuYOyFUhcG+O6ysPiXA1BShKGKdR9KvHjBw==,iv:G6MZBVsqP1yNPOX7rqrNSZDoSe8F/cyA3JQks8og2IQ=,tag:axqtjBlDx/K7sfkQrmyFZA==,type:str]
     RENOVATE_CONFIG_FILE: ENC[AES256_GCM,data:/amcLYaggjsZe8U/ObPGGnQF7mqAOqI=,iv:7Y/IYB1m3v+MAlrbttrXHHLMClmlDyO11JPAie+id+Y=,tag:S0F3TJHVBIVh3uvgFSyA4w==,type:str]
 sops:
@@ -14,8 +14,8 @@ sops:
     azure_kv: []
     hc_vault: []
     age: []
-    lastmodified: "2025-01-05T17:42:09Z"
-    mac: ENC[AES256_GCM,data:9pW7Qc+lqr6GTzWdgrVPM64Lt2f0CRFRDGbGnlCHmNGNHLOBqCtlAbK9Pu+xuBc7T86x68+mYoigjZdyCXX/ky7i9RDI+b4edRJ7nLpPQSdy/hUpWHw1pu9fW+V4L5f6C8V3hQP2+aOjf295R7nQ4n8LAvBpDO9YLyWtROk7a0U=,iv:Y55+sbxQFbtXmKKS7ra1qJU1XkmwN9jf7PEQaniIhak=,tag:dOQKr5j2Bh94a2qljhttmQ==,type:str]
+    lastmodified: "2025-03-22T13:24:27Z"
+    mac: ENC[AES256_GCM,data:9Lv1OotyAC7dka2DT2rlNJqA/zZai6Wo8Tk6e6+UG/6btWcoW6b0Tbfkj5pfKhR4lr79EJDdanwTnswHyp/MObbeQGVKyP9NK52ssHJqP21/+CJL8ANaDx5EPFxhDdUNfdsDsb+ThCq9izG7ZrBmzEzd0a+tcNasZDEk52iLmDk=,iv:rHicXDZGV9XDMNV0omxwbHGukOjgTiI2GamxqNJJW7g=,tag:sU/FbN7PBVyi0AQ9NKlXoA==,type:str]
     pgp:
         - created_at: "2025-01-05T17:42:09Z"
           enc: |-

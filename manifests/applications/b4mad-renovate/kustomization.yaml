@@ -6,6 +6,7 @@ namespace: b4mad-renovate
 commonLabels:
   app.kubernetes.io/name: renovate
   app.kubernetes.io/instance: erdgeschoss
+  app.kubernetes.io/managed-by: op1st-emea-b4mad
 
 resources:
   - config.yaml
@@ -16,4 +17,4 @@ resources:
 
 images:
   - name: renovate
-    newName: docker.io/renovate/renovate:39.164.1
+    newName: docker.io/renovate/renovate:39.211

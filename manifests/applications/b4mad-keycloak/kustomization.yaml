@@ -7,6 +7,7 @@ commonLabels:
   app.kubernetes.io/name: iam
   app.kubernetes.io/component: keycloak
   app.kubernetes.io/instance: erdgeschoss
+  app.kubernetes.io/managed-by: op1st-emea-b4mad
 
 configurations:
   - kustomizeconfig/keycloak_image.yaml
