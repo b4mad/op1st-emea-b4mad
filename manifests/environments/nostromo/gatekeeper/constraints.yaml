@@ -143,6 +143,7 @@ spec:
       - "quay.io/skopeo/stable"
       - "registry.redhat.io/openshift-pipelines/"
       - "registry.redhat.io/rhel8/buildah"
+      - "registry.redhat.io/rhel9/buildah"
       - "registry.redhat.io/rhel8/skopeo"
       - "us-docker.pkg.dev/k8s-infra-prow/images/"
 ---
