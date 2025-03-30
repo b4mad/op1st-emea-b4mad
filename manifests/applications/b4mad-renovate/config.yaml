@@ -21,6 +21,7 @@ data:
           "feeldata/feeldata.app",
           "feeldata/manifests",
           "goern/bxbdbt",
+          "goern/mcp-codeberg",
           "goern/semmel",
           "goern/sops2sealedsecret",
           "toolbxs/borgmatic",
