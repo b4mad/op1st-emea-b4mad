@@ -8,6 +8,7 @@ spec:
   match:
     - excludedNamespaces:
         - kube-*
+        - openshift-*
       processes:
         - "*"
   sync:
@@ -18,15 +19,9 @@ spec:
       - group: ""
         kind: Pod
         version: v1
-      - group: ""
-        version: "v1"
-        kind: "PersistentVolumeClaim"
       - group: "networking.k8s.io"
         version: "v1"
         kind: "Ingress"
       - group: "apps"
         version: "v1"
         kind: "StatefulSet"
-      - group: "storage.k8s.io"
-        version: "v1"
-        kind: "StorageClass"
