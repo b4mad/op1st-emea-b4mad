@@ -128,8 +128,6 @@ spec:
         kinds: ["Pod"]
     namespaces:
       - op1st-pipelines
-      - op1st-prow
-      - op1st-prow-test-pods
   parameters:
     repos:
       - "cgr.dev/chainguard/git"
@@ -139,12 +137,13 @@ spec:
       - "gcr.io/tekton-releases/github.com/tektoncd/pipeline"
       - "ghcr.io/gitleaks/gitleaks"
       - "quay.io/buildah/stable"
+      - "quay.io/fedora/nodejs-22"
       - "quay.io/operate-first/"
       - "quay.io/skopeo/stable"
       - "registry.redhat.io/openshift-pipelines/"
       - "registry.redhat.io/rhel8/buildah"
-      - "registry.redhat.io/rhel9/buildah"
       - "registry.redhat.io/rhel8/skopeo"
+      - "registry.redhat.io/rhel9/buildah"
       - "us-docker.pkg.dev/k8s-infra-prow/images/"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
