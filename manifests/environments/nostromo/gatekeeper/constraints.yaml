@@ -144,6 +144,7 @@ spec:
       - "registry.redhat.io/rhel8/buildah"
       - "registry.redhat.io/rhel8/skopeo"
       - "registry.redhat.io/rhel9/buildah"
+      - "registry.redhat.io/rhel9/skopeo"
       - "us-docker.pkg.dev/k8s-infra-prow/images/"
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
