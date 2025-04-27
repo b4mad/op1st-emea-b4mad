@@ -17,4 +17,4 @@ resources:
 
 images:
   - name: renovate
-    newName: docker.io/renovate/renovate:39.211
+    newName: docker.io/renovate/renovate:39.260
