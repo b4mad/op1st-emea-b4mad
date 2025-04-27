@@ -21,6 +21,7 @@ data:
           "b4mad/semantic-release",
           "feeldata/feeldata.app",
           "feeldata/manifests",
+          "goern/bonn-staedtische-bauprojekte",
           "goern/bxbdbt",
           "goern/forgejo-mcp",
           "goern/semmel",
