@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: openshift-gitops
+spec:
+  hard:
+    limits.cpu: "5"
+    limits.memory: 6Gi
+    requests.cpu: "3"
+    requests.memory: 3Gi

@@ -9,3 +9,5 @@ resources:
   - clusters/
   - repositories/
   - projects/
+
+  - resource_quota.yaml
