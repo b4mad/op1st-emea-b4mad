@@ -9,12 +9,13 @@ commonLabels:
   app.kubernetes.io/managed-by: op1st-emea-b4mad
 
 resources:
+  - codeberg-org-b4mad-renovate-ssh.yaml
   - config.yaml
   - cronjob.yaml
   - environment.yaml
-  - codeberg-org-b4mad-renovate-ssh.yaml
   - namespace.yaml
+  - resource_quota.yaml
 
 images:
   - name: renovate
-    newName: docker.io/renovate/renovate:39.260
+    newName: docker.io/renovate/renovate:40.11
