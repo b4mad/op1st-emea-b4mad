@@ -1,0 +1,10 @@
+kind: ResourceQuota
+apiVersion: v1
+metadata:
+  name: renovate
+spec:
+  hard:
+    limits.cpu: "1"
+    limits.memory: 3Gi
+    requests.cpu: 500m
+    requests.memory: 2Gi
