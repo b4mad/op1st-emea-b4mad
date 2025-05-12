@@ -28,6 +28,7 @@ data:
           "goern/sops2sealedsecret",
           "toolbxs/borgmatic",
           "toolbxs/code-insiders",
+          "toolbxs/fedora-toolbox",
           "toolbxs/fedora-toolbox-handy-41",
         ],
     };
