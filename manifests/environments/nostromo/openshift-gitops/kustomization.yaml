@@ -25,6 +25,13 @@ patches:
       spec:
         notifications:
           enabled: true
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
         usersAnonymousEnabled: true
         statusBadgeEnabled: true
         server:
@@ -40,10 +47,10 @@ patches:
           resources:
             limits:
               cpu: 500m 
-              memory: 1Gi
+              memory: 512Mi
             requests:
               cpu: 250m
-              memory: 512Mi
+              memory: 128Mi
         repo:
           resources:
             limits:
@@ -51,7 +58,7 @@ patches:
               memory: 512Mi
             requests:
               cpu: 100m
-              memory: 256Mi
+              memory: 128Mi
         redis:
           resources:
             limits:
