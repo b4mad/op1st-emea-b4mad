@@ -21,7 +21,7 @@ spec:
         memory: 256Mi
       requests:
         cpu: 250m
-        memory: 256Mi
+        memory: 128Mi
     route:
       enabled: false
     service:
@@ -91,10 +91,10 @@ spec:
   repo:
     resources:
       limits:
-        cpu: 250m
-        memory: 512Mi
+        cpu: 200m
+        memory: 256Mi
       requests:
-        cpu: 100m
+        cpu: 50m
         memory: 128Mi
   resourceExclusions: |
     - apiGroups:
@@ -122,7 +122,7 @@ spec:
     processors: {}
     resources:
       limits:
-        cpu: 250m
+        cpu: 500m
         memory: 2Gi
       requests:
         cpu: 200m
