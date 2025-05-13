@@ -16,6 +16,9 @@ spec:
             - name: syncv3
               containerPort: 8008
               protocol: TCP
+            - name: metrics
+              containerPort: 8080
+              protocol: TCP
           resources:
             limits:
               memory: 128Mi
