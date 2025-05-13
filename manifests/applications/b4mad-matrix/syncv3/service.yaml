@@ -8,7 +8,3 @@ spec:
       protocol: TCP
       port: 8008
       targetPort: 8008
-    - name: metrics
-      protocol: TCP
-      port: 8080
-      targetPort: 8080
