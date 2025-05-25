@@ -26,10 +26,10 @@ data:
           "goern/forgejo-mcp",
           "goern/semmel",
           "goern/sops2sealedsecret",
-          "machdenstaat/stadt-bonn-oparl"
+          "machdenstaat/stadt-bonn-oparl",
           "toolbxs/borgmatic",
           "toolbxs/code-insiders",
           "toolbxs/fedora-toolbox-handy-41",
-          "toolbxs/fedora-toolbox",
+          "toolbxs/fedora-toolbox"
         ],
     };
