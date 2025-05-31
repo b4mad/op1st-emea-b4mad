@@ -135,6 +135,7 @@ spec:
       - "gcr.io/k8s-prow/"
       - "gcr.io/k8s-staging-kustomize/kustomize"
       - "gcr.io/tekton-releases/github.com/tektoncd/pipeline"
+      - "ghcr.io/astral-sh/uv:python3.12-bookworm-slim"
       - "ghcr.io/gitleaks/gitleaks"
       - "quay.io/buildah/stable"
       - "quay.io/fedora/nodejs-22"
