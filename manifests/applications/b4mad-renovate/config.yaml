@@ -24,6 +24,7 @@ data:
           "goern/bonn-staedtische-bauprojekte",
           "goern/bxbdbt",
           "goern/forgejo-mcp",
+          "goern/moargents",
           "goern/semmel",
           "goern/sops2sealedsecret",
           "machdenstaat/stadt-bonn-oparl",
