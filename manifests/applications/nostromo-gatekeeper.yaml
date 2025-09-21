@@ -10,7 +10,7 @@ spec:
   source:
     chart: gatekeeper
     repoURL: https://open-policy-agent.github.io/gatekeeper/charts
-    targetRevision: 3.18.2
+    targetRevision: 3.20.1
   syncPolicy:
     automated:
       prune: true
