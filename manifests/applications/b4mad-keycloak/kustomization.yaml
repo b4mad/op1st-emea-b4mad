@@ -27,4 +27,4 @@ resources:
 images:
   - name: keycloak
     newName: codeberg.org/b4mad/keycloak-op1st
-    digest: sha256:986749a731ba0066fa7fe654e04ed766027a4a88cd1bbc53f2248480a78d672e
+    newTag: 26.4.0-0.5
