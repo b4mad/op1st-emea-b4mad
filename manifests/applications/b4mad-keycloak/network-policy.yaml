@@ -1,142 +1,20 @@
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: keycloak
+  name: postgresql-allow-api-access
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/component: keycloak
+      cnpg.io/cluster: postgresql
   policyTypes:
-    - Ingress
     - Egress
-  ingress:
-    # Erlaube eingehenden Verkehr vom Ingress-Controller (über die OpenShift Router)
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: openshift-ingress
-      ports:
-        - protocol: TCP
-          port: 8080 # Standard Keycloak HTTP-Port
-        - protocol: TCP
-          port: 8443 # Standard Keycloak HTTPS-Port
-        - protocol: TCP
-          port: 9000 # Metriken-Port
-
-    # Erlaube Kommunikation zwischen Keycloak-Pods im selben Namespace
-    - from:
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/component: keycloak
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/name: iam
-
   egress:
-    # Erlaube ausgehenden Verkehr zu PostgreSQL
-    - to:
-        - podSelector:
-            matchLabels:
-              postgresql.cnpg.io/cluster: postgresql
-      ports:
-        - protocol: TCP
-          port: 5432 # PostgreSQL-Port
-
-    # Erlaube ausgehenden Verkehr zum PostgreSQL Pooler
-    - to:
-        - podSelector:
-            matchLabels:
-              postgresql.cnpg.io/pooler: pooler-postgresql
-      ports:
-        - protocol: TCP
-          port: 5432 # PostgreSQL-Port
-
-    # Erlaube DNS-Lookups (wichtig für die Funktionalität)
+    # Allow access to Kubernetes API server
     - to:
         - namespaceSelector:
             matchLabels:
-              kubernetes.io/metadata.name: kube-system
-        - podSelector:
-            matchLabels:
-              k8s-app: kube-dns
-      ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
-
----
-# Zusätzliche NetworkPolicy für PostgreSQL
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: postgresql
-spec:
-  podSelector:
-    matchLabels:
-      postgresql.cnpg.io/cluster: postgresql
-  policyTypes:
-    - Ingress
-    - Egress
-  ingress:
-    # Erlaube eingehenden Verkehr von Keycloak
-    - from:
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/component: keycloak
+              kubernetes.io/metadata.name: default
+        - podSelector: {}
       ports:
         - protocol: TCP
-          port: 5432 # PostgreSQL-Port
-
-    # Erlaube eingehenden Verkehr vom PostgreSQL Pooler
-    - from:
-        - podSelector:
-            matchLabels:
-              postgresql.cnpg.io/pooler: pooler-postgresql
-      ports:
-        - protocol: TCP
-          port: 5432 # PostgreSQL-Port
-
-    # Erlaube Kommunikation zwischen PostgreSQL-Pods (für Replikation/HA)
-    - from:
-        - podSelector:
-            matchLabels:
-              postgresql.cnpg.io/cluster: postgresql
-      ports:
-        - protocol: TCP
-          port: 5432 # PostgreSQL-Port
-        - protocol: TCP
-          port: 8008 # PostgreSQL Replication Port
-
-  egress:
-    # Erlaube DNS-Lookups
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-        - podSelector:
-            matchLabels:
-              k8s-app: kube-dns
-      ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
-
-    # Erlaube Kommunikation zwischen PostgreSQL-Pods (für Replikation)
-    - to:
-        - podSelector:
-            matchLabels:
-              postgresql.cnpg.io/cluster: postgresql
-      ports:
-        - protocol: TCP
-          port: 5432 # PostgreSQL-Port
-        - protocol: TCP
-          port: 8008 # PostgreSQL Replication Port
-
-    # Erlaube ausgehende Backups zu S3/AWS
-    - to: [] # Zu allen Zielen (für S3-Zugriff)
-      ports:
-        - protocol: TCP
-          port: 443 # HTTPS Port für AWS S3
+          port: 443
