@@ -26,4 +26,4 @@ resources:
 images:
   - name: dendrite-monolith
     newName: ghcr.io/element-hq/dendrite-monolith
-    newTag: v0.14.1
+    newTag: v0.15.2
