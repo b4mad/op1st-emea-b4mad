@@ -26,4 +26,4 @@ resources:
 images:
   - name: keycloak
     newName: codeberg.org/b4mad/keycloak-op1st
-    newTag: 26.4.0-0.5
+    newTag: 26.4.1-0.6
