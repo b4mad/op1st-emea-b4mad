@@ -29,7 +29,7 @@ data:
           "goern/semmel",
           "goern/sops2sealedsecret",
           "machdenstaat/stadt-bonn-oparl",
-          "machdenstaat/oparl-lite",
+          "machdenstaat/oparl-lite-2",
           "toolbxs/borgmatic",
           "toolbxs/code-insiders",
           "toolbxs/fedora-toolbox-handy-41",
