@@ -46,6 +46,7 @@ components:
   - ../../components/operators/openshift-gitops/
   - ../../components/operators/openshift-pipelines/
   - ../../components/sno-tuning/
+  - ../../components/operators/kueue/
 
 patches:
   - patch: |-
