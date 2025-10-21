@@ -24,6 +24,7 @@ resources:
   - custom-certificates/
   - grafana-operator/
   - identity-providers.yaml
+  - kueue/
   - local-storage/
   - lvm-storage/
   - network-management/
@@ -41,12 +42,12 @@ components:
   - ../../components/operators/cloudnative-pg/
   - ../../components/operators/local-storage/
   - ../../components/operators/lvm-storage/
+  - ../../components/operators/kueue/
   - ../../components/operators/nmstate/
   - ../../components/operators/openshift-cert-manager/
   - ../../components/operators/openshift-gitops/
   - ../../components/operators/openshift-pipelines/
   - ../../components/sno-tuning/
-  - ../../components/operators/kueue/
 
 patches:
   - patch: |-
