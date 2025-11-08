@@ -7,8 +7,6 @@ resources:
   - cloudflare-feeldata-app-dns01-solver.yaml
   - cluster-cert-manager.yaml
   - monitoring.yaml
-  - google-clouddns-dns01-solver.yaml
-  - google-domains-certbot-dns01-solver.yaml
   - letsencrypt-cluster-issuer.yaml
   - ovh-machdenstaat-de-dns01-solver.yaml
 
