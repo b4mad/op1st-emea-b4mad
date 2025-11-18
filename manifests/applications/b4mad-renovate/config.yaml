@@ -7,10 +7,11 @@ data:
     module.exports = {
         "endpoint": "https://codeberg.org/api/v1",
         "gitAuthor": "the #B4mad Renovate bot <renovate-bot@b4mad.net>",
-        "platform": "gitea",
+        "platform": "forgejo",
+        "platformAutomerge": true,
         "onboardingConfigFileName": "renovate.json5",
         "binarySource": "install",
-        "allowedPostUpgradeCommands": [
+        "allowedCommands": [
           "install-tool node",
           "make readme"
         ],
