@@ -56,7 +56,7 @@ patches:
       metadata:
         name: version
       spec:
-        channel: fast-4.19
+        channel: fast-4.20
 
   - patch: |-
       apiVersion: config.openshift.io/v1
