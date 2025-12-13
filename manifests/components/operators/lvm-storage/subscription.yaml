@@ -9,3 +9,7 @@ spec:
   name: lvms-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
+  config:
+    env:
+    - name: ZAP_LOG_LEVEL
+      value: "error"
