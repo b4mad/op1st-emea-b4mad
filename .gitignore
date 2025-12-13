@@ -20,3 +20,6 @@ __pycache__/
 .mypy_cache/
 *.retry
 .aider*
+
+.claude/settings.local.json
+.claude/skills/skill-creator/
