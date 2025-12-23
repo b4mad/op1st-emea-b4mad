@@ -18,22 +18,18 @@ data:
         "repositories": [
           "b4mad/hash-B4mad-op1st",
           "b4mad/hugo.containerimage",
-          "b4mad/prompts",
           "b4mad/semantic-release",
           "feeldata/feeldata.app",
           "feeldata/feeldata2.app",
           "feeldata/manifests",
-          "goern/bonn-staedtische-bauprojekte",
           "goern/bxbdbt",
           "goern/forgejo-mcp",
-          "goern/moargents",
-          "goern/semmel",
           "goern/sops2sealedsecret",
+          "goern/hausmeister",
           "machdenstaat/stadt-bonn-oparl",
           "machdenstaat/oparl-lite-2",
           "toolbxs/borgmatic",
           "toolbxs/code-insiders",
-          "toolbxs/fedora-toolbox-handy-41",
           "toolbxs/fedora-toolbox"
         ],
     };
