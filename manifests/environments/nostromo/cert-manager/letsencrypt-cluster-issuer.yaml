@@ -26,6 +26,14 @@ spec:
           dnsZones:
             - b4mad.net
             - b4mad.industries
+      - dns01:
+          cnameStrategy: Follow
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-b4mad-net-dns01-solver
+              key: api-token
+        selector:
+          dnsZones:
             - operate-first.cloud
             - b4mad.emea.operate-first.cloud
       - dns01:
