@@ -29,12 +29,13 @@ spec:
       - dns01:
           cloudflare:
             apiTokenSecretRef:
-              name: cloudflare-b4mad-net-dns01-solver
+              name: cloudflare-operate-first-dns01-solver
               key: api-token
         selector:
           dnsZones:
             - operate-first.cloud
             - b4mad.emea.operate-first.cloud
+            - erdgeschoss.b4mad.emea.operate-first.cloud
       - dns01:
           cnameStrategy: Follow
           cloudflare:

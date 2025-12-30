@@ -5,6 +5,7 @@ resources:
   - cloudflare-b4mad-net-dns01-solver.yaml
   - cloudflare-b4mad-racing-dns01-solver.yaml
   - cloudflare-feeldata-app-dns01-solver.yaml
+  - cloudflare-operate-first-dns01-solver.yaml
   - cluster-cert-manager.yaml
   - monitoring.yaml
   - letsencrypt-cluster-issuer.yaml
