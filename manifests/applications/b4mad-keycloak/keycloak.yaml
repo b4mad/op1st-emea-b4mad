@@ -27,8 +27,6 @@ spec:
     hostname: keycloak.erdgeschoss.b4mad.net
   ingress:
     className: openshift-default
-  proxy:
-    headers: xforwarded
   additionalOptions:
     - name: metrics-enabled
       value: "true"
