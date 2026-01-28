@@ -1,0 +1,36 @@
+apiVersion: v1
+stringData:
+    api-token: ENC[AES256_GCM,data:0olx9LCK+MZ9UTvtweLmbeA/2thDaQvjSfyny99ANSxrOvlQrzEp2A==,iv:Fm+Kp1PaHTrl7W37QeZ8rUOI8PuRikaCLr9itk+62H8=,tag:wbsuacmrv95bC/9GABObnA==,type:str]
+kind: Secret
+metadata:
+    creationTimestamp: null
+    name: cloudflare-operate-first-dns01-solver
+    namespace: cert-manager
+type: Opaque
+sops:
+    lastmodified: "2026-01-28T16:00:44Z"
+    mac: ENC[AES256_GCM,data:pAFPPMUHF/4eR9WT3LU5D3KLZ3BgDFsuYIRvbjGb/nbFNuhkOG64ZW1RJvLr5mHG9gpdqfULGXc3ecLhCVy5lEB9xsiOLnoF+FRJYVfP375wVMPyQtfO/7WXlgP8EWKTEjk0uxEOogXJhFXMGJZzjIndzJDSHQ/xASF1A1YryMQ=,iv:Deew3SEU48m6htcDz6ZQW23NXuq5vC4B559IikgM+vg=,tag:/PVVYZonOdxZ7irKdDVKvw==,type:str]
+    pgp:
+        - created_at: "2026-01-28T16:00:44Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA9AgVmznaOk7AQ//bv7nxfRrFqW7NJ4S/HNzbvCVw92fxxWH1mbxfN8i4Oku
+            G7DPDSuLyfJzEsZJwHcxayp50oBew8tUC1j9ubkaAYc0HvkO3ikGdU210d/4RCzv
+            eO49LzulA2oasSpqGMHiyJix7DYOZ3pH50NzoYPU5QxuCj9z9O9LdIQY1kRSQ2Lt
+            Y1Aip9gKbUV+YbZWYt2wPvEULGe0uameacbGj7dcsleNSua/Zkr5+c5+iCOy/Mg2
+            rPZraHRIFD0Dq2iOgXD5o9vqaN7SdVA+q+uqRL7xyw+DbhegozS1F/RyE7LxXRVj
+            Zj7Wm+2xcuTq1W1jb14s8gu036rlGsoF+c8vgI2zhAj2UDywPi5RMp03hRVY+RlA
+            FeUoFQmtxAnwK+lHhd0YL7m1x/YFjFTLsZmA+Ojct7VyzeDX31xZmADtj2BuwICV
+            W+DnEMzVZc3vf3/qzmsfk6uWIDt1WWPNqykNC+qyyFZpJVtCPQYw7Go4t7qFzTDT
+            mjEh2U3X39s0a5q+CZ5CnNSi+B6WyZJtN4XaCGXRTMirwvVkwWWp7WkYNoDjjyk1
+            FVkTUrf/jnXLpXdOKDUZrvGBrSkk7QII614qyc8G0RnI2zGPq5nDQsqGScGfQvEf
+            WMFU2+ti0XYo2Mcw+s9wQlyLyO1ZVeKvgVPyXh623HqVGmjCaPOTKti3nvwdQDnU
+            aAEJAhAvtUqRrh/9YIW8kb/6zWLbdviH0pFZxKsGo/XnCMgiktUoS/8SE2nlxW9h
+            EZAcF+FYAAYc+E6dYZCOUtsMMZjlLsfRsoQxthRgOtv9dfyy+PF1Mf/bM6xCjF6O
+            ol+EDGDaJBKT
+            =/bWh
+            -----END PGP MESSAGE-----
+          fp: 04DAFCD9470A962A2F272984E5EB0DA32F3372AC
+    encrypted_regex: ^(data|stringData|tls)$
+    version: 3.11.0

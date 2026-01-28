@@ -9,3 +9,4 @@ resources:
   - letsencrypt-cluster-issuer.yaml
   - google-clouddns-dns01-solver.yaml
   - cloudflare-b4mad-racing-dns01-solver.yaml
+  - cloudflare-operate-first-dns01-solver.yaml
