@@ -123,8 +123,8 @@ spec:
     resources:
       limits:
         cpu: 875m
-        memory: 2Gi
+        memory: 4Gi
       requests:
         cpu: 350m
-        memory: 1Gi
+        memory: 2Gi
     sharding: {}
