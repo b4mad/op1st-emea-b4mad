@@ -13,3 +13,4 @@ resources:
   - environment-phobos.yaml
   - op1st-gitops.yaml
   - op1st-pipelines.yaml
+  - b4mad-dao.yaml

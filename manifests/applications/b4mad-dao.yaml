@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-dao
+spec:
+  destination:
+    name: in-cluster
+    namespace: b4mad-dao
+  project: op1st
+  source:
+    path: manifests/applications/b4mad-dao
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
