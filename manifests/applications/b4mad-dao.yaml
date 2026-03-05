@@ -5,7 +5,7 @@ metadata:
 spec:
   destination:
     name: in-cluster
-    namespace: b4mad-dao
+    namespace: b4mad-dao-testnet
   project: op1st
   source:
     path: manifests/applications/b4mad-dao
