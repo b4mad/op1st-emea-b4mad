@@ -172,8 +172,7 @@ data:
             display: { name: "MQTT bridge throughput (bytes/s)" }
             plugin:
               kind: TimeSeriesChart
-              spec:
-                yAxis: { unit: bytes/sec }
+              spec: {}
             queries:
               - kind: TimeSeriesQuery
                 spec:
@@ -263,8 +262,7 @@ data:
             display: { name: "Channel utilization / TX duty-cycle" }
             plugin:
               kind: TimeSeriesChart
-              spec:
-                yAxis: { unit: percent }
+              spec: {}
             queries:
               - kind: TimeSeriesQuery
                 spec:
