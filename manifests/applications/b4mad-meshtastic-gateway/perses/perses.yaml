@@ -31,11 +31,13 @@ spec:
       # 32-char key read from the file mounted via the encryption-key volume below.
       encryption_key_file: /etc/perses/secrets/encryption-key
       cookie:
-        # CRD schema (perses.perses.dev v1alpha2 in operator 0.3.2) insists on
-        # integer here, even though the runtime conversion webhook assumes
-        # string. Integer wins because CRD validation runs first; the webhook
-        # drift is a known quirk. 1 == lax, 2 == strict, 3 == none.
-        same_site: 1
+        # DON'T set same_site here. In operator 0.3.2 the CRD schema declares
+        # it as integer, but the Go conversion webhook expects a string, and
+        # the webhook runs on every serve — so no value round-trips (integer
+        # fails the webhook with "cannot unmarshal number into Go struct field
+        # ... of type string", string fails CRD validation). Omitting the field
+        # lets the internal default apply and sidesteps the bug. Upstream issue:
+        # perses/perses-operator (fix expected in a post-0.3.2 release).
         secure: true
       authentication:
         access_token_ttl: "15m"
