@@ -19,7 +19,7 @@ data:
     \      enable_native: false\n      oidc:\n      - client_id: perses-erdgeschoss\n        issuer: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss\n\
     \        name: erd/G/eschoss\n        redirect_uri: https://perses.b4mad.emea.operate-first.cloud/api/auth/providers/oidc/keycloak/callback\n\
     \        scopes:\n        - openid\n        - email\n        - profile\n        slug_id: keycloak\n    refresh_token_ttl:\
-    \ 24h\n  cookie:\n    same_site: lax\n    secure: true\n  enable_auth: true\n  readonly: false\n  authorization:\n    provider:\n      native:\n        enable: true\n        guest_permissions:\n          - actions: [\"read\"]\n            scopes: [\"Dashboard\", \"Project\", \"Datasource\", \"Variable\"]\n"
+    \ 24h\n  cookie:\n    same_site: lax\n    secure: true\n  enable_auth: false\n  readonly: true\n"
 kind: ConfigMap
 metadata:
   labels:
