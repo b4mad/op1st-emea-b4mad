@@ -1,0 +1,30 @@
+---
+# Selectorless Service + manually-managed Endpoints — the Prometheus-operator
+# idiom for scraping an out-of-cluster target via a ServiceMonitor. The Endpoints
+# object points at the meshtastic-gateway HTTP port on rpi5 (Erdgeschoss LAN).
+apiVersion: v1
+kind: Service
+metadata:
+  name: meshtastic-gateway
+  labels:
+    app.kubernetes.io/name: meshtastic-gateway
+spec:
+  ports:
+    - name: metrics
+      port: 9464
+      targetPort: 9464
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: meshtastic-gateway
+  labels:
+    app.kubernetes.io/name: meshtastic-gateway
+subsets:
+  - addresses:
+      - ip: 192.168.0.75
+    ports:
+      - name: metrics
+        port: 9464
+        protocol: TCP

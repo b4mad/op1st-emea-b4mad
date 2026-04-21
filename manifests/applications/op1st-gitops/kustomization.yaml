@@ -20,6 +20,7 @@ resources:
   - repositories/
 
   - applications/b4mad-keycloak.yaml
+  - applications/b4mad-meshtastic-gateway.yaml
   - applications/b4mad-racing.yaml
   - applications/b4mad-radicle.yaml
   - applications/b4mad-renovate.yaml
