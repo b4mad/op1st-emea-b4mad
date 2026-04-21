@@ -45,6 +45,7 @@ components:
   - ../../components/operators/openshift-cert-manager/
   - ../../components/operators/openshift-gitops/
   - ../../components/operators/openshift-pipelines/
+  - ../../components/operators/perses/
   - ../../components/sno-tuning/
 
 patches:

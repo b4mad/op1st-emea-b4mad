@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+# Perses Kubernetes Operator — rendered from https://perses.dev/helm-charts
+# `perses-operator` chart 0.2.1 (appVersion 0.3.2) with:
+#   helm template perses-operator perses/perses-operator \
+#     --namespace perses-operator \
+#     --set fullnameOverride=perses-operator \
+#     --include-crds \
+#   | strip helm.sh/hook test resources
+# Upgrade: re-run that command with the new chart version, diff, commit.
+
+resources:
+  - namespace.yaml
+  - controller-0.3.2.yaml
