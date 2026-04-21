@@ -209,6 +209,8 @@ spec:
           successThreshold: 1
           timeoutSeconds: 5
         volumeMounts:
+        - mountPath: /etc/perses/plugins
+          name: plugins
         - mountPath: /etc/perses/config
           name: config
         - mountPath: /perses
@@ -218,6 +220,8 @@ spec:
       securityContext: {}
       serviceAccountName: perses
       volumes:
+      - emptyDir: {}
+        name: plugins
       - name: data
         persistentVolumeClaim:
           claimName: perses
