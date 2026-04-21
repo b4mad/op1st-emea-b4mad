@@ -15,7 +15,7 @@ apiVersion: v1
 data:
   config.yaml: "\napi_prefix: \"\"\ndatabase:\n  file:\n    extension: json\n    folder: /perses\nfrontend:\n  disable: false\n\
     \  explorer:\n    enable: true\n  important_dashboards: []\n  information: \"\"\nprovisioning:\n  folders:\n  - /etc/perses/provisioning\n\
-    \  interval: 10m\nsecurity:\n  authentication:\n    access_token_ttl: 15m\n    disable_sign_up: true\n    providers:\n\
+    \  interval: 1m\nsecurity:\n  authentication:\n    access_token_ttl: 15m\n    disable_sign_up: true\n    providers:\n\
     \      enable_native: false\n      oidc:\n      - client_id: perses-erdgeschoss\n        issuer: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss\n\
     \        name: erd/G/eschoss\n        redirect_uri: https://perses.b4mad.emea.operate-first.cloud/api/auth/providers/oidc/keycloak/callback\n\
     \        scopes:\n        - openid\n        - email\n        - profile\n        slug_id: keycloak\n    refresh_token_ttl:\
@@ -142,7 +142,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: f936178200c6b06ca6df287d599ed361c81f54a6f2b939563fd7ac3fee640ee0
+        checksum/config: c1a68e8700cb4c030edd0dd45ed4eee4637fdee920cb25b56bf107aefc81cc80
       labels:
         app.kubernetes.io/instance: perses
         app.kubernetes.io/name: perses
