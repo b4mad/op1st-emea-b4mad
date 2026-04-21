@@ -31,10 +31,11 @@ spec:
       # 32-char key read from the file mounted via the encryption-key volume below.
       encryption_key_file: /etc/perses/secrets/encryption-key
       cookie:
-        # CRD schema declares integer, but the runtime Go type expects a string
-        # ("lax" | "strict" | "none"). Using the string form the chart's
-        # values.yaml ships as default.
-        same_site: lax
+        # CRD schema (perses.perses.dev v1alpha2 in operator 0.3.2) insists on
+        # integer here, even though the runtime conversion webhook assumes
+        # string. Integer wins because CRD validation runs first; the webhook
+        # drift is a known quirk. 1 == lax, 2 == strict, 3 == none.
+        same_site: 1
         secure: true
       authentication:
         access_token_ttl: "15m"
@@ -56,6 +57,11 @@ spec:
                 - profile
               redirect_uri: https://perses.b4mad.emea.operate-first.cloud/api/auth/providers/oidc/keycloak/callback
               disable_pkce: false
+              # CRD requires these objects even when empty/default.
+              http:
+                timeout: "30s"
+              logout:
+                enabled: true
 
       authorization:
         provider:
@@ -67,6 +73,9 @@ spec:
 
     frontend:
       disable: false
+      # CRD requires frontend.explorer block.
+      explorer:
+        enable: true
 
   # Persistent data volume for the file DB. The Operator converts pvcTemplate
   # into a StatefulSet volumeClaimTemplates entry.
