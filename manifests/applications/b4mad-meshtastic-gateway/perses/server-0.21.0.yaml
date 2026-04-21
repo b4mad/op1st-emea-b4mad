@@ -12,20 +12,6 @@ metadata:
   name: perses
 ---
 apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:
-    app.kubernetes.io/instance: perses
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: perses
-    app.kubernetes.io/part-of: perses
-    app.kubernetes.io/version: v0.53.1
-    helm.sh/chart: perses-0.21.0
-    type: helm-chart-test
-  name: perses-test
-  namespace: b4mad-meshtastic-gateway
----
-apiVersion: v1
 data:
   config.yaml: "\napi_prefix: \"\"\ndatabase:\n  file:\n    extension: json\n    folder: /perses\nfrontend:\n  disable: false\n\
     \  explorer:\n    enable: true\n  important_dashboards: []\n  information: \"\"\nprovisioning:\n  folders:\n  - /etc/perses/provisioning\n\
@@ -98,46 +84,6 @@ rules:
   - list
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  labels:
-    app.kubernetes.io/instance: perses
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: perses
-    app.kubernetes.io/part-of: perses
-    app.kubernetes.io/version: v0.53.1
-    helm.sh/chart: perses-0.21.0
-    type: helm-chart-test
-  name: perses-test
-  namespace: b4mad-meshtastic-gateway
-rules:
-- apiGroups:
-  - apps
-  resources:
-  - statefulsets
-  - deployments
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - ''
-  resources:
-  - pods
-  - persistentvolumeclaims
-  - services
-  - configmaps
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: perses-rolebinding
@@ -149,28 +95,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: perses
-  namespace: b4mad-meshtastic-gateway
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  labels:
-    app.kubernetes.io/instance: perses
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: perses
-    app.kubernetes.io/part-of: perses
-    app.kubernetes.io/version: v0.53.1
-    helm.sh/chart: perses-0.21.0
-    type: helm-chart-test
-  name: perses-test
-  namespace: b4mad-meshtastic-gateway
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: perses-test
-subjects:
-- kind: ServiceAccount
-  name: perses-test
   namespace: b4mad-meshtastic-gateway
 ---
 apiVersion: v1
@@ -291,8 +215,7 @@ spec:
           name: data
         - mountPath: /etc/perses/provisioning
           name: provisioning
-      securityContext:
-        fsGroup: 2000
+      securityContext: {}
       serviceAccountName: perses
       volumes:
       - name: data
