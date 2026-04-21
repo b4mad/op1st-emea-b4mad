@@ -31,7 +31,10 @@ spec:
       # 32-char key read from the file mounted via the encryption-key volume below.
       encryption_key_file: /etc/perses/secrets/encryption-key
       cookie:
-        same_site: 1   # 1 = lax
+        # CRD schema declares integer, but the runtime Go type expects a string
+        # ("lax" | "strict" | "none"). Using the string form the chart's
+        # values.yaml ships as default.
+        same_site: lax
         secure: true
       authentication:
         access_token_ttl: "15m"
