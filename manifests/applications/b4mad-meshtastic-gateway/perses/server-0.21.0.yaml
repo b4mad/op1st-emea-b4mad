@@ -1,0 +1,337 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: iam
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+  name: perses
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+    type: helm-chart-test
+  name: perses-test
+  namespace: b4mad-meshtastic-gateway
+---
+apiVersion: v1
+data:
+  config.yaml: "\napi_prefix: \"\"\ndatabase:\n  file:\n    extension: json\n    folder: /perses\nfrontend:\n  disable: false\n\
+    \  explorer:\n    enable: true\n  important_dashboards: []\n  information: \"\"\nprovisioning:\n  folders:\n  - /etc/perses/provisioning\n\
+    \  interval: 10m\nsecurity:\n  authentication:\n    access_token_ttl: 15m\n    disable_sign_up: true\n    providers:\n\
+    \      enable_native: false\n      oidc:\n      - client_id: perses-erdgeschoss\n        issuer: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss\n\
+    \        name: erd/G/eschoss\n        redirect_uri: https://perses.b4mad.emea.operate-first.cloud/api/auth/providers/oidc/keycloak/callback\n\
+    \        scopes:\n        - openid\n        - email\n        - profile\n        slug_id: keycloak\n    refresh_token_ttl:\
+    \ 24h\n  cookie:\n    same_site: lax\n    secure: true\n  enable_auth: true\n  readonly: false"
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: configuration
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+  name: perses
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app.kubernetes.io/component: storage
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+  name: perses
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: lvms-vg1
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/component: iam
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+  name: perses-role
+  namespace: b4mad-meshtastic-gateway
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  verbs:
+  - get
+  - watch
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+    type: helm-chart-test
+  name: perses-test
+  namespace: b4mad-meshtastic-gateway
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  - deployments
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  - persistentvolumeclaims
+  - services
+  - configmaps
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: perses-rolebinding
+  namespace: b4mad-meshtastic-gateway
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: perses-role
+subjects:
+- kind: ServiceAccount
+  name: perses
+  namespace: b4mad-meshtastic-gateway
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+    type: helm-chart-test
+  name: perses-test
+  namespace: b4mad-meshtastic-gateway
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: perses-test
+subjects:
+- kind: ServiceAccount
+  name: perses-test
+  namespace: b4mad-meshtastic-gateway
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: networking
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+  name: perses
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/name: perses
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/component: workload
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+  name: perses
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: perses
+      app.kubernetes.io/name: perses
+  serviceName: perses-headless
+  template:
+    metadata:
+      annotations:
+        checksum/config: f936178200c6b06ca6df287d599ed361c81f54a6f2b939563fd7ac3fee640ee0
+      labels:
+        app.kubernetes.io/instance: perses
+        app.kubernetes.io/name: perses
+    spec:
+      containers:
+      - env:
+        - name: LABEL
+          value: perses.dev/resource
+        - name: LABEL_VALUE
+          value: 'true'
+        - name: FOLDER
+          value: /etc/perses/provisioning
+        - name: HEALTH_PORT
+          value: '8081'
+        - name: RESOURCE
+          value: both
+        image: docker.io/kiwigrid/k8s-sidecar:2.5.0
+        name: perses-provisioning-sidecar
+        volumeMounts:
+        - mountPath: /etc/perses/provisioning
+          name: provisioning
+      - args:
+        - --config=/etc/perses/config/config.yaml
+        - --web.listen-address=:8080
+        - --web.hide-port=false
+        - --web.telemetry-path=/metrics
+        - --log.level=info
+        - --log.method-trace=true
+        env:
+        - name: PERSES_SECURITY_AUTHENTICATION_PROVIDERS_OIDC_0_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              key: perses-security-authentication-providers-oidc-0-client-id
+              name: perses-oauth
+        - name: PERSES_SECURITY_AUTHENTICATION_PROVIDERS_OIDC_0_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: perses-security-authentication-providers-oidc-0-client-secret
+              name: perses-oauth
+        image: docker.io/persesdev/perses:v0.53.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /api/v1/health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: perses
+        ports:
+        - containerPort: 8080
+          name: http
+        readinessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /api/v1/health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /etc/perses/config
+          name: config
+        - mountPath: /perses
+          name: data
+        - mountPath: /etc/perses/provisioning
+          name: provisioning
+      securityContext:
+        fsGroup: 2000
+      serviceAccountName: perses
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: perses
+      - configMap:
+          defaultMode: 420
+          name: perses
+        name: config
+      - emptyDir: {}
+        name: provisioning
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.allow-http: 'false'
+  labels:
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+  name: perses
+spec:
+  rules:
+  - host: perses.b4mad.emea.operate-first.cloud
+    http:
+      paths:
+      - backend:
+          service:
+            name: perses
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - perses.b4mad.emea.operate-first.cloud
+    secretName: https-cert-perses.b4mad.emea.operate-first.cloud

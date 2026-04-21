@@ -4,17 +4,13 @@ kind: Kustomization
 namespace: b4mad-meshtastic-gateway
 
 resources:
-  - perses-oauth.yaml           # SealedSecret (cluster-synced)
-  - sealed-encryption-key.yaml  # SealedSecret (cluster-synced)
-  - thanos-bearer-secret.yaml
-  - perses.yaml
-  - datasource.yaml
-  - dashboard.yaml
-  - ingress.yaml
+  - perses-oauth.yaml     # SealedSecret with OIDC creds (chart env-var keys)
+  - server-0.21.0.yaml    # rendered perses/perses Helm chart (server-only)
 
-  # NOT listed (deliberately): serviceaccount-token.yaml, perses-oauth.enc.yaml,
-  # perses-encryption-key.enc.yaml. The .enc.yaml files are SOPS sources-of-truth
-  # (consumed by operators, not Argo). serviceaccount-token.yaml holds a
-  # ClusterRoleBinding which the b4mad Argo AppProject does not permit; it is
-  # applied once by a cluster-admin via `oc apply -f serviceaccount-token.yaml`.
-  # See the header comment in that file for the rationale and replay command.
+  # NOT listed (deliberately):
+  # - perses-oauth.enc.yaml         SOPS source-of-truth, consumed by operators
+  # - serviceaccount-token.yaml     ClusterRoleBinding — out of AppProject scope,
+  #                                 applied by cluster-admin via oc apply. See
+  #                                 the file header for the replay command. The
+  #                                 thanos-reader SA it creates is reserved for
+  #                                 a future datasource-provisioning ConfigMap.

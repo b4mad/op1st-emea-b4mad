@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  annotations:
-    openshift.io/display-name: "Perses Operator"
-    openshift.io/description: "Perses Kubernetes Operator — reconciles Perses, PersesDashboard, PersesDatasource, PersesGlobalDatasource CRDs into running Perses server instances in target namespaces."
-  labels:
-    b4mad.operate-first.cloud/owner: goern.b4mad.net
-  name: perses-operator
