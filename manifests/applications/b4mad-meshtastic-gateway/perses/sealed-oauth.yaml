@@ -1,0 +1,15 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: perses-oauth
+  namespace: b4mad-meshtastic-gateway
+spec:
+  encryptedData:
+    client-secret: AgCNmjY9IQ/Bwzq0gWKfxON5wzqekPSndVsrSuCgGzrMmoi4tgp6B0fZRHtLuR2Saw5YoHMk+lAuJwmTJd8QI2KEJ5/W/5xvWk5CJSRsf6YmWxdCgGMMeCeyHROCKH0b974P9siIDUOGEGCh7EhH+zXOIIB0InLw4ZUVisohXpsmyXv8voebMTtJbEOqHDjdRDUkdqDKOU7SuI2kEpMuubCljgOkAz5pFFesdTOyP+U8JPHndP6Pi+Zkm3UGWuh39Bi2UW4+67ueMDAcU1DctJJR2kgecOSEIyfYv5imHJIRz5TD1Qqk0QeYE5dIrBt/fa7tZYs5iu6NQm8k2L8oyqzSrV6KXiWniqT5E2oFLWShqVdu7ebSY1YCfwgLhF1QHmkR5CYBWcjpZt1wDTp3YMmxtA2N1yoaeYUOTIWjUXOWCCSpmOWCiKRCiFdHaAEgjBSAhcYLwH2XJbxh5mLQCRKsejanTJWngWRwFM1MQXM+dQjk/dEZ3XaVjaF0Tb0M3YIrN2CNVN5hGZqhIXOvKm55Eb9E4zOnrnqBNAcjydR6mkeRezFPIwH0kUHD97cV/63EMYEVUz7xzcaOxeE59jzKCdAS1De8g9vd0pdBUh5A8h8g5u3jyOG3joMSsubmOMNk1fAJ+LctaqfaBr7ycNZ4mLiNqI5vOGVjuRWhFw5ME+kaZLbejMtHnfRBF8n+YC9RdVT2vzy/elxl4o6uC4yXpHB/RTG1TjZ+22CAJ/Tmbw==
+  template:
+    metadata:
+      creationTimestamp: null
+      name: perses-oauth
+      namespace: b4mad-meshtastic-gateway
+---
