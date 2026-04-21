@@ -1,3 +1,4 @@
+wrote 9 resources
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -31,6 +32,24 @@ metadata:
     app.kubernetes.io/version: v0.53.1
     helm.sh/chart: perses-0.21.0
   name: perses
+---
+apiVersion: v1
+data:
+  global-admin-binding.yaml: "kind: GlobalRoleBinding\nmetadata:\n  name: global-admin-binding\nspec:\n  role: global-admin\n\
+    \  subjects:\n    - kind: User\n      name: \"goern\"\n"
+  global-admin-role.yaml: "kind: GlobalRole\nmetadata:\n  name: global-admin\nspec:\n  permissions:\n    - actions: [\"*\"\
+    ]\n      scopes: [\"*\"]\n"
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: perses
+    app.kubernetes.io/part-of: perses
+    app.kubernetes.io/version: v0.53.1
+    helm.sh/chart: perses-0.21.0
+    perses.dev/resource: 'true'
+  name: perses-admin-bootstrap
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
