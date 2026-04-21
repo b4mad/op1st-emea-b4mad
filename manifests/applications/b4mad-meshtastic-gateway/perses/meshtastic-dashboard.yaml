@@ -45,6 +45,7 @@ data:
                 matchers:
                   - 'up{service="meshtastic-gateway"}'
                 datasource:
+                  kind: PrometheusDatasource
                   name: prometheus
 
       panels:
@@ -63,7 +64,7 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: 'meshtastic_lora_nodes_in_mesh{instance="$instance"}'
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
         nodes_active:
           kind: Panel
           spec:
@@ -78,7 +79,7 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: 'meshtastic_lora_nodes_active{instance="$instance",window_seconds="900"}'
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
         neighbors:
           kind: Panel
           spec:
@@ -93,7 +94,7 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: 'meshtastic_lora_neighbors{instance="$instance"}'
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
         seen_since_start:
           kind: Panel
           spec:
@@ -108,7 +109,7 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: 'meshtastic_lora_nodes_seen_since_start{instance="$instance"}'
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
         mesh_trend:
           kind: Panel
           spec:
@@ -125,7 +126,7 @@ data:
                     spec:
                       query: 'meshtastic_lora_nodes_in_mesh{instance="$instance"}'
                       seriesNameFormat: "NodeDB total"
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
               - kind: TimeSeriesQuery
                 spec:
                   plugin:
@@ -133,7 +134,7 @@ data:
                     spec:
                       query: 'meshtastic_lora_nodes_active{instance="$instance"}'
                       seriesNameFormat: "Heard (last {{window_seconds}}s)"
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
               - kind: TimeSeriesQuery
                 spec:
                   plugin:
@@ -141,7 +142,7 @@ data:
                     spec:
                       query: 'meshtastic_lora_neighbors{instance="$instance"}'
                       seriesNameFormat: "Neighbors (0-hop)"
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
 
         # ---- Row 2: Gateway traffic ----
         mqtt_connected:
@@ -164,7 +165,7 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: 'meshtastic_mqtt_connected{instance="$instance"}'
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
         mqtt_throughput:
           kind: Panel
           spec:
@@ -181,7 +182,7 @@ data:
                     spec:
                       query: 'rate(meshtastic_mqtt_uplink_bytes_total{instance="$instance"}[5m])'
                       seriesNameFormat: "uplink (device → broker)"
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
               - kind: TimeSeriesQuery
                 spec:
                   plugin:
@@ -189,7 +190,7 @@ data:
                     spec:
                       query: 'rate(meshtastic_mqtt_downlink_bytes_total{instance="$instance"}[5m])'
                       seriesNameFormat: "downlink (broker → device)"
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
         lora_packets:
           kind: Panel
           spec:
@@ -206,7 +207,7 @@ data:
                     spec:
                       query: 'sum by (portnum) (rate(meshtastic_lora_rx_packets_total{instance="$instance"}[5m]))'
                       seriesNameFormat: "rx {{portnum}}"
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
               - kind: TimeSeriesQuery
                 spec:
                   plugin:
@@ -214,7 +215,7 @@ data:
                     spec:
                       query: 'sum by (portnum) (rate(meshtastic_lora_tx_packets_total{instance="$instance"}[5m]))'
                       seriesNameFormat: "tx {{portnum}}"
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
 
         # ---- Row 3: Device telemetry ----
         battery:
@@ -238,7 +239,7 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: 'meshtastic_device_battery_level_percent{instance="$instance"}'
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
         voltage:
           kind: Panel
           spec:
@@ -255,7 +256,7 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: 'meshtastic_device_voltage_volts{instance="$instance"}'
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
         channel_util:
           kind: Panel
           spec:
@@ -272,7 +273,7 @@ data:
                     spec:
                       query: 'meshtastic_device_channel_utilization_percent{instance="$instance"}'
                       seriesNameFormat: "channel util %"
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
               - kind: TimeSeriesQuery
                 spec:
                   plugin:
@@ -280,7 +281,7 @@ data:
                     spec:
                       query: 'meshtastic_device_air_util_tx_percent{instance="$instance"}'
                       seriesNameFormat: "TX air-util (EU 868 duty) %"
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
         uptime:
           kind: Panel
           spec:
@@ -297,7 +298,7 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: 'meshtastic_device_uptime_seconds{instance="$instance"}'
-                      datasource: { name: prometheus }
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
 
       layouts:
         - kind: Grid
