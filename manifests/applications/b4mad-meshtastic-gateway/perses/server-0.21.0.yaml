@@ -1,4 +1,3 @@
-wrote 9 resources
 apiVersion: v1
 kind: ServiceAccount
 metadata:
