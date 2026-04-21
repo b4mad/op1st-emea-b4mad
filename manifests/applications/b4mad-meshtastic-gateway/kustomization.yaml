@@ -16,3 +16,4 @@ resources:
   - namespace.yaml
   - service.yaml
   - monitoring.yaml
+  - perses/
