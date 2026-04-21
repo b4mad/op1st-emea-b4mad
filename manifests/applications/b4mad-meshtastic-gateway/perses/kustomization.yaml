@@ -4,13 +4,16 @@ kind: Kustomization
 namespace: b4mad-meshtastic-gateway
 
 resources:
-  - perses-oauth.yaml     # SealedSecret with OIDC creds (chart env-var keys)
-  - server-0.21.0.yaml    # rendered perses/perses Helm chart (server-only)
+  - perses-oauth.yaml               # SealedSecret with OIDC creds (chart env-var keys)
+  - server-0.21.0.yaml              # rendered perses/perses Helm chart (server-only)
+  - meshtastic-dashboard.yaml       # ConfigMap: Perses project + 12-panel dashboard body
+  - prometheus-datasource.yaml      # SealedSecret: Perses Datasource with thanos bearer token
 
   # NOT listed (deliberately):
-  # - perses-oauth.enc.yaml         SOPS source-of-truth, consumed by operators
-  # - serviceaccount-token.yaml     ClusterRoleBinding — out of AppProject scope,
-  #                                 applied by cluster-admin via oc apply. See
-  #                                 the file header for the replay command. The
-  #                                 thanos-reader SA it creates is reserved for
-  #                                 a future datasource-provisioning ConfigMap.
+  # - perses-oauth.enc.yaml              SOPS source-of-truth, consumed by operators
+  # - prometheus-datasource.enc.yaml     SOPS source-of-truth for the above
+  # - serviceaccount-token.yaml          ClusterRoleBinding — out of b4mad
+  #                                      AppProject scope, applied by cluster-admin
+  #                                      via oc apply. The thanos-reader SA it
+  #                                      creates issues the bearer token baked
+  #                                      into prometheus-datasource.yaml above.

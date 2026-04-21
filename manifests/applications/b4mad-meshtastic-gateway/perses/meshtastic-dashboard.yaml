@@ -1,0 +1,326 @@
+# Provisioned Perses project + dashboard. The sidecar watches ConfigMaps
+# labelled perses.dev/resource=true in this namespace (see server-0.21.0.yaml)
+# and writes each data key into /etc/perses/provisioning/ for the server to load.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: meshtastic-dashboard
+  labels:
+    perses.dev/resource: "true"
+    app.kubernetes.io/name: perses
+data:
+  project.yaml: |
+    kind: Project
+    metadata:
+      name: b4mad-meshtastic
+    spec:
+      display:
+        name: "#B4mad Meshtastic"
+        description: "Dashboards for the erd/G/eschoss Meshtastic node on the #B4mad.Net Network."
+
+  dashboard.yaml: |
+    kind: Dashboard
+    metadata:
+      name: erdgeschoss-meshtastic-gateway
+      project: b4mad-meshtastic
+    spec:
+      display:
+        name: "erd/G/eschoss Meshtastic Gateway (#B4mad.Net)"
+      duration: 6h
+      refreshInterval: 30s
+
+      variables:
+        - kind: ListVariable
+          spec:
+            name: instance
+            display:
+              name: Gateway instance
+            allowAllValue: false
+            allowMultiple: false
+            plugin:
+              kind: PrometheusLabelValuesVariable
+              spec:
+                labelName: instance
+                matchers:
+                  - 'up{service="meshtastic-gateway"}'
+                datasource:
+                  name: prometheus
+
+      panels:
+        # ---- Row 1: Mesh health ----
+        nodes_in_mesh:
+          kind: Panel
+          spec:
+            display: { name: "Nodes known (NodeDB)" }
+            plugin:
+              kind: StatChart
+              spec: { calculation: last, format: { unit: decimal } }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_lora_nodes_in_mesh{instance="$instance"}'
+                      datasource: { name: prometheus }
+        nodes_active:
+          kind: Panel
+          spec:
+            display: { name: "Nodes heard (15 min window)" }
+            plugin:
+              kind: StatChart
+              spec: { calculation: last, format: { unit: decimal } }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_lora_nodes_active{instance="$instance",window_seconds="900"}'
+                      datasource: { name: prometheus }
+        neighbors:
+          kind: Panel
+          spec:
+            display: { name: "Direct neighbors (1-hop)" }
+            plugin:
+              kind: StatChart
+              spec: { calculation: last, format: { unit: decimal } }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_lora_neighbors{instance="$instance"}'
+                      datasource: { name: prometheus }
+        seen_since_start:
+          kind: Panel
+          spec:
+            display: { name: "Nodes observed TX since gateway restart" }
+            plugin:
+              kind: StatChart
+              spec: { calculation: last, format: { unit: decimal } }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_lora_nodes_seen_since_start{instance="$instance"}'
+                      datasource: { name: prometheus }
+        mesh_trend:
+          kind: Panel
+          spec:
+            display: { name: "Mesh participation over time" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: table }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_lora_nodes_in_mesh{instance="$instance"}'
+                      seriesNameFormat: "NodeDB total"
+                      datasource: { name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_lora_nodes_active{instance="$instance"}'
+                      seriesNameFormat: "Heard (last {{window_seconds}}s)"
+                      datasource: { name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_lora_neighbors{instance="$instance"}'
+                      seriesNameFormat: "Neighbors (0-hop)"
+                      datasource: { name: prometheus }
+
+        # ---- Row 2: Gateway traffic ----
+        mqtt_connected:
+          kind: Panel
+          spec:
+            display: { name: "MQTT broker" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: decimal }
+                thresholds:
+                  steps:
+                    - { value: 0, color: red }
+                    - { value: 1, color: green }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_mqtt_connected{instance="$instance"}'
+                      datasource: { name: prometheus }
+        mqtt_throughput:
+          kind: Panel
+          spec:
+            display: { name: "MQTT bridge throughput (bytes/s)" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                yAxis: { unit: bytes/sec }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'rate(meshtastic_mqtt_uplink_bytes_total{instance="$instance"}[5m])'
+                      seriesNameFormat: "uplink (device → broker)"
+                      datasource: { name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'rate(meshtastic_mqtt_downlink_bytes_total{instance="$instance"}[5m])'
+                      seriesNameFormat: "downlink (broker → device)"
+                      datasource: { name: prometheus }
+        lora_packets:
+          kind: Panel
+          spec:
+            display: { name: "LoRa packets/s by portnum" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: table }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'sum by (portnum) (rate(meshtastic_lora_rx_packets_total{instance="$instance"}[5m]))'
+                      seriesNameFormat: "rx {{portnum}}"
+                      datasource: { name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'sum by (portnum) (rate(meshtastic_lora_tx_packets_total{instance="$instance"}[5m]))'
+                      seriesNameFormat: "tx {{portnum}}"
+                      datasource: { name: prometheus }
+
+        # ---- Row 3: Device telemetry ----
+        battery:
+          kind: Panel
+          spec:
+            display: { name: "Battery level" }
+            plugin:
+              kind: GaugeChart
+              spec:
+                max: 100
+                format: { unit: percent }
+                thresholds:
+                  steps:
+                    - { value: 0, color: red }
+                    - { value: 20, color: yellow }
+                    - { value: 50, color: green }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_device_battery_level_percent{instance="$instance"}'
+                      datasource: { name: prometheus }
+        voltage:
+          kind: Panel
+          spec:
+            display: { name: "Battery voltage" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: volts, decimalPlaces: 2 }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_device_voltage_volts{instance="$instance"}'
+                      datasource: { name: prometheus }
+        channel_util:
+          kind: Panel
+          spec:
+            display: { name: "Channel utilization / TX duty-cycle" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                yAxis: { unit: percent }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_device_channel_utilization_percent{instance="$instance"}'
+                      seriesNameFormat: "channel util %"
+                      datasource: { name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_device_air_util_tx_percent{instance="$instance"}'
+                      seriesNameFormat: "TX air-util (EU 868 duty) %"
+                      datasource: { name: prometheus }
+        uptime:
+          kind: Panel
+          spec:
+            display: { name: "Device uptime" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: seconds }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'meshtastic_device_uptime_seconds{instance="$instance"}'
+                      datasource: { name: prometheus }
+
+      layouts:
+        - kind: Grid
+          spec:
+            display: { title: "Mesh health" }
+            items:
+              - { x: 0,  y: 0, width: 6,  height: 4, content: { "$ref": "#/spec/panels/nodes_in_mesh" } }
+              - { x: 6,  y: 0, width: 6,  height: 4, content: { "$ref": "#/spec/panels/nodes_active" } }
+              - { x: 12, y: 0, width: 6,  height: 4, content: { "$ref": "#/spec/panels/neighbors" } }
+              - { x: 18, y: 0, width: 6,  height: 4, content: { "$ref": "#/spec/panels/seen_since_start" } }
+              - { x: 0,  y: 4, width: 24, height: 8, content: { "$ref": "#/spec/panels/mesh_trend" } }
+        - kind: Grid
+          spec:
+            display: { title: "Gateway traffic" }
+            items:
+              - { x: 0, y: 0, width: 6,  height: 4, content: { "$ref": "#/spec/panels/mqtt_connected" } }
+              - { x: 6, y: 0, width: 18, height: 8, content: { "$ref": "#/spec/panels/mqtt_throughput" } }
+              - { x: 0, y: 8, width: 24, height: 8, content: { "$ref": "#/spec/panels/lora_packets" } }
+        - kind: Grid
+          spec:
+            display: { title: "Device telemetry" }
+            items:
+              - { x: 0,  y: 0, width: 6,  height: 6, content: { "$ref": "#/spec/panels/battery" } }
+              - { x: 6,  y: 0, width: 6,  height: 6, content: { "$ref": "#/spec/panels/voltage" } }
+              - { x: 12, y: 0, width: 12, height: 6, content: { "$ref": "#/spec/panels/uptime" } }
+              - { x: 0,  y: 6, width: 24, height: 8, content: { "$ref": "#/spec/panels/channel_util" } }
