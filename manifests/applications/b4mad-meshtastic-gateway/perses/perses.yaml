@@ -60,6 +60,8 @@ spec:
               # CRD requires these objects even when empty/default.
               http:
                 timeout: "30s"
+                tls_config:
+                  insecureSkipVerify: false
               logout:
                 enabled: true
 
