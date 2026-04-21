@@ -288,7 +288,9 @@ data:
               kind: StatChart
               spec:
                 calculation: last
-                format: { unit: decimal }
+                # Perses's #timeFormat humanizes the seconds value into
+                # "3d 4h" / "17m 3s" style on display.
+                format: { unit: seconds, decimalPlaces: 0 }
             queries:
               - kind: TimeSeriesQuery
                 spec:

@@ -19,7 +19,7 @@ data:
     \      enable_native: false\n      oidc:\n      - client_id: perses-erdgeschoss\n        issuer: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss\n\
     \        name: erd/G/eschoss\n        redirect_uri: https://perses.b4mad.emea.operate-first.cloud/api/auth/providers/oidc/keycloak/callback\n\
     \        scopes:\n        - openid\n        - email\n        - profile\n        slug_id: keycloak\n    refresh_token_ttl:\
-    \ 24h\n  cookie:\n    same_site: lax\n    secure: true\n  enable_auth: false\n  readonly: true\n"
+    \ 24h\n  cookie:\n    same_site: lax\n    secure: true\n  enable_auth: false\n  readonly: true"
 kind: ConfigMap
 metadata:
   labels:
@@ -31,24 +31,6 @@ metadata:
     app.kubernetes.io/version: v0.53.1
     helm.sh/chart: perses-0.21.0
   name: perses
----
-apiVersion: v1
-data:
-  global-admin-binding.yaml: "kind: GlobalRoleBinding\nmetadata:\n  name: global-admin-binding\nspec:\n  role: global-admin\n\
-    \  subjects:\n    - kind: User\n      name: \"goern\"\n"
-  global-admin-role.yaml: "kind: GlobalRole\nmetadata:\n  name: global-admin\nspec:\n  permissions:\n    - actions: [\"*\"\
-    ]\n      scopes: [\"*\"]\n"
-kind: ConfigMap
-metadata:
-  labels:
-    app.kubernetes.io/instance: perses
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: perses
-    app.kubernetes.io/part-of: perses
-    app.kubernetes.io/version: v0.53.1
-    helm.sh/chart: perses-0.21.0
-    perses.dev/resource: 'true'
-  name: perses-admin-bootstrap
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -160,7 +142,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: c1a68e8700cb4c030edd0dd45ed4eee4637fdee920cb25b56bf107aefc81cc80
+        checksum/config: ce422312698c058de7de191420788b73fb6b21011131ec2cb545b2089ea65f2b
       labels:
         app.kubernetes.io/instance: perses
         app.kubernetes.io/name: perses
@@ -189,17 +171,6 @@ spec:
         - --web.telemetry-path=/metrics
         - --log.level=info
         - --log.method-trace=true
-        env:
-        - name: PERSES_SECURITY_AUTHENTICATION_PROVIDERS_OIDC_0_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              key: perses-security-authentication-providers-oidc-0-client-id
-              name: perses-oauth
-        - name: PERSES_SECURITY_AUTHENTICATION_PROVIDERS_OIDC_0_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              key: perses-security-authentication-providers-oidc-0-client-secret
-              name: perses-oauth
         image: docker.io/persesdev/perses:v0.53.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
