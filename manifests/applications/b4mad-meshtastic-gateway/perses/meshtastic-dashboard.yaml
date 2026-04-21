@@ -247,7 +247,7 @@ data:
               kind: StatChart
               spec:
                 calculation: last
-                format: { unit: volts, decimalPlaces: 2 }
+                format: { unit: decimal, decimalPlaces: 2 }
             queries:
               - kind: TimeSeriesQuery
                 spec:
@@ -288,7 +288,7 @@ data:
               kind: StatChart
               spec:
                 calculation: last
-                format: { unit: seconds }
+                format: { unit: decimal }
             queries:
               - kind: TimeSeriesQuery
                 spec:
