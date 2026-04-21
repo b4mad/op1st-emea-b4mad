@@ -1,0 +1,34 @@
+apiVersion: perses.dev/v1alpha2
+kind: PersesDatasource
+metadata:
+  name: prometheus
+  labels:
+    app.kubernetes.io/name: perses
+spec:
+  # Bind this datasource to the Perses server instance by label, not by name.
+  # The Perses CR carries app.kubernetes.io/instance=perses.
+  instanceSelector:
+    matchLabels:
+      app.kubernetes.io/instance: perses
+
+  config:
+    display:
+      name: "nostromo user-workload Prometheus (via thanos-querier)"
+    default: true
+    plugin:
+      kind: PrometheusDatasource
+      spec:
+        proxy:
+          kind: HTTPProxy
+          spec:
+            url: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+            allowedEndpoints:
+              - endpointPattern: "/api/v1/.*"
+                method: GET
+              - endpointPattern: "/api/v1/.*"
+                method: POST
+            # Reference the shim Secret; the plugin reads .data.token and
+            # injects Authorization: Bearer <token>. It also uses .data["ca.crt"]
+            # as the CA bundle for TLS to the thanos-querier service.
+            secret:
+              name: perses-thanos-bearer

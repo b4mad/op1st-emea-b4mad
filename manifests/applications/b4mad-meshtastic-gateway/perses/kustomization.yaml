@@ -7,6 +7,7 @@ resources:
   - perses-oauth.yaml           # SealedSecret (cluster-synced)
   - sealed-encryption-key.yaml  # SealedSecret (cluster-synced)
   - serviceaccount-token.yaml
+  - thanos-bearer-secret.yaml
   - perses.yaml
   - datasource.yaml
   - dashboard.yaml
