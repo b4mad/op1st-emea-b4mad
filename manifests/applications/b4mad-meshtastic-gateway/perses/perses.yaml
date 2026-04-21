@@ -1,0 +1,104 @@
+apiVersion: perses.dev/v1alpha2
+kind: Perses
+metadata:
+  name: perses
+  labels:
+    app.kubernetes.io/instance: perses
+    app.kubernetes.io/name: perses
+spec:
+  replicas: 1
+  containerPort: 8080
+  image: docker.io/persesdev/perses
+  logLevel: info
+
+  # Deterministic Service name so the Ingress in Task 9 can reference it.
+  service:
+    name: perses
+
+  # The Perses YAML config, embedded verbatim. The CRD's spec.config
+  # is an open object — Perses validates server-side.
+  config:
+    api_prefix: ""
+
+    database:
+      file:
+        folder: /var/lib/perses/data
+        extension: yaml
+
+    security:
+      readonly: false
+      enable_auth: true
+      # 32-char key read from the file mounted via the encryption-key volume below.
+      encryption_key_file: /etc/perses/secrets/encryption-key
+      cookie:
+        same_site: 1   # 1 = lax
+        secure: true
+      authentication:
+        access_token_ttl: "15m"
+        refresh_token_ttl: "24h"
+        disable_sign_up: true
+        providers:
+          enable_native: false
+          oidc:
+            - slug_id: keycloak
+              name: "erd/G/eschoss"
+              # client_id is not sensitive (per OAuth convention) — keep literal.
+              # There is no client_id_file field in the CRD; this is deliberate.
+              client_id: "perses-erdgeschoss"
+              client_secret_file: /etc/perses/secrets/oidc-client-secret
+              issuer: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss
+              scopes:
+                - openid
+                - email
+                - profile
+              redirect_uri: https://perses.b4mad.emea.operate-first.cloud/api/auth/providers/oidc/keycloak/callback
+              disable_pkce: false
+
+      authorization:
+        provider:
+          native:
+            enable: true
+            guest_permissions:
+              - actions: ["read"]
+                scopes: ["Dashboard", "Project", "Datasource"]
+
+    frontend:
+      disable: false
+
+  # Persistent data volume for the file DB. The Operator converts pvcTemplate
+  # into a StatefulSet volumeClaimTemplates entry.
+  storage:
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: lvms-vg1
+
+  # Additional volumes for the OIDC client secret and the encryption key.
+  # Field name is `volumes` (NOT extraVolumes).
+  volumes:
+    - name: oidc
+      secret:
+        secretName: perses-oauth
+        items:
+          - key: client-secret
+            path: oidc-client-secret
+    - name: encryption-key
+      secret:
+        secretName: perses-encryption-key
+        items:
+          - key: encryption-key
+            path: encryption-key
+
+  # Field name is `volumeMounts` (NOT extraVolumeMounts). Mount both secrets
+  # under the same /etc/perses/secrets directory.
+  volumeMounts:
+    - name: oidc
+      mountPath: /etc/perses/secrets
+      readOnly: true
+    - name: encryption-key
+      mountPath: /etc/perses/secrets/encryption-key
+      subPath: encryption-key
+      readOnly: true
