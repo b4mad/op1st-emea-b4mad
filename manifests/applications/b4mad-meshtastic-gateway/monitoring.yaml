@@ -1,0 +1,41 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: meshtastic-gateway
+spec:
+  endpoints:
+    - path: /metrics
+      port: metrics
+      interval: 30s
+      scheme: http
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: meshtastic-gateway
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: meshtastic-gateway
+  labels:
+    openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus
+spec:
+  groups:
+    - name: meshtastic-gateway
+      rules:
+        - alert: MeshtasticGatewayDown
+          for: 5m
+          expr: up{service="meshtastic-gateway"} == 0
+          labels:
+            severity: warning
+          annotations:
+            summary: erd/G/eschoss Meshtastic gateway (#B4mad.Net) is unreachable
+            description: Prometheus has been unable to scrape the meshtastic-gateway for the erd/G/eschoss node at {{ $labels.instance }} for >= 5 minutes.
+        - alert: MeshtasticMQTTDisconnected
+          for: 10m
+          expr: meshtastic_mqtt_connected == 0
+          labels:
+            severity: warning
+          annotations:
+            summary: erd/G/eschoss Meshtastic gateway (#B4mad.Net) has lost MQTT
+            description: The erd/G/eschoss gateway at {{ $labels.instance }} has reported mqtt_connected=0 for >= 10 minutes; it is no longer bridging the #B4mad.Net node to the Meshtastic MQTT broker.

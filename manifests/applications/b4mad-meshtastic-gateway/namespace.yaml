@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/display-name: "Meshtastic gateway — erd/G/eschoss (#B4mad.Net)"
+    openshift.io/description: "Scrape target for the erd/G/eschoss Meshtastic node on the #B4mad.Net Network. The physical node is tethered via USB to the rpi5 host at Erdgeschoss; its long name is 'erdGeschoss' (short: 'b4eg'), operating on EU_868."
+    openshift.io/cluster-monitoring: "true"
+  labels:
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
+  name: b4mad-meshtastic-gateway
