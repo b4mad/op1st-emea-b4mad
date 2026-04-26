@@ -38,3 +38,16 @@ spec:
           for: 10m
           annotations:
             message: "CPU package on bridge is thermally throttling (>1 event/sec sustained for 10m). Workload performance is degraded; cleaning/repaste required."
+
+        - alert: HostCPUTemperatureRisingAtIdle
+          expr: >-
+            node_hwmon_temp_celsius{job="node-exporter", instance="bridge", chip="platform_coretemp_0", sensor="temp1"} > 75
+            and
+            avg by (instance) (
+              rate(node_cpu_seconds_total{job="node-exporter", instance="bridge", mode="idle"}[10m])
+            ) > 0.85
+          labels:
+            severity: warning
+          for: 30m
+          annotations:
+            message: "Package temp on bridge has been > 75°C for 30 minutes despite the CPU being mostly idle (>85% idle averaged across cores). Likely fan failure or airflow obstruction — no fan RPM is available on this NUC to confirm directly."
