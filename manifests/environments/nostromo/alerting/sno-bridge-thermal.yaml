@@ -1,0 +1,40 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  creationTimestamp: null
+  name: sno-bridge-thermal
+  namespace: openshift-monitoring
+spec:
+  groups:
+    - name: NodeThermal
+      rules:
+        - alert: HostCPUTemperatureHigh
+          expr: >-
+            max by (instance) (
+              node_hwmon_temp_celsius{job="node-exporter", instance="bridge", chip="platform_coretemp_0"}
+            ) > 90
+          labels:
+            severity: warning
+          for: 15m
+          annotations:
+            message: "CPU on bridge has been above 90°C for 15 minutes (Tjmax 100°C). Heatsink/fan likely needs attention — there is no BMC, so this is the only signal."
+
+        - alert: HostCPUTemperatureCritical
+          expr: >-
+            max by (instance) (
+              node_hwmon_temp_celsius{job="node-exporter", instance="bridge", chip="platform_coretemp_0"}
+            ) >= 95
+          labels:
+            severity: critical
+          for: 5m
+          annotations:
+            message: "CPU on bridge is at or above 95°C (Tjmax 100°C) for 5 minutes. Thermal throttling imminent or already active."
+
+        - alert: HostCPUThrottling
+          expr: >-
+            rate(node_cpu_package_throttles_total{job="node-exporter", instance="bridge"}[5m]) > 1
+          labels:
+            severity: warning
+          for: 10m
+          annotations:
+            message: "CPU package on bridge is thermally throttling (>1 event/sec sustained for 10m). Workload performance is degraded; cleaning/repaste required."
