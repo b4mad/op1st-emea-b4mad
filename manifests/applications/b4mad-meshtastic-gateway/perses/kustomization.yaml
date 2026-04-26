@@ -8,6 +8,7 @@ resources:
   - server-0.21.0.yaml              # rendered perses/perses Helm chart (server-only)
   - meshtastic-dashboard.yaml       # ConfigMap: Perses project + 12-panel dashboard body
   - bridge-host-cpu-dashboard.yaml  # ConfigMap: nostromo-cluster-health project + bridge HostCPU dashboard
+  - nostromo-cluster-health-datasource.yaml  # ConfigMap: project-scoped Datasource for nostromo-cluster-health (refs the GlobalSecret 'thanos-auth')
   - prometheus-datasource.yaml      # SealedSecret: Perses Datasource with thanos bearer token
 
   # NOT listed (deliberately):

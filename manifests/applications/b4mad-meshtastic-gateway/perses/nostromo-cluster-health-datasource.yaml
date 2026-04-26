@@ -1,0 +1,46 @@
+# Project-scoped Datasource for nostromo-cluster-health.
+# Anonymous users (the Perses default in this deployment) can proxy queries
+# through project-scoped Datasources but not GlobalDatasources, so each project
+# that hosts dashboards needs its own Datasource entry. This one references the
+# GlobalSecret 'thanos-auth' (provisioned via prometheus-datasource.yaml) by
+# name, so the bearer token is not duplicated here. Plain ConfigMap — no
+# secrets in this file.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nostromo-cluster-health-datasource
+  labels:
+    perses.dev/resource: "true"
+    app.kubernetes.io/name: perses
+data:
+  nostromo-cluster-health-datasource.yaml: |
+    kind: Datasource
+    metadata:
+      name: prometheus
+      project: nostromo-cluster-health
+    spec:
+      display:
+        name: "nostromo user-workload Prometheus (via thanos-querier)"
+      default: true
+      plugin:
+        kind: PrometheusDatasource
+        spec:
+          proxy:
+            kind: HTTPProxy
+            spec:
+              url: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+              allowedEndpoints:
+                - endpointPattern: /api/v1/query
+                  method: POST
+                - endpointPattern: /api/v1/query_range
+                  method: POST
+                - endpointPattern: /api/v1/labels
+                  method: POST
+                - endpointPattern: /api/v1/series
+                  method: POST
+                - endpointPattern: /api/v1/metadata
+                  method: GET
+                - endpointPattern: /api/v1/label/[^/]+/values
+                  method: GET
+              secret: thanos-auth

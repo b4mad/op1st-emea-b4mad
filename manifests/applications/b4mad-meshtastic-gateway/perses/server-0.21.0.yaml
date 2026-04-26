@@ -13,13 +13,51 @@ metadata:
 ---
 apiVersion: v1
 data:
-  config.yaml: "\napi_prefix: \"\"\ndatabase:\n  file:\n    extension: json\n    folder: /perses\nfrontend:\n  disable: false\n\
-    \  explorer:\n    enable: true\n  important_dashboards: []\n  information: \"\"\nprovisioning:\n  folders:\n  - /etc/perses/provisioning\n\
-    \  interval: 1m\nsecurity:\n  authentication:\n    access_token_ttl: 15m\n    disable_sign_up: true\n    providers:\n\
-    \      enable_native: false\n      oidc:\n      - client_id: perses-erdgeschoss\n        issuer: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss\n\
-    \        name: erd/G/eschoss\n        redirect_uri: https://perses.b4mad.emea.operate-first.cloud/api/auth/providers/oidc/keycloak/callback\n\
-    \        scopes:\n        - openid\n        - email\n        - profile\n        slug_id: keycloak\n    refresh_token_ttl:\
-    \ 24h\n  cookie:\n    same_site: lax\n    secure: true\n  enable_auth: false\n  readonly: true"
+  config.yaml: |
+    api_prefix: ""
+    database:
+      file:
+        extension: json
+        folder: /perses
+    frontend:
+      disable: false
+      explorer:
+        enable: true
+      important_dashboards: []
+      information: ""
+    provisioning:
+      folders:
+      - /etc/perses/provisioning
+      interval: 1m
+    security:
+      authentication:
+        access_token_ttl: 15m
+        disable_sign_up: true
+        providers:
+          enable_native: false
+          oidc:
+          - client_id: perses-erdgeschoss
+            issuer: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss
+            name: erd/G/eschoss
+            redirect_uri: https://perses.b4mad.emea.operate-first.cloud/api/auth/providers/oidc/keycloak/callback
+            scopes:
+            - openid
+            - email
+            - profile
+            slug_id: keycloak
+        refresh_token_ttl: 24h
+      authorization:
+        provider:
+          native:
+            enable: true
+            guest_permissions:
+            - actions: [read]
+              scopes: [Dashboard, Project, Datasource, GlobalDatasource, GlobalSecret, GlobalRole, Variable, GlobalVariable]
+      cookie:
+        same_site: lax
+        secure: true
+      enable_auth: true
+      readonly: true
 kind: ConfigMap
 metadata:
   labels:
@@ -142,7 +180,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: ce422312698c058de7de191420788b73fb6b21011131ec2cb545b2089ea65f2b
+        checksum/config: sso-enabled-2026-04-26
       labels:
         app.kubernetes.io/instance: perses
         app.kubernetes.io/name: perses
@@ -171,6 +209,17 @@ spec:
         - --web.telemetry-path=/metrics
         - --log.level=info
         - --log.method-trace=true
+        env:
+        - name: PERSES_SECURITY_AUTHENTICATION_PROVIDERS_OIDC_0_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: perses-oauth
+              key: perses-security-authentication-providers-oidc-0-client-id
+        - name: PERSES_SECURITY_AUTHENTICATION_PROVIDERS_OIDC_0_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: perses-oauth
+              key: perses-security-authentication-providers-oidc-0-client-secret
         image: docker.io/persesdev/perses:v0.53.1
         imagePullPolicy: IfNotPresent
         livenessProbe:
