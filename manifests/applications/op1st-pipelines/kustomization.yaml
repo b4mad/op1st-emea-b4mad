@@ -41,7 +41,8 @@ patches:
             default-artifact-hub-task-catalog: tekton-catalog-tasks 
             default-artifact-hub-pipeline-catalog: tekton-catalog-pipelines 
             default-kind: task 
-            default-type: artifact 
+            default-type: artifact
+            artifact-hub-api: https://artifacthub.io
           enable-cluster-resolver: true
         platforms:
           openshift:
@@ -49,8 +50,8 @@ patches:
               enable: true
               settings:
                 auto-configure-new-github-repo: "true"
-                hub-catalog-name: tekton
-                hub-url: https://api.hub.tekton.dev/v1
+                hub-catalog-name: tekton-catalog-tasks
+                hub-url: https://artifacthub.io
                 remote-tasks: "true"
                 application-name: op1st Pipelines as Code
                 custom-console-name: op1st Pipelines as Code
