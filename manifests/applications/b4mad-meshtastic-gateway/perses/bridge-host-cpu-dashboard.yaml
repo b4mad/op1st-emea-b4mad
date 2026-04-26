@@ -1,0 +1,328 @@
+# Provisioned Perses project + dashboard for the SNO 'bridge' node.
+# The kiwigrid sidecar in this namespace watches ConfigMaps labelled
+# perses.dev/resource=true (see server-0.21.0.yaml) and writes each data
+# key into /etc/perses/provisioning for Perses to load.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bridge-host-cpu-dashboard
+  labels:
+    perses.dev/resource: "true"
+    app.kubernetes.io/name: perses
+data:
+  # NOTE: keys here become filenames in /etc/perses/provisioning/ (kiwigrid
+  # sidecar). Generic names like `dashboard.yaml` would collide with other
+  # provisioning ConfigMaps in this namespace (see meshtastic-dashboard.yaml).
+  # Always namespace these per-dashboard.
+  nostromo-cluster-health-project.yaml: |
+    kind: Project
+    metadata:
+      name: nostromo-cluster-health
+    spec:
+      display:
+        name: "nostromo Cluster Health"
+        description: "Cluster-wide observability for the single-node 'bridge' OpenShift cluster on the Erdgeschoss network."
+
+  bridge-host-cpu-dashboard.yaml: |
+    kind: Dashboard
+    metadata:
+      name: bridge-host-cpu
+      project: nostromo-cluster-health
+    spec:
+      display:
+        name: "bridge — Host CPU & Thermals"
+      duration: 6h
+      refreshInterval: 30s
+
+      panels:
+        # ---- Row 1: At a glance ----
+        pkg_temp:
+          kind: Panel
+          spec:
+            display: { name: "CPU package (°C)" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: decimal, decimalPlaces: 0 }
+                thresholds:
+                  steps:
+                    - { value: 0, color: green }
+                    - { value: 90, color: yellow }
+                    - { value: 95, color: red }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'node_hwmon_temp_celsius{instance="bridge", chip="platform_coretemp_0", sensor="temp1"}'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        core_max:
+          kind: Panel
+          spec:
+            display: { name: "Hottest core (°C)" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: decimal, decimalPlaces: 0 }
+                thresholds:
+                  steps:
+                    - { value: 0, color: green }
+                    - { value: 90, color: yellow }
+                    - { value: 95, color: red }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'max(node_hwmon_temp_celsius{instance="bridge", chip="platform_coretemp_0", sensor=~"temp[2-7]"})'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        pch_temp:
+          kind: Panel
+          spec:
+            display: { name: "PCH (°C)" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: decimal, decimalPlaces: 0 }
+                thresholds:
+                  steps:
+                    - { value: 0, color: green }
+                    - { value: 90, color: yellow }
+                    - { value: 110, color: red }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'node_hwmon_temp_celsius{instance="bridge", chip="pch_cannonlake"}'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        idle_ratio:
+          kind: Panel
+          spec:
+            display: { name: "CPU idle (%, 5m avg)" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: percent, decimalPlaces: 1 }
+                thresholds:
+                  steps:
+                    - { value: 0, color: red }
+                    - { value: 50, color: yellow }
+                    - { value: 85, color: green }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: '100 * avg(rate(node_cpu_seconds_total{instance="bridge", mode="idle"}[5m]))'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        throttle_rate:
+          kind: Panel
+          spec:
+            display: { name: "Throttle events/sec (5m)" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: decimal, decimalPlaces: 2 }
+                thresholds:
+                  steps:
+                    - { value: 0, color: green }
+                    - { value: 1, color: yellow }
+                    - { value: 10, color: red }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'rate(node_cpu_package_throttles_total{instance="bridge"}[5m])'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        active_alerts:
+          kind: Panel
+          spec:
+            display: { name: "HostCPU* alerts firing" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: decimal, decimalPlaces: 0 }
+                thresholds:
+                  steps:
+                    - { value: 0, color: green }
+                    - { value: 1, color: yellow }
+                    - { value: 2, color: red }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      # `or vector(0)` keeps a sample at zero when nothing is firing,
+                      # so the StatChart shows 0 instead of "no data".
+                      query: 'count(ALERTS{alertstate="firing", alertname=~"HostCPU.*", instance="bridge"}) or vector(0)'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        # ---- Row 2: Temperatures over time ----
+        cpu_temps_over_time:
+          kind: Panel
+          spec:
+            display: { name: "CPU temperatures (°C) — package + per-core" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: table }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      # Join coretemp values with their human-readable labels
+                      # ("Package id 0", "Core 0".."Core 5") via group_left so
+                      # the legend renders names instead of "temp1".."temp7".
+                      query: |-
+                        node_hwmon_temp_celsius{instance="bridge", chip="platform_coretemp_0"}
+                        * on (chip, sensor) group_left(label)
+                        node_hwmon_sensor_label{instance="bridge", chip="platform_coretemp_0"}
+                      seriesNameFormat: "{{label}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        # ---- Row 3: Throttling and load ----
+        throttle_over_time:
+          kind: Panel
+          spec:
+            display: { name: "Package throttle rate (events/sec, 5m)" }
+            plugin:
+              kind: TimeSeriesChart
+              spec: {}
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'rate(node_cpu_package_throttles_total{instance="bridge"}[5m])'
+                      seriesNameFormat: "package throttles/s"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'sum(rate(node_cpu_core_throttles_total{instance="bridge"}[5m]))'
+                      seriesNameFormat: "core throttles/s (sum)"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        load_over_time:
+          kind: Panel
+          spec:
+            display: { name: "Load average (1m / 5m / 15m)" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: table }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'node_load1{instance="bridge"}'
+                      seriesNameFormat: "load 1m"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'node_load5{instance="bridge"}'
+                      seriesNameFormat: "load 5m"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'node_load15{instance="bridge"}'
+                      seriesNameFormat: "load 15m"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        # ---- Row 4: Context ----
+        pch_temp_over_time:
+          kind: Panel
+          spec:
+            display: { name: "PCH temperature (°C)" }
+            plugin:
+              kind: TimeSeriesChart
+              spec: {}
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'node_hwmon_temp_celsius{instance="bridge", chip="pch_cannonlake"}'
+                      seriesNameFormat: "PCH"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        cpu_modes_breakdown:
+          kind: Panel
+          spec:
+            display: { name: "CPU usage by mode (5m rate, summed across cores)" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: table }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'sum by (mode) (rate(node_cpu_seconds_total{instance="bridge"}[5m]))'
+                      seriesNameFormat: "{{mode}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+      layouts:
+        - kind: Grid
+          spec:
+            display: { title: "At a glance" }
+            items:
+              - { x: 0,  y: 0, width: 4, height: 4, content: { "$ref": "#/spec/panels/pkg_temp" } }
+              - { x: 4,  y: 0, width: 4, height: 4, content: { "$ref": "#/spec/panels/core_max" } }
+              - { x: 8,  y: 0, width: 4, height: 4, content: { "$ref": "#/spec/panels/pch_temp" } }
+              - { x: 12, y: 0, width: 4, height: 4, content: { "$ref": "#/spec/panels/idle_ratio" } }
+              - { x: 16, y: 0, width: 4, height: 4, content: { "$ref": "#/spec/panels/throttle_rate" } }
+              - { x: 20, y: 0, width: 4, height: 4, content: { "$ref": "#/spec/panels/active_alerts" } }
+        - kind: Grid
+          spec:
+            display: { title: "Temperatures over time" }
+            items:
+              - { x: 0, y: 0, width: 24, height: 8, content: { "$ref": "#/spec/panels/cpu_temps_over_time" } }
+        - kind: Grid
+          spec:
+            display: { title: "Throttling and load" }
+            items:
+              - { x: 0,  y: 0, width: 12, height: 8, content: { "$ref": "#/spec/panels/throttle_over_time" } }
+              - { x: 12, y: 0, width: 12, height: 8, content: { "$ref": "#/spec/panels/load_over_time" } }
+        - kind: Grid
+          spec:
+            display: { title: "Context" }
+            items:
+              - { x: 0,  y: 0, width: 12, height: 6, content: { "$ref": "#/spec/panels/pch_temp_over_time" } }
+              - { x: 12, y: 0, width: 12, height: 6, content: { "$ref": "#/spec/panels/cpu_modes_breakdown" } }
