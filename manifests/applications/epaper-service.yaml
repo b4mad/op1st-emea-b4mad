@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2026 Christoph Görn <goern@b4mad.net>
+# SPDX-License-Identifier: GPL-3.0-or-later
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: epaper-service
+  namespace: openshift-gitops
+spec:
+  project: b4mad
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: b4mad-epaper-service
+  source:
+    repoURL: https://codeberg.org/goern/epaper-service
+    targetRevision: main
+    path: manifests
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
