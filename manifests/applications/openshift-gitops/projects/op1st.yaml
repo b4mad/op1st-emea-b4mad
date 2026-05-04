@@ -21,6 +21,7 @@ spec:
       server: https://kubernetes.default.svc
   sourceRepos:
     - https://github.com/b4mad/op1st-emea-b4mad.git
+    - https://codeberg.org/b4mad/codeberg-runner-openshift.git
   roles:
     - name: project-admin
       description: Read/Write access to this project only
