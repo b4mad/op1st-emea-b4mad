@@ -1,0 +1,453 @@
+# SPDX-FileCopyrightText: 2026 Christoph Görn <goern@b4mad.net>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Provisioned Perses project + dashboard for the epaper-service running in
+# the b4mad-epaper-service namespace on nostromo. The Perses sidecar in
+# this namespace watches ConfigMaps labelled `perses.dev/resource=true`
+# and writes each data key into /etc/perses/provisioning/.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: epaper-service-dashboard
+  labels:
+    perses.dev/resource: "true"
+    app.kubernetes.io/name: perses
+data:
+  project.yaml: |
+    kind: Project
+    metadata:
+      name: b4mad-epaper-service
+    spec:
+      display:
+        name: "#B4mad e-paper service"
+        description: "DevOps / SRE view of the goern/epaper-service running in the b4mad-epaper-service namespace on nostromo."
+
+  dashboard.yaml: |
+    kind: Dashboard
+    metadata:
+      name: epaper-service-sre
+      project: b4mad-epaper-service
+    spec:
+      display:
+        name: "epaper-service — DevOps / SRE"
+      duration: 6h
+      refreshInterval: 30s
+
+      variables:
+        - kind: ListVariable
+          spec:
+            name: namespace
+            display: { name: Namespace }
+            allowAllValue: false
+            allowMultiple: false
+            defaultValue: b4mad-epaper-service
+            plugin:
+              kind: PrometheusLabelValuesVariable
+              spec:
+                labelName: namespace
+                matchers:
+                  - 'up{service="epaper-service"}'
+                datasource: { kind: PrometheusDatasource, name: prometheus }
+
+      panels:
+        # ─────────────────────── Row 1: status & build ──────────────────────
+        scrape_up:
+          kind: Panel
+          spec:
+            display: { name: "Scrape up" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: decimal }
+                thresholds:
+                  defaultColor: "#cf222e"
+                  steps:
+                    - { value: 1, color: "#1a7f37" }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'up{namespace="$namespace",service="epaper-service"}'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        build_info:
+          kind: Panel
+          spec:
+            display: { name: "Build info (version / scenes)" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend:
+                  position: bottom
+                  mode: list
+                  values: [last]
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'epaper_build_info{namespace="$namespace"}'
+                      seriesNameFormat: "v{{version}} ({{scene_count}} scenes)"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        uptime:
+          kind: Panel
+          spec:
+            display: { name: "Process uptime" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: seconds }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'time() - process_start_time_seconds{namespace="$namespace",service="epaper-service"}'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        current_scene:
+          kind: Panel
+          spec:
+            display: { name: "Current scene" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend:
+                  position: bottom
+                  mode: list
+                  values: [last]
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'epaper_current_scene{namespace="$namespace"}'
+                      seriesNameFormat: "{{name}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        # ─────────────────────── Row 2: render pipeline ─────────────────────
+        render_rate:
+          kind: Panel
+          spec:
+            display: { name: "Renders / sec by scene & result" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: list, values: [last, max] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'sum by (scene, result) (rate(epaper_scene_renders_total{namespace="$namespace"}[5m]))'
+                      seriesNameFormat: "{{scene}} / {{result}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        render_p95:
+          kind: Panel
+          spec:
+            display: { name: "Render duration p95 by scene" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                yAxis: { format: { unit: seconds } }
+                legend: { position: bottom, mode: list, values: [last] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'histogram_quantile(0.95, sum by (scene, le) (rate(epaper_scene_render_duration_seconds_bucket{namespace="$namespace"}[5m])))'
+                      seriesNameFormat: "{{scene}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        cache_hit_ratio:
+          kind: Panel
+          spec:
+            display: { name: "Render cache hit ratio (5m)" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: percent-decimal }
+                thresholds:
+                  defaultColor: "#cf222e"
+                  steps:
+                    - { value: 0.5, color: "#bf8700" }
+                    - { value: 0.9, color: "#1a7f37" }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: |
+                        sum(rate(epaper_render_cache_total{namespace="$namespace",result="hit"}[5m]))
+                          /
+                        sum(rate(epaper_render_cache_total{namespace="$namespace"}[5m]))
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        image_age:
+          kind: Panel
+          spec:
+            display: { name: "Image staleness by scene (now − last_render)" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                yAxis: { format: { unit: seconds } }
+                legend: { position: bottom, mode: list, values: [last] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'time() - epaper_last_render_unix_seconds{namespace="$namespace"}'
+                      seriesNameFormat: "{{scene}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        # ─────────────────────── Row 3: HTTP ────────────────────────────────
+        request_rate_by_status:
+          kind: Panel
+          spec:
+            display: { name: "HTTP requests / sec by status" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: list, values: [last] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'sum by (status) (rate(epaper_requests_total{namespace="$namespace"}[1m]))'
+                      seriesNameFormat: "{{status}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        request_latency:
+          kind: Panel
+          spec:
+            display: { name: "HTTP latency p50 / p95 / p99" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                yAxis: { format: { unit: seconds } }
+                legend: { position: bottom, mode: list, values: [last] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'histogram_quantile(0.50, sum by (le) (rate(epaper_request_duration_seconds_bucket{namespace="$namespace"}[5m])))'
+                      seriesNameFormat: "p50"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'histogram_quantile(0.95, sum by (le) (rate(epaper_request_duration_seconds_bucket{namespace="$namespace"}[5m])))'
+                      seriesNameFormat: "p95"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'histogram_quantile(0.99, sum by (le) (rate(epaper_request_duration_seconds_bucket{namespace="$namespace"}[5m])))'
+                      seriesNameFormat: "p99"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        five_xx_ratio:
+          kind: Panel
+          spec:
+            display: { name: "5xx ratio (5m)" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: percent-decimal }
+                thresholds:
+                  defaultColor: "#1a7f37"
+                  steps:
+                    - { value: 0.01, color: "#bf8700" }
+                    - { value: 0.05, color: "#cf222e" }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: |
+                        sum(rate(epaper_requests_total{namespace="$namespace",status=~"5.."}[5m]))
+                          /
+                        clamp_min(sum(rate(epaper_requests_total{namespace="$namespace"}[5m])), 0.0001)
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        # ─────────────────────── Row 4: state & auth ────────────────────────
+        state_writes:
+          kind: Panel
+          spec:
+            display: { name: "State writes / sec by result" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: list, values: [last] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'sum by (result) (rate(epaper_state_writes_total{namespace="$namespace"}[5m]))'
+                      seriesNameFormat: "{{result}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        last_state_write:
+          kind: Panel
+          spec:
+            display: { name: "Last state-write age" }
+            plugin:
+              kind: StatChart
+              spec:
+                calculation: last
+                format: { unit: seconds }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'time() - epaper_last_state_write_unix_seconds{namespace="$namespace"}'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        auth_failures:
+          kind: Panel
+          spec:
+            display: { name: "Auth rejections / sec by reason" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: list, values: [last, max] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'sum by (reason) (rate(epaper_auth_failures_total{namespace="$namespace"}[5m]))'
+                      seriesNameFormat: "{{reason}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        # ─────────────────────── Row 5: image size ──────────────────────────
+        image_bytes:
+          kind: Panel
+          spec:
+            display: { name: "Last image size by scene & format" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                yAxis: { format: { unit: bytes } }
+                legend: { position: bottom, mode: list, values: [last] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'epaper_image_bytes{namespace="$namespace"}'
+                      seriesNameFormat: "{{scene}} / {{format}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        # ─────────────────────── Row 6: workload ────────────────────────────
+        pod_restarts:
+          kind: Panel
+          spec:
+            display: { name: "Container restarts (kube-state-metrics)" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                legend: { position: bottom, mode: list, values: [last] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'kube_pod_container_status_restarts_total{namespace="$namespace",container="app"}'
+                      seriesNameFormat: "{{pod}}"
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+        memory_rss:
+          kind: Panel
+          spec:
+            display: { name: "Memory RSS" }
+            plugin:
+              kind: TimeSeriesChart
+              spec:
+                yAxis: { format: { unit: bytes } }
+                legend: { position: bottom, mode: list, values: [last, max] }
+            queries:
+              - kind: TimeSeriesQuery
+                spec:
+                  plugin:
+                    kind: PrometheusTimeSeriesQuery
+                    spec:
+                      query: 'process_resident_memory_bytes{namespace="$namespace",service="epaper-service"}'
+                      datasource: { kind: PrometheusDatasource, name: prometheus }
+
+      layouts:
+        - kind: Grid
+          spec:
+            display: { title: "Service status" }
+            items:
+              - { x: 0, y: 0, width: 4, height: 4, content: { "$ref": "#/spec/panels/scrape_up" } }
+              - { x: 4, y: 0, width: 8, height: 4, content: { "$ref": "#/spec/panels/build_info" } }
+              - { x: 12, y: 0, width: 4, height: 4, content: { "$ref": "#/spec/panels/uptime" } }
+              - { x: 16, y: 0, width: 8, height: 4, content: { "$ref": "#/spec/panels/current_scene" } }
+
+        - kind: Grid
+          spec:
+            display: { title: "Render pipeline" }
+            items:
+              - { x: 0,  y: 0, width: 8, height: 6, content: { "$ref": "#/spec/panels/render_rate" } }
+              - { x: 8,  y: 0, width: 8, height: 6, content: { "$ref": "#/spec/panels/render_p95" } }
+              - { x: 16, y: 0, width: 4, height: 6, content: { "$ref": "#/spec/panels/cache_hit_ratio" } }
+              - { x: 20, y: 0, width: 4, height: 6, content: { "$ref": "#/spec/panels/image_age" } }
+
+        - kind: Grid
+          spec:
+            display: { title: "HTTP" }
+            items:
+              - { x: 0,  y: 0, width: 8, height: 6, content: { "$ref": "#/spec/panels/request_rate_by_status" } }
+              - { x: 8,  y: 0, width: 12, height: 6, content: { "$ref": "#/spec/panels/request_latency" } }
+              - { x: 20, y: 0, width: 4, height: 6, content: { "$ref": "#/spec/panels/five_xx_ratio" } }
+
+        - kind: Grid
+          spec:
+            display: { title: "State store & auth" }
+            items:
+              - { x: 0,  y: 0, width: 10, height: 6, content: { "$ref": "#/spec/panels/state_writes" } }
+              - { x: 10, y: 0, width: 4,  height: 6, content: { "$ref": "#/spec/panels/last_state_write" } }
+              - { x: 14, y: 0, width: 10, height: 6, content: { "$ref": "#/spec/panels/auth_failures" } }
+
+        - kind: Grid
+          spec:
+            display: { title: "Image size & workload" }
+            items:
+              - { x: 0,  y: 0, width: 12, height: 6, content: { "$ref": "#/spec/panels/image_bytes" } }
+              - { x: 12, y: 0, width: 6,  height: 6, content: { "$ref": "#/spec/panels/pod_restarts" } }
+              - { x: 18, y: 0, width: 6,  height: 6, content: { "$ref": "#/spec/panels/memory_rss" } }
