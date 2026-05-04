@@ -11,6 +11,5 @@ resources:
   - environment-nostromo.yaml
   # - nostromo-gatekeeper.yaml
   - environment-phobos.yaml
-  - epaper-service.yaml
   - op1st-gitops.yaml
   - op1st-pipelines.yaml
