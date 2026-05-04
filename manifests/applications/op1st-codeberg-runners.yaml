@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: op1st-codeberg-runners
+  namespace: openshift-gitops
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - scope: goern
+            ownerKind: user
+          - scope: b4mad
+            ownerKind: org
+  template:
+    metadata:
+      name: 'op1st-codeberg-runner-{{.scope}}'
+    spec:
+      project: op1st
+      source:
+        repoURL: https://codeberg.org/b4mad/codeberg-runner-openshift.git
+        targetRevision: main
+        path: 'deploy/overlays/{{.scope}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: op1st-pipelines
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=false
+          - ServerSideApply=true
