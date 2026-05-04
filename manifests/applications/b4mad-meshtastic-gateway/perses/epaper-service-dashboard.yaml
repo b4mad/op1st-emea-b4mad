@@ -31,7 +31,12 @@ data:
     spec:
       display:
         name: "epaper-service — DevOps / SRE"
-      duration: 6h
+        description: |
+          Operational view of goern/epaper-service running in the
+          b4mad-epaper-service namespace on nostromo. Sections cover
+          service status, render pipeline, HTTP, state store, auth and
+          workload. Image source: codeberg.org/goern/epaper-service.
+      duration: 1h
       refreshInterval: 30s
 
       variables:
@@ -55,7 +60,9 @@ data:
         scrape_up:
           kind: Panel
           spec:
-            display: { name: "Scrape up" }
+            display:
+              name: "Scrape up"
+              description: "Prometheus scrape result for the epaper-service Service. Green = at least one pod reachable on /metrics."
             plugin:
               kind: StatChart
               spec:
@@ -77,7 +84,9 @@ data:
         build_info:
           kind: Panel
           spec:
-            display: { name: "Build info (version / scenes)" }
+            display:
+              name: "Build info"
+              description: "Version + scene_count emitted by the running pod. Multiple lines mean a rolling update happened in this window."
             plugin:
               kind: TimeSeriesChart
               spec:
@@ -98,7 +107,9 @@ data:
         uptime:
           kind: Panel
           spec:
-            display: { name: "Process uptime" }
+            display:
+              name: "Process uptime"
+              description: "now() - process_start_time_seconds. Resets on every pod restart."
             plugin:
               kind: StatChart
               spec:
@@ -116,7 +127,9 @@ data:
         current_scene:
           kind: Panel
           spec:
-            display: { name: "Current scene" }
+            display:
+              name: "Current scene"
+              description: "Which scene GET /image returns. Only one line is ever at value 1 at any given instant."
             plugin:
               kind: TimeSeriesChart
               spec:
@@ -138,7 +151,9 @@ data:
         render_rate:
           kind: Panel
           spec:
-            display: { name: "Renders / sec by scene & result" }
+            display:
+              name: "Renders / sec by scene & result"
+              description: "rate(epaper_scene_renders_total[5m]). 'ok' is healthy traffic, 'error' is a render exception."
             plugin:
               kind: TimeSeriesChart
               spec:
@@ -156,7 +171,9 @@ data:
         render_p95:
           kind: Panel
           spec:
-            display: { name: "Render duration p95 by scene" }
+            display:
+              name: "Render duration p95 by scene"
+              description: "95th-percentile time spent rendering a scene to PNG + raw buffer. Cache-hit responses do NOT contribute."
             plugin:
               kind: TimeSeriesChart
               spec:
@@ -175,7 +192,9 @@ data:
         cache_hit_ratio:
           kind: Panel
           spec:
-            display: { name: "Render cache hit ratio (5m)" }
+            display:
+              name: "Render cache hit ratio"
+              description: "5-minute hit ratio of the in-process render cache. 100% under steady state with a single client polling /image; drops on state mutations."
             plugin:
               kind: StatChart
               spec:
@@ -204,12 +223,19 @@ data:
         image_age:
           kind: Panel
           spec:
-            display: { name: "Image staleness by scene (now − last_render)" }
+            display:
+              name: "Image staleness by scene"
+              description: "now() - epaper_last_render_unix_seconds per scene. Sawtooth pattern is normal — ramps up between renders, drops to ~0 on a fresh GET /image."
             plugin:
               kind: TimeSeriesChart
               spec:
-                yAxis: { format: { unit: seconds } }
+                yAxis: { format: { unit: seconds }, min: 0 }
                 legend: { position: bottom, mode: list, values: [last] }
+                thresholds:
+                  defaultColor: "#8b949e"
+                  steps:
+                    - { value: 60, color: "#bf8700" }
+                    - { value: 600, color: "#cf222e" }
             queries:
               - kind: TimeSeriesQuery
                 spec:
@@ -224,11 +250,14 @@ data:
         request_rate_by_status:
           kind: Panel
           spec:
-            display: { name: "HTTP requests / sec by status" }
+            display:
+              name: "HTTP requests / sec by status"
+              description: "rate(epaper_requests_total[1m]) grouped by HTTP status. Stacked area: total = stack height."
             plugin:
               kind: TimeSeriesChart
               spec:
                 legend: { position: bottom, mode: list, values: [last] }
+                visual: { display: line, lineWidth: 1, areaOpacity: 0.5, stack: all }
             queries:
               - kind: TimeSeriesQuery
                 spec:
@@ -242,7 +271,9 @@ data:
         request_latency:
           kind: Panel
           spec:
-            display: { name: "HTTP latency p50 / p95 / p99" }
+            display:
+              name: "HTTP latency p50 / p95 / p99"
+              description: "histogram_quantile over a 5-minute window of epaper_request_duration_seconds. p99 spikes typically correspond to render-cache misses (first request after a state mutation)."
             plugin:
               kind: TimeSeriesChart
               spec:
@@ -277,7 +308,9 @@ data:
         five_xx_ratio:
           kind: Panel
           spec:
-            display: { name: "5xx ratio (5m)" }
+            display:
+              name: "5xx ratio"
+              description: "Fraction of HTTP responses with status 5xx over a 5-minute window. Reads 0% when there is no traffic."
             plugin:
               kind: StatChart
               spec:
@@ -307,7 +340,9 @@ data:
         state_writes:
           kind: Panel
           spec:
-            display: { name: "State writes / sec by result" }
+            display:
+              name: "State writes / sec by result"
+              description: "rate(epaper_state_writes_total[5m]). Each POST /current and POST /scenes/message produces one 'ok' write; PVC unwritable produces 'error'."
             plugin:
               kind: TimeSeriesChart
               spec:
@@ -325,7 +360,9 @@ data:
         last_state_write:
           kind: Panel
           spec:
-            display: { name: "Last state-write age" }
+            display:
+              name: "Last state-write age"
+              description: "now() - epaper_last_state_write_unix_seconds. Resets to ~0 on every successful state write."
             plugin:
               kind: StatChart
               spec:
@@ -343,7 +380,9 @@ data:
         auth_failures:
           kind: Panel
           spec:
-            display: { name: "Auth rejections / sec by reason" }
+            display:
+              name: "Auth rejections / sec by reason"
+              description: "Bearer-auth rejections. 'missing_token' = no Authorization header; 'bad_token' = wrong value. Sustained > 1/s warrants checking access logs."
             plugin:
               kind: TimeSeriesChart
               spec:
@@ -365,7 +404,9 @@ data:
         image_bytes:
           kind: Panel
           spec:
-            display: { name: "Last image size by scene & format" }
+            display:
+              name: "Last image size by scene & format"
+              description: "Most recent image size per (scene, format). 'png' is the over-the-wire encoding (~1-3 KiB); 'raw' is the panel-packed buffer (4 KiB exactly for the V4 panel)."
             plugin:
               kind: TimeSeriesChart
               spec:
@@ -385,7 +426,9 @@ data:
         pod_restarts:
           kind: Panel
           spec:
-            display: { name: "Container restarts (kube-state-metrics)" }
+            display:
+              name: "Container restarts"
+              description: "Cumulative kube_pod_container_status_restarts_total. A horizontal line at zero means a healthy boot. Steps up indicate the kubelet restarted the 'app' container."
             plugin:
               kind: TimeSeriesChart
               spec:
@@ -403,7 +446,9 @@ data:
         memory_rss:
           kind: Panel
           spec:
-            display: { name: "Memory RSS" }
+            display:
+              name: "Memory RSS"
+              description: "process_resident_memory_bytes for the FastAPI/uvicorn process. Limit on the Deployment is 256 Mi."
             plugin:
               kind: TimeSeriesChart
               spec:
