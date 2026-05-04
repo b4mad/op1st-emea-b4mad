@@ -198,7 +198,9 @@ data:
                       query: |-
                         node_hwmon_temp_celsius{instance="bridge", chip="platform_coretemp_0"}
                         * on (chip, sensor) group_left(label)
-                        node_hwmon_sensor_label{instance="bridge", chip="platform_coretemp_0"}
+                        max by (chip, sensor, label) (
+                          node_hwmon_sensor_label{instance="bridge", chip="platform_coretemp_0"}
+                        )
                       seriesNameFormat: "{{label}}"
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
