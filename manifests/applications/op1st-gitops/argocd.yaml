@@ -17,10 +17,10 @@ spec:
     insecure: true
     resources:
       limits:
-        cpu: 250m
+        cpu: 100m
         memory: 256Mi
       requests:
-        cpu: 250m
+        cpu: 50m
         memory: 128Mi
     route:
       enabled: false
@@ -61,20 +61,20 @@ spec:
       openShiftOAuth: true
       resources:
         limits:
-          cpu: 250m
+          cpu: 100m
           memory: 256Mi
         requests:
-          cpu: 250m
+          cpu: 50m
           memory: 128Mi
     provider: dex
   statusBadgeEnabled: true
   applicationSet:
     resources:
       limits:
-        cpu: 250m
+        cpu: 100m
         memory: 512Mi
       requests:
-        cpu: 100m
+        cpu: 50m
         memory: 128Mi
     webhookServer:
       ingress:

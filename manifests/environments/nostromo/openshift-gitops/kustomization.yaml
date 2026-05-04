@@ -38,34 +38,34 @@ patches:
           insecure: true # so that our ingress can access the service via http (not https)
           resources:
             limits:
-              cpu: 500m
+              cpu: 100m
               memory: 512Mi
             requests:
-              cpu: 250m
+              cpu: 50m
               memory: 256Mi
         applicationSet:
           resources:
             limits:
-              cpu: 500m 
+              cpu: 100m
               memory: 512Mi
             requests:
-              cpu: 250m
+              cpu: 50m
               memory: 128Mi
         repo:
           resources:
             limits:
-              cpu: 500m 
+              cpu: 200m
               memory: 512Mi
             requests:
-              cpu: 100m
+              cpu: 50m
               memory: 128Mi
         redis:
           resources:
             limits:
-              cpu: 250m
+              cpu: 100m
               memory: 256Mi
             requests:
-              cpu: 250m
+              cpu: 50m
               memory: 128Mi
         controller:
           resources:
@@ -84,10 +84,10 @@ patches:
               - cluster-admins
             resources:
               limits:
-                cpu: 250m
+                cpu: 100m
                 memory: 256Mi
               requests:
-                cpu: 100m
+                cpu: 50m
                 memory: 128Mi
         rbac:
           policy: |
