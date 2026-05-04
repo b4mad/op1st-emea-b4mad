@@ -71,7 +71,7 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'up{namespace="$namespace",service="epaper-service"}'
+                      query: 'max(up{namespace="$namespace",service="epaper-service"})'
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
         build_info:
@@ -91,7 +91,7 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'epaper_build_info{namespace="$namespace"}'
+                      query: 'max by (version, scene_count) (epaper_build_info{namespace="$namespace"})'
                       seriesNameFormat: "v{{version}} ({{scene_count}} scenes)"
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
@@ -110,7 +110,7 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'time() - process_start_time_seconds{namespace="$namespace",service="epaper-service"}'
+                      query: 'time() - max(process_start_time_seconds{namespace="$namespace",service="epaper-service"})'
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
         current_scene:
@@ -130,7 +130,7 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'epaper_current_scene{namespace="$namespace"}'
+                      query: 'max by (name) (epaper_current_scene{namespace="$namespace"})'
                       seriesNameFormat: "{{name}}"
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
@@ -193,9 +193,12 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: |
-                        sum(rate(epaper_render_cache_total{namespace="$namespace",result="hit"}[5m]))
-                          /
-                        sum(rate(epaper_render_cache_total{namespace="$namespace"}[5m]))
+                        (
+                          sum(rate(epaper_render_cache_total{namespace="$namespace",result="hit"}[5m]))
+                            /
+                          clamp_min(sum(rate(epaper_render_cache_total{namespace="$namespace"}[5m])), 1e-9)
+                        )
+                        or on() vector(0)
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
         image_age:
@@ -213,7 +216,7 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'time() - epaper_last_render_unix_seconds{namespace="$namespace"}'
+                      query: 'time() - max by (scene) (epaper_last_render_unix_seconds{namespace="$namespace"})'
                       seriesNameFormat: "{{scene}}"
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
@@ -292,9 +295,12 @@ data:
                     kind: PrometheusTimeSeriesQuery
                     spec:
                       query: |
-                        sum(rate(epaper_requests_total{namespace="$namespace",status=~"5.."}[5m]))
-                          /
-                        clamp_min(sum(rate(epaper_requests_total{namespace="$namespace"}[5m])), 0.0001)
+                        (
+                          sum(rate(epaper_requests_total{namespace="$namespace",status=~"5.."}[5m]))
+                            /
+                          clamp_min(sum(rate(epaper_requests_total{namespace="$namespace"}[5m])), 1e-9)
+                        )
+                        or on() vector(0)
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
         # ─────────────────────── Row 4: state & auth ────────────────────────
@@ -331,7 +337,7 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'time() - epaper_last_state_write_unix_seconds{namespace="$namespace"}'
+                      query: 'time() - max(epaper_last_state_write_unix_seconds{namespace="$namespace"})'
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
         auth_failures:
@@ -348,7 +354,10 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'sum by (reason) (rate(epaper_auth_failures_total{namespace="$namespace"}[5m]))'
+                      query: |
+                        sum by (reason) (rate(epaper_auth_failures_total{namespace="$namespace"}[5m]))
+                          or label_replace(vector(0), "reason", "missing_token", "", "")
+                          or label_replace(vector(0), "reason", "bad_token", "", "")
                       seriesNameFormat: "{{reason}}"
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
@@ -368,7 +377,7 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'epaper_image_bytes{namespace="$namespace"}'
+                      query: 'max by (scene, format) (epaper_image_bytes{namespace="$namespace"})'
                       seriesNameFormat: "{{scene}} / {{format}}"
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
@@ -387,7 +396,7 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'kube_pod_container_status_restarts_total{namespace="$namespace",container="app"}'
+                      query: 'sum by (pod) (kube_pod_container_status_restarts_total{namespace="$namespace",container="app"})'
                       seriesNameFormat: "{{pod}}"
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
@@ -406,7 +415,7 @@ data:
                   plugin:
                     kind: PrometheusTimeSeriesQuery
                     spec:
-                      query: 'process_resident_memory_bytes{namespace="$namespace",service="epaper-service"}'
+                      query: 'max(process_resident_memory_bytes{namespace="$namespace",service="epaper-service"})'
                       datasource: { kind: PrometheusDatasource, name: prometheus }
 
       layouts:
