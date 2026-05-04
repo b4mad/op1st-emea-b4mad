@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: epaper-service
+  name: b4mad-epaper-service
   namespace: op1st-gitops
 spec:
   destination:
