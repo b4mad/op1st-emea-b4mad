@@ -23,3 +23,5 @@ __pycache__/
 
 .claude/settings.local.json
 .claude/skills/skill-creator/
+admin.kubeconfig
+bootstrap.kubeconfig
