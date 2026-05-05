@@ -12,6 +12,7 @@ spec:
       server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
   sourceRepos:
     - https://github.com/b4mad/op1st-emea-b4mad.git
+    - https://codeberg.org/goern/epaper-service
   roles:
     - name: project-admin
       description: Read/Write access to this project only
