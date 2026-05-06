@@ -21,12 +21,12 @@ resources:
 
   - applications/b4mad-epaper-service.yaml
   - applications/b4mad-epaper-service-tekton-secrets.yaml
+  - applications/b4mad-hookshot.yaml
   - applications/b4mad-keycloak.yaml
   - applications/b4mad-meshtastic-gateway.yaml
   - applications/b4mad-racing.yaml
   - applications/b4mad-radicle.yaml
   - applications/b4mad-renovate.yaml
-  - applications/monitoring.yaml
   # - applications/op1st-popeye.yaml
   - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/dev.yaml
   - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/prod.yaml
