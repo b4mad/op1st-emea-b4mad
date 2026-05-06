@@ -21,8 +21,9 @@ spec:
           image: halfshot/matrix-hookshot:6.0.1
           imagePullPolicy: IfNotPresent
           args:
-            - --config=/etc/hookshot/config.yml
-            - --registration=/etc/hookshot/registration.yaml
+            - App/BridgeApp.js
+            - /etc/hookshot/config.yml
+            - /etc/hookshot/registration.yaml
           ports:
             - name: appservice
               containerPort: 9993
