@@ -8,8 +8,6 @@ spec:
     type: Recreate
   template:
     spec:
-      securityContext:
-        fsGroup: 1000
       volumes:
         - name: conf
           secret:
