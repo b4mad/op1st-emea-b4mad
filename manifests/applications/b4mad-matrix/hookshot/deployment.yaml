@@ -16,36 +16,7 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: matrix-hookshot-data
-        - name: redis-data
-          emptyDir: {}
       containers:
-        - name: redis
-          image: redis:7-alpine
-          imagePullPolicy: IfNotPresent
-          args:
-            - --save
-            - ""
-            - --appendonly
-            - "no"
-          ports:
-            - name: redis
-              containerPort: 6379
-              protocol: TCP
-          resources:
-            limits:
-              memory: 128Mi
-              cpu: 200m
-            requests:
-              memory: 32Mi
-              cpu: 20m
-          volumeMounts:
-            - name: redis-data
-              mountPath: /data
-          livenessProbe:
-            tcpSocket:
-              port: redis
-            initialDelaySeconds: 10
-            periodSeconds: 30
         - name: hookshot
           image: halfshot/matrix-hookshot:6.0.1
           imagePullPolicy: IfNotPresent

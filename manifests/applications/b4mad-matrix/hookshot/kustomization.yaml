@@ -13,5 +13,6 @@ resources:
   - pvc.yaml
   - deployment.yaml
   - service.yaml
+  - service_monitor.yaml
   - ingress.yaml
   - secret.yaml  # regenerate via: scripts/sops2sealedsecret --context <ctx> --namespace b4mad-matrix manifests/applications/b4mad-matrix/hookshot/secret.enc.yaml manifests/applications/b4mad-matrix/hookshot/secret.yaml
