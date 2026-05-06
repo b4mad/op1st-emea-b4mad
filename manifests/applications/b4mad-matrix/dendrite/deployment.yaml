@@ -24,6 +24,13 @@ spec:
         - name: search
           persistentVolumeClaim:
             claimName: search
+        - name: hookshot-registration
+          secret:
+            secretName: matrix-hookshot
+            items:
+              - key: registration.yaml
+                path: registration.yaml
+            defaultMode: 0400
       containers:
         - name: dendrite
           image: dendrite-monolith
@@ -53,6 +60,9 @@ spec:
               name: jetstream
             - mountPath: /data/search
               name: search
+            - mountPath: /etc/dendrite/hookshot
+              name: hookshot-registration
+              readOnly: true
           livenessProbe:
             initialDelaySeconds: 10
             periodSeconds: 10
