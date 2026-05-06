@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: b4mad-hookshot
+  name: b4mad-matrix-hookshot
   namespace: op1st-gitops
 spec:
   destination:

@@ -21,7 +21,7 @@ resources:
 
   - applications/b4mad-epaper-service.yaml
   - applications/b4mad-epaper-service-tekton-secrets.yaml
-  - applications/b4mad-hookshot.yaml
+  - applications/b4mad-matrix-hookshot.yaml
   - applications/b4mad-keycloak.yaml
   - applications/b4mad-meshtastic-gateway.yaml
   - applications/b4mad-racing.yaml
