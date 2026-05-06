@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/common-name: hookshot.matrix.erdgeschoss.b4mad.net
+    kubernetes.io/ingress.allow-http: "false"
+  name: hookshot.matrix.erdgeschoss.b4mad.net
+spec:
+  ingressClassName: openshift-default
+  rules:
+    - host: hookshot.matrix.erdgeschoss.b4mad.net
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: matrix-hookshot
+                port:
+                  name: webhooks
+  tls:
+    - hosts:
+        - hookshot.matrix.erdgeschoss.b4mad.net
+      secretName: hookshot.matrix.erdgeschoss.b4mad.net

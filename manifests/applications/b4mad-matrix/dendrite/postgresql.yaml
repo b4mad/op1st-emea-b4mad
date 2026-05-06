@@ -45,6 +45,12 @@ spec:
         ensure: present
         createdb: true
         login: true
+      - name: hookshot
+        ensure: present
+        createdb: true
+        login: true
+        passwordSecret:
+          name: matrix-hookshot
   monitoring:
     customQueriesConfigMap:
       - key: queries

@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matrix-hookshot
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    spec:
+      securityContext:
+        fsGroup: 1000
+      volumes:
+        - name: conf
+          secret:
+            secretName: matrix-hookshot
+            defaultMode: 0400
+        - name: data
+          persistentVolumeClaim:
+            claimName: matrix-hookshot-data
+      containers:
+        - name: hookshot
+          image: halfshot/matrix-hookshot:6.0.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config=/etc/hookshot/config.yml
+            - --registration=/etc/hookshot/registration.yaml
+          ports:
+            - name: appservice
+              containerPort: 9993
+              protocol: TCP
+            - name: webhooks
+              containerPort: 9000
+              protocol: TCP
+            - name: provisioning
+              containerPort: 9001
+              protocol: TCP
+            - name: metrics
+              containerPort: 9002
+              protocol: TCP
+          env:
+            - name: NODE_OPTIONS
+              value: --max-old-space-size=512
+          resources:
+            limits:
+              memory: 768Mi
+              cpu: 500m
+            requests:
+              memory: 192Mi
+              cpu: 50m
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/hookshot
+              readOnly: true
+            - name: data
+              mountPath: /data
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: webhooks
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: webhooks
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5

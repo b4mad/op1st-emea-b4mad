@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: matrix-hookshot-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: lvms-vg1
+  resources:
+    requests:
+      storage: 1Gi

@@ -1,0 +1,13 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: hookshot
+spec:
+  cluster:
+    name: prod
+  name: hookshot
+  owner: hookshot
+  encoding: UTF8
+  localeCType: C
+  localeCollate: C
+  template: template1

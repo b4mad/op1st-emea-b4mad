@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: b4mad-matrix
+
+commonLabels:
+  app.kubernetes.io/name: matrix
+  app.kubernetes.io/managed-by: op1st-emea-b4mad
+  app.kubernetes.io/component: hookshot
+
+resources:
+  - database.yaml
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - secret.yaml  # regenerate via: scripts/sops2sealedsecret --context <ctx> --namespace b4mad-matrix manifests/applications/b4mad-matrix/hookshot/secret.enc.yaml manifests/applications/b4mad-matrix/hookshot/secret.yaml
