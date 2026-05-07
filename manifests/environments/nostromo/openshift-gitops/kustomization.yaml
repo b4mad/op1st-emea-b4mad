@@ -23,6 +23,41 @@ patches:
         name: openshift-gitops
         namespace: openshift-gitops
       spec:
+        extraConfig:
+          timeout.reconciliation: 600s
+        resourceExclusions: |
+          - apiGroups:
+            - tekton.dev
+            clusters:
+            - '*'
+            kinds:
+            - TaskRun
+            - PipelineRun
+          - apiGroups:
+            - ""
+            clusters:
+            - '*'
+            kinds:
+            - Event
+            - Endpoints
+          - apiGroups:
+            - discovery.k8s.io
+            clusters:
+            - '*'
+            kinds:
+            - EndpointSlice
+          - apiGroups:
+            - coordination.k8s.io
+            clusters:
+            - '*'
+            kinds:
+            - Lease
+          - apiGroups:
+            - events.k8s.io
+            clusters:
+            - '*'
+            kinds:
+            - Event
         notifications:
           enabled: true
           resources:
