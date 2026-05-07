@@ -11,7 +11,7 @@ spec:
     host: argocd.b4mad.emea.operate-first.cloud
     grpc:
       ingress:
-        enabled: true
+        enabled: false
     ingress:
       enabled: false
     insecure: true
