@@ -14,3 +14,4 @@ resources:
   - op1st-codeberg-runners.yaml
   - op1st-gitops.yaml
   - op1st-pipelines.yaml
+  - b4mad-dao.yaml

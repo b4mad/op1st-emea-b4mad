@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dao-config
+data:
+  BASE_SEPOLIA_RPC_URL: "https://sepolia.base.org"
+  NETWORK: "baseSepolia"
+  # Contract addresses - update after deployment
+  # B4MAD_TOKEN_ADDRESS: ""
+  # GOVERNOR_ADDRESS: ""
+  # TIMELOCK_ADDRESS: ""
