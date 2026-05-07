@@ -110,6 +110,19 @@ rules:
       - create
       - patch
   - apiGroups:
+      - monitoring.openshift.io
+    resources:
+      - alertrelabelconfigs
+      - alertingrules
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
       - nmstate.io
     resources:
       - nodenetworkconfigurationpolicies
