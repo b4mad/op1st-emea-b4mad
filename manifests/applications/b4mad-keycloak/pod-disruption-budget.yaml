@@ -4,7 +4,7 @@ kind: PodDisruptionBudget
 metadata:
   name: keycloak
 spec:
-  minAvailable: 1
+  minAvailable: 0
   selector:
     matchLabels:
       app.kubernetes.io/instance: b4mad-erdgeschoss
@@ -15,7 +15,7 @@ kind: PodDisruptionBudget
 metadata:
   name: pooler
 spec:
-  minAvailable: 1
+  minAvailable: 0
   selector:
     matchLabels:
       cnpg.io/poolerName: pooler-postgresql
