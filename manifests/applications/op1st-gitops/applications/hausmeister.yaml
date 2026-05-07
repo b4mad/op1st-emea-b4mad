@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hausmeister
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: b4mad-hausmeister
+    server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
+  project: b4mad
+  source:
+    path: manifests/environments/nostromo
+    repoURL: https://codeberg.org/goern/hausmeister/
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
