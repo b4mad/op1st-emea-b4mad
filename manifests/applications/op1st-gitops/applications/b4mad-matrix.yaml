@@ -1,0 +1,53 @@
+# ArgoCD Application: b4mad-matrix (ESS — Element Server Suite).
+#
+# Replaces b4mad-matrix-dendrite. The workload manifests live in
+# https://codeberg.org/b4mad/b4mad-matrix; the Helm chart comes from the
+# upstream OCI registry.
+#
+# Multi-source layout:
+#   1. Chart from OCI (matrix-stack)
+#   2. Codeberg repo as $values alias (for `valueFiles: $values/values.yaml`)
+#   3. Codeberg repo as a kustomize deploy source for the bootstrap
+#      manifests (namespace, CNPG Cluster + Pooler + ScheduledBackup,
+#      Database CRs, SealedSecrets). This is what flips ownership of the
+#      existing Cluster `prod` CR from b4mad-matrix-dendrite to this
+#      Application via the tracking-id annotation.
+#
+# Auto-sync deliberately UNSET until the Phase 7 cutover is proven; see
+# docs/runbooks/cutover-day.md in the b4mad-matrix repo. After Phase 10
+# lockdown set:
+#   syncPolicy.automated.prune: false
+#   syncPolicy.automated.selfHeal: false
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-matrix
+  namespace: op1st-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: b4mad
+  destination:
+    name: nostromo
+    namespace: b4mad-matrix
+  sources:
+    - repoURL: ghcr.io/element-hq/ess-helm
+      chart: matrix-stack
+      targetRevision: 26.5.0
+      helm:
+        releaseName: prod
+        valueFiles:
+          - $values/values.yaml
+    - repoURL: https://codeberg.org/b4mad/b4mad-matrix.git
+      targetRevision: HEAD
+      ref: values
+    - repoURL: https://codeberg.org/b4mad/b4mad-matrix.git
+      targetRevision: HEAD
+      path: .
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
