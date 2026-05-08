@@ -12,8 +12,11 @@ resources:
   - namespace.yaml
   - serviceaccount.yaml
 
-  - aws-creds.yaml
-  - postgresql.yaml
+  # postgresql.yaml + aws-creds.yaml released to codeberg.org/b4mad/b4mad-matrix
+  # (Cluster prod, Pooler prod-pooler, ScheduledBackup prod-daily, and the S3
+  # backup creds Secret are now owned by the b4mad-matrix Application). The
+  # files remain on disk for git history and are deleted in a follow-up PR
+  # once Phase 9 of the ESS migration retires the Dendrite tree wholesale.
 
   - deployment.yaml
   - ingress.yaml
