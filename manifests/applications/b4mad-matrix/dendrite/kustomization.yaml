@@ -9,7 +9,6 @@ commonLabels:
   app.kubernetes.io/component: dendrite
 
 resources:
-  - namespace.yaml
   - serviceaccount.yaml
 
   # postgresql.yaml + aws-creds.yaml released to codeberg.org/b4mad/b4mad-matrix
