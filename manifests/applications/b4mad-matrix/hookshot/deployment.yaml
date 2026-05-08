@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: matrix-hookshot
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: Recreate
   template:
