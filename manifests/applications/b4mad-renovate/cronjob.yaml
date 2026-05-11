@@ -43,4 +43,5 @@ spec:
               secret:
                 secretName: ssh-key-secret
             - name: cache
-              emptyDir: {}
+              persistentVolumeClaim:
+                claimName: renovate-cache
