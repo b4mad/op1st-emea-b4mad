@@ -14,6 +14,7 @@ resources:
   - cronjob.yaml
   - environment.yaml
   - namespace.yaml
+  - pvc.yaml
   - resource_quota.yaml
 
 images:

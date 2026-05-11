@@ -15,6 +15,16 @@ data:
           "install-tool node",
           "make readme"
         ],
+        "hostRules": [
+          {
+            "matchHost": "registry.npmjs.org",
+            "timeout": 60000
+          },
+          {
+            "matchHost": "github.com",
+            "timeout": 60000
+          }
+        ],
         "repositories": [
           "b4mad/hash-B4mad-op1st",
           "b4mad/hugo.containerimage",
