@@ -59,9 +59,9 @@ patches:
                 custom-console-url: >-
                   https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
                 custom-console-url-pr-details: >-
-                  https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1beta1~PipelineRun/{{ pr }}
+                  https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1~PipelineRun/{{ pr }}
                 custom-console-url-pr-tasklog: >-
-                  https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1beta1~PipelineRun/{{ pr }}/logs/{{ task }}
+                  https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/k8s/ns/{{ namespace }}/tekton.dev~v1~PipelineRun/{{ pr }}/logs/{{ task }}
         pruner:
           resources:
             - taskrun
