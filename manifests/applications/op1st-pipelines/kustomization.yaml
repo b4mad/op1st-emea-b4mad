@@ -9,6 +9,7 @@ resources:
 
   - secrets/codeberg-op1st-gitops.yaml
   - secrets/codeberg-pusher.yaml
+  - secrets/codeberg-runner-openshift-pac.yaml
   - secrets/op1st-pipelines-coderberg-org.yaml
   - serviceaccount.yaml
   - tekton-chains.yaml
