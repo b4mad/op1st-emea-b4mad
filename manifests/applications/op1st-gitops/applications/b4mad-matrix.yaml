@@ -13,11 +13,25 @@
 #      existing Cluster `prod` CR from b4mad-matrix-dendrite to this
 #      Application via the tracking-id annotation.
 #
-# Auto-sync deliberately UNSET until the Phase 7 cutover is proven; see
-# docs/runbooks/cutover-day.md in the b4mad-matrix repo. After Phase 10
-# lockdown set:
-#   syncPolicy.automated.prune: false
-#   syncPolicy.automated.selfHeal: false
+# Auto-sync enabled after Phase 7 cutover stabilised (2026-05-16).
+#
+# Full-autonomy posture: prune=true, selfHeal=true. The cluster is a
+# pure projection of git. Safety belts are applied per-resource via
+# `argocd.argoproj.io/sync-options: Prune=false` on every stateful or
+# load-bearing resource in the b4mad-matrix repo:
+#   - namespace.yaml                         (cascade-delete protection)
+#   - sealed-secrets/*.yaml (4 SealedSecrets)
+#   - cnpg/cluster.yaml (Cluster, Pooler, ScheduledBackup)
+#   - cnpg/databases/{synapse,mas}.yaml
+# Stateless resources (hookshot-smoke ConfigMap + CronJob, chart-owned
+# Deployments/Services/Ingresses) are intentionally NOT pinned — they
+# re-derive from git on next sync.
+#
+# Operational consequence of selfHeal=true: any cluster-side `oc patch`
+# or `oc edit` against a chart-managed resource reverts within ~60s.
+# For an incident hotfix that must persist, either commit the change to
+# git, or temporarily annotate the target with
+# `argocd.argoproj.io/sync-options: SelfHeal=false` before patching.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -47,6 +61,9 @@ spec:
       targetRevision: HEAD
       path: .
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=false
       - ServerSideApply=true
