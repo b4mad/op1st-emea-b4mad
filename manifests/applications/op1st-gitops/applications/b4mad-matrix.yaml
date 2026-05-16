@@ -49,14 +49,37 @@ spec:
   # CNPG operator owns ~40 fields on Cluster spec via server-side apply
   # (postgresql.parameters, replicationSlots, postgresUID/GID, probes,
   # affinity, etc.) — all admission-time defaults, not human edits.
-  # Without this block ArgoCD reports the Cluster CR OutOfSync forever
-  # and selfHeal retries every reconcile against the CNPG operator,
-  # producing constant churn with no observable effect.
+  #
+  # We previously tried managedFieldsManagers: [cloudnative-pg], but the
+  # CNPG operator (verified on nostromo with `oc get cluster prod
+  # --show-managed-fields`) sets its SSA field manager to the literal
+  # string `manager` — Go's zero-value default. Filtering on `manager`
+  # would catch any other generic SSA client too, so jsonPointers are
+  # cleaner: explicit and stable across operator upgrades.
   ignoreDifferences:
     - group: postgresql.cnpg.io
       kind: Cluster
-      managedFieldsManagers:
-        - cloudnative-pg
+      jsonPointers:
+        - /spec/affinity
+        - /spec/bootstrap
+        - /spec/enablePDB
+        - /spec/enableSuperuserAccess
+        - /spec/failoverDelay
+        - /spec/logLevel
+        - /spec/maxSyncReplicas
+        - /spec/minSyncReplicas
+        - /spec/postgresGID
+        - /spec/postgresUID
+        - /spec/postgresql
+        - /spec/primaryUpdateMethod
+        - /spec/primaryUpdateStrategy
+        - /spec/probes
+        - /spec/replicationSlots
+        - /spec/resources
+        - /spec/smartShutdownTimeout
+        - /spec/startDelay
+        - /spec/stopDelay
+        - /spec/switchoverDelay
   sources:
     - repoURL: ghcr.io/element-hq/ess-helm
       chart: matrix-stack
