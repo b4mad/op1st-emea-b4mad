@@ -46,6 +46,17 @@ spec:
   destination:
     name: nostromo
     namespace: b4mad-matrix
+  # CNPG operator owns ~40 fields on Cluster spec via server-side apply
+  # (postgresql.parameters, replicationSlots, postgresUID/GID, probes,
+  # affinity, etc.) — all admission-time defaults, not human edits.
+  # Without this block ArgoCD reports the Cluster CR OutOfSync forever
+  # and selfHeal retries every reconcile against the CNPG operator,
+  # producing constant churn with no observable effect.
+  ignoreDifferences:
+    - group: postgresql.cnpg.io
+      kind: Cluster
+      managedFieldsManagers:
+        - cloudnative-pg
   sources:
     - repoURL: ghcr.io/element-hq/ess-helm
       chart: matrix-stack
