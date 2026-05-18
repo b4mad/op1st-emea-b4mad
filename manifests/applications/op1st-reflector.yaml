@@ -20,6 +20,16 @@ spec:
           create: true
         serviceAccount:
           create: true
+        # OpenShift assigns UID/GID from the project's allocated range.
+        # Clear chart defaults (runAsUser:1000 / fsGroup:2000) that fall
+        # outside the namespace UID range and are rejected by restricted-v2.
+        podSecurityContext: {}
+        securityContext:
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
   syncPolicy:
     automated:
       prune: true
