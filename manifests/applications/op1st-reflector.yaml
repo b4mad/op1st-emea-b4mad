@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: reflector
+  name: op1st-reflector
   namespace: openshift-gitops
 spec:
   destination:
@@ -21,10 +21,14 @@ spec:
         serviceAccount:
           create: true
         # OpenShift assigns UID/GID from the project's allocated range.
-        # Clear chart defaults (runAsUser:1000 / fsGroup:2000) that fall
-        # outside the namespace UID range and are rejected by restricted-v2.
-        podSecurityContext: {}
+        # Chart defaults runAsUser:1000 / fsGroup:2000 fall outside the
+        # namespace UID range and are rejected by restricted-v2. Empty
+        # maps would not override (Helm deep-merges), so use explicit
+        # null to delete the chart's offending keys.
+        podSecurityContext:
+          fsGroup: null
         securityContext:
+          runAsUser: null
           runAsNonRoot: true
           readOnlyRootFilesystem: true
           capabilities:
