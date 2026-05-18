@@ -1,0 +1,29 @@
+# Canonical Codeberg registry-push credentials.
+#
+# Mirrored by emberstack/reflector into consumer namespaces. Currently only
+# op1st-pipelines uses this; add target namespaces below as new builders
+# appear (e.g., racing-website, machdenstaat).
+#
+# TODO(operator): reseal — sealed-secrets ciphertext below is bound to
+#   (op1st-pipelines, codeberg-pusher) and will be rejected at
+#   (op1st-gitops, codeberg-pusher). Regenerate via:
+#     cd manifests/applications/op1st-pipelines-tokens && ./seal.sh
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: codeberg-pusher
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    .dockerconfigjson: REPLACE_ME_VIA_KUBESEAL
+  template:
+    type: kubernetes.io/dockerconfigjson
+    metadata:
+      name: codeberg-pusher
+      namespace: op1st-gitops
+      annotations:
+        tekton.dev/docker-0: https://codeberg.org
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "op1st-pipelines"
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "op1st-pipelines"

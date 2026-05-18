@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: reflector
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: op1st-reflector
+    server: https://kubernetes.default.svc
+  project: op1st
+  source:
+    chart: reflector
+    repoURL: https://emberstack.github.io/helm-charts
+    targetRevision: 10.0.42
+    helm:
+      releaseName: reflector
+      valuesObject:
+        installCRDs: false
+        rbac:
+          create: true
+        serviceAccount:
+          create: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 3
