@@ -1,29 +1,18 @@
-# Canonical Codeberg registry-push credentials.
-#
-# Mirrored by emberstack/reflector into consumer namespaces. Currently only
-# op1st-pipelines uses this; add target namespaces below as new builders
-# appear (e.g., racing-website, machdenstaat).
-#
-# TODO(operator): reseal — sealed-secrets ciphertext below is bound to
-#   (op1st-pipelines, codeberg-pusher) and will be rejected at
-#   (op1st-gitops, codeberg-pusher). Regenerate via:
-#     cd manifests/applications/op1st-pipelines-tokens && ./seal.sh
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
+  creationTimestamp: null
   name: codeberg-pusher
-  namespace: op1st-gitops
+  namespace: op1st-pipelines
 spec:
   encryptedData:
-    .dockerconfigjson: REPLACE_ME_VIA_KUBESEAL
+    .dockerconfigjson: AgCElSokVDtxhrTsMzUT/GwNoeid3C3OMEmxJov/WNMyvQMRULL1lf+qNUVboIHTwpYVYK7GUu4To1s7piY/Or0O9Q8z72gwmXCL3tyanC6yWVnjRt5VI2R1DukBbkbCJ0OKIyEw3c0Q6nKiLAHemenurceQj6uTDzNpqD3c2DdMg7y2hC/SoDe9g5oZ9HO0C1Xy/20deb0XsdQ+d5QTr8b/ZLOpseZxneDPJWEjzOWZYXtX3HPROevp7hHEELyFbtKchOhn7xugYM56uRXDi+Yfyg0ZtcJU5jL4Qhfraf6ki+bc9cT0Iu07vgaYh3iy6XY77wbfv8EUfsPS5G4tqu1DgToFKeRm/jRgsVx/8ZIQR2kzcIC3nh2qP70Z/p/Pfa+FWjAoshlF9/hjwYJkT5ZkQj2kaHwiT2GV1zrkVBg8OOLgoXrMee4XVmWm0wv+9lvdKUDJ+59476yPfnJS81zHPuJCAFt8Bqsr1nrtVFqo7HsAFzu8NJXExlCXO96Do65q3tEDU4vZqfpRmAyNk0rkJvNymiQ7xzWoDbij3qnoS3YwPVsG0TNJ7myI6PHGI7Ytm2BsgZ0RVFULRganDNwyNvMDj4ydLzjW8HNdRrDluCE01q4qUWgQ0XTl2g/CdFmHfWBxZ7uzEvLavgQHmPdB+E13pMs2twOjBpBmMvGmQCd8HkQbFV2ipDf/Ybd5LLSS6xdc7ohboF5uK5hcPC0i72HwMrTMJR/DMQUVr64W6wxCOt/oiebFiRnkV8zf11Q8z2VqzkWV22fRlUE0isT0xShtNhIQfPxIMorWjoAYfggIRMoZZmtUHv5aNaCUn6bdvWpRO048cwYBLmNlGOVRoZcQy+oB0MXQ3Z6d6nVQE5KIR8JlVW7p9I0xHpTJzc7ri/iZf0t9GMcv5nrjz1dXTF7glZG1+qrHW74M5b/9Dg5V59uspOtAaSHrQyLLvsFAl6T5UUwdLIaB2LqRIhmnExb6SeDwvRmeZ9r6YR3ltgKVH6UNp9VKmC4WpigbDhJG82pIsHMPAgp5G4u0TO5wOlUTT6xUy2815P26JrJavdXD+Fypib01RziNN98+CyCapgrYnNJodIw=
   template:
-    type: kubernetes.io/dockerconfigjson
     metadata:
-      name: codeberg-pusher
-      namespace: op1st-gitops
       annotations:
         tekton.dev/docker-0: https://codeberg.org
-        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "op1st-pipelines"
-        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "op1st-pipelines"
+      creationTimestamp: null
+      name: codeberg-pusher
+      namespace: op1st-pipelines
+    type: kubernetes.io/dockerconfigjson
+---

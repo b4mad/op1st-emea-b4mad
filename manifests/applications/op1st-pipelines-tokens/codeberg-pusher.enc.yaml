@@ -55,3 +55,4 @@ sops:
           fp: 8A07D816280A983BBC35E85C280DB66A3E8C012E
     encrypted_regex: ^(data|stringData|tls)$
     version: 3.12.1
+
