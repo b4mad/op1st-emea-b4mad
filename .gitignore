@@ -25,3 +25,6 @@ __pycache__/
 .claude/skills/skill-creator/
 admin.kubeconfig
 bootstrap.kubeconfig
+bound-sa.pub
+clusterrole-rbac.txt
+ansible/
