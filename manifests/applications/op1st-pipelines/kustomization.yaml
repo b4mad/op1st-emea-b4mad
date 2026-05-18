@@ -8,7 +8,8 @@ resources:
   - stubs/tekton-config.yaml
 
   - secrets/codeberg-op1st-gitops.yaml
-  - secrets/codeberg-pusher.yaml
+  # codeberg-pusher moved to manifests/applications/op1st-pipelines-tokens/
+  # and reflector-mirrored into this namespace.
   - secrets/codeberg-runner-openshift-pac.yaml
   - secrets/op1st-pipelines-coderberg-org.yaml
   - serviceaccount.yaml

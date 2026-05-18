@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: op1st-pipelines-tokens
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: op1st-gitops
+    server: https://kubernetes.default.svc
+  project: op1st
+  source:
+    path: manifests/applications/op1st-pipelines-tokens
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2

@@ -1,0 +1,35 @@
+# Canonical Codeberg PaC token Secret.
+#
+# Source-of-truth lives here. emberstack/reflector mirrors this Secret into
+# consumer namespaces listed in the `reflection-auto-namespaces` annotation.
+#
+# Rotation procedure: see README.md in this directory.
+#
+# This file is the SealedSecret produced by `kubeseal` from the SOPS-encrypted
+# plaintext Secret in `codeberg-pac-token.enc.yaml`. Both must be regenerated
+# together when rotating the token.
+#
+# TODO(operator): produce sealed payload via kubeseal — see README.md.
+# Until then this file is a placeholder; ArgoCD sync will fail validation.
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: codeberg-pac-token
+  namespace: op1st-gitops
+  annotations:
+    b4mad.net/href: https://codeberg.org/op1st-gitops
+spec:
+  encryptedData:
+    provider.token: REPLACE_ME_VIA_KUBESEAL
+    webhook.secret: REPLACE_ME_VIA_KUBESEAL
+  template:
+    type: Opaque
+    metadata:
+      name: codeberg-pac-token
+      namespace: op1st-gitops
+      annotations:
+        # reflector source — allow mirroring into the listed namespaces.
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev"
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev"

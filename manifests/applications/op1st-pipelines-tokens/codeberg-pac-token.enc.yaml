@@ -1,0 +1,22 @@
+# SOPS-encrypted plaintext form. NOT applied to the cluster. Source for the
+# kubeseal step that produces codeberg-pac-token.yaml (SealedSecret).
+#
+# Edit:   sops codeberg-pac-token.enc.yaml
+# Reseal: see README.md
+#
+# TODO(operator): replace placeholder values then run `sops -e -i` to encrypt.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: codeberg-pac-token
+  namespace: op1st-gitops
+  annotations:
+    b4mad.net/href: https://codeberg.org/op1st-gitops
+    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev"
+    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+    reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev"
+type: Opaque
+stringData:
+  provider.token: REPLACE_ME_WITH_CODEBERG_TOKEN_VALUE
+  webhook.secret: REPLACE_ME_WITH_WEBHOOK_SECRET_VALUE

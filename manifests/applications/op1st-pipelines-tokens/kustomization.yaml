@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: op1st-gitops
+
+resources:
+  - codeberg-pac-token.yaml
+  - codeberg-pusher.yaml
