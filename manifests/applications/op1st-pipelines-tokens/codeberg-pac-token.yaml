@@ -1,35 +1,23 @@
-# Canonical Codeberg PaC token Secret.
-#
-# Source-of-truth lives here. emberstack/reflector mirrors this Secret into
-# consumer namespaces listed in the `reflection-auto-namespaces` annotation.
-#
-# Rotation procedure: see README.md in this directory.
-#
-# This file is the SealedSecret produced by `kubeseal` from the SOPS-encrypted
-# plaintext Secret in `codeberg-pac-token.enc.yaml`. Both must be regenerated
-# together when rotating the token.
-#
-# TODO(operator): produce sealed payload via kubeseal — see README.md.
-# Until then this file is a placeholder; ArgoCD sync will fail validation.
 apiVersion: bitnami.com/v1alpha1
 kind: SealedSecret
 metadata:
+  creationTimestamp: null
   name: codeberg-pac-token
   namespace: op1st-gitops
-  annotations:
-    b4mad.net/href: https://codeberg.org/op1st-gitops
 spec:
   encryptedData:
-    provider.token: REPLACE_ME_VIA_KUBESEAL
-    webhook.secret: REPLACE_ME_VIA_KUBESEAL
+    provider.token: AgDJl1SunJTHJe4V060pM8GjqGcyl73Cip5t59yALypfD/RJRlKQNEEw0YRa6uaWGceMuxU5bCbVAiHg5SipO924+frfbXoJSVGvvFAY35/cEakj+f+yWgeOtCtgBiDO9jbcgrPlnSjRWDbYifT4U8rGLK1fGvAfgWXvCausA7NZNMPhg9cbhU0kir4B70IS9KgGXCo6QXcwcP5z74dll8Vt3mCVRlZ1g0l5IlaV4+ajLT8U9e4siy65E2F75cCzbq7D5HzCcR3/d0HQSrTzfhkGhFQWTzRxjRK30Q4b/sv6H2buMMmhkHjEhkqMQINEdgctE6JKAbCB3TwdgQlTzIkr+6UFfXTKtF4yyviZXGyKMdeMMJvHRaGl+SzBqGkwgi9drg69yyCCQBK43Yn0CxABaK/lgXq2EiW9wSehbHI6LXNQzZtwBqGo2AWLClSzpTC++vo+RMVUnP9R2aM76ZMR3KPoXlI9tlwye/bn7tFvX8qhuf5fOWPkKfthsRuoQr+GWJRwPRgMTe6C0EuvngTEQqK+QgdN8UOCN7H16NhHqSp9tIVorvEblGsazhq9nD7NoP/s9t7qtkoEntjJmt/y0yrOK++tajunKy8ImRNypLu9qie8Y3JFx9KbRMSLXpIP101kcD2MHZXX2gQw/Hyg/Y8Txai3tjxO3EyRakRq0xbmqLgOdkvqJ2e72vAsM86F38S5IJPW3LWtf3EZyliwSEprTHKk4/zGwLelxtaaDjpcTmXFa8dk
+    webhook.secret: AgC24OkQYLwNoOAsC0EAFGa3jJ4pCXD8Q7vA8lU+ffswFfKpqZvbIoaCSzerLdsu7kIWnbwCGU1j904G6rBCfLoQWyGncSS68mApOjpUn5si2RN0fAhhiFkc74gTJQOVTD9RC8Pcr7UOvXbLro89//rFjaM3rI05BSOx4S6M1uw6qCJ9wjQ4phM7S2HEHgAZ6m4mMZ76PZe5+2DXdo4GXBfcKMIRasRxHh0aUiDkUbpGiFtFzbYRhVWXOYdMJWsq77ItI5lJxOHwqERjXYFXzqbBpCOd94u7ifSx/AX++q1GrEtETm7mlc2f5RDSu6FEj0Q0Ok4YfzXzncMlKGx8rxsFZ4K+cOK6bvn3uIDAg5ml1qns5VoQu8pK561kq7X4Nk/x1H842AKd0CMQvBKba7ZWUCw4eidfR3GBHOcqPPtfQ461+BdmuVoax/VQ6fG4pWEmMZLi1BcXLShXX2oRap7ASXimSEbwnuyqDuS4TeCeYYHbrMM+3NMbTXDQroIuIpc09Lj7NaABlOnJLD4LmPkOFULjyAvfKAPpsdqlZH/QOFhRsfiuXOkr3tY5UDSfeI9xJjzjWf1J9vN6fjmBQpuu8N9D+gBqsrJKl/CbUtw1rNMUrTKPLEqWGFjLULYulOEHnvMY2yMtCobAtQvDZOYyOeaDkgXv2GAJ4xDLhjpOkgaWl6U6W0BMQtluiASFAYDRNyJscT0bWUhF9/jZse+eotnNhtrVSdFiyLRsysssckPe4SNZY0ctPyNHgXR1RaNQYGcacQuz6JtTDNA+wLKM
   template:
-    type: Opaque
     metadata:
+      annotations:
+        b4mad.net/href: https://codeberg.org/op1st-gitops
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
+      creationTimestamp: null
       name: codeberg-pac-token
       namespace: op1st-gitops
-      annotations:
-        # reflector source — allow mirroring into the listed namespaces.
-        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev"
-        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev"
+    type: Opaque
+---

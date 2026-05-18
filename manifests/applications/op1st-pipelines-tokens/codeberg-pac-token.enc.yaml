@@ -4,19 +4,64 @@
 # Edit:   sops codeberg-pac-token.enc.yaml
 # Reseal: see README.md
 #
-# TODO(operator): replace placeholder values then run `sops -e -i` to encrypt.
 apiVersion: v1
 kind: Secret
 metadata:
-  name: codeberg-pac-token
-  namespace: op1st-gitops
-  annotations:
-    b4mad.net/href: https://codeberg.org/op1st-gitops
-    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-    reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev"
-    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-    reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: "op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev"
+    name: codeberg-pac-token
+    namespace: op1st-gitops
+    annotations:
+        b4mad.net/href: https://codeberg.org/op1st-gitops
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
 type: Opaque
 stringData:
-  provider.token: REPLACE_ME_WITH_CODEBERG_TOKEN_VALUE
-  webhook.secret: REPLACE_ME_WITH_WEBHOOK_SECRET_VALUE
+    provider.token: ENC[AES256_GCM,data:Z360Tp/wTk9IcSRwxCcxV21tYjurBPB7cdLFhDk4EP3h8VGZQkjY3g==,iv:jvQeQ0ulz/FzvYWCdH+dyxbrqFyLyKJnNrG2Xb/pv58=,tag:4TLEgik5Hi4QTruuWpk0QA==,type:str]
+    webhook.secret: ENC[AES256_GCM,data:BkwBw1uJdOMPoOwaSMkV1ArKzuqTsEo78tdh4bPEdf2uxwjH1BdblQXwAvSHdc8mQNHxVIkchvlEIDQRKkhNVQ==,iv:iVO8Uzlv8pW7DpKGhoRAK1/Bm2xe38R4PuTKSLZ9hZk=,tag:yZsq4GYdODHy+xbUyMXV6w==,type:str]
+sops:
+    lastmodified: "2026-05-18T14:48:22Z"
+    mac: ENC[AES256_GCM,data:KGAuVEffdoTTxQVlxwY8i0VAgAb/DBPa1JvmAUF3dLnquTp7vh3L0FBOlZLWFtQOuFBZUZVZVi1gr1AgLkpVThOpt79QQaCry9iRiWDC7kenHkzoPyOolQ4M+gIq+TDoFgWfhiqU9ozCHonJ1NZWsRCXjiJE/pqsByzpOeSWz7k=,iv:sHRQLVi29jAgtIpzGBIL6F3TCUWjyDc8dWsX3WImOUs=,tag:jne5HYJuZovc0EZe/GTV0A==,type:str]
+    pgp:
+        - created_at: "2026-05-18T14:48:22Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA9AgVmznaOk7AQ/9FfDewwilS13/C0mF6kAyVUVYAicQc7Ikg6BA6PJWYb8a
+            a6DjsRBdL+CwyknvDBtupZ6jUMyA9K9dOFnm0zJe2JrHhpfkk9/EW948jyQTzflk
+            QBv5CuezOzHmXiIDOA1GqYr23ldVTOene1ViuBK5pXvfNfs4SwAjRTqa5g7uAKMe
+            nvfmG//CmCbn9qTXtDRwTTUsUgTM0WxP/rlIEhTRt1ga4CnjYRG7/ZkA/SMrawA2
+            se9OU4VWFEAixFwq2L67fEaBEATZh7yucR02O1T2DRz4zu8m93i5J69n2WtKDbtd
+            UhKoB3zdeWje6XkgYQIyYI+5lLNcFXtPB0PWo0/Vu+S0ji9/i1CD3BXKF1tqlTqY
+            Kx7PiKDVQT6VIpFq0mWWSOL7ah+sNBuB2TUzJL8jy9iPRvTdMG8mgXy+4yT8Va1E
+            tWhPnflq4NOcq4X03cith50/BIcvqyRfQPzFFvhCM4lTb9ngQlewil0f5IfsZrk2
+            3syZCkRH2KD3ZnMaKZAbJd0PNsTlwAkCFjYesU6JivxOWJ1mzDiEuK/HJBla2G9c
+            XNBl6jyIyrKe9YCbMwEXXhcbKFg0w0DxGiqFDWS5HkPS/sqUs72jnoy5LajaCJOF
+            ReeBDPhuYjqn1osTnuW9rwjNz19Nu8V0S2JXkBjc3bMZvyr5IOZRKLwPoz8VIs7S
+            XgExDDoWNZn47OsX+4QqQnSLRzB34L7ByK00uMeOH41A7oMUwCBFlNKHcnn044eG
+            oZPhnCFQnSQi29jafIMRPVUcuTCHOyv9ZFIvU/fPBJXQA41bC+hpdaS+YNMgS+Y=
+            =DabU
+            -----END PGP MESSAGE-----
+          fp: 04DAFCD9470A962A2F272984E5EB0DA32F3372AC
+        - created_at: "2026-05-18T14:48:22Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMAwSHi8yuDIZWAQ//QWS4sgo/5drZPi5gBl+NoxVq08Ybi7FLFiL/m6Hf0jRS
+            HzEGVoSXCwp5UmUOp8Le7cRrE9bFuv7O51fSr//gIk6Ld6lkTD2O9c4sy5Sr/Kr7
+            fTG3Kj3mbhzey87whPULmRBv2Gx7Z99f8O4s4HAiM1UIf+nSEFS88TC3R9V/eTpE
+            /2etKaHJvLyNXGd+QJ2+ymKVd7A3ZoA7rZ5BEeDy6d0L9OSHIfWFNp5ihP7K0L3i
+            PCnmTQowTFSRp4HQo6nLoFjHoYMBYp/0VTR52vnt3MKHnyalob/phNW+CpsEB4qt
+            A7IsOoTqsvxdDTbieL3tKMgM6Ed5/vromJ8SWz3qGyzPDdMjKoWgY4qwQ16dmzIO
+            N5zDclPIPzILvX+GZ/db6uC5u5nADn7kPYAtyXDwsTZ6eHw7hP+hbklmQjqyaviD
+            ChphzLfk/OksM/DKQA71b89xcyqg4e6Dg2ScVzGRidys1knVSYDyeqVAzyxaH/AE
+            izJl1Yccgzh72vAEA5bfoBp4Jqa/OQEq9xwl7e32ObPcHf9ivzBmV1T9fY2RYpVt
+            JRvC/M+c0pDM2CZxd2rlvt42uUkuISeX6a+G3quWJdhpzAx7krqBucumLZKtc5fn
+            lOwy0806Apmj2Em6oalQ0tQFu8AppBCrlpUpcCQq1Pf6X/GDA0FLH9GWtW8HWcfS
+            XgHrjGVAAdGry5U0QAWeQjHgyV//gw8A2f5UJdnXUI2122Aw3/8H+oRn+E+Nuq6y
+            i6WCnApXRC9TMxqV5QiplC3PDZuDtSnyH/cRxC7KNBmnn3TavsO9xOMtKnI1syA=
+            =Uwji
+            -----END PGP MESSAGE-----
+          fp: 8A07D816280A983BBC35E85C280DB66A3E8C012E
+    encrypted_regex: ^(data|stringData|tls)$
+    version: 3.12.1
