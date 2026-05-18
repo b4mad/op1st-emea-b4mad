@@ -5,13 +5,13 @@ kind: Secret
 metadata:
     creationTimestamp: null
     name: codeberg-pusher
-    namespace: op1st-pipelines
+    namespace: op1st-gitops
     annotations:
         tekton.dev/docker-0: https://codeberg.org
 type: kubernetes.io/dockerconfigjson
 sops:
-    lastmodified: "2026-05-05T14:29:22Z"
-    mac: ENC[AES256_GCM,data:VNipcSlm4ZIfkcUG37NDo8WsjcQykGqUqrMOBf5W+C1j4Ed4TypRQaajBNwn0PRaCGRmdkKITjVZNMl0l0lJTRJt660iASNt+8eeBXY1E82yw6DYwNAUJpDLlSEFlnsNtHxZXKZH5tEqCi+JwxIfDTIDi3DREFwc+R9OniEyzg0=,iv:Fw0/Mx/2Qo+AjSUk8rATMc1cIuDvrKdmBAeudjAU2IE=,tag:V/fT74XnoFKPHuTj/rEJKQ==,type:str]
+    lastmodified: "2026-05-18T17:20:10Z"
+    mac: ENC[AES256_GCM,data:kWg8M7MCHYC+CIzcEO6pdZgED8zHLrYzR8iCseEl9QYqU4lHn0teDzI1/+FfLrK37Il+lPxgy02UgJw8Zb78BoWKqMa2ZzwP/j/eDcpCutPUoyw4z0t1YnKSYWiXgzGWPIT0H9dIo/EiP1qYKuH++pKxA1c4tmdhDBqjG13tAKk=,iv:JjLkW9iFeoEQQ+u1Whml8eNdHkW7GkVhmSsh/WvIQRQ=,tag:tfe5O8PEK0U/W/lJL5Ymaw==,type:str]
     pgp:
         - created_at: "2024-12-14T15:30:28Z"
           enc: |-
@@ -55,4 +55,3 @@ sops:
           fp: 8A07D816280A983BBC35E85C280DB66A3E8C012E
     encrypted_regex: ^(data|stringData|tls)$
     version: 3.12.1
-
