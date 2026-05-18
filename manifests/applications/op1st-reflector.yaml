@@ -14,17 +14,19 @@ spec:
     targetRevision: 10.0.42
     helm:
       releaseName: reflector
-      valuesObject:
+      # NOTE: use 'values' (string), not 'valuesObject' (typed JSON).
+      # The Argo CRD prunes explicit null values from valuesObject at
+      # apiserver storage time, which causes runAsUser:null / fsGroup:null
+      # to vanish and the chart defaults (1000 / 2000) to win the merge.
+      # OpenShift's restricted-v2 SCC then rejects the pod (UIDs outside
+      # the namespace allocator range). Passing values as a YAML string
+      # bypasses the null-stripping.
+      values: |
         installCRDs: false
         rbac:
           create: true
         serviceAccount:
           create: true
-        # OpenShift assigns UID/GID from the project's allocated range.
-        # Chart defaults runAsUser:1000 / fsGroup:2000 fall outside the
-        # namespace UID range and are rejected by restricted-v2. Empty
-        # maps would not override (Helm deep-merges), so use explicit
-        # null to delete the chart's offending keys.
         podSecurityContext:
           fsGroup: null
         securityContext:
