@@ -7,11 +7,16 @@ metadata:
     name: codeberg-pusher
     namespace: op1st-gitops
     annotations:
+        b4mad.net/href: https://codeberg.org/op1st-gitops
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
         tekton.dev/docker-0: https://codeberg.org
 type: kubernetes.io/dockerconfigjson
 sops:
-    lastmodified: "2026-05-18T17:20:10Z"
-    mac: ENC[AES256_GCM,data:kWg8M7MCHYC+CIzcEO6pdZgED8zHLrYzR8iCseEl9QYqU4lHn0teDzI1/+FfLrK37Il+lPxgy02UgJw8Zb78BoWKqMa2ZzwP/j/eDcpCutPUoyw4z0t1YnKSYWiXgzGWPIT0H9dIo/EiP1qYKuH++pKxA1c4tmdhDBqjG13tAKk=,iv:JjLkW9iFeoEQQ+u1Whml8eNdHkW7GkVhmSsh/WvIQRQ=,tag:tfe5O8PEK0U/W/lJL5Ymaw==,type:str]
+    lastmodified: "2026-05-18T17:54:59Z"
+    mac: ENC[AES256_GCM,data:PzBuFVr3CdTLdH85OOHF3G5Dk9lCT5iYkZ3646Jrq5fJb6Ezo3dtC66IaUUb7PIt04KEz6O1SPcDOI0bQjWGru0th33Ude++JT8UofKrgJGISV6MCaBryiy5OMDa9f3OjK3kSSqc0KbE2pShuSE3Q7cabBDxF6p5HC1v1Ln75HQ=,iv:M6ta8l/D8NTOdbikOR061je0Vu2lRjA95WL6YXCC1wI=,tag:EK6692tmpvA09y2JzpK94A==,type:str]
     pgp:
         - created_at: "2024-12-14T15:30:28Z"
           enc: |-
