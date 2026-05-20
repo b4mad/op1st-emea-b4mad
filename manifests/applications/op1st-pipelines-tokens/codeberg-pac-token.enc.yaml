@@ -12,16 +12,16 @@ metadata:
     annotations:
         b4mad.net/href: https://codeberg.org/op1st-gitops
         reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev
         reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev
 type: Opaque
 stringData:
     provider.token: ENC[AES256_GCM,data:Wtg4annPcpXX4Qr3Lkru0FGqbiAhokOF+q56TJKFTxw0y9mxrAI+WA==,iv:XKuH+mQ6Mm7XdnVqjOMMRjbjAA2aMDuCughJpvuchfo=,tag:LUH/H3RsvgEqkqRDc7sHAg==,type:str]
     webhook.secret: ENC[AES256_GCM,data:BkwBw1uJdOMPoOwaSMkV1ArKzuqTsEo78tdh4bPEdf2uxwjH1BdblQXwAvSHdc8mQNHxVIkchvlEIDQRKkhNVQ==,iv:iVO8Uzlv8pW7DpKGhoRAK1/Bm2xe38R4PuTKSLZ9hZk=,tag:yZsq4GYdODHy+xbUyMXV6w==,type:str]
 sops:
-    lastmodified: "2026-05-18T15:02:55Z"
-    mac: ENC[AES256_GCM,data:xopZdjO1g0spproeOwNTfNFK3fb4Cj3XrRwVzq0o5k0E/16LIm18kGOlC4TYaDhg1UEyyZSfMuOkd0Dme7aU3jFDI8GRutyofo80kNUzzXxVzK7ju3EBbcZiAR/dwAIrUuuxUQxIcyAUc/H1qQi44WknGX0p5NHC2/dNKw1XPiM=,iv:Y8LuNxErN5gdbUkftE7bt78XTa5bOSr6iJd2VE3jkUY=,tag:jftkoQ3fG8rXzLEiT84S/w==,type:str]
+    lastmodified: "2026-05-20T07:04:12Z"
+    mac: ENC[AES256_GCM,data:2L2pN3ix775ivAAa55yPIpN5jXjoxY0YC4ZMzabMHJwHioBkmEI3vsdGh65V4lXfBSIQjedC62UNIBTJ1foShXn2A5kdioNeCI7LCmeGstiNAGXD4WluqRLRBS3T3nGkhnnSmJftWk1Ta0lkIo/QrcyWfLVxRZnsvX3rnMpoDd0=,iv:AUdnfpEykyQMkNgH3pZFwCnSgVjWLuJ5Xa1dG4170f8=,tag:P6iMLrWQ391Yfymonv4doQ==,type:str]
     pgp:
         - created_at: "2026-05-18T14:48:22Z"
           enc: |-

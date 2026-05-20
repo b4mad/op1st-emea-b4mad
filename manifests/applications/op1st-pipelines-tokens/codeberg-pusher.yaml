@@ -6,15 +6,15 @@ metadata:
   namespace: op1st-gitops
 spec:
   encryptedData:
-    .dockerconfigjson: AgALb0S5HgOyzXgSAj1SchbHbxQeE5DryRuJSNbcJQkSpH/FBjvVIBprQGSPZ3jUGJYSZARW4CgKYyro8IwNHztVRTzSCku0ym2uFV5oByjkcyLxSDbjUB0rd3aHItuu+JdKMRcySi/waIwG9sZUVrQw/xnhh30wDsIOZJ2b6WYp8AcmV6r+6/JS7z6iEg8qowYqvwO/If+H0AkytlcE1amxoI2K8hG5l85qoA67MEodbbVQZjCBCAWqFFsMXPLwx0iGf3qk00+8Dw0T8Cazj8uRuEJF+tebsmHf1xJkbKogSZRGKSXw5EyKuhGAbJuh9uIAmjQ86M0sRhI2+xh8FMGlACLCz+cRnopuZYZyY3V1bKH6TZj96lq1hgjmM2seuM64cE4uNBhGU+7EIC+itWOJrF775O7l+OJWn/ho6mGT/iW9cDX8NQcGVDTRjcMX3ucCGKlodQ4lIr56GuzEAeWh+D99JjkVkxZM2RbQqMFjUHd2Brjm2eFXNhHZUcIfPPAiZgNdojGvHR5d28EmGYaMV633RnVBdpvJS22CCAtERJIc4shAu2nzsaOADjX3C6LT6WP7VugfmXCbHRNpl9WCBw2SvoQeAzr/BLvrLTvHwyfNxEqav2FaS12d38D9JNKpC+lqGmUD3edE9w3RHN5p+ZH1XbrxgSYjqClhqsmm0CQmhQ/SfPeqfzYUh6EZJnHehfHIOp0xtMGFPHd3aLpAXPfSwZOalfCqSYkgQgOWtqCJgWI+BYM6W56El7RdRszxlvguQ85BWQM9Wk5YdnHL0M45mVskln9+9VWXDZFt+vrWUzjs9gM/RoxXYbg6yllqPww0yBpdF4jphUSjpeN8qzz2XCxwypbjuusu1II8l3fOvIgyZXerjoqg69KiuwksyuwZU1/+rjnOIu1E+qS9W9Ff6Z8osUXJWtSnMYsZ4x9ariZX4xExdKl5QB8+arcjQ/duGa0ZaSzgds67A97OGdmLer6U0cdqogsUuEBier17yOYcuNyn69QHdoMR7pl+ztN66f4g6A9MHGqZYo8X7YbD4ZwV5HM+a3pllrDwB93s5tP+XaZqAQncrAeMEpfiTLvBeVT7Jww=
+    .dockerconfigjson: AgDBn/ro6Ju+EGU/BzZInrT7cZGMp4vdeTN4ofi9MoJDmk/Opo9DtTuAjBh3f1+mqu7V/qtcrzCGFM3jX1KCyY6btfpduzELgR9M2X/HSs1mnnyyB0PJCBoebEyrtsVZTC37uTr+1hZ6Qc1E6XI7FFQAxWqUy0sULJX9SW78jFZb6vAoXvw3JKuy2Co1AG0r2EANGBfJSesfVo0+kDYEsH9pMBRuXCG2FceP9JnY+2BITX26Nc/ezFaGpVOMRVccCkVBtGn8arM+QqBFzekfJgQEzihKFLSBCiN87oDnkMlACrvsMGmdDHg/FIOEr35nLgo8Nx3cGtMYyjdCkV9v6LlUhhrJL52p1DS3WfllU3mj5ZYdLxwsHtYAmhH/dHgmBqUkIKUo+VKOt4HLJcCSc/82+JunTgd9aWrQho0dhzk7q9U8b7qychwmuSfBQPixiKmz6rFRMEqV10p9ZM04KidWaqBE/oE2TllS7gsBtU9c83gENc5EepkGkAISLkYGFll5EDvmDou3SS6QIkcZo6p7hY0xGoBjXbxP725KEM0vch3yDFjcghB9UttbFjqZAwewUFOPu02ghxvIYo064rv1FXnAzKWebpa32f7vJ6vQFtHqa7nRAa25eFoyuCQBeNW77gKmw8GgMfoBlIxyzHSuACWU+M7TubROkPv/UAktOdyIFZjpKbjDqV54+hJ66J4UBmmQ20AjQABqxLGrzqbTAOuqbpU3XFKFM4nqGujnGTmKOgz2WHf1P1k7HBjEE6QzzW8MZillRIm+TPYl7nkiMTbvLCpagKn2PcmOIADAtmfpifT3/gj+gEpiofJydO9CIADTRr3XVth4HaZgOvUxeeS/FCYDyVtQxZdnQ75y94+jpA8uupausqAZ7VOIIX9WnYAYUIS0R7wGFrdqaqjGzNEDLFGyL9fnow6/DUc6BmErDwVrc2dvwFr5Abwb2ru6hWABdhogXsR+ICv0Mj6tudzHZUesQSIECTxXTmF8uEEyV0ALXEzUzo3DB0/1rF+4T/2V8VLpJMhzDSYx2Saon+v7p0E32aw9R3h5KxzbKoyKXourfSuBJoXFfi/+F1q1lzkjDU0gENI=
   template:
     metadata:
       annotations:
         b4mad.net/href: https://codeberg.org/op1st-gitops
         reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,b4mad-hausmeister,feeldata-dev
         reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,feeldata-dev
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-machdenstaat-stage,b4mad-hausmeister,feeldata-dev
         tekton.dev/docker-0: https://codeberg.org
       creationTimestamp: null
       name: codeberg-pusher
