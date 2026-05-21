@@ -1,0 +1,26 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: codeberg-goern-hausmeister-deploy-key
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    ssh-privatekey: AgAcJRIyDMyU792CIpsEOMrVXdYinImVHvWYCXswgnR9UHNx1ANlKCqBaiYrUDFvtNwa1GbNJmE8+G1lVjeVvU1AdmwAwRfAQtrYXB3VH6+8xDL9FvmwRtz6YH9AlpoyKBWU+3xhAzZRLvmRzzBH7hy+sETId0MBAOd7taWet6BOzmHa0KfS1bOoAtxVeVkWRJZqotlN2rZs16hJizS6FDA4OqxXMe+WxsUoLVIK6vHfCsZ/mwgrLe9sPqp7IcPoolzCNAmxLuBQ3yEGKmA+83h+ODeql+Y++NPku1qz3JCvIlPcQvUIDGtAArEmL/oQj7nP0vIgxbk+lBYMYRfLKJYvTEJQUrTZl7DnCHyIzuP+UXXHdWed+6XlwV28VsdzXMmLV0+figxKwBvA2Ptn5amzMZQCAch0F/41ABGm3oPB1m4QNH0kMCixy1FgzyLuQ4YGRVl+NMrWRAdGjZFygCwNztpQjYex+ww/mjhmFvwpxdOka5adak7UNRxR2Fm0xo/k7NvM1ar9eC6u+HtBaKntD8XD0fFfhO9Ghpcy0imzGxsJGRRK6RVWtqx/B3St4phGCLhU3j/pAQSJ9q7TJLE19Fs8192Cn4IxQ3fOZjbs5lTysshm2UunZ2XqUl46cBvulm57qseu2ev6OX1WigmAkpu8plDys8EP9klP0OKCSuwg82PLO41j3fMSAnsFRrupa41RcT0qrVRiz8TChFG0DGBWZ3jxk6umhVODjsPAK74Zn0QBS+88nHIdvC5kIH4Pire0f+/w8oZXjx5+9OGVcmFNhdT4VRxzzqpnyztf7CzHijBH3uvre3Ntnzlajj0ixYlmgePbw3+Nfsk3OrqoZpCZR28ohgSRrfvubAEcgp4u2ORQq6gEzrLCLDrOG3kyCgtiaeoIU8NtEUz4Iuj6JUplVvCduWv6lGbAS/aH9AB7wKEQhqaTil+Zel1B9BzUCHnol99MKVDjM43WG6r6MHwkF/7U0S8jzFSYOxHGdoahJqHJG0mOS7KTjGxOKZhznsU63pXzWLWY5vctREY6nkxny8p3SfCUdP/89imxKKZ/bn2hm5m8Q84WE/QLDs8d4WshtUm3Qu4d45WcP/54b1fwRNjGsSGoKNs61SQNX2bdp5yDUCzmmBmphleFzROF6wSz9BKEAfqJeAq24wgElAPdPQzy4xF5sfdBRgQATlwt1yAjTQXX71ssnV1HS4iSN1gizaLymdUMK3+BayQIWGzWeNLs3/3t41FgAeapDbS8Bdvgm6Q43qttIizWwNA=
+    ssh-publickey: AgC2cK01vhUPXDQXGsBs0QwuWHxAp3rl9O8QYPBfVasu03DdUo/aiwKAbX4XNH3DgM3dJdY6wUmXf3E1gW8ekYKadY8T+TLr3ig+a6K+g/n1zeleNCRD8BDTW2uA3OP/MzBwsRUCZ61J9j2J6ABkMqya5QtqebwV5esmfWXlHHsNpifQi7d/Z4r3r0Zs/yoaJ27Vom4iSs0kdNEYH/seF5x1M4JOA0AYYEA6uxbBU1f7xJX4DdA6nd1mo6E5t3gQ1MWa4waU95vKDd67ZV1WDvF0ctSQyvXrVTR9i8qSDli2dMCJDAgl6tqxp0xFeYgvrcCZsTIfYqCsqDuipFzWxZtlZ5q928A+1/HjKjs+MIjhZTDprfoeEfIbPsjL8yuf822N3WgXFTZ8MZ68X8h2TCyf6nhK+RwiqVwZ0HwkMN2LAYkzg/DlQT6ZDBJXoUTLQjJA1HF1JC/4NsBiLykmrnz6IxVS1JKzkzKhYx2rbNp5UCDmt611RIPC6uABo4B11GrBpvZgPkNR/GyQxB3tiDMIx639r50W72NUO/BGH9UNJ9NaWjw2/0WR3AdcZuuVB4rWX5BYj/TMJHq3CHQc91AiledMYL/PnLGnDkBgoY4Z2HW4PJ209RaXmu84eTjHpxyFcQ+rPwqEq7PsBhQQZUNH2zL5ZVK9veJR2vjfISmdktLP4ij5g3svkduIDWNjW2xPyf5nVLJaXz141anR1VYKIumauhF6mtciQ+0/PhtUQew85CabdFHiJ3YHA7uw0S4/j7YZO0gHJiRBAzMGSuFDovn2zcfFtDimIAe8S+UNLNB469ypHsAjxFNxdIuanyiXogxp4uPOBIqZhJ0BD8Y4gm6f5+tT9A==
+  template:
+    metadata:
+      annotations: {"reflector.v1.k8s.emberstack.com/reflection-allowed": "true", "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces": "op1st-pipelines,b4mad-hausmeister", "reflector.v1.k8s.emberstack.com/reflection-auto-enabled": "true", "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces": "op1st-pipelines,b4mad-hausmeister"}
+      creationTimestamp: null
+      name: codeberg-goern-hausmeister-deploy-key
+      namespace: op1st-gitops
+    type: kubernetes.io/ssh-auth
+---
+spec:
+  template:
+    metadata:
+      annotations:
+        "reflector.v1.k8s.emberstack.com/reflection-allowed": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces": "op1st-pipelines,b4mad-hausmeister"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-enabled": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces": "op1st-pipelines,b4mad-hausmeister"

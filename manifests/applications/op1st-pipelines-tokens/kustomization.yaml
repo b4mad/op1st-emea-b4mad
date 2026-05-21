@@ -8,4 +8,4 @@ resources:
   - codeberg-pusher.yaml
 
   - deploy-keys/codeberg-goern-epaper_service.yaml
-  - deploy-keys/codeberg-goern-hausmeister.yaml
+  - deploy-keys/codeberg-goern-hausmeister-deploy-key.yaml
