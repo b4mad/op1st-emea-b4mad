@@ -77,7 +77,7 @@ seal_one() {
     return 0
   fi
 
-  sops -d "$plain" > "$tmp/plain.yaml"
+  sops -d "$plain" | yq 'select(.kind == "Secret")' > "$tmp/plain.yaml"
 
   yq -o=json '.metadata.annotations // {}' "$tmp/plain.yaml" > "$tmp/annotations.json"
 
@@ -85,11 +85,13 @@ seal_one() {
     --controller-namespace="$CONTROLLER_NS" \
     --controller-name="$CONTROLLER_NAME" \
     --format=yaml \
-    < "$tmp/plain.yaml" > "$tmp/sealed.yaml"
+    < "$tmp/plain.yaml" \
+    | yq 'select(.kind == "SealedSecret")' > "$tmp/sealed.yaml"
 
   ANN_FILE="$tmp/annotations.json" yq -i '
     .spec.template.metadata.annotations =
       (.spec.template.metadata.annotations // {}) * load(strenv(ANN_FILE))
+    | .spec.template.metadata.annotations style = ""
   ' "$tmp/sealed.yaml"
 
   mv "$tmp/sealed.yaml" "$sealed"
