@@ -1,0 +1,22 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: hausmeister-deploy-key
+  namespace: op1st-pipelines
+spec:
+  encryptedData:
+    ssh-privatekey: AgDOv598CAPZJ5GMzB2LK8NqzBBkDMEsxEh3aFvlU1+KoCBifItb2kVIa1W3uiGVf9aMJJBE7UtsRlv+ieW7n8S9Flzw0ChUb6P+2NetKJykzETinTLxICVO/8soHJqd9//tfU/JMVTkW7ThQTtt8NnzmeEN9Ir3V1V+aQYjZZh4+hcLv+A8+MhskJQonbJtA65DiZelEKwbJLinjUURqsSdlGigPt/cIclOks5PnhSsUOf303DA+gVxIcm+nlh6AA6YCP8hc7dZDJ70qFzWUoqdxlYOnkO9AId0QvAyq08MV2rtpBGS3fPFTawcdu41WQie+qz3A+eRoLqc2SmvV+bxX2pdOoDCnvOtDdMIh/HOyFw8PouSh1Cw2SPg940pVUGygi5W2wbKF9Cg/XF3PgK9EmlpaqhUdxhOi8vSa9nqs0NBQ5eEQc+qsDIWL7THkaMbOgzwtp1ujpLqFWcZnEvGvtX/8TxBNWbTjPLqnXTJc+MG+acoyyL2IzfoiVvFiurRm06AFF1nUx1a1NFeNgh+/L7Lqo9UqBK+jnT0R+xL6I2Ri3U3oZSFp3pIFYXOHRN7XTS5u+m0fEroYXjKvnf4Wxuk5wBRj2lxUrzciyxhYgINpAhuyNtViD7n/UQTVvL26uzcSY7pWglpihN6gXU7kBUfMSznTi5iSoCfLHlAm6mmF0paKPTUKkr8PAeRkSk5qqDJT0nvvqpt3tdOF8qjb3RkmA6RUUrmm2Z/SbnXZZJjkKEMS5TwhZhl/HzHjAd8P5dfeWP9mziIze+pJuH2LG2oaX82PtakCa3zs4I2M7ooKmSGpzlhlOaxc2rxvIR8WysKo1dUyqPWgOEcVmDQ1dYJsVN42O6HRxbRO6XsoZliTQeZlPz0r+54IPUdw2/7HxGKZxX3kcPmiTrQDvJHmCnnJagK5eiMXnyuyuxqq7Tq0GZja0/V0TJNQV1W+PTVgaJpERfXANrVQ7ovxpJG4fkUIP0wLS093B18j+6W2ovqD1PG3dIkeO8f9KBmnk16aZ9v3O6afgRB87yRdpZok9PsL65yQ+99EUAWyn+iGCVrmc60724FrrlYFSEhkB0qzFSeFtLA+SXT9KIHbVa+rk2hlsx1UrkY5cyAUYf9wu1oqJ4knRGSQyaKZtX/avS+eshl/1/ldM/dSegzut7O1FsKUTxTfIL72KQEgVZV3adWFkzb4saArIvDZlu2bbA9sWQd5dgthBSKesqmcNc8SxVB/BweWtchthdq7255lCuTqw==
+  template:
+    metadata:
+      annotations:
+        b4mad.net/href: https://codeberg.org/op1st-gitops
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: b4mad-hausmeister
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: b4mad-hausmeister
+      creationTimestamp: null
+      name: hausmeister-deploy-key
+      namespace: op1st-pipelines
+    type: kubernetes.io/ssh-auth
+---
