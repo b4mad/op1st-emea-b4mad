@@ -2,19 +2,19 @@ kind: Secret
 apiVersion: v1
 metadata:
     name: epaper-service-deploy-key
-    namespace: op1st-pipelines
+    namespace: op1st-gitops
     annotations:
         b4mad.net/href: https://codeberg.org/op1st-gitops
         reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: b4mad-epaper-service
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-epaper-service
         reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: b4mad-epaper-service
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-epaper-service
 data:
     ssh-privatekey: ENC[AES256_GCM,data:O0fXaj4VaEI2HYjhJWNJN/oeDHYFoa8/rPYK/1Scf/8wS90QmQHI7wRUtZR6aR8sv2zGvlCjal6maFvrZmLFGHyElQG9EVgTxm3rWw2nZrdXU/w4ZPbeAMMs+i1Pceb3TR75kGyc14S8DCkJRX7qTAVg+385bALYjiE5nrhi7I2oWL6YRyrarkahq2oE8qV+u1gREBGaZGo+6Y5kxxjO+Gf1vIYfAzv4QH8OeTWtw5QqCPAvp0DGy9eWaj62SJCdTs0F0gRcTaKFWFpV9Pnge2b+Z3CUOSUp+TpCWZ1NZS7H9wYPHJ/UEY/vuQYpxWQ7Pfa5b8ds71HXC5vtvcTgq5kXjCvP1LFvLd7Hm0ShlkApS6dED2u1I1hhYq+eLW8GpnmkLf6i8cHwTkCMRihegIXrFJmf7VZxVn8MDp6zBctzcVOuCfgb4Ubq2AW4Lo1fItymMg7ln6HMj+Tuowb/xXZjxjg/3ICz713erIuBaADB2D1WmBLcNMdZFVnvbtG94af1pqdYXcJPdyoYkMh2lEDR9RN1OJu/wCw8OmLIStRCloPx4W1gJsaDPuF/Fy/s9/kitvl2fmD/Yg7cGGYUrDitDDuKxsDJpahOP0GWx9MC5clwFqxWnQMsgaPW0yXosHH89hqKrpMGfCmLs0ipRc0Kqvu7HU3Jv/x466FKt0H/YUpEXKXeflpQckgxnWSd1u4IknliQEsT7SAm0FeGeje7AFHQPmLeFxDQ3jlpBco=,iv:7Br+hJTvGL3a4+I6ePDR9p9tXRou3tufXq7rVfYZ49s=,tag:3+IoVPQUkl5P2QeKBKMCsQ==,type:str]
 type: kubernetes.io/ssh-auth
 sops:
-    lastmodified: "2026-05-21T13:48:06Z"
-    mac: ENC[AES256_GCM,data:08xCWUchc1+axtnS6FF+DVBQqr92IDQh3vUh4mxyCksfvVU44C0BfRs6DJ27PU+PwXrSZ2ny1iVdw6kqxwB4WpfMfhrdAKPk3rvIkHNC2xaiw1ICi2aDljwmKEKNMnH/fkpn5tl0MP9txvFqDwkKLlFw+lLNkAtyDJXOOQ1cX2U=,iv:J5djt4C42QQ+LDZAw1+xUeN1sFhevCSaHr9Pttef7Dc=,tag:CHIb3LRLfSs+HkatP0UBHg==,type:str]
+    lastmodified: "2026-05-21T14:03:21Z"
+    mac: ENC[AES256_GCM,data:CddrzoBsJjQVivQtF8mHjVaWQepke8utVPWILrMXLXBs4eWhclsZW5ZntZ94xlgMXxUCojws0oTTYTXFZoSDV1eEkLsu8RAisfP+1eOJbL2X/LzPbmFSdok0C3QNK2toEiJLxhl/C5gdkHAhkx2quunJn2pZ3a5Fo1288PbyneM=,iv:vaR5LZUj10ujCUPwYlfZRIh+am+aB67RoMy3ee/vmuA=,tag:XJvJpO3g6hXBeR2DmNZljw==,type:str]
     pgp:
         - created_at: "2026-05-21T13:48:06Z"
           enc: |-

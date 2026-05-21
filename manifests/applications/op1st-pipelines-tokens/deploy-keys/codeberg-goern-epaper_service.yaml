@@ -3,20 +3,20 @@ kind: SealedSecret
 metadata:
   creationTimestamp: null
   name: epaper-service-deploy-key
-  namespace: op1st-pipelines
+  namespace: op1st-gitops
 spec:
   encryptedData:
-    ssh-privatekey: AgAVzCfkcivntoawg3CcTtZGCHTbCpzLmzAkjkgBcNyXwcK0/rIkNQJkFeoEa8FhHJ9BBO9I0p7GFTEnb2HDqp0v7gKZcC94LxLgfhWDR507lm1PodgYbqED/PzYys8P5keHg13ctvo5cfU9w3WV26eQrGTpXyayUCXTBl9F1nPvJTvD09C3ahAXyz9ZopnG91JYzgX1gOI8DsvxWsg/d8a2v87rfrNUnQhOlikImqAjs92zIEbQQ+HfNLe0VFotTEM3Uqgac6P2paQEV2fF8uUKOkk6hoWAz6ePu0etIm0/3ZX7W8x13VNZzJ7foMHS8Wgl3sjRnuvBHw33RDFDpQpC3O4S6qVq541tfQcKamqkZUbaBYVBcv8VXAD0lGAth36Mw3+6A4ZOwGrJCn9h10nEiAncvXgGEtrYrp61WPyU6qnAoZvVRHkkb+i7D+sn86R3i43oyMqgnPR1i6605hgclC83OYVj/3Bw4uHL9vsj/NXUeTH40/vsLL8sUt1UdTYCxAUXNhD7sDI/R2LsSuIila9YbZTaFXcOmeG48wBwwVteTlVAhWxbJx1IqF7mE/mQZJA5m0jGg/S/CQBWVPkOd8E4MNIpJxGKkv3TqcK7XHzdE/cQHcSQBh7DoscGQbh5RWaOI5Yn+DPZuQCDP6VAcxduZUw38EYu4I0iWZF4nhgKf1nPGp1UEkMafuG4rpj4WtErR4j8Wzzz9D1+FoFLRPcD0peRWKd+Vhy0ySTLcWF3DtoEXY8SOb2GDfOrn49zf/AIJo5TRESMMChkuuEW3TflRhwvVDXOPz/MsrDc1IUF+b+X53/k9AeeISFBSmOSi57CpEMaxhGxZlTO4qjU+ZdQ7g5gnDH3xy9TVD4wHb4Q7lVKwI38a8KYf6a78Advrf3psdwkOZjhkFIKTUQF7I9dsBORabXkQVuprpy14hggu6xGKwqEYtO1uQeRDA5heO0XkIdPqPF+AL2OZhe35wG+QFX8IqSePE4ZGhkDWAgLTXm+dGPQRhM64TcEYCVlIFrlu08YyqZij5UZjTx7PlFFBvcQxe5MP8eP9kO2+C0yAmFc5t+SQ7+skY+BnRx19t5nUQ+o+hiS2lQLlIv59X/XHuEdm4l3dRnQBSwnwDI0GDL7GkBSOGvsnNl0tI7PhNLu+ez9PcyW7kFHZhz+UlTtDHBfwZUI/f5fMJBSn2Wqdgua/8bZOp2WyUYbF9yvNiQevmoqT8D3Y3zcJAtB1TgGHKAfmjMwYvbvIx2S/WV+3w==
+    ssh-privatekey: AgBTcUZ3lbC/eoCw+HRIIW5+bLC5BfcQzKNQVRCEvnmI67ogBkbxlumSDKth0YxEMwgrKyfTxo/7pxe95ogpMSCpuA8L2mmVV3N9mTYQXEhYzl76gRUnSXzY1STfT/tPDQEMQ0wDE15P0KI/tvFNt/9G2nCoDn07DPoePlpen5NrbAwPlhKexHOnAFyeX7PhUjDHLfK407A24R3/aQxM5X5LlQR5rBsktJG+zneCRy8Ljd+tubwMA+sl0/G29Tj0/yNVKIHq2gaTzw1OcLxjQdBkY+z6Jfh7NK23jHrHH03R6Q6G8DlnzUAX8LxLfaPS1WGdreYNNjUQTNQi1P0JxJkhuxN0dVZwK3iBhAq0343hwQgU2IRec0e9GUXU61I19i4kbMcjhaIhzP/oA23Elp56wKZQP+bLjVVa2ygTK4zTcPXn9SlgOV4nDAbOs4GA2DYGAeZzgQHvp+UW7ko0qFs+OEWMPqFSA1mL32cyrz18tDZmKWrJwToWJNVQGyWSjBAM3la8BWWVz3s8IJZ4yVyZNFc1mhpYAaVVSE17jk0LqXs52Lk0papJuDnbhW1dhp5ep+ewiSIcK49+nOqDc4E5MtkMB2vlQlHxfRGQSZRAsG/hM/LzwQVNFFdH0lP+b+UxKXn8avYimflhtw3O1oPIY0G7I9B05kQU/HBy8X7sjbP4BrbtypJjRSp2+Wp9LKBbk5IucP8Yq2i/Nai6NLJdRnkkE/Mf5ScGaP/+7njcymmS2tcLyhGLplBJ2nMbA72nBQ2+26iW+2CEHIPd9Vi1sO5tMAm1n6DD3uwJBk6wZAfAuNosLzOYo2iVaDQjjfKc1hJXJstwiz8kY9F9X3zCQaiuHS65Zmbr+zLxkzwPJzQFCvS/wsWMpWcTKxd4COIZTy+slfnJVsZS4zA85A6rBG5DyMTzzCNTBrnF/Lrm1Q6Xp6oJy7pWOseMP/m632D1VG0fdOhV8+KJHg6lu7E0Skj2d2+23oFhanjGCFB+sT3+gqkruCNOcvI1TlhQ0twooO1VTdapgrgQXC1+8XPp57TayeiSnhSNn6BXfV7B74XX488ScmiMBIEWrC2mDUtNLpwJ+LU2Bii7tHb2b/+sgvPOmFyN50jSlQbmNX0uLgpld5/FN9Z9O0w1KHZrlI+g1T+5M34MunSst+ajK7tdalS5+LZPlBc7dALp+RkfbZcSOE1NxPsWVPoqrY16mdv4Fmrl81U5tfjwv7fYOD2/TGaSYC6yRTR0a4i6yYfMgHp7IQ==
   template:
     metadata:
       annotations:
         b4mad.net/href: https://codeberg.org/op1st-gitops
         reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: b4mad-epaper-service
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-epaper-service
         reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: b4mad-epaper-service
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-epaper-service
       creationTimestamp: null
       name: epaper-service-deploy-key
-      namespace: op1st-pipelines
+      namespace: op1st-gitops
     type: kubernetes.io/ssh-auth
 ---
