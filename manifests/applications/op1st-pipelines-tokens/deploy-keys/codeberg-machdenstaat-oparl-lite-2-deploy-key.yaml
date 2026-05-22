@@ -1,0 +1,23 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: codeberg-machdenstaat-oparl-lite-2-deploy-key
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    ssh-privatekey: AgCZRww579U+fK4ojUVeONg4JbzjlnH9XbQF+G6KuAh5WidSQ4m7uKios5OjmndK2Wy2QpFUJeZDGT7VC60Ij/+UnlWe+zoEXVoIiXJk8zSLZ3GaCN7Hr52otg/cw9sJOKv4QGIpPww0CWzuBVz3eligVZHQ6DUHWu4e25/bCBiPlDt8/3p2BMXbUWOY9E975k2CucOUXgRtwFe0ckSDxZn7glyTNoIYKsb0OBVE34fMH8q5xVX+E7xPE4KNhXDfVunSUxXL7Nw+XDISjgWw3aZVSuqpmR+ZjBqUlRLFba4xkC+P1GQrcevVpX4oENIn6hN1SWYYah6SDFST8tZX0KRbMFJjeXuowBrNvdzpy9ZXAToBv0AMQ0LlAXEabSNdVAJ3QMUpD8KjVWuIEIPv5ofk+l1LVSLcYhr3gIadaELcHxhHBH5WkKtL2dXum3dCh+2Zwsj6nWN3MUIqct18vC1iWAEUx8zhMkRzBEhZMhjKARyGWZHOTGuNGlV/KjPve7wkXqIv15sIR7TB4c6XcFvZCWWMg4VoLj71hjlwBfPmGUY16h/6zgFAM/Ve2DdENcuXnleZGmfx8MWfKREOmqFWeA2Mpas8Hhmq9QJiTXo/tiPQU9keHsPYWGRzxQs9BXjsf3neQhHAGwHABAKv+E0SJFYzyaWkatYNYCKyEzvZe2MvpAoYyqNfCkqjnz3y5vSVQCiryYy20ZAoMUFydTnz1Pwh2ukyp/n7UqsUWWpIyAdiCxnRSVmfeYR6sBQdUMR4BmDC1E3HZv8PxwuLAJIZRMNFacDEXnj4Nhvuxw3MxGDypZiB40sLjF8kmHdoh0e8yPJVjRkTQZ2WEaXeAYKXfP29bQnKum1TURtj0CcXsj6RtZLWUBUhz31Q4+VLiYd5yKGC/POebjVvIndA4v7wNNxN0kIKF4f/FzoXvJR5bvDcquLF7IdpGzD+sjva/r1mdGXkx6qGcuIMFp/2GphMVBzCy93lmY8Hi45vd6RJHI2eo9uLdVge6zND1doQKS/+t6O7hpAlGfQ2DBSaqvibd847Ok0tCrFU6Mo/6X34yBkyntkW/6AGeOI9YqUMB8jODOFE5fYKPCFwPiI1AJVVPgmniZ4sv2g6k/fp52KIrciie32F9pNUU6AEnu0iQsTBXAmHehAj9ia5VpMnHEalCgr3Ls4S/mjvaarJ9S+vQdIeN3Hkab4joJlF/Af6Rlq2osK9o0FqqEIGThycihWz1B/k5IgLHVkRRTQLXRaQTKAtMg0W2wt6P7q0VfMdsufl4fmF/qLY42+FxC0=
+    ssh-publickey: AgDNs+l1ee/iKBi4X02tGMLKbGajN4HLHaAjWR3G2YDKt+lBV28/gmOSZH41T9O0NER/EjRfsHHMSm7Q2jCb0pzuzShX+/4Tl5JjaFrWs9wuiBmawaLu5+gYxsy6rNQhtsrb06j+wuHwXnfBvsXmIsoRO3u3TtO/J0IKfyQqxc0D+1+248BIDip5DzHDjyyacg7sIQAXq7Nf39N+S9IRVLn6/yCdTUXoNWtk87cMd0k68Iq/x2B/ORGBH5n93D6+IsJyVoNx9AvbryJBRrP76Ufferd95Q60vlMGRAkSRmLbzYeD6YfrN93ndxUYqIx3SKSgbrvKlk1rSTs91EegyRobre2GThnq7abQWvT0j3Yz/MEzRP3DZ0kVC2i2WbTUslEw4V33v9OWAj8uy4m06/0d2BoYDWV/Jz8ruPiCGm4wezxl77hXZ+DGJ5KXzaeKEUwn6TxXqMXXMQJQ83nxBUtjlWwv2SgLQBZB596NO4tfQcTSs8FtpG61N/4M9R9Esq2G011djMtKJEv2EwRhVnik7hXg65J0MonKSqAT+MSD1ojORBiD/SX2CsI9HB5UVyt/v6X0I4PZxCq11TnE7kKFVeN2m45t0L201xbwsvyj0l/LTznl6qQT9SCaSDyep9VEGmIT/Tb6RBcgiFje6vlB2Q7GoQDKavxijjsUdrm0UkzFCxpaKs6YWxjMprMUBkUXB3iTk3WOmE8uY8jjkkeNOccmph9GyGWI0cnXSYKI1KZsWheCKfDC83zae8K3NlplIYWjsXANBq1yx2izP9hrgrRmNyI4VM3ZUaVqyBqRTBo865paJuDOs4aF3JiGWZcTpmouyQEAeaTqEUf2yINUi/w0S4xOCeyb7M28ftu0
+  template:
+    metadata:
+      annotations:
+        b4mad.net/href: https://codeberg.org/machdenstaat/oparl-lite-2
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-machdenstaat-oparl-lite-stage
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-machdenstaat-oparl-lite-stage
+      creationTimestamp: null
+      name: codeberg-machdenstaat-oparl-lite-2-deploy-key
+      namespace: op1st-gitops
+    type: kubernetes.io/ssh-auth
+---
