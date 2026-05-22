@@ -5,4 +5,5 @@ namespace: op1st-gitops
 resources:
   - b4mad.yaml
   - feeldata.yaml
+  - machdenstaat.yaml
   - op1st.yaml
