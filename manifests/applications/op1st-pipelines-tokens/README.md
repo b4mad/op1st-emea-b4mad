@@ -10,6 +10,7 @@ and are fanned out to consumer namespaces by emberstack/reflector.
 |---|---|---|---|
 | `codeberg-pac-token` | `Opaque` | PaC API token + webhook secret for the `op1st-gitops` Codeberg user. Keys: `provider.token`, `webhook.secret`. | `op1st-pipelines`, `b4mad-machdenstaat-stage`, `feeldata-dev` |
 | `codeberg-pusher` | `kubernetes.io/dockerconfigjson` | Codeberg container-registry push credentials. | `op1st-pipelines` |
+| `cosign-signing-key` | `Opaque` | Cosign signing key for Tekton image signing. Keys: `cosign.key`, `cosign.password`, `cosign.pub`. Origin: `goern/forgejo-mcp` repo (see `b4mad.net/source-url` annotation). | `op1st-pipelines` |
 
 Add new tokens here as they appear.
 

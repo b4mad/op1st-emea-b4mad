@@ -6,6 +6,7 @@ namespace: op1st-gitops
 resources:
   - codeberg-pac-token.yaml
   - codeberg-pusher.yaml
+  - cosign-signing-key.yaml
 
   - deploy-keys/codeberg-goern-epaper_service.yaml
   - deploy-keys/codeberg-goern-hausmeister-deploy-key.yaml
