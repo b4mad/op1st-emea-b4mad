@@ -1,0 +1,22 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: op1st-release-token
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    token: AgB6UnS+3Cd2iHtnt/XrlRo1dGmffTV8bKX9E3RzoE4pJvfhp2leCNKSaEd27/BbyixlIPSV+kjzqy24DPTvFkLCD9vXXpBoK8LUdyvvW701zxo8H36JSWpDInf7aQyr68281wxBzzTciadMd0O+m//FepF/TZRXE+7KlsXvjzaq4Rd1hARSxQ7ci3sWwVIt4EiGc0ndsvHwQpOwV3aZEg2Wejc6lsTTXxTgEiiuBZLeIT3p1fBa0NKJVYxNoFhGkixHyqr4KeN0moS4x/RRRraCcT1GMA1Dmf0/tAdX9LjjeWAXD7sdaCdYwICdcFc8lwIdX9/DedjmPdrxhpPX7mqJYJivTahYXarZQ4brot/j4/LaBd/36ye/0bDH6dmAOF7PTBvGOXCPR/aVtYwcrumYUCaFhJTw+e9kPI2ynLKT5KUQYKnvTDu7Qrqa4yl6iCnOCT3NXx+k/1lwzdaD0mf6xhPkjuNotMwdB3gtKpb/wXmBFvTJpccqJedJlv514H5B/WXq75wxY2llkgHG1RC+JS902gwX9ItXQEF+A1VnX+ZKEBepR+Ip0CUxET2RWb3naUv/IBs5s0pJ24q8+1NLJdj1/tvJ7oeu2nNblmABKxuABMcwbV8efvglRzyD3AgKlqr0g/Hwa3hzRbwWTMP2yNs/Pq8a4jZ757nAtoanRBqGm9I8qhAa9Bxg3sLHQuB/Gtgn1hQmdsxhCISyIHEZSMTrj4uDowUZKG6mk9j+oKTyT7hTVEum
+    username: AgAPEMtRbZlNY048GdYNvjjrm7dt5PE8ZdwhOWdW2xYwbaWsVqQkkBvl59QbtE0TbMwDL6P3hF7brcbltDzGUhP3KBT2w4VqLMSOTnqEaS1cL77oDiNR6vhdlC69oAAQxQOisKbWfxSOCbJ+kI0RoTSJ+JkwYboYhohgCDpoQYOC6leS5Dib9W8Zwmd81YGg9bsK3pcJGuoL4NBoLE4m351hbV+FwMUwG31CFoCb9nla67GhOXudMXY5g7FpE5Nqe4ih1pA/yt70VgVpdXjx21hnfEf6l2nEhjpwkMXIV3/Gf/JtLfZ5nRn12Af3Fh1ROgP3STXA2F0JGjY1xXWpkiaBcZoZVCRB+xnSKMKCFGBetmAja8paztjoorbIoCrmbh7OjxI0uSOsr2cWFDaSfssuMOPGCVnQZuC9bHMv/g4GDjxSzNdqkZzkZGhT2vCPvltqvvntQm3KQnvVWeHQ/MFazSxIGC7Xxfho1reZPVAW/8TMxGiABiyVawytwNL9bsiSRL8ilC0NktjqKdV39aLxl5AF0KuDMBq92IOKS8Uk7C7RBtNRVp5n29d59xLcEdYXkwkBdZ8GpBrDo/rxEgtRvA3zKnGaIK96CHmQmS5sqH8Od0QQgne0NSxJV5S3gkS2ynvzjZr6Ucv8RVUQmZtD6fKkEHwjBq3lYugibGrmManjwxS6NR92dimNJc0Th/jjkjJetMz6nC6sTX0=
+  template:
+    metadata:
+      annotations:
+        "b4mad.net/href": "https://codeberg.org/op1st-gitops"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces": "op1st-pipelines"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-enabled": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces": "op1st-pipelines"
+      creationTimestamp: null
+      name: op1st-release-token
+      namespace: op1st-gitops
+    type: Opaque

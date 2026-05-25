@@ -11,6 +11,7 @@ and are fanned out to consumer namespaces by emberstack/reflector.
 | `codeberg-pac-token` | `Opaque` | PaC API token + webhook secret for the `op1st-gitops` Codeberg user. Keys: `provider.token`, `webhook.secret`. | `op1st-pipelines`, `b4mad-machdenstaat-stage`, `feeldata-dev` |
 | `codeberg-pusher` | `kubernetes.io/dockerconfigjson` | Codeberg container-registry push credentials. | `op1st-pipelines` |
 | `cosign-signing-key` | `Opaque` | Password-less Cosign signing key for Tekton image signing. Keys: `cosign.key`, `cosign.password` (empty), `cosign.pub`. Locally generated via `cosign generate-key-pair` with `COSIGN_PASSWORD=""`. | `op1st-pipelines` |
+| `op1st-release-token` | `Opaque` | Release credentials. Keys: `username`, `token`. | `op1st-pipelines` |
 
 Add new tokens here as they appear.
 
