@@ -6,18 +6,17 @@ metadata:
   namespace: op1st-gitops
 spec:
   encryptedData:
-    provider.token: AgCB//z9gIfTxaEEDx4zjK0h5q5KaIbA5NrhifgjtC36qpdSHXcy+LMHmKg2ASkb5vBaeIq//55+5BeCyeeu6crfn9NSUI5eP0X8DF5loJH6Ha8urDjptYN8kwx78vY+TXIP8FnUj1SPuAh5tL+ZDHg3iPG9Kz0uf8V48K1ki4cn9tJRDTvfUxgfAsj6rHuacmrKq0044jLuphQ2yERQYRCIMW7DiUI36I7oBa1Q1p9GDcK3JO7rF8CvblHic+ObNPijKTvRU7kLWv3TNoto6RRIoUCk1MnJ7U+qsSD+18aJcuDZXv7RpLhJF1WnEDIw/jo49CdSN1wrYU6KtkP+b3DaIAo04Y7SAUDoiV5N328wLGOfwGCwbd217dHbfAeq80M5gkwpBnMab6xCt90274MetS15CdyvTp1QSN6qWcXzr7DX8AzMnxV9MUGXewpcHt8f8H5rvPzHusyeQGS/SNdv1+J5doli5T02hk7myEm53aRkabxUrRtWNRwMvSx/Uu7tI+ofXot77nJ6Ft7Qa/RUog8hotpfca4z/1dpexANf4xti9nFsSHHiugBmQIzOTUQqAMc59HjLqN+Xld4Z9x7OCB/rNZwI2xDToGokZiOtNhO5vDWdixpmH9NtUi76B286ba6XMt99HEblmjudemaSvywlNhfpxYOGkLLz5M7zsB51w1O+gYj5Y7zc8kRQpx6J7/cd47g5+6jWxUncbuq82DX2BeCQT8RLuvVI6ZR6RESdBETNa86
-    webhook.secret: AgAF7CgetsD0ct+/viGhwynA9RiKB9wbLWxU4xEBKU9quZjSu3STHHKXi8V6DPU67Vjl8omx6P/9Ml+rFbaeoB/aqcmSadZ22YsWuQ2iluGGZ4c0BFsq5qgX0GC83kPdXHXOzmp17nJpy5M78aLmXlji/PgXKJKvRJ7ZmeUhjs6N6SFazTVpRU21Mf7b7aN/ekOq+08zKUx3ritmksk0SnL0XDMbBANj6MkMYI/+cAEzNSgoWOzK3uw3I6Yllxsx5aUD5K88Ts352ivE37FXTX9/EK0fhqG5G7xjxUopjEZ25OTSDRpp2OELBglOqhiguJTmKgp+NcPthusO0+Mk1Aqe6W7ds+O+LzeqoJPkmRFcim+kRp5uRnyAI/NmxauZLcYtsMtKRMppPw0u3zw2lAj2HMAfzekHAvc7s/vYRmLvLY5xggb3kMqNAq1UqYjf5fWQ/d4vneNuYI1WLL/EBkAs2goOmHOevkBBxna1WdD/SsANu7Ia5gQkQ6RFai5JDCnnU/cQL2uThxDIdJqGct+/mULvMJ1ExpG9AafhIOIHK4gPkNfTl2SB4d0rsSl0YWpFFb2+IYDQo5tTwVQ/lwRfgRGennZuwCfbNZSX52EYbptLyx+bB62qPwwnUAqHvV1h/gGZhc0fdeCOZX5U7cR+Rvqo4lcvbKYGDqqxIYAHRPKYl55txvT5QLDh3JiW5Enqvm/KC+igN1G99oBSZ7H+bPWl41i1m+EZf9DemLRFypYrCiLAx/LXfe/S40kaggRou6cbwzOGTg0knv/3Ndpm
+    provider.token: AgAVTeXQ1dCKUkXdjOMgAatQHPLteM2eDMaVZ5ggGhJK/IDOUdjlot3sYYUWY2uXbLV4CobeVx27ortmaTA5MUNcGfKugSPnqWpf2HT4dOe8afkdKWARA2AJTXWOg/JIDM3BgeOX28Yu94jWdWgyxtBrJN6E/SW0UUN+MvwkK3CDa1H8tQ0DRWkLVG4NwKUgy5VxBtQ39T9p566udGXvlql41WDPq/TEYb/UsppO6SB/l1ghdbtABwbWXgXgS2oEhr7iTxEq3ue806eIJz5FxwOeLojZzAXiddKtu6U3ZsxAjTgtyiPWrSsm9b+pskqOh8D3ZSJKil/Zyh7dyprjun5UepgNXrvxkyjbTtKkfrK65/uXnMx4hZGbDl+e31FSjrh9UdM0H1MjRlJ1/2WEe3x+k1vkGrtvRsu9PU3ur6CXef4Bgc5zMBczfhbOCJwKxsc8OwaD2RF5nR1i8G+33AlcdZzvGZazU+K5T1M7tkJkGcwEpUrkHeVn7Yxu1CuJ31pBeYlssaPOH61SnGgvlu0hLese/+u2U0hGSr46PkU3HfdsX4HPU+Dqkp98+Xr2ZvRX1LVxMQXVOf/Z+B6dPlEGljhYuGnUSealxujDmJaYztmWrVg4uORb/qwGAdwX4rNCvld9ii62CIYYAjr1jPReYqTBeFlYPZ1ukbvPgRZTzPT6FYZDNZ2vp+LOmjQ8wk34Qsek80T/HCTFrG7/MpHC4Db7+pjmPeSLPMnqfj223LnWTo1KRfZw
+    webhook.secret: AgCRG7O14mIw1tqLovoJuA1QsqCaCYshrDayoANAoHtyIRkdIh1qpeb4v8lLLNfRF+TGxkgEh69/xVq3dnP1oNUNQ0sGTYkx+mEyHA8JqC8acNeUNR0LJTdQAGHC0myGZ5V+kvNAQqlXV40ABq8Ho1iaeZJ9qtCiBbny6O5nkK5WPz8ojmL5HmSeOSKpIQ0VNqOytGNyMWXoUGckM1UxLEly9CrTwzMsLFyTcnu8pPCEA0tSBQccIpxFy1S7L5wCjRIGHcdg496UXw2saZ+U+NNllPLmEQVFZ7AzubqFjS5xJiX8yRvII+itDsfDru/pZyOncWTC20tw4OCpzfp5DX2h2YbUaPyj2rzh2HaoEC5AWV+9oTRQJ093+JWv8YpOPXuQT87SY4r8XwMAHHdXBq32NzLEl/rSLucdgoR0ivlZqzr/D39cfW6VBL+hCXh1QLAluoRmp8paMdd3d7tUoR4GEgN9Sya/qYPmX/HLEBFxKVRiqRdcy76q5jkx1QcULjo/bh2zdVWd/Lw+z8qWKzbFSeRSU9uALQ9fP/7TjMHXNtJKe9gzX8BJi2HzwsJ+IJqKEVQEARt1F4cDGq77aG7ZZ6EWMghQeLKQKCdtVgdsIM73m40EQHU5sS4e/mj9HzlIqZ4wQ3MzT0YVYgpV9HjSQgKh2VjqlHL/+QfJcQj1cwcnFmmWv4X8XdJv+wcaODgqeAhN1KqHGlpohge0CVOT0C1J4cF+EW9og4FyfLRHSC1fJidQk2vD5UvuQ8wrMXSQb4/DqOsW4xoxwbENIUO1
   template:
     metadata:
       annotations:
-        b4mad.net/href: https://codeberg.org/op1st-gitops
-        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev
-        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev
+        "b4mad.net/href": "https://codeberg.org/op1st-gitops"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces": "op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-enabled": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces": "op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev"
       creationTimestamp: null
       name: codeberg-pac-token
       namespace: op1st-gitops
     type: Opaque
----
