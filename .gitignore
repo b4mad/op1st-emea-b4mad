@@ -4,6 +4,7 @@ secret-*
 tmp.d/
 .vscode/
 .env
+.envrc
 **.env
 **.crt
 **.key
@@ -33,3 +34,6 @@ ansible/
 .dolt/
 *.db
 .beads-credential-key
+
+# Local git worktrees (superpowers:using-git-worktrees convention)
+.worktrees/
