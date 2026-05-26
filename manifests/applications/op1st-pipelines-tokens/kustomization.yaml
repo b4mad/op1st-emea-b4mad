@@ -6,7 +6,6 @@ namespace: op1st-gitops
 resources:
   - codeberg-pac-token.yaml
   - codeberg-pusher.yaml
-  - cosign-signing-key.yaml
   - cosign-signing-key-artifacts.yaml
   - cosign-signing-key-images.yaml
   - op1st-release-token.yaml
