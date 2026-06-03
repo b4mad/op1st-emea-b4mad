@@ -13,3 +13,7 @@ resources:
   - deploy-keys/codeberg-goern-epaper_service.yaml
   - deploy-keys/codeberg-goern-hausmeister-deploy-key.yaml
   - deploy-keys/codeberg-machdenstaat-oparl-lite-2-deploy-key.yaml
+
+  - ca-forgejo-read.yaml
+  - ca-forgejo-write.yaml
+  - ca-pipeline-agent.yaml
