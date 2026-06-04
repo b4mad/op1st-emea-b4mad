@@ -14,6 +14,6 @@ resources:
   - deploy-keys/codeberg-goern-hausmeister-deploy-key.yaml
   - deploy-keys/codeberg-machdenstaat-oparl-lite-2-deploy-key.yaml
 
-  - ca-forgejo-read.yaml
-  - ca-forgejo-write.yaml
-  - ca-pipeline-agent.yaml
+  - arena-forge-forgejo-read.yaml
+  - arena-forge-forgejo-write.yaml
+  - arena-forge-pipeline-agent.yaml

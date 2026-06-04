@@ -4,7 +4,7 @@ data:
 kind: Secret
 metadata:
     creationTimestamp: null
-    name: ca-pipeline-agent
+    name: arena-forge-pipeline-agent
     annotations:
         b4mad.net/href: https://codeberg.org/op1st-gitops
         reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
@@ -12,8 +12,8 @@ metadata:
         reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
         reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev
 sops:
-    lastmodified: "2026-06-03T07:19:44Z"
-    mac: ENC[AES256_GCM,data:/vyHr0llokhBCakvTykiu1nCXuGDpwCaEGRunP8Prb/I61O2PMjNeHS9U9cOZYhNmu2gWm2xWp8xXrO7VpNw2nH1PGiLSKgL84vBU2VStJcae5UAtThfLVVp7ghE0Gr7wN0cePy77FzGlTuhxNutMS5DrVA95ajh9XWPussX+d4=,iv:lEJdXzmPoUOV/pZ4pkmDVhydJ55X/WqhjDkN63X1PZI=,tag:l50OHLt2FiBPobpWgcmLaw==,type:str]
+    lastmodified: "2026-06-04T08:16:36Z"
+    mac: ENC[AES256_GCM,data:beIWJ/9Fz2r6yk8dECk+VhyAS4Q2AgVC96TSKNG+K7ZdZPS2OnOAmoUQ2Fr/yHHuOOM3+YXsNaj6uLYvj2wqdJIuNxnaLy2FwxCpOU3WW9JEkB34M5WcKjWAR4I70WtN8Qe5FYIgdAYkMjBEmnkfrlJsZGfme61vB9rd4F3eRE8=,iv:Unw7fctGkHSPqPi72WgYHufrnJqyHJwUh7kLqCublCs=,tag:xvVEXPeS+ke4dTtFeUZXFA==,type:str]
     pgp:
         - created_at: "2026-06-03T07:16:03Z"
           enc: |-

@@ -1,0 +1,21 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: arena-forge-forgejo-read
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    token: AgCsX01fiqUUe9Czmy4LhZfVwvbWH/DniWuVUacJ/u6PsruAFV8urFNZF8lQgGL1h/9x2mwsaoVsMvGyAhB9BeBWc1aWklCe4x8c0U0KKTCNakgz97LfrSxbC/Ocg6UeN6Ikw92L8U0gHuG8GVXmyXKeHnbLZSp3kYn4Jmz5jl2V3QY07ljHcHHOUymhcwWeczejSp0ZznVvar87hwKNog7aCQlrbfekGyVL5Zs/8YBtI5vjY+sh+3J4IZO5puaPda52XH0rWbMZvVB5HtebIC97ZBBGZyz3dyT+mGPg4evdStBDZQvgjPaDnNudqzdOAS/p/3M7D52rqjQX5VoZ47LaCpE1cMCL7qsmz4Ove2Bcan4bHqpinSHLdEhWy3quydWHGfZEOXOXlqRQDl4TJn1jXdbQgvqkmqlksaeLQZy9hF6DmPvvTI1cKB5FxdwJtW8IQun4eSvPoweMPh1FgMPHrYe/FSk/g3kgB2Xi33Pd/qxhjC0oVUKPsyD75R+QAM5FREqsjbg8Egru27tEkv6hG14s3lmZRaDBqbyQ4V/5V7hkb5qzB+gXYggh2YCXzykQy/qCn9xyE9z4XmhnzRUK7bLwlAref23Z4sL8hrWH6/MbA8ZrIYYYPFVICQ7mcrmLZCrkxWekr27+96bPx7wNuUr/UqLkWCChGZsUrlbMWYqYtPxmKgeY+LhoOKTRiRPa/rCzQXleiDs+HSb0WHybTBLYY31WpVlAaF6ungqUqCsVirihly5k
+  template:
+    metadata:
+      annotations:
+        b4mad.net/href: https://codeberg.org/op1st-gitops
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev
+      creationTimestamp: null
+      name: arena-forge-forgejo-read
+      namespace: op1st-gitops
+---

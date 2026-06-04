@@ -4,7 +4,7 @@ data:
 kind: Secret
 metadata:
     creationTimestamp: null
-    name: ca-forgejo-write
+    name: arena-forge-forgejo-write
     annotations:
         b4mad.net/href: https://codeberg.org/op1st-gitops
         reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
@@ -12,8 +12,8 @@ metadata:
         reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
         reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-hausmeister,b4mad-machdenstaat-stage,feeldata-dev
 sops:
-    lastmodified: "2026-06-03T07:19:31Z"
-    mac: ENC[AES256_GCM,data:zHM0nR1afWMKo0pJLveim/wMLtQY0rTwUCAkgDc56U3kcrlEPRP99RnA6FaWIQMR2IbTwuukL6x0JD1JOgHuQKHJ39qwvkRv0znNUnqhL56WaXIzphxbr1G8DmWQR8wRljRWQd54iBXMWPzXFY+u074Un6eiHwmwHTR00+1oTE4=,iv:Tx4cn8T72LpwBFXW+CFgj/J5h14APhrbhPD1pRXBAP4=,tag:C33UEEL+XrQbQVHg8ePPJg==,type:str]
+    lastmodified: "2026-06-04T08:16:22Z"
+    mac: ENC[AES256_GCM,data:GhsYlQd/XmFuQIV1Ijgw2A91+v8W/QIbTRTXqrLxGY5f8GWlRpZ8BGox2ymr2UyJEPvp6xqDnh3NwA5PSBcE30YWX8/gQr+z1APpJXhE5DVxxa3iF4+jicqL8Nw+agbPQVtkgzVZO2Rx8IaKSrrhphqby+L8JiKhLxQaah5EWLA=,iv:THDmLQO2UIjUw2IQQMeVLWZrTl+IuYxqGVXLoOtH5Ug=,tag:X1Vynv6VJ7n443OQY5KCaw==,type:str]
     pgp:
         - created_at: "2026-06-03T07:10:16Z"
           enc: |-
