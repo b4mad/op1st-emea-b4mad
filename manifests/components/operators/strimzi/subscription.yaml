@@ -4,7 +4,7 @@ metadata:
   name: strimzi-kafka-operator
   namespace: strimzi-kafka-operator
 spec:
-  channel: stable 
+  channel: strimzi-1.0.x 
   installPlanApproval: Automatic
   name: strimzi-kafka-operator
   source: community-operators
