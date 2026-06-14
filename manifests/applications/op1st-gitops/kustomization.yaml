@@ -31,3 +31,4 @@ resources:
   - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/dev.yaml
   - https://codeberg.org/feeldata/manifests/raw/branch/main/applications/prod.yaml
   - https://codeberg.org/machdenstaat/oparl-lite-2/raw/branch/main/manifests/environment/stage/argocd-application.yaml
+  - https://codeberg.org/machdenstaat/lage/raw/branch/main/manifest/environment/nostromo/argocd-app.yaml:
