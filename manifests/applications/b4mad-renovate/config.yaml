@@ -36,6 +36,7 @@ data:
           "goern/forgejo-mcp",
           "goern/hausmeister",
           "goern/sops2sealedsecret",
+          "machdenstaat/lage",
           "machdenstaat/oparl-lite-2",
           "machdenstaat/stadt-bonn-oparl",
           "toolbxs/borgmatic",
