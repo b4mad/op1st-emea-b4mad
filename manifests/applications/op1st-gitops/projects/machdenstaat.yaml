@@ -7,6 +7,9 @@ spec:
     - name: nostromo
       namespace: "machdenstaat-*"
       server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
+    - name: nostromo
+      namespace: "machdenstaat-*"
+      server: https://kubernetes.default.svc
   sourceRepos:
     - "*"
   roles:
