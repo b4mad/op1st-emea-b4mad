@@ -91,11 +91,11 @@ spec:
   repo:
     resources:
       limits:
-        cpu: 200m
-        memory: 256Mi
+        cpu: 500m
+        memory: 1Gi
       requests:
-        cpu: 50m
-        memory: 128Mi
+        cpu: 100m
+        memory: 256Mi
   extraConfig:
     timeout.reconciliation: 600s
   resourceExclusions: |
