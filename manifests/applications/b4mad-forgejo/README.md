@@ -107,7 +107,7 @@ sources:
 2. this directory's kustomization (namespace, SealedSecrets, backup CronJobs,
    borg ImageStream + Tekton pipeline).
 
-Sync is **manual** until the adoption of the previously helm-CLI-installed
-release has been reviewed; then flip `syncPolicy` to
-`automated: {prune: true, selfHeal: true}`. There is no `helm upgrade` step
-anymore — change values/manifests here and let Argo CD sync.
+Sync is `automated: {prune: true, selfHeal: true}` (the adoption of the
+previously helm-CLI-installed release was reviewed and synced manually on
+2026-07-24). There is no `helm upgrade` step anymore — change values/manifests
+here, push, and Argo CD syncs.

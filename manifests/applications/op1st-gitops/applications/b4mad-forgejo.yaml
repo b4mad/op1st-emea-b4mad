@@ -25,12 +25,20 @@ spec:
         releaseName: forgejo
         valueFiles:
           - $values/manifests/applications/b4mad-forgejo/values-nostromo-test.yaml
-  # ⚠️ Sync is MANUAL until the first sync has been reviewed (this Application
-  # adopts a live helm-CLI-installed release). Flip to
-  # automated: {prune: true, selfHeal: true} once the app is Healthy/Synced.
+  # First sync (adoption of the previously helm-CLI-installed release) was
+  # reviewed and applied manually on 2026-07-24; automated since.
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - RespectIgnoreDifferences=true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 3
   ignoreDifferences:
     # The SSH service publishes a fixed nodePort; kube adds fields like
     # clusterIP server-side. Ignore the volatile bits kube owns.
