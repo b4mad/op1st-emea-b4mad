@@ -1,0 +1,92 @@
+# Scheduled logical backup of the Forgejo test instance.
+#
+# A daily CronJob runs `forgejo dump` (app-consistent archive: DB + repos +
+# LFS + attachments + packages + config) into a DEDICATED backup PVC, keeping
+# the last 7 archives. This is the same forgejo image the app runs, mounting
+# the live data PVC read-only.
+#
+# ⚠️ SCOPE: dumps land on lvms (same node/disk as the data PVC), so this
+# protects against accidental deletion, bad upgrades and app-level corruption
+# — NOT against node/disk loss. Off-site shipping is a separate phase (see
+# docs/backup-restore.md).
+#
+# ⚠️ SQLite is dumped live (file copy). SQLite recovers its WAL on open, but a
+# restore should always run `forgejo doctor --run all --fix`. For a guaranteed-
+# consistent dump, quiesce first (scale deploy/forgejo to 0).
+#
+# Apply:
+#   oc -n b4mad-forgejo-test apply -f forgejo-backup-cronjob.yaml
+# Run once now:
+#   oc -n b4mad-forgejo-test create job --from=cronjob/forgejo-backup forgejo-backup-manual
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: forgejo-backup
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: lvms-vg1
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: forgejo-backup
+spec:
+  schedule: "0 3 * * *"
+  # ⚠️ Must be UTC (or omitted), never a named zone like Europe/Berlin:
+  # OpenShift's kube-state-metrics image ships without tzdata, so a named
+  # .spec.timeZone makes KSM panic/CrashLoopBackOff cluster-wide (TargetDown).
+  # 03:00 UTC == 05:00 Europe/Berlin (CEST) / 04:00 (CET).
+  timeZone: UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          # No securityContext: OpenShift's restricted-v2 SCC injects a UID and
+          # fsGroup from the namespace range, matching the app pod so the data
+          # PVC (group-owned) is readable and the backup PVC is writable.
+          containers:
+            - name: dump
+              image: code.forgejo.org/forgejo/forgejo:16.0.1-rootless
+              command: [sh, -c]
+              args:
+                - |
+                  set -eu
+                  TS=$(date -u +%Y%m%dT%H%M%SZ)
+                  OUT="/backup/forgejo-${TS}.tar.zst"
+                  echo "dumping to ${OUT}"
+                  # --skip-index: bleve code index is rebuildable, don't archive it
+                  forgejo dump -c /data/gitea/conf/app.ini \
+                    --type tar.zst --tempdir /tmp --skip-index -q -f "${OUT}"
+                  echo "wrote: $(ls -la "${OUT}")"
+                  echo "retention: keep last 7"
+                  ls -1t /backup/forgejo-*.tar.zst | tail -n +8 | while read -r f; do
+                    echo "pruning ${f}"; rm -f "${f}"
+                  done
+                  echo "current archives:"; ls -1t /backup/forgejo-*.tar.zst
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+                  readOnly: true
+                - name: backup
+                  mountPath: /backup
+                - name: tmp
+                  mountPath: /tmp
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: gitea-shared-storage
+            - name: backup
+              persistentVolumeClaim:
+                claimName: forgejo-backup
+            - name: tmp
+              emptyDir: {}

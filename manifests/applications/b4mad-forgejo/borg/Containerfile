@@ -1,0 +1,18 @@
+FROM registry.fedoraproject.org/fedora:41
+# borgbackup pulls all its runtime deps from the Fedora repos;
+# openssh-clients provides ssh for BORG_RSH.
+RUN dnf -y install borgbackup openssh-clients \
+ && dnf clean all \
+ && rm -rf /var/cache/dnf
+# restricted-v2 runs as an arbitrary non-root UID: make the tools and
+# their libs world-traversable/executable so any UID can invoke them
+# (belt-and-suspenders; Fedora rpm files are already world-rX).
+RUN chmod -R a+rX /usr/bin /usr/lib /usr/lib64 2>/dev/null || true
+# A group-writable /tmp-based HOME works for the arbitrary UID; borg/ssh
+# write cache + known_hosts there. HOME is set by the Job env, not here.
+ENV BORG_BASE_DIR=/tmp/borg
+# Sanity: the binary must be resolvable and world-executable.
+RUN borg --version
+USER 1001
+ENTRYPOINT []
+CMD ["borg", "--version"]

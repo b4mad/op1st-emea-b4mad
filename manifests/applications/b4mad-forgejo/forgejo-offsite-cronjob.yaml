@@ -1,0 +1,129 @@
+# Off-site shipping of the Forgejo logical dumps to the store-1 NAS via borg
+# (Path A: in-cluster borg push). Runs AFTER the local dump CronJob
+# (forgejo-backup, 03:00 UTC) and pushes the newest dump into an
+# encrypted borg repo on store-1, then prunes to keep-daily 7 / keep-weekly 4.
+#
+#   local dump   : 03:00 UTC (05:00 Europe/Berlin CEST)  (forgejo-backup -> PVC forgejo-backup)
+#   off-site push: 04:40 UTC (06:40 Europe/Berlin CEST)  (this job)
+#
+# PREREQS (all live):
+#   - image:  ImageStream borg:latest  (forgejo-borg-image.yaml)
+#   - secret: forgejo-offsite-borg  (sops -d forgejo-offsite-borg-secret.enc.yaml | oc apply -f -)
+#   - repo:   ssh://borg@store-1/volume1/BorgBackup/forgejo.erdgeschoss  (repokey-blake2, already initialized)
+#
+# store-1 lives on the isolated NAS VLAN; its name is pinned via hostAliases to
+# 10.144.8.24 and its host keys are pinned via the secret's known_hosts
+# (StrictHostKeyChecking=yes). CheckHostIP=no because the hostAliases IP is a
+# NAT/route target, not the address the host key was recorded against.
+#
+# restricted-v2 SCC: no securityContext -> arbitrary injected non-root UID.
+# The ssh private key must be mode 0600 and owned by the running UID, but
+# secret mounts are read-only and root-owned, so the job copies it to an
+# emptyDir and chmods it. HOME is forced to a writable emptyDir so ssh/borg
+# can write their caches / .config.
+#
+# Apply:
+#   oc -n b4mad-forgejo-test apply -f forgejo-offsite-cronjob.yaml
+# Run once now:
+#   oc -n b4mad-forgejo-test create job --from=cronjob/forgejo-offsite forgejo-offsite-manual
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: forgejo-offsite
+spec:
+  schedule: "40 4 * * *"
+  # ⚠️ UTC only — a named .spec.timeZone crashes cluster-wide kube-state-metrics
+  # (its image lacks tzdata). 04:40 UTC == 06:40 Europe/Berlin (CEST).
+  timeZone: UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          # No securityContext: restricted-v2 injects the UID/fsGroup. The
+          # forgejo-backup PVC is group-owned by that range, so RO mount works.
+          hostAliases:
+            - ip: 10.144.8.24
+              hostnames: [store-1]
+          containers:
+            - name: borg
+              image: image-registry.openshift-image-registry.svc:5000/b4mad-forgejo-test/borg:latest
+              imagePullPolicy: Always
+              env:
+                - name: HOME
+                  value: /run/borg
+                - name: BORG_BASE_DIR
+                  value: /run/borg
+                - name: BORG_REPO
+                  value: ssh://borg@store-1/volume1/BorgBackup/forgejo.erdgeschoss
+                - name: BORG_PASSPHRASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: forgejo-offsite-borg
+                      key: borg-passphrase
+                # Non-interactive safety: never prompt, never relocate/rewrite.
+                - name: BORG_RELOCATED_REPO_ACCESS_IS_OK
+                  value: "no"
+                - name: BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK
+                  value: "no"
+              command: [sh, -c]
+              args:
+                - |
+                  set -eu
+                  # Private key must be 0600 and owned by us; secret mount is
+                  # read-only + root-owned, so copy it into our writable HOME
+                  # (an emptyDir; already group-writable via the injected
+                  # fsGroup — do NOT chmod the mount root, we don't own it).
+                  install -m 0600 /secret/id_ed25519 "${HOME}/id_ed25519"
+                  export BORG_RSH="ssh -i ${HOME}/id_ed25519 -o UserKnownHostsFile=/secret/known_hosts -o StrictHostKeyChecking=yes -o CheckHostIP=no -o BatchMode=yes"
+
+                  FILE=$(ls -1t /backup/forgejo-*.tar.zst 2>/dev/null | head -n1)
+                  if [ -z "${FILE}" ]; then
+                    echo "ERROR: no dump found in /backup — did forgejo-backup run?" >&2
+                    exit 1
+                  fi
+                  NAME=$(basename "${FILE}" .tar.zst)   # forgejo-<UTC-timestamp>
+                  echo "latest local dump: ${FILE}"
+                  echo "target archive   : ::${NAME}"
+
+                  # Idempotent: skip create if this archive already exists (job
+                  # re-run on the same day). Never re-create/overwrite.
+                  if borg list --short "::" 2>/dev/null | grep -qx "${NAME}"; then
+                    echo "archive ${NAME} already present in repo, skipping create"
+                  else
+                    echo "creating archive…"
+                    borg create --stats --compression zstd "::${NAME}" "${FILE}"
+                  fi
+
+                  echo "pruning (keep-daily 7, keep-weekly 4)…"
+                  borg prune --list --glob-archives 'forgejo-*' \
+                    --keep-daily 7 --keep-weekly 4
+                  echo "compacting…"
+                  borg compact
+                  echo "archives now in repo:"
+                  borg list --short
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+                  readOnly: true
+                - name: secret
+                  mountPath: /secret
+                  readOnly: true
+                - name: home
+                  mountPath: /run/borg
+          volumes:
+            - name: backup
+              persistentVolumeClaim:
+                claimName: forgejo-backup
+            - name: secret
+              secret:
+                secretName: forgejo-offsite-borg
+                defaultMode: 0400
+            - name: home
+              emptyDir: {}

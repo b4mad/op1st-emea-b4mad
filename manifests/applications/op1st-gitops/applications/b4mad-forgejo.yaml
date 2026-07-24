@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-forgejo
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: b4mad-forgejo-test
+    server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
+  project: b4mad
+  sources:
+    # Kustomize dir: namespace, secrets, backup cronjobs, borg image/pipeline.
+    # Also serves as the $values ref for the chart source below.
+    - repoURL: https://github.com/b4mad/op1st-emea-b4mad
+      targetRevision: main
+      path: manifests/applications/b4mad-forgejo
+      ref: values
+    # The forgejo-helm chart (OCI registry — see the forgejo-helm entry under
+    # op1st-gitops/repositories/). Adopts the pre-existing CLI-installed
+    # release: same releaseName + namespace.
+    - repoURL: code.forgejo.org/forgejo-helm
+      chart: forgejo
+      targetRevision: 17.1.3
+      helm:
+        releaseName: forgejo
+        valueFiles:
+          - $values/manifests/applications/b4mad-forgejo/values-nostromo-test.yaml
+  # ⚠️ Sync is MANUAL until the first sync has been reviewed (this Application
+  # adopts a live helm-CLI-installed release). Flip to
+  # automated: {prune: true, selfHeal: true} once the app is Healthy/Synced.
+  syncPolicy:
+    syncOptions:
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    # The SSH service publishes a fixed nodePort; kube adds fields like
+    # clusterIP server-side. Ignore the volatile bits kube owns.
+    - kind: Service
+      jsonPointers:
+        - /spec/clusterIP
+        - /spec/clusterIPs

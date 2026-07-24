@@ -1,0 +1,69 @@
+# Cluster-wide guard: catch CronJobs that set a named .spec.timeZone.
+#
+# WHY: OpenShift's built-in kube-state-metrics image ships WITHOUT the tzdata
+# zoneinfo DB. A CronJob in ANY namespace with a named .spec.timeZone (e.g.
+# "Europe/Berlin") makes KSM panic (cronjob.go:254, exit 2) while enumerating
+# cronjobs, driving it into CrashLoopBackOff CLUSTER-WIDE and firing the
+# misleading "kube-state-metrics TargetDown / network issues" alert. Only "UTC"
+# (and "Etc/UTC") resolve without tzdata. See bd memory
+# ksm-tzdata-named-timezone-cronjob-crash. Incident: 2026-07-24 on nostromo.
+#
+# A metric-based alert cannot catch this: the offending object is exactly what
+# kills KSM, so kube_cronjob_* metrics go stale the instant it appears. This
+# ValidatingAdmissionPolicy is KSM-independent — it inspects the CronJob at
+# admission time, before it can do harm.
+#
+# MODE: Deny + Audit (ENFORCING). A CronJob with a non-UTC named timeZone is
+# rejected at admission and the denial is written to the audit log. To relax to
+# non-blocking, change the binding's validationActions back to ["Warn", "Audit"].
+#
+# SCOPE: tenant namespaces only. openshift-* and kube-* are excluded via a
+# matchCondition so platform/operator reconciliation is never affected.
+#
+# Apply:
+#   oc --context=nostromo apply -f openshift/cronjob-timezone-utc-only-vap.yaml
+# Test (server dry-run triggers admission, so the Warn fires without persisting):
+#   oc --context=nostromo -n b4mad-forgejo-test create cronjob tz-probe \
+#     --image=busybox --schedule='0 3 * * *' --dry-run=server -o yaml \
+#     --save-config=false 2>&1   # NOTE: create cronjob can't set timeZone; use apply of a manifest with timeZone to see the warning.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: cronjob-timezone-utc-only
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+      - apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["cronjobs"]
+  # Only evaluate for tenant namespaces; never touch platform reconciliation.
+  matchConditions:
+    - name: exclude-platform-namespaces
+      expression: >-
+        !(request.namespace.startsWith('openshift-') ||
+          request.namespace.startsWith('kube-'))
+  validations:
+    - expression: >-
+        !has(object.spec.timeZone) ||
+        object.spec.timeZone in ['UTC', 'Etc/UTC']
+      reason: Invalid
+      message: >-
+        CronJob .spec.timeZone must be 'UTC' or unset; named zones crash
+        cluster-wide kube-state-metrics (its image lacks tzdata).
+      messageExpression: >-
+        "CronJob .spec.timeZone '" + object.spec.timeZone +
+        "' is a named zone — use 'UTC' (schedules run in UTC). Named zones " +
+        "crash cluster-wide kube-state-metrics; its image lacks tzdata."
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: cronjob-timezone-utc-only
+spec:
+  policyName: cronjob-timezone-utc-only
+  # Deny = reject the create/update; Audit = record the denial in the apiserver
+  # audit log. Switch to ["Warn", "Audit"] to relax to non-blocking.
+  validationActions: ["Deny", "Audit"]

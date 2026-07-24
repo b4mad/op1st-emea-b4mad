@@ -1,0 +1,355 @@
+# Custom Forgejo landing page (templates/home.tmpl override).
+# Mounted read-only at /data/gitea/templates/home.tmpl via extraVolumes/
+# extraVolumeMounts in values-nostromo-test.yaml. Forgejo replaces the whole
+# home.tmpl, so this file IS the landing page for anonymous (and signed-out)
+# visitors. Based on Forgejo v16.0.1's default templates/home.tmpl.
+#
+# The <style> block gives the hero a #B4mad phosphor-terminal look — echoing
+# https://b4mad.industries/ — but ONLY in dark mode (forgejo-dark, or the
+# default forgejo-auto theme under prefers-color-scheme: dark). Light mode
+# keeps Forgejo's defaults. Only the home hero is styled, not Forgejo's chrome.
+#
+# To change the page: edit the home.tmpl content below, re-apply this
+# ConfigMap, and bounce the pod (subPath configmap mounts don't hot-reload):
+#   oc -n b4mad-forgejo-test apply -f forgejo-home-template.configmap.yaml
+#   oc -n b4mad-forgejo-test rollout restart deploy/forgejo
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: forgejo-custom-templates
+data:
+  home.tmpl: |
+    {{template "base/head" .}}
+    <style>
+      /* ---- #B4mad phosphor-terminal flavor for the landing hero ---- */
+      /* Palette from https://b4mad.industries/ : phosphor green #698b69/#9bcd9b,
+         warm-white cursor #f4f1e8, orange accent. Colours/glow are driven by
+         CSS vars that are ONLY set under a dark theme, so light mode is
+         untouched (undefined var -> declaration ignored -> Forgejo default). */
+      .b4mad-hero { position: relative; font-family: "Josefin Sans", ui-sans-serif, "Helvetica Neue", Arial, sans-serif; }
+      .b4mad-hero > * { position: relative; z-index: 2; }
+      .b4mad-hero::before {
+        content: ""; position: absolute; inset: -1rem; z-index: 1; pointer-events: none;
+        border-radius: .5rem; opacity: var(--b4-scanline, 0);
+        background: repeating-linear-gradient(to bottom,
+          transparent 0, transparent 2px, rgba(0,0,0,.22) 3px, rgba(0,0,0,.22) 4px);
+      }
+      .b4mad-hero .logo { filter: var(--b4-logo-filter); }
+      .b4mad-hero .b4mad-title {
+        font-weight: 300; letter-spacing: .08em; text-transform: uppercase; line-height: 1.4;
+        color: var(--b4-title); text-shadow: var(--b4-glow);
+      }
+      .b4mad-hero .b4mad-sub {
+        font-weight: 300; letter-spacing: .12em;
+        color: var(--b4-sub); text-shadow: var(--b4-glow-sm);
+      }
+      .b4mad-hero .b4mad-cursor {
+        display: inline-block; margin-left: .08em;
+        color: var(--b4-cursor); text-shadow: var(--b4-cursor-glow);
+        animation: b4mad-blink 1s step-end infinite;
+      }
+      .b4mad-hero .b4mad-btn {
+        font-weight: 300; letter-spacing: .06em; transition: all .15s;
+        background: var(--b4-btn-bg) !important; color: var(--b4-btn-color) !important;
+        border: 1px solid var(--b4-btn-border) !important; box-shadow: var(--b4-btn-shadow) !important;
+        text-shadow: var(--b4-btn-tshadow);
+      }
+      .b4mad-hero .b4mad-btn:hover, .b4mad-hero .b4mad-btn:focus {
+        background: var(--b4-btn-bg) !important; color: var(--b4-btnh-color) !important;
+        border-color: var(--b4-btnh-border) !important; box-shadow: var(--b4-btnh-shadow) !important;
+      }
+      @keyframes b4mad-blink { 0%,50% { opacity: 1 } 50.01%,100% { opacity: 0 } }
+      @media (prefers-reduced-motion: reduce) { .b4mad-hero .b4mad-cursor { animation: none } }
+
+      /* activate the phosphor palette only in dark */
+      :root[data-theme="forgejo-dark"] .b4mad-hero {
+        --b4-title: #9bcd9b; --b4-sub: #9bcd9b; --b4-cursor: #f4f1e8;
+        --b4-glow: 0 0 4px #698b69, 0 0 12px rgba(105,139,105,.6), 0 0 22px rgba(105,139,105,.4);
+        --b4-glow-sm: 0 0 4px rgba(105,139,105,.6);
+        --b4-cursor-glow: 0 0 6px rgba(244,241,232,.8), 0 0 16px rgba(244,241,232,.5);
+        --b4-btn-bg: transparent; --b4-btn-color: #9bcd9b; --b4-btn-border: rgba(155,205,155,.5);
+        --b4-btn-shadow: 0 0 8px rgba(105,139,105,.3); --b4-btn-tshadow: 0 0 4px rgba(105,139,105,.6);
+        --b4-btnh-color: orange; --b4-btnh-border: rgba(255,165,0,.6); --b4-btnh-shadow: 0 0 14px rgba(255,165,0,.4);
+        --b4-logo-filter: drop-shadow(0 0 6px rgba(105,139,105,.5));
+        --b4-scanline: 1;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root[data-theme="forgejo-auto"] .b4mad-hero {
+          --b4-title: #9bcd9b; --b4-sub: #9bcd9b; --b4-cursor: #f4f1e8;
+          --b4-glow: 0 0 4px #698b69, 0 0 12px rgba(105,139,105,.6), 0 0 22px rgba(105,139,105,.4);
+          --b4-glow-sm: 0 0 4px rgba(105,139,105,.6);
+          --b4-cursor-glow: 0 0 6px rgba(244,241,232,.8), 0 0 16px rgba(244,241,232,.5);
+          --b4-btn-bg: transparent; --b4-btn-color: #9bcd9b; --b4-btn-border: rgba(155,205,155,.5);
+          --b4-btn-shadow: 0 0 8px rgba(105,139,105,.3); --b4-btn-tshadow: 0 0 4px rgba(105,139,105,.6);
+          --b4-btnh-color: orange; --b4-btnh-border: rgba(255,165,0,.6); --b4-btnh-shadow: 0 0 14px rgba(255,165,0,.4);
+          --b4-logo-filter: drop-shadow(0 0 6px rgba(105,139,105,.5));
+          --b4-scanline: 1;
+        }
+      }
+
+      /* ---- Source Vault one-pager (logged-out visitors only) ----
+         Grounds/neutrals ride Forgejo's own theme vars so light and dark both
+         work; phosphor green comes free via --color-primary (recolored
+         instance-wide by custom/header.tmpl). Orange marks the disposable
+         tier: darkened for contrast on light, signal-orange on dark. The
+         vault slab is basalt in BOTH themes — bedrock doesn't change with
+         the weather. */
+      .sv {
+        max-width: 44rem; margin: 0 auto; padding: 2.5rem 2rem 1rem;
+        text-align: left; display: flex; flex-direction: column; gap: 2.75rem;
+        --sv-ember: #b45309; --sv-slab: #16201d; --sv-slab-ink: #dfe8e1;
+        --sv-mono: var(--fonts-monospace, ui-monospace, monospace);
+      }
+      :root[data-theme="forgejo-dark"] .sv { --sv-ember: #ffa500; --sv-slab: #0e1512; }
+      @media (prefers-color-scheme: dark) {
+        :root[data-theme="forgejo-auto"] .sv { --sv-ember: #ffa500; --sv-slab: #0e1512; }
+      }
+      .sv section { display: flex; flex-direction: column; gap: 1.1rem; }
+      .sv h2 {
+        font-weight: 300; letter-spacing: .08em; text-transform: uppercase;
+        font-size: 1.15rem; color: var(--color-text); margin: 0;
+      }
+      .sv .sv-thesis {
+        font-weight: 300; font-size: 1.7rem; line-height: 1.3;
+        letter-spacing: .02em; color: var(--color-text);
+        text-wrap: balance; max-width: 34rem;
+      }
+      .sv .sv-thesis b { font-weight: 400; color: var(--color-primary); }
+      .sv p { color: var(--color-text-light-1); margin: 0; }
+      .sv-punch { border-left: 3px solid var(--color-secondary); padding: .1rem 0 .1rem 1rem; }
+      .sv-punch b { display: block; color: var(--color-text); }
+      .sv-punch span { color: var(--color-text-light-2); font-size: .95em; }
+      .sv-forges { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+      @media (max-width: 560px) { .sv-forges { grid-template-columns: 1fr; } }
+      .sv-forge {
+        border: 1.5px dashed var(--sv-ember); border-radius: 3px;
+        background: var(--color-box-body); padding: .7rem .9rem;
+        display: flex; flex-direction: column; gap: .1rem;
+      }
+      .sv-forge .name { color: var(--color-text); font-weight: 500; }
+      .sv-forge .tag {
+        font-family: var(--sv-mono); font-size: .72rem; letter-spacing: .1em;
+        text-transform: uppercase; color: var(--sv-ember);
+      }
+      .sv-flow {
+        display: flex; justify-content: center; align-items: center; gap: .75rem;
+        padding: .8rem 0; font-family: var(--sv-mono); font-size: .75rem;
+        letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-light-1);
+      }
+      .sv-flow .arrows { color: var(--color-primary); letter-spacing: .6em; font-size: .95rem; }
+      .sv-slab {
+        background: var(--sv-slab); color: var(--sv-slab-ink); border-radius: 3px;
+        border-bottom: 4px solid var(--color-primary);
+        padding: 1.3rem 1.4rem 1.5rem; display: flex; flex-direction: column; gap: .7rem;
+      }
+      .sv-slab .tag {
+        font-family: var(--sv-mono); font-size: .72rem; letter-spacing: .14em;
+        text-transform: uppercase; color: #9bcd9b;
+      }
+      .sv-slab .name { font-size: 1.25rem; font-weight: 300; letter-spacing: .06em; }
+      .sv-slab p { color: var(--sv-slab-ink); opacity: .85; font-size: .95em; }
+      .sv-seeds { display: flex; flex-wrap: wrap; gap: 1.25rem; font-family: var(--sv-mono); font-size: .8rem; }
+      .sv-seeds span::before { content: "\25CF"; color: #9bcd9b; margin-right: .45rem; font-size: .65rem; }
+      .sv-promise {
+        border: 1px solid var(--color-secondary); border-radius: 3px;
+        background: var(--color-box-body); padding: 1rem 1.2rem;
+        display: flex; flex-direction: column; gap: .25rem;
+      }
+      .sv-promise b { color: var(--color-text); }
+      .sv-promise p { color: var(--color-text-light-2); font-size: .95em; }
+      .sv-promise .q { font-style: italic; color: var(--color-text); }
+      .sv-yes {
+        align-self: flex-start; font-family: var(--sv-mono); font-size: .72rem;
+        letter-spacing: .1em; text-transform: uppercase;
+        color: var(--color-primary); border: 1px solid var(--color-primary);
+        border-radius: 3px; padding: .15rem .5rem; margin-top: .25rem;
+      }
+      .sv-cta {
+        border-top: 1px solid var(--color-secondary); padding-top: 2rem;
+        align-items: center; text-align: center; gap: .9rem;
+      }
+    </style>
+    <div role="main" aria-label="{{if .IsSigned}}{{ctx.Locale.Tr "dashboard"}}{{else}}{{ctx.Locale.Tr "home"}}{{end}}" class="page-content home">
+      <div class="tw-mb-8 tw-px-8">
+        <div class="center b4mad-hero">
+          <img class="logo" width="220" height="220" src="{{AssetUrlPrefix}}/img/logo.svg" alt="{{ctx.Locale.Tr "logo"}}">
+          <div class="hero">
+            {{/* ---- EDIT: headline + tagline ---- */}}
+            {{/* Short brand line instead of {{AppDisplayName}} — the stock
+                 "Forgejo: Beyond coding. We forge." slogan filled two glowing
+                 lines and pushed all content below the fold. */}}
+            <h1 class="ui icon header title b4mad-title">#B4mad Forge<span class="b4mad-cursor">_</span></h1>
+            <h2 class="b4mad-sub">a Tier-2 forge &middot; disposable by design &middot; the vault holds</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="tw-max-w-2xl tw-mx-auto tw-px-8 tw-text-center">
+        {{/* ---- EDIT: body copy shown to everyone ---- */}}
+        {{if not .IsSigned}}
+          {{/* ---- Shown ONLY to logged-out visitors ---- */}}
+          <p>Sign in with your b4mad.net account to continue.</p>
+          <a class="ui primary button b4mad-btn" href="{{AppSubUrl}}/user/login">Sign in</a>
+        {{end}}
+      </div>
+
+      {{if not .IsSigned}}
+      {{/* ---- Source Vault one-pager, logged-out visitors only ---- */}}
+      <div class="sv">
+
+        <section>
+          <div class="sv-thesis">Your code should outlive every platform it
+          lives on. <b>Including this one.</b></div>
+          <p>This forge is Tier&nbsp;2: disposable utility. Agents — human and
+          AI — work here; everything they push is designed to land in the
+          <b>#B4mad Source Vault</b>, cryptographically replicated and
+          operated by no one.</p>
+        </section>
+
+        <section>
+          <h2>The problem</h2>
+          <div class="sv-punch">
+            <b>Platforms are weather.</b>
+            <span>Pricing changes, acquisitions, self-host fatigue. Every
+            forge you depend on today is a migration project tomorrow.</span>
+          </div>
+          <div class="sv-punch">
+            <b>Your issues are hostages.</b>
+            <span>Code is portable; the collaboration state around it —
+            issues, reviews, project history — lives in a vendor database
+            and dies there.</span>
+          </div>
+          <div class="sv-punch">
+            <b>Backups you must remember aren&#39;t backups.</b>
+            <span>Any safety net that depends on a human running
+            <code>git push</code> will eventually fail.</span>
+          </div>
+        </section>
+
+        <section>
+          <h2>Bedrock and weather</h2>
+          <div>
+            <div class="sv-forges">
+              <div class="sv-forge"><span class="name">Forgejo</span><span class="tag">disposable &middot; this one</span></div>
+              <div class="sv-forge"><span class="name">GitHub</span><span class="tag">disposable</span></div>
+              <div class="sv-forge"><span class="name">Entire</span><span class="tag">disposable</span></div>
+            </div>
+            <div class="sv-flow"><span class="arrows">&darr;&darr;&darr;</span> auto-mirror &middot; signed &middot; minutes, not memory</div>
+            <div class="sv-slab">
+              <span class="tag">Tier 1 &middot; canonical &middot; passive</span>
+              <span class="name">The Source Vault</span>
+              <p>Cryptographically verified, peer-replicated, operated by no
+              one. Only <code>git push</code> goes in. It just holds.</p>
+              <div class="sv-seeds"><span>seed &middot; site A</span><span>seed &middot; site B</span><span>seed &middot; site C</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Three promises</h2>
+          <div class="sv-promise">
+            <b>Automation, not discipline.</b>
+            <p>Machinery moves every push into the vault within minutes. No
+            human remembers anything, ever. New repos enroll themselves.</p>
+          </div>
+          <div class="sv-promise">
+            <b>Metadata travels in git.</b>
+            <p>Issues live in the repo itself, so they replicate with the
+            code. Forge databases hold working copies — nothing more.</p>
+          </div>
+          <div class="sv-promise">
+            <b>The disposability test.</b>
+            <p class="q">&ldquo;Could we delete this forge today and lose
+            nothing but convenience?&rdquo;</p>
+            <span class="sv-yes">The answer stays yes</span>
+          </div>
+        </section>
+
+        <section class="sv-cta">
+          <p>Agents work here. The vault just holds.</p>
+          <a class="ui primary button b4mad-btn" href="{{AppSubUrl}}/user/login">Sign in with b4mad.net</a>
+        </section>
+
+      </div>
+      {{end}}
+    </div>
+    {{template "base/footer" .}}
+  # Injected into <head> on EVERY page. Recolors Forgejo's brand accent
+  # (--color-primary, default orange/red #c2410c light / #fb923c dark) to
+  # #B4mad phosphor green, instance-wide, for both light and dark themes.
+  # Loaded after the theme CSS, so equal-specificity :root[data-theme] rules
+  # win by order. The light-/dark-N ramp is derived with color-mix so it
+  # recomputes automatically from whatever --color-primary each theme sets.
+  # Mounted at /data/gitea/templates/custom/header.tmpl (see values overlay).
+  header.tmpl: |
+    <style>
+      :root[data-theme] {
+        --color-primary-dark-1: color-mix(in oklab, var(--color-primary), black 8%);
+        --color-primary-dark-2: color-mix(in oklab, var(--color-primary), black 16%);
+        --color-primary-dark-3: color-mix(in oklab, var(--color-primary), black 24%);
+        --color-primary-dark-4: color-mix(in oklab, var(--color-primary), black 32%);
+        --color-primary-dark-5: color-mix(in oklab, var(--color-primary), black 40%);
+        --color-primary-dark-6: color-mix(in oklab, var(--color-primary), black 48%);
+        --color-primary-dark-7: color-mix(in oklab, var(--color-primary), black 56%);
+        --color-primary-light-1: color-mix(in oklab, var(--color-primary), white 12%);
+        --color-primary-light-2: color-mix(in oklab, var(--color-primary), white 24%);
+        --color-primary-light-3: color-mix(in oklab, var(--color-primary), white 36%);
+        --color-primary-light-4: color-mix(in oklab, var(--color-primary), white 48%);
+        --color-primary-light-5: color-mix(in oklab, var(--color-primary), white 60%);
+        --color-primary-light-6: color-mix(in oklab, var(--color-primary), white 72%);
+        --color-primary-light-7: color-mix(in oklab, var(--color-primary), white 84%);
+        --color-primary-hover: var(--b4-hover, var(--color-primary-dark-2));
+        --color-primary-active: var(--b4-active, var(--color-primary-dark-4));
+        --color-accent: var(--color-primary-light-1);
+      }
+      /* light family: core phosphor green, white text on fills */
+      :root[data-theme="forgejo-light"] { --color-primary: #698b69; --color-primary-contrast: #ffffff; }
+      @media (prefers-color-scheme: light) {
+        :root[data-theme="forgejo-auto"] { --color-primary: #698b69; --color-primary-contrast: #ffffff; }
+      }
+      /* dark family: lighter phosphor green, black text on fills, hover/active lighten */
+      :root[data-theme="forgejo-dark"] {
+        --color-primary: #9bcd9b; --color-primary-contrast: #000000;
+        --b4-hover: var(--color-primary-light-1); --b4-active: var(--color-primary-light-2);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root[data-theme="forgejo-auto"] {
+          --color-primary: #9bcd9b; --color-primary-contrast: #000000;
+          --b4-hover: var(--color-primary-light-1); --b4-active: var(--color-primary-light-2);
+        }
+      }
+    </style>
+  # The "forge-hash" brand mark: #B4mad's hashtag redrawn as a Forgejo git
+  # graph — two branch-lines, two merge-rungs, three commit beads climbing to
+  # an orange HEAD. Shape from Forgejo, colours from b4mad (phosphor green
+  # #9bcd9b + signal orange #ffa500). Transparent, so it rides the dark
+  # navbar/hero; the home hero adds the CRT glow via --b4-logo-filter.
+  # Mounted read-only at /data/gitea/public/assets/img/{logo,favicon}.svg
+  # (GITEA_CUSTOM=/data/gitea, Forgejo's custom static root is public/assets/),
+  # which overrides Forgejo's stock logo instance-wide.
+  logo.svg: |
+    <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="#B4mad forge">
+      <g fill="none" stroke="#9bcd9b" stroke-width="19" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M88 60 V180"/>
+        <path d="M152 60 V180"/>
+        <path d="M46 100 H194"/>
+        <path d="M46 140 H194"/>
+      </g>
+      <circle cx="88" cy="56" r="17" fill="#9bcd9b"/>
+      <circle cx="152" cy="184" r="17" fill="#9bcd9b"/>
+      <circle cx="152" cy="56" r="17" fill="#ffa500"/>
+    </svg>
+  # Favicon = the same mark; it stays legible down to 16px (three beads read as
+  # one orange dot on a hash). Browsers with SVG-favicon support use this.
+  favicon.svg: |
+    <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="#B4mad forge">
+      <g fill="none" stroke="#9bcd9b" stroke-width="19" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M88 60 V180"/>
+        <path d="M152 60 V180"/>
+        <path d="M46 100 H194"/>
+        <path d="M46 140 H194"/>
+      </g>
+      <circle cx="88" cy="56" r="17" fill="#9bcd9b"/>
+      <circle cx="152" cy="184" r="17" fill="#9bcd9b"/>
+      <circle cx="152" cy="56" r="17" fill="#ffa500"/>
+    </svg>

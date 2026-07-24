@@ -21,6 +21,7 @@ resources:
   - cert-manager/
   - cluster-monitoring-config.yaml
   - cluster-resource-override.yaml
+  - cronjob-timezone-utc-only-vap.yaml
   - custom-certificates/
   - grafana-operator/
   - identity-providers.yaml

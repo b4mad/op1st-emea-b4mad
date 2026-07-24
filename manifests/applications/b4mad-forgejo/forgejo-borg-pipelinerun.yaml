@@ -1,0 +1,29 @@
+# PipelineRun — trigger a borg image build MANUALLY. Uses generateName, so it
+# is deliberately NOT part of the kustomization (Argo CD cannot manage
+# generateName resources and would start a fresh build on every sync).
+#
+# Start a build:
+#   oc -n b4mad-forgejo-test create -f forgejo-borg-pipelinerun.yaml
+# Watch:
+#   tkn -n b4mad-forgejo-test pipelinerun logs -f --last
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: borg-build-
+  namespace: b4mad-forgejo-test
+spec:
+  pipelineRef:
+    name: borg-build
+  taskRunTemplate:
+    serviceAccountName: pipeline
+  workspaces:
+    - name: forgejo-auth
+      secret:
+        secretName: forgejo-registry-push
+    - name: shared
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 2Gi

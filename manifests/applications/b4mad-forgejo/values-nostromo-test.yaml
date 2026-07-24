@@ -1,0 +1,203 @@
+# Test-instance overlay for Forgejo on nostromo (OpenShift), ns b4mad-forgejo-test.
+# DB is SQLite (postgres/redis subcharts stay disabled) — fine for a throwaway test.
+# Docs: forgejo-helm README "Compatibility with OCP".
+
+global:
+  compatibility:
+    openshift:
+      # Strip the chart's hardcoded runAsUser/fsGroup so OpenShift's
+      # restricted-v2 SCC assigns them from the namespace's allocated range.
+      adaptSecurityContext: force
+
+# Pin the Forgejo app version. The chart (HEAD) defaults appVersion to the
+# 15.0.5 LTS; override to the 16.x stable line here. `-rootless` is appended
+# automatically by the chart (image.rootless). ⚠️ 16.x is the non-LTS stable
+# branch (shorter support window than the 15.x LTS) — fine for this test box.
+image:
+  tag: '16.0.1'
+
+# Ingress on both hostnames. OpenShift's ingress-to-route controller converts
+# each Ingress into a Route; cert-manager (letsencrypt ClusterIssuer) issues the
+# TLS cert into the per-host secret. This matches the cluster convention used by
+# e.g. lanista.b4mad.industries.
+route:
+  enabled: false
+ingress:
+  enabled: true
+  className: openshift-default
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.allow-http: 'false'
+  hosts:
+    - host: forgejo.b4mad.net
+      paths:
+        - path: /
+          pathType: Prefix
+          port: http
+    - host: forgejo.b4mad.industries
+      paths:
+        - path: /
+          pathType: Prefix
+          port: http
+  tls:
+    - secretName: forgejo.b4mad.net
+      hosts:
+        - forgejo.b4mad.net
+    - secretName: forgejo.b4mad.industries
+      hosts:
+        - forgejo.b4mad.industries
+
+gitea:
+  # OIDC login source. Client id/secret come from the existing secret
+  # 'forgejo-oauth-secret' (keys: key=client-id, secret=client-secret) — kept
+  # out of git/values. autoDiscoverUrl is the Keycloak realm's OIDC discovery doc.
+  oauth:
+    - name: 'b4mad'
+      provider: openidConnect
+      existingSecret: forgejo-oauth-secret
+      autoDiscoverUrl: https://keycloak.erdgeschoss.b4mad.net/realms/b4mad.industries/.well-known/openid-configuration
+      # Request email/profile so auto-created accounts get email + username
+      # populated. Forgejo always prepends 'openid', so don't list it here.
+      scopes: 'email profile'
+
+  config:
+    # Instance display name: browser tab, notification mails, and the
+    # {{AppDisplayName}} template helper. Replaces the stock
+    # "Forgejo: Beyond coding. We forge." slogan.
+    APP_NAME: '#B4mad Forge'
+    ui:
+      # Commit the instance to the #B4mad phosphor CRT aesthetic: default every
+      # visitor (incl. logged-out) to the dark theme, so the forge-hash logo,
+      # green accent, and scanline hero always render at their best. Users can
+      # still switch themes from their settings.
+      DEFAULT_THEME: forgejo-dark
+    # Server-side commit signing. `signing.existingSecret` below imports the
+    # GPG private key into gpgHome; this section tells Forgejo what to sign.
+    # SIGNING_KEY=default = use the (single) key present in the pod's gpgHome.
+    # Identity must match the key's UID (Forgejo <forgejo@b4mad.net>).
+    repository.signing:
+      SIGNING_KEY: default
+      SIGNING_NAME: Forgejo
+      SIGNING_EMAIL: forgejo@b4mad.net
+      # Sign the commits Forgejo itself creates. Tune per policy later.
+      INITIAL_COMMIT: always
+      CRUD_ACTIONS: always
+      WIKI: always
+      MERGES: always
+    repository:
+      # Kill the Wiki instance-wide: no repo can host a wiki and the Wiki tab
+      # disappears from every repo. DISABLED_REPO_UNITS is Forgejo's global
+      # unit blocklist; repo.wiki = the built-in wiki, repo.ext_wiki = the
+      # "external wiki URL" variant. Wikis aren't part of the #B4mad forge story.
+      DISABLED_REPO_UNITS: repo.wiki,repo.ext_wiki
+    actions:
+      # Disable Forgejo Actions (CI/CD) instance-wide: hides the Actions tab
+      # and prevents any workflow execution. No act_runner is deployed anyway.
+      ENABLED: false
+    indexer:
+      # Enable the repository code indexer for full-text code search.
+      # Default type is bleve (on-disk, in the 5Gi PVC); does an initial
+      # index pass over existing repos.
+      REPO_INDEXER_ENABLED: true
+    oauth2_client:
+      # Auto-create a Forgejo account from OIDC claims on first SSO login,
+      # instead of showing the (empty, because internal signin is off)
+      # manual-registration page. USERNAME=nickname maps from Keycloak's
+      # preferred_username. Link by email if an account already exists.
+      ENABLE_AUTO_REGISTRATION: true
+      USERNAME: nickname
+      ACCOUNT_LINKING: auto
+    server:
+      # Canonical URL Forgejo advertises (clone URLs, cookies, callbacks).
+      # forgejo.b4mad.industries also reaches the UI but redirects here.
+      DOMAIN: forgejo.b4mad.net
+      ROOT_URL: https://forgejo.b4mad.net/
+      PROTOCOL: http
+      # git-SSH advertised in clone URLs: ssh://git@forgejo.b4mad.net:2222/…
+      # Pod listens on SSH_LISTEN_PORT 2222 (rootless default); the forgejo-ssh
+      # NodePort below exposes it, and the erdgeschoss gateway forwards
+      # 88.153.142.188:2222 -> node 192.168.0.148:32222.
+      SSH_PORT: 2222
+      # ⚠️ OpenShift random-UID fix: RUN_USER defaults to the current OS
+      # username, which under the restricted SCC is the numeric UID
+      # (e.g. 1001210000). That made the built-in SSH server require
+      # `<uid>@host` and reject every `git@host` login before key lookup.
+      # Pin the SSH login user to `git` (do NOT set RUN_USER — Forgejo asserts
+      # it equals the real OS user at startup and would refuse to boot).
+      SSH_USER: git
+      BUILTIN_SSH_SERVER_USER: git
+    service:
+      # SSO-only: no local username/password self-signup, but first-time
+      # Keycloak (OIDC) logins still auto-provision an account.
+      DISABLE_REGISTRATION: true
+      ALLOW_ONLY_EXTERNAL_REGISTRATION: true
+      # Hide the local username/password sign-in form; only the Keycloak SSO
+      # button remains. NOTE: this also disables web login for the local
+      # 'gitea_admin' account — break-glass is `oc exec … gitea admin …`.
+      ENABLE_INTERNAL_SIGNIN: false
+
+# Expose Forgejo's built-in git-SSH via a fixed NodePort so the erdgeschoss
+# gateway can forward external :2222 to it (no LoadBalancer/MetalLB on this
+# single-node cluster). Chain:
+#   ssh -p 2222 git@forgejo.b4mad.net
+#     -> gateway 88.153.142.188:2222
+#     -> node bridge 192.168.0.148:32222 (nodePort)
+#     -> svc forgejo-ssh:22 -> pod :2222
+service:
+  ssh:
+    type: NodePort
+    port: 22
+    nodePort: 32222
+
+# Server-side commit signing. Imports the ed25519 GPG private key into the
+# pod's gpgHome so Forgejo can sign the commits it creates (see the
+# [repository.signing] config under gitea.config above). The key lives in the
+# SOPS-encrypted secret forgejo-gpg-signing-secret.enc.yaml (data key:
+# privateKey), which must be decrypted+applied into the namespace before the
+# chart runs. gpgHome default matches the rootless image's persistent path.
+# Key UID: Forgejo (#B4mad Forgejo commit signing) <forgejo@b4mad.net>,
+# fp E8ACD36B3345ED1AC6450604720A29C30D58B935.
+signing:
+  enabled: true
+  gpgHome: /data/git/.gnupg
+  existingSecret: forgejo-gpg-signing-key
+
+# Custom landing page: mount the home.tmpl override from the
+# forgejo-custom-templates ConfigMap (see forgejo-home-template.configmap.yaml)
+# into Forgejo's custom template dir (GITEA_CUSTOM=/data/gitea). subPath mounts
+# just the single file on top of the PVC path.
+extraVolumes:
+  - name: custom-templates
+    configMap:
+      name: forgejo-custom-templates
+extraVolumeMounts:
+  - name: custom-templates
+    mountPath: /data/gitea/templates/home.tmpl
+    subPath: home.tmpl
+    readOnly: true
+  # Injected into <head> on every page — recolors the brand accent to green.
+  - name: custom-templates
+    mountPath: /data/gitea/templates/custom/header.tmpl
+    subPath: header.tmpl
+    readOnly: true
+  # The "forge-hash" brand mark (see forgejo-home-template.configmap.yaml).
+  # Forgejo's custom static root is $GITEA_CUSTOM/public/assets, so these
+  # override the stock /assets/img/logo.svg + favicon.svg instance-wide
+  # (navbar, home hero, browser tab).
+  - name: custom-templates
+    mountPath: /data/gitea/public/assets/img/logo.svg
+    subPath: logo.svg
+    readOnly: true
+  - name: custom-templates
+    mountPath: /data/gitea/public/assets/img/favicon.svg
+    subPath: favicon.svg
+    readOnly: true
+
+# Keep the test lean.
+persistence:
+  size: 5Gi
+
+# test-connection Pod uses busybox:latest from Docker Hub — skip to avoid
+# pull-rate flakiness on a throwaway install.
+test:
+  enabled: false

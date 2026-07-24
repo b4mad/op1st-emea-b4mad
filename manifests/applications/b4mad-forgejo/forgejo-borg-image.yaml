@@ -1,0 +1,32 @@
+# ImageStream for the in-cluster borg image used by the forgejo-offsite CronJob.
+#
+# WHY A CUSTOM BUILD: public borg images (e.g. ghcr.io/borgmatic-collective/
+# borgmatic) are Alpine-based and ship binaries that are NOT world-executable,
+# so under OpenShift's restricted-v2 SCC (arbitrary injected UID, non-root)
+# even `borg --version` fails with "Permission denied". The image bakes
+# borgbackup onto a Fedora base (whose repos carry borgbackup with all its
+# deps — UBI9+EPEL was a dead end: borgbackup needs libxxhash.so.0 which lives
+# only in the full RHEL CodeReady Builder repo, absent from UBI's CRB subset).
+# Fedora package files are world-readable/executable by default, so the
+# arbitrary UID can run borg out of the box.
+#
+# HOW IT IS BUILT: a Tekton (OpenShift Pipelines) pipeline — git-clone ->
+# buildah build+push of borg/Containerfile — writes this ImageStream's
+# :latest tag. See forgejo-borg-pipeline.yaml. (This replaced the old
+# BuildConfig, removed with commit migrating to Tekton.)
+#
+# Apply + build:
+#   oc -n b4mad-forgejo-test apply -f forgejo-borg-image.yaml            # this ImageStream
+#   sops -d forgejo-borg-git-ssh-secret.enc.yaml | oc apply -f -         # clone deploy key
+#   oc -n b4mad-forgejo-test apply -f forgejo-borg-pipeline.yaml         # Pipeline + RBAC
+#   oc -n b4mad-forgejo-test create -f forgejo-borg-pipeline.yaml        # start a PipelineRun
+# The job references the resulting ImageStream tag by its internal registry
+# ref (image-registry.openshift-image-registry.svc:5000/<ns>/borg:latest).
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: borg
+spec:
+  lookupPolicy:
+    local: true

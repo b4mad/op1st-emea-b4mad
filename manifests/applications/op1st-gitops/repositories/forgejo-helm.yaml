@@ -1,0 +1,16 @@
+# The forgejo-helm chart registry (OCI). Public — no credentials — so this is
+# a plain Secret, not a SealedSecret; the Secret only exists because Argo CD
+# discovers repositories via labelled Secrets.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: forgejo-helm
+  namespace: op1st-gitops
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  name: forgejo-helm
+  type: helm
+  url: code.forgejo.org/forgejo-helm
+  enableOCI: "true"

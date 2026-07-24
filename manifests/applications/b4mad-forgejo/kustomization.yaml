@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: b4mad-forgejo-test
+
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/part-of: forgejo
+      app.kubernetes.io/managed-by: op1st-emea-b4mad
+
+resources:
+  - namespace.yaml
+
+  # Helm-chart companions (the chart itself is the second source of the
+  # b4mad-forgejo Argo CD Application: forgejo 17.1.3 from
+  # code.forgejo.org/forgejo-helm, values-nostromo-test.yaml via $values).
+  - forgejo-home-template.configmap.yaml
+
+  # Backups: daily logical dump to a local PVC + off-site borg push to store-1.
+  - forgejo-backup-cronjob.yaml
+  - forgejo-offsite-cronjob.yaml
+
+  # In-cluster borg image: ImageStream + Tekton build pipeline.
+  # forgejo-borg-pipelinerun.yaml is deliberately NOT listed (generateName —
+  # a build is started manually with `oc create -f`).
+  - forgejo-borg-image.yaml
+  - forgejo-borg-pipeline.yaml
+
+  # SealedSecrets, generated from the sibling *.enc.yaml sops files via
+  # scripts/sops2sealedsecret. forgejo-bot-tokens.enc.yaml is sops-only
+  # (local tooling credential, never applied to the cluster).
+  - forgejo-oauth-secret.yaml
+  - forgejo-gpg-signing-secret.yaml
+  - forgejo-offsite-borg-secret.yaml
+  - forgejo-registry-push-secret.yaml

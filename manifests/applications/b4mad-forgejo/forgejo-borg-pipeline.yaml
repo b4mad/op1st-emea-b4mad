@@ -1,0 +1,233 @@
+# Tekton (OpenShift Pipelines) build for the in-cluster borg image used by the
+# forgejo-offsite CronJob: git-clone -> buildah build+push, with TektonChains
+# provenance. The output is a Fedora 41 + borgbackup + openssh-clients image,
+# pushed to the internal ImageStream tag
+#   image-registry.openshift-image-registry.svc:5000/b4mad-forgejo-test/borg:latest
+# so forgejo-offsite-cronjob.yaml needs ZERO changes.
+#
+# ADDITIVE Forgejo mirror: after the internal push succeeds, a final
+# `push-forgejo` task skopeo-copies the same image (registry->registry, so it
+# does NOT touch buildah's local storage) to the Forgejo test instance's OCI
+# registry at forgejo.b4mad.net/b4mad-ci/borg:latest — surfacing it under
+# https://forgejo.b4mad.net/b4mad-ci/…/packages. This is purely additive: it runs
+# `runAfter: [build]` and never alters the internal push. ⚠️ forgejo.b4mad.net
+# is a THROWAWAY SQLite test instance (bd Systems-07w) — the mirrored image is
+# NON-DURABLE, this is not production-grade image distribution.
+#
+# The ImageStream `borg` itself lives in forgejo-borg-image.yaml (the
+# pipeline only writes to its :latest tag).
+#
+# Build context source: the Containerfile committed at
+# manifests/applications/b4mad-forgejo/borg/Containerfile in this repo
+# (github.com/b4mad/op1st-emea-b4mad — public, cloned anonymously over https;
+# no deploy key needed, unlike the old private-Codeberg source).
+#
+# GITOPS: Pipeline + RBAC in this file are applied by Argo CD (kustomization).
+# A build is started MANUALLY by creating a PipelineRun — see
+# forgejo-borg-pipelinerun.yaml (uses generateName, so it is deliberately NOT
+# part of the kustomization: Argo cannot manage generateName resources and
+# would start a fresh build on every sync).
+#   oc -n b4mad-forgejo-test create -f forgejo-borg-pipelinerun.yaml
+# Watch:  tkn -n b4mad-forgejo-test pipelinerun logs -f --last
+#
+# SCC: the operator already binds the namespace `pipeline` ServiceAccount to
+# `pipelines-scc` via the operator-reconciled `pipelines-scc-rolebinding`
+# (ClusterRole pipelines-scc-clusterrole) — that is the declarative SCC grant
+# buildah needs (SETFCAP, no privileged). buildah runs with STORAGE_DRIVER=vfs
+# so it does not require the privileged SCC. We therefore do NOT re-declare the
+# SCC binding here (doing so would fight the operator's reconciler); we only add
+# the explicit image-builder grant below.
+---
+# Registry push RBAC: grant the `pipeline` ServiceAccount system:image-builder so
+# buildah can push to the internal registry / ImageStream. (The operator's
+# `openshift-pipelines-edit` binding already covers imagestreams/layers update,
+# but this makes the intent explicit and independent of that binding.)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: borg-build-image-builder
+  namespace: b4mad-forgejo-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-builder
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: b4mad-forgejo-test
+---
+# Registry pull RBAC: the additive `push-forgejo` task uses skopeo to copy the
+# just-built image FROM the internal registry, so the `pipeline` SA also needs
+# pull rights on this namespace's ImageStreams. (The operator's
+# `openshift-pipelines-edit` binding already grants imagestreams/layers get, but
+# — mirroring the explicit image-builder grant above — we state the pull intent
+# independently so the skopeo source read does not silently rely on it.)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: borg-build-image-puller
+  namespace: b4mad-forgejo-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-puller
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: b4mad-forgejo-test
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: borg-build
+  namespace: b4mad-forgejo-test
+spec:
+  params:
+    - name: git-url
+      type: string
+      default: https://github.com/b4mad/op1st-emea-b4mad.git
+    - name: git-revision
+      type: string
+      default: main
+    - name: image
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/b4mad-forgejo-test/borg:latest
+    - name: forgejo-image
+      type: string
+      # Forgejo container packages are OWNER-scoped: forgejo.b4mad.net/{owner}/{image}:{tag}.
+      # `b4mad-ci` is a dedicated CI bot pushing under its OWN user namespace, so
+      # the push needs no site-admin rights (a user can write packages under
+      # itself). Decoupled from the human `goern` account on purpose.
+      default: forgejo.b4mad.net/b4mad-ci/borg:latest
+    - name: containerfile
+      type: string
+      default: ./manifests/applications/b4mad-forgejo/borg/Containerfile
+  workspaces:
+    - name: shared        # RWO PVC: holds the clone (subPath source) + registry auth (subPath auth)
+    - name: forgejo-auth  # dockerconfigjson Secret with the forgejo.b4mad.net push credential
+  tasks:
+    # 1a. Mint an internal-registry auth file (config.json) for buildah from the
+    #     pod's ServiceAccount token. Keeps zero registry credentials in git;
+    #     the token is the pipeline SA's own, which has system:image-builder.
+    - name: registry-auth
+      workspaces:
+        - name: auth
+          workspace: shared
+          subPath: auth
+      taskSpec:
+        workspaces:
+          - name: auth
+        steps:
+          - name: write-config
+            image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+              TOKEN="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+              AUTH="$(printf 'unused:%s' "${TOKEN}" | base64 -w0)"
+              cat > "$(workspaces.auth.path)/config.json" <<EOF
+              {"auths":{"image-registry.openshift-image-registry.svc:5000":{"auth":"${AUTH}"}}}
+              EOF
+              echo "wrote registry auth for image-registry.openshift-image-registry.svc:5000"
+    # 1b. Clone this repo (public) anonymously over https.
+    - name: git-clone
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: URL
+          value: $(params.git-url)
+        - name: REVISION
+          value: $(params.git-revision)
+      workspaces:
+        - name: output
+          workspace: shared
+          subPath: source
+    # 2. Build the Containerfile and push to the internal registry / ImageStream.
+    - name: build
+      runAfter: [git-clone, registry-auth]
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: buildah
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: IMAGE
+          value: $(params.image)
+        - name: DOCKERFILE
+          value: $(params.containerfile)
+        - name: CONTEXT
+          value: .
+        - name: STORAGE_DRIVER
+          value: vfs
+        # Internal registry serves a service-ca cert buildah's default trust
+        # store does not carry; traffic is in-cluster, so skip TLS verify.
+        - name: TLS_VERIFY
+          value: "false"
+      workspaces:
+        - name: source
+          workspace: shared
+          subPath: source
+        - name: dockerconfig
+          workspace: shared
+          subPath: auth
+    # 3. ADDITIVE mirror to the Forgejo registry. Runs ONLY after the internal
+    #    push (`build`) succeeds; never alters it. skopeo copies registry ->
+    #    registry, so it is independent of buildah's local container storage:
+    #      src  = internal ImageStream. Its service-ca cert is not in skopeo's
+    #             default trust store and traffic is in-cluster, so
+    #             --src-tls-verify=false; auth is the SA-token config.json the
+    #             `registry-auth` task already wrote to the shared `auth` subPath.
+    #      dest = forgejo.b4mad.net. Real Let's Encrypt cert → --dest-tls-verify
+    #             stays true; auth is the `b4mad-ci` bot's write:package credential
+    #             from the `forgejo-auth` Secret workspace (.dockerconfigjson).
+    #    Inline taskSpec (not the openshift-pipelines skopeo-copy cluster task)
+    #    because that task authenticates from a single merged ~/.docker/config.json
+    #    with no clean workspace to inject it; --src-authfile/--dest-authfile here
+    #    keep the two registries' credentials cleanly separated.
+    - name: push-forgejo
+      runAfter: [build]
+      params:
+        - name: image
+          value: $(params.image)
+        - name: forgejo-image
+          value: $(params.forgejo-image)
+      workspaces:
+        - name: src-auth
+          workspace: shared
+          subPath: auth
+        - name: forgejo-auth
+          workspace: forgejo-auth
+      taskSpec:
+        params:
+          - name: image
+          - name: forgejo-image
+        workspaces:
+          - name: src-auth
+          - name: forgejo-auth
+        steps:
+          - name: skopeo-copy
+            # Same skopeo image the openshift-pipelines skopeo-copy task uses;
+            # pullable via the cluster's global registry.redhat.io pull secret.
+            image: registry.redhat.io/rhel9/skopeo:latest
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+              skopeo copy \
+                --src-authfile "$(workspaces.src-auth.path)/config.json" \
+                --src-tls-verify=false \
+                --dest-authfile "$(workspaces.forgejo-auth.path)/.dockerconfigjson" \
+                --dest-tls-verify=true \
+                "docker://$(params.image)" \
+                "docker://$(params.forgejo-image)"
+              echo "mirrored $(params.image) -> $(params.forgejo-image)"
