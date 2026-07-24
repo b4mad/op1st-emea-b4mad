@@ -30,6 +30,7 @@ resources:
   # SealedSecrets, generated from the sibling *.enc.yaml sops files via
   # scripts/sops2sealedsecret. forgejo-bot-tokens.enc.yaml is sops-only
   # (local tooling credential, never applied to the cluster).
+  - forgejo-admin-secret.yaml
   - forgejo-oauth-secret.yaml
   - forgejo-gpg-signing-secret.yaml
   - forgejo-offsite-borg-secret.yaml

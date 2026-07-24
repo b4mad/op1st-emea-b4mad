@@ -48,6 +48,16 @@ ingress:
         - forgejo.b4mad.industries
 
 gitea:
+  # Pinned break-glass admin credentials (SealedSecret forgejo-admin, source of
+  # truth forgejo-admin-secret.enc.yaml). Without existingSecret the chart
+  # renders a FRESH random password on every helm render, which keeps the
+  # Secret permanently OutOfSync in Argo CD and — via the chart's default
+  # GITEA_ADMIN_PASSWORD_MODE=keepUpdated — would rewrite the gitea_admin DB
+  # password on every sync. Web login for gitea_admin stays disabled (SSO-only);
+  # this only pins what `oc exec … gitea admin` break-glass docs refer to.
+  admin:
+    existingSecret: forgejo-admin
+
   # OIDC login source. Client id/secret come from the existing secret
   # 'forgejo-oauth-secret' (keys: key=client-id, secret=client-secret) — kept
   # out of git/values. autoDiscoverUrl is the Keycloak realm's OIDC discovery doc.
