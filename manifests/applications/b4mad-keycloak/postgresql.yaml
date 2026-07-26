@@ -84,7 +84,10 @@ kind: ScheduledBackup
 metadata:
   name: daily
 spec:
-  schedule: "0 0 3 * * *"
+  # 02:30 — staggered to spread nostromo's nightly CNPG backup load. Cluster-wide
+  # slots: 02:00 pipelines, 02:30 keycloak, 03:00 feeldata-stage, 04:00 feeldata
+  # dev+prod, 04:30 matrix, 05:00 forgejo, 06:00 machdenstaat.
+  schedule: "0 30 2 * * *"
   backupOwnerReference: self
   cluster:
     name: postgresql
