@@ -27,6 +27,10 @@ resources:
   - forgejo-borg-image.yaml
   - forgejo-borg-pipeline.yaml
 
+  # CloudNativePG "prod" cluster + PgBouncer pooler + daily ScheduledBackup —
+  # durable datastore for Forgejo (Systems-07w), backed up to S3.
+  - postgresql.yaml
+
   # SealedSecrets, generated from the sibling *.enc.yaml sops files via
   # scripts/sops2sealedsecret. forgejo-bot-tokens.enc.yaml is sops-only
   # (local tooling credential, never applied to the cluster).
@@ -35,3 +39,6 @@ resources:
   - forgejo-gpg-signing-secret.yaml
   - forgejo-offsite-borg-secret.yaml
   - forgejo-registry-push-secret.yaml
+  # S3 backup credentials for the CNPG cluster (nostromo-cnpg bucket),
+  # sourced from the feeldata-prod aws-creds secret.
+  - aws-creds.yaml

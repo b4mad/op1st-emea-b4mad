@@ -1,0 +1,96 @@
+---
+# CloudNativePG cluster backing Forgejo (graduating off throwaway SQLite —
+# Systems-07w). Single instance: nostromo is a single-node cluster, so there
+# is no second node for an HA standby to land on. WAL + base backups go to the
+# nostromo-cnpg S3 bucket via the aws-creds SealedSecret.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  creationTimestamp: null
+  name: prod
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: forgejo
+      owner: forgejo
+  storage:
+    resizeInUseVolumes: true
+    size: 8Gi
+    storageClass: lvms-vg1
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://nostromo-cnpg/b4mad-forgejo/
+      s3Credentials:
+        accessKeyId:
+          key: ACCESS_KEY_ID
+          name: aws-creds
+        secretAccessKey:
+          key: ACCESS_SECRET_KEY
+          name: aws-creds
+      wal:
+        compression: gzip
+        encryption: AES256
+        maxParallel: 8
+    retentionPolicy: 30d
+    target: prefer-standby
+    volumeSnapshot:
+      className: lvms-vg1
+      online: true
+      onlineConfiguration:
+        immediateCheckpoint: true
+        waitForArchive: true
+      snapshotOwnerReference: none
+  monitoring:
+    customQueriesConfigMap:
+      - key: queries
+        name: cnpg-default-monitoring
+    disableDefaultQueries: false
+    # enablePodMonitor is deprecated; the PodMonitor is managed manually below.
+    enablePodMonitor: false
+  postgresql:
+    parameters:
+      pgaudit.log: "none, -misc"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Pooler
+metadata:
+  creationTimestamp: null
+  name: pooler-prod
+spec:
+  cluster:
+    name: prod
+  instances: 1
+  pgbouncer:
+    parameters:
+      default_pool_size: "4"
+      max_client_conn: "100"
+    paused: false
+    poolMode: session
+  type: rw
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: daily
+spec:
+  schedule: "0 0 3 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: prod
+---
+# Manually managed PodMonitor, replacing the deprecated
+# spec.monitoring.enablePodMonitor. Selector/port match what the CNPG operator
+# generates for a Cluster's instance pods.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: prod
+spec:
+  namespaceSelector: {}
+  selector:
+    matchLabels:
+      cnpg.io/cluster: prod
+      cnpg.io/podRole: instance
+  podMetricsEndpoints:
+    - port: metrics
