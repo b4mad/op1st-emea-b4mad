@@ -46,7 +46,8 @@ spec:
       - key: queries
         name: cnpg-default-monitoring
     disableDefaultQueries: false
-    enablePodMonitor: true
+    # enablePodMonitor is deprecated; the PodMonitor is managed manually below.
+    enablePodMonitor: false
   postgresql:
     parameters:
       pgaudit.log: "none, -misc"
@@ -77,3 +78,19 @@ spec:
   backupOwnerReference: self
   cluster:
     name: prod
+---
+# Manually managed PodMonitor, replacing the deprecated
+# spec.monitoring.enablePodMonitor. Selector/port match what the CNPG operator
+# generates for a Cluster's instance pods.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: prod
+spec:
+  namespaceSelector: {}
+  selector:
+    matchLabels:
+      cnpg.io/cluster: prod
+      cnpg.io/podRole: instance
+  podMetricsEndpoints:
+    - port: metrics
