@@ -4,11 +4,11 @@ metadata:
     name: forgejo-bot-tokens
 type: Opaque
 stringData:
-    renovate-token: ENC[AES256_GCM,data:/pn34GWPd5jHLAyIyv1K6QlL9/ShGcwofTNMTQcCayBUmHUcnivd2g==,iv:lBKPDxszQCANgqOjdikicQMmygWvddi5h1vcrO9/ND0=,tag:4crJkgo+veSmPSfC3m0qXw==,type:str]
-    gitops-token: ENC[AES256_GCM,data:dfSFABwEttWrXNVgxPchryEOC8RTCXk+au7UCyO/VFYh1fw2GVRJTA==,iv:nE4k8PCXerrXwW1m+4n+vLcnHxUqudu4pNPykSr3Fko=,tag:ZgjR8zVpXbzLCjUndHxUwg==,type:str]
+    renovate-token: ENC[AES256_GCM,data:NVgqlGAYM6SWy77IhOx5AnwNnSyGE9nweBlDeE3aXDEhcYl8ABJ/+Q==,iv:4Mcy5tfUMHICZwK3/2qar24XIRu1C20w1JMTzQGsTZs=,tag:2cpi7/Vc1GECYLZklBhn8g==,type:str]
+    gitops-token: ENC[AES256_GCM,data:L5vXFn7qD4Iq5ZgizBfRAog+YitUWcKkFl1W3TCZLJ7g8muFRbxGDA==,iv:C8h1YpIkUAs48HfBMwxKlsavjCArKkR74P+7hLO6qXE=,tag:fB1oWVj9t3c9w+X5B00rpA==,type:str]
 sops:
-    lastmodified: "2026-07-24T11:16:22Z"
-    mac: ENC[AES256_GCM,data:QfIdPp+zphI5639jwzYD0eSm0aaFma0kNr/RV0UIdIw9cqQ3Xlwir2D1IxmNZKaoY4iuuFahe6VbvK8HhELPEfPp+CE3QyyDNtD9Ftt49fHVO43Z6vpUjEKc2xKfHgDLmqm3Zap9tbl1r26q8Ou2FTo/TObSzkThThMA82vU+84=,iv:JvXQWYczcmhnkzvsmJvZ0AZXACINp3wsDzOwxK19Jis=,tag:qqThuKU4WESR4t6pG7UbDQ==,type:str]
+    lastmodified: "2026-07-27T20:22:03Z"
+    mac: ENC[AES256_GCM,data:/BobjJNcZa5JUMnf1OjWdnK8wclm//iZ36zcsZZxotknSKTIpOC0C+2BgvbJcjBxViPa4wsMwbiNPSrmdf2I2MCAbkyCVnlun9mx2LWWC3E9Ci97Z3Sii8/Oc0SJrDeHk/6XwANuK7Y/CCAa0JqC+bv/FOrb1fTW/8ibU4dKSZA=,iv:WdT8UTwR2+QDGZ+qslvf/bs9RSQi2OXdbGltHD7jYKo=,tag:hJ+WxMgsWFP5YW4W64TczQ==,type:str]
     pgp:
         - created_at: "2026-07-24T16:43:24Z"
           enc: |-
