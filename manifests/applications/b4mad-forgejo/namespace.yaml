@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   annotations:
     openshift.io/display-name: "#B4mad Forge"
-    openshift.io/description: "Forgejo software forge for the #B4mad Network, served at forgejo.b4mad.net and forgejo.b4mad.industries. SSO via the Keycloak b4mad.industries realm; PostgreSQL via the in-namespace CloudNativePG cluster 'prod' (WAL-archived to s3://nostromo-cnpg/b4mad-forgejo/); daily logical dump to a local PVC plus an off-site borg push to store-1."
+    openshift.io/description: "Forgejo software forge for the #B4mad Network."
     openshift.io/cluster-monitoring: "true"
   labels:
     b4mad.operate-first.cloud/owner: goern.b4mad.net
