@@ -1,13 +1,18 @@
-# Forgejo — nostromo test instance
+# Forgejo — nostromo instance
 
-A **throwaway test** deployment of [Forgejo](https://forgejo.org/) via the
+A deployment of [Forgejo](https://forgejo.org/) via the
 [forgejo-helm](https://code.forgejo.org/forgejo-helm/forgejo-helm) chart,
 running on the **nostromo** OpenShift cluster in namespace
-`b4mad-forgejo`. SSO via Keycloak, SQLite storage.
+`b4mad-forgejo`. SSO via Keycloak, PostgreSQL storage.
 
-> ⚠️ **Test instance.** DB is SQLite (postgres/redis subcharts disabled),
-> persistence is 5Gi, the connection-test pod is off. Do not treat any data
-> here as durable.
+> Storage is durable as of 2026-07-27: the DB is the CloudNativePG cluster
+> `prod` (see `postgresql.yaml`), reached through the `pooler-prod` PgBouncer
+> pooler, with WAL + base backups to `s3://nostromo-cnpg/b4mad-forgejo/` and a
+> daily `ScheduledBackup` at 05:00. Accounts and repos here can be relied upon
+> by automation.
+>
+> ⚠️ nostromo is a single node, so the cluster runs `instances: 1` — there is
+> no HA standby. Durability comes from the S3 backups, not from replication.
 
 ## At a glance
 
@@ -18,7 +23,7 @@ running on the **nostromo** OpenShift cluster in namespace
 | Chart | `forgejo-helm` |
 | Canonical URL | <https://forgejo.b4mad.net/> |
 | Alt URL | <https://forgejo.b4mad.industries/> (redirects to canonical) |
-| Database | SQLite (throwaway) |
+| Database | PostgreSQL — CNPG cluster `prod` via `pooler-prod` |
 | Auth | Keycloak OIDC, SSO-only |
 | git-SSH | `ssh://git@forgejo.b4mad.net:2222/…` |
 
