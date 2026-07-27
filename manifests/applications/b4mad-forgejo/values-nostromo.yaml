@@ -73,6 +73,22 @@ gitea:
       # Request email/profile so auto-created accounts get email + username
       # populated. Forgejo always prepends 'openid', so don't list it here.
       scopes: 'email profile'
+      # Site-admin membership is delegated to Keycloak: users in the realm
+      # group 'forgejo-admins' get is_admin, everyone else loses it. The
+      # chart's oauth helper kebab-cases every key, so these render as
+      # --group-claim-name / --admin-group on the `gitea admin auth
+      # update-oauth` call that configure_gitea.sh re-runs on every pod start.
+      #
+      # The claim itself is produced by an oidc-group-membership-mapper on the
+      # Keycloak client, managed by the ensure-forgejo-groups-mapper PostSync
+      # hook in b4mad-keycloak — this setting is inert without it.
+      #
+      # ⚠️ Forgejo RE-EVALUATES the admin flag on every SSO login. If the
+      # claim ever stops being emitted (mapper removed, group renamed), every
+      # admin is silently demoted at next sign-in. gitea_admin stays as the
+      # local break-glass account for exactly that case; do not delete it.
+      groupClaimName: groups
+      adminGroup: forgejo-admins
 
   # The DB password is the ONLY database field kept out of this file. CNPG
   # mints it into the Secret "prod-app" (key: password) when it bootstraps the

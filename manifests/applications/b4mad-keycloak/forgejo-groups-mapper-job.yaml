@@ -1,0 +1,123 @@
+# Ensures the Forgejo OIDC client emits a `groups` claim, which is what
+# Forgejo's `--admin-group forgejo-admins` mapping keys off (see
+# b4mad-forgejo/values-nostromo.yaml, gitea.oauth[0]).
+#
+# ⚠️ Why a Job and not a KeycloakRealmImport: the Keycloak operator runs its
+# import as `kc.sh import --override=false` and the KeycloakRealmImport CRD
+# exposes no strategy/override field (checked on v2alpha1 + v2beta1). An
+# import against the ALREADY-EXISTING realm b4mad.industries is therefore a
+# silent no-op — the CR can only create realms from scratch, never mutate a
+# live one. Realm b4mad.industries is not otherwise represented in git; this
+# Job is the declarative seam for the one setting we do need to own.
+#
+# Runs as a PostSync hook so it re-converges on every Argo CD sync, and uses
+# `kcadm update` (not create-if-missing) so hand-edits in the Keycloak admin
+# console are corrected rather than merely detected.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ensure-forgejo-groups-mapper
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    # Replace the previous hook Job on each sync; without this the immutable
+    # Job spec collides with the leftover object from the last sync.
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: kcadm
+          # Same image as the Keycloak CR so kcadm.sh matches the server
+          # version. NOT rewritten by the kustomize `images:` transformer —
+          # that one is scoped to kind=Keycloak spec/image only.
+          image: codeberg.org/b4mad/keycloak-op1st:26.4.7-0.11
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            # Operator-managed bootstrap admin in the `master` realm.
+            - name: KC_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: b4mad-erdgeschoss-initial-admin
+                  key: username
+            - name: KC_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: b4mad-erdgeschoss-initial-admin
+                  key: password
+          command:
+            - /bin/bash
+            - -ceu
+            - |
+              KCADM=/opt/keycloak/bin/kcadm.sh
+              REALM=b4mad.industries
+              CLIENT=forgejo
+              MAPPER=groups
+
+              # OpenShift runs this pod under a random UID with no writable
+              # HOME, so kcadm's default ~/.keycloak/kcadm.config is
+              # unwritable — every call must carry --config explicitly.
+              CFG=/tmp/kcadm.config
+
+              # Public route rather than the in-cluster Service: the Service
+              # serves the `tls-backend` cert, which the JVM truststore does
+              # not trust, while the route carries a real Let's Encrypt cert.
+              $KCADM config credentials --config "$CFG" \
+                --server https://keycloak.erdgeschoss.b4mad.net \
+                --realm master --user "$KC_ADMIN" --password "$KC_ADMIN_PASSWORD"
+
+              CID=$($KCADM get clients --config "$CFG" -r "$REALM" \
+                -q clientId="$CLIENT" --fields id --format csv --noquotes)
+              if [ -z "$CID" ]; then
+                echo "ERROR: OIDC client '$CLIENT' not found in realm '$REALM'." >&2
+                exit 1
+              fi
+              echo "client $CLIENT -> $CID"
+
+              # full.path=false so the claim carries bare group names
+              # ("forgejo-admins"), matching --admin-group on the Forgejo side.
+              # A leading slash ("/forgejo-admins") would never compare equal.
+              ARGS=(
+                -s "name=$MAPPER"
+                -s protocol=openid-connect
+                -s protocolMapper=oidc-group-membership-mapper
+                -s 'config."claim.name"=groups'
+                -s 'config."full.path"=false'
+                -s 'config."id.token.claim"=true'
+                -s 'config."access.token.claim"=true'
+                -s 'config."userinfo.token.claim"=true'
+              )
+
+              # Parsed with bash builtins on purpose: the Keycloak image is
+              # UBI-micro and ships no awk (nor jq/python). sed/grep/cut exist.
+              MID=""
+              while IFS=, read -r id name _rest; do
+                if [ "$name" = "$MAPPER" ]; then MID="$id"; break; fi
+              done < <($KCADM get "clients/$CID/protocol-mappers/models" \
+                --config "$CFG" -r "$REALM" --fields id,name --format csv \
+                --noquotes)
+
+              if [ -n "$MID" ]; then
+                echo "mapper '$MAPPER' exists ($MID) — reconciling"
+                $KCADM update "clients/$CID/protocol-mappers/models/$MID" \
+                  --config "$CFG" -r "$REALM" "${ARGS[@]}"
+              else
+                echo "mapper '$MAPPER' missing — creating"
+                $KCADM create "clients/$CID/protocol-mappers/models" \
+                  --config "$CFG" -r "$REALM" "${ARGS[@]}"
+              fi
+              echo "done"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

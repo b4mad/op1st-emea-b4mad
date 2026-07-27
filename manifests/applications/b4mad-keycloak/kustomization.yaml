@@ -23,6 +23,11 @@ resources:
 
   - realms/erdgeschoss.b4mad.net.yaml
 
+  # PostSync hook: ensures the Forgejo OIDC client in realm b4mad.industries
+  # emits the `groups` claim that Forgejo's admin-group mapping depends on.
+  # A KeycloakRealmImport cannot do this — see the header of the Job.
+  - forgejo-groups-mapper-job.yaml
+
 images:
   - name: keycloak
     newName: codeberg.org/b4mad/keycloak-op1st
