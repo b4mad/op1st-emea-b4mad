@@ -2,7 +2,7 @@
 # forgejo-offsite CronJob: git-clone -> buildah build+push, with TektonChains
 # provenance. The output is a Fedora 41 + borgbackup + openssh-clients image,
 # pushed to the internal ImageStream tag
-#   image-registry.openshift-image-registry.svc:5000/b4mad-forgejo-test/borg:latest
+#   image-registry.openshift-image-registry.svc:5000/b4mad-forgejo/borg:latest
 # so forgejo-offsite-cronjob.yaml needs ZERO changes.
 #
 # ADDITIVE Forgejo mirror: after the internal push succeeds, a final
@@ -27,8 +27,8 @@
 # forgejo-borg-pipelinerun.yaml (uses generateName, so it is deliberately NOT
 # part of the kustomization: Argo cannot manage generateName resources and
 # would start a fresh build on every sync).
-#   oc -n b4mad-forgejo-test create -f forgejo-borg-pipelinerun.yaml
-# Watch:  tkn -n b4mad-forgejo-test pipelinerun logs -f --last
+#   oc -n b4mad-forgejo create -f forgejo-borg-pipelinerun.yaml
+# Watch:  tkn -n b4mad-forgejo pipelinerun logs -f --last
 #
 # SCC: the operator already binds the namespace `pipeline` ServiceAccount to
 # `pipelines-scc` via the operator-reconciled `pipelines-scc-rolebinding`
@@ -46,7 +46,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: borg-build-image-builder
-  namespace: b4mad-forgejo-test
+  namespace: b4mad-forgejo
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -54,7 +54,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: pipeline
-    namespace: b4mad-forgejo-test
+    namespace: b4mad-forgejo
 ---
 # Registry pull RBAC: the additive `push-forgejo` task uses skopeo to copy the
 # just-built image FROM the internal registry, so the `pipeline` SA also needs
@@ -66,7 +66,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: borg-build-image-puller
-  namespace: b4mad-forgejo-test
+  namespace: b4mad-forgejo
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -74,13 +74,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: pipeline
-    namespace: b4mad-forgejo-test
+    namespace: b4mad-forgejo
 ---
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: borg-build
-  namespace: b4mad-forgejo-test
+  namespace: b4mad-forgejo
 spec:
   params:
     - name: git-url
@@ -91,7 +91,7 @@ spec:
       default: main
     - name: image
       type: string
-      default: image-registry.openshift-image-registry.svc:5000/b4mad-forgejo-test/borg:latest
+      default: image-registry.openshift-image-registry.svc:5000/b4mad-forgejo/borg:latest
     - name: forgejo-image
       type: string
       # Forgejo container packages are OWNER-scoped: forgejo.b4mad.net/{owner}/{image}:{tag}.

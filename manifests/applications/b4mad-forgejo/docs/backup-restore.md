@@ -1,6 +1,6 @@
 # Forgejo backup & restore
 
-For the nostromo test instance (namespace `b4mad-forgejo-test`).
+For the nostromo test instance (namespace `b4mad-forgejo`).
 
 ## What is state, and where it lives
 
@@ -31,9 +31,9 @@ keeping the **last 7** archives (`forgejo-<UTC-timestamp>.tar.zst`). The
 off-site push (below) runs 04:40, after this dump completes.
 
 ```bash
-oc -n b4mad-forgejo-test apply -f forgejo-backup-cronjob.yaml   # install
-oc -n b4mad-forgejo-test create job --from=cronjob/forgejo-backup forgejo-backup-manual  # run now
-oc -n b4mad-forgejo-test get pods -l job-name=forgejo-backup-manual     # watch
+oc -n b4mad-forgejo apply -f forgejo-backup-cronjob.yaml   # install
+oc -n b4mad-forgejo create job --from=cronjob/forgejo-backup forgejo-backup-manual  # run now
+oc -n b4mad-forgejo get pods -l job-name=forgejo-backup-manual     # watch
 ```
 
 Each archive contains `app.ini`, the database (`forgejo-db.sql`), the
@@ -51,10 +51,10 @@ index is skipped (`--skip-index`) — it is rebuildable.
 ### Ad-hoc manual dump
 
 ```bash
-POD=$(oc -n b4mad-forgejo-test get pod -l app.kubernetes.io/name=forgejo -o jsonpath='{.items[0].metadata.name}')
-oc -n b4mad-forgejo-test exec "$POD" -c forgejo -- \
+POD=$(oc -n b4mad-forgejo get pod -l app.kubernetes.io/name=forgejo -o jsonpath='{.items[0].metadata.name}')
+oc -n b4mad-forgejo exec "$POD" -c forgejo -- \
   forgejo dump -c /data/gitea/conf/app.ini --type tar.zst --skip-index -f /tmp/forgejo-dump.tar.zst
-oc -n b4mad-forgejo-test cp "$POD:/tmp/forgejo-dump.tar.zst" ./forgejo-dump.tar.zst -c forgejo
+oc -n b4mad-forgejo cp "$POD:/tmp/forgejo-dump.tar.zst" ./forgejo-dump.tar.zst -c forgejo
 ```
 
 ### Block snapshot alternative (fast local rollback)
@@ -63,9 +63,9 @@ oc -n b4mad-forgejo-test cp "$POD:/tmp/forgejo-dump.tar.zst" ./forgejo-dump.tar.
 snapshot of the data PVC is possible:
 
 ```bash
-oc -n b4mad-forgejo-test scale deploy/forgejo --replicas=0   # quiesce for SQLite consistency
+oc -n b4mad-forgejo scale deploy/forgejo --replicas=0   # quiesce for SQLite consistency
 # create a VolumeSnapshot of PVC gitea-shared-storage (snapshotClassName: lvms-vg1)
-oc -n b4mad-forgejo-test scale deploy/forgejo --replicas=1
+oc -n b4mad-forgejo scale deploy/forgejo --replicas=1
 ```
 
 Restore = provision a new PVC with `spec.dataSource` referencing the snapshot,
@@ -78,13 +78,13 @@ authoritative procedure: <https://forgejo.org/docs/latest/admin/backup-and-resto
 
 1. **Rebuild the declarative layer** (fresh cluster / namespace):
    ```bash
-   oc -n b4mad-forgejo-test apply -f forgejo-home-template.configmap.yaml
-   sops -d forgejo-oauth-secret.enc.yaml        | oc -n b4mad-forgejo-test apply -f -
-   sops -d forgejo-gpg-signing-secret.enc.yaml  | oc -n b4mad-forgejo-test apply -f -
+   oc -n b4mad-forgejo apply -f forgejo-home-template.configmap.yaml
+   sops -d forgejo-oauth-secret.enc.yaml        | oc -n b4mad-forgejo apply -f -
+   sops -d forgejo-gpg-signing-secret.enc.yaml  | oc -n b4mad-forgejo apply -f -
    helm upgrade --install forgejo /var/home/goern/Source/forgejo-helm \
-     -n b4mad-forgejo-test -f values-nostromo-test.yaml
+     -n b4mad-forgejo -f values-nostromo-test.yaml
    ```
-2. **Quiesce**: `oc -n b4mad-forgejo-test scale deploy/forgejo --replicas=0`.
+2. **Quiesce**: `oc -n b4mad-forgejo scale deploy/forgejo --replicas=0`.
 3. **Unpack the archive into the PVC** (via a maintenance pod mounting
    `gitea-shared-storage`, as in the queue-fix pattern):
    - repositories → `/data/git/gitea-repositories/`
@@ -96,9 +96,9 @@ authoritative procedure: <https://forgejo.org/docs/latest/admin/backup-and-resto
    readable/writable by the SCC-assigned range).
 5. **Scale up** and heal:
    ```bash
-   oc -n b4mad-forgejo-test scale deploy/forgejo --replicas=1
-   POD=$(oc -n b4mad-forgejo-test get pod -l app.kubernetes.io/name=forgejo -o jsonpath='{.items[0].metadata.name}')
-   oc -n b4mad-forgejo-test exec "$POD" -c forgejo -- forgejo doctor --run all --fix
+   oc -n b4mad-forgejo scale deploy/forgejo --replicas=1
+   POD=$(oc -n b4mad-forgejo get pod -l app.kubernetes.io/name=forgejo -o jsonpath='{.items[0].metadata.name}')
+   oc -n b4mad-forgejo exec "$POD" -c forgejo -- forgejo doctor --run all --fix
    ```
 
 ## Off-site (implemented — Path A: in-cluster borg push to store-1)
@@ -145,11 +145,11 @@ Manual steps are only the build trigger and an optional test run:
 
 ```bash
 # --- build the borg image (Tekton, OpenShift Pipelines) ---
-oc -n b4mad-forgejo-test create -f forgejo-borg-pipelinerun.yaml      # start a PipelineRun (generateName)
-tkn -n b4mad-forgejo-test pipelinerun logs -f --last                  # watch the build
+oc -n b4mad-forgejo create -f forgejo-borg-pipelinerun.yaml      # start a PipelineRun (generateName)
+tkn -n b4mad-forgejo pipelinerun logs -f --last                  # watch the build
 # --- off-site job: test now ---
-oc -n b4mad-forgejo-test create job --from=cronjob/forgejo-offsite forgejo-offsite-manual
-oc -n b4mad-forgejo-test logs -f -l job-name=forgejo-offsite-manual
+oc -n b4mad-forgejo create job --from=cronjob/forgejo-offsite forgejo-offsite-manual
+oc -n b4mad-forgejo logs -f -l job-name=forgejo-offsite-manual
 ```
 
 > The borg image is built by a **Tekton pipeline** (`borg-build`:

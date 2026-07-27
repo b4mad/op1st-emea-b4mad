@@ -35,9 +35,9 @@ We keep the template **in git**, not hand-edited on the PVC:
    hot-reload**, so a pod restart is required to pick up the new content:
 
    ```bash
-   oc -n b4mad-forgejo-test apply -f forgejo-home-template.configmap.yaml
-   oc -n b4mad-forgejo-test rollout restart deploy/forgejo
-   oc -n b4mad-forgejo-test rollout status deploy/forgejo
+   oc -n b4mad-forgejo apply -f forgejo-home-template.configmap.yaml
+   oc -n b4mad-forgejo rollout restart deploy/forgejo
+   oc -n b4mad-forgejo rollout status deploy/forgejo
    ```
 
 3. Verify the live page:

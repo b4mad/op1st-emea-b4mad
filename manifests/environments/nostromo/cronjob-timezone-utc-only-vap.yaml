@@ -23,7 +23,7 @@
 # Apply:
 #   oc --context=nostromo apply -f openshift/cronjob-timezone-utc-only-vap.yaml
 # Test (server dry-run triggers admission, so the Warn fires without persisting):
-#   oc --context=nostromo -n b4mad-forgejo-test create cronjob tz-probe \
+#   oc --context=nostromo -n b4mad-forgejo create cronjob tz-probe \
 #     --image=busybox --schedule='0 3 * * *' --dry-run=server -o yaml \
 #     --save-config=false 2>&1   # NOTE: create cronjob can't set timeZone; use apply of a manifest with timeZone to see the warning.
 ---

@@ -8,4 +8,4 @@ metadata:
   labels:
     b4mad.operate-first.cloud/owner: goern.b4mad.net
     argocd.argoproj.io/managed-by: op1st-gitops
-  name: b4mad-forgejo-test
+  name: b4mad-forgejo

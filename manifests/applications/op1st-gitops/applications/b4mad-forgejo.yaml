@@ -5,7 +5,7 @@ metadata:
   namespace: op1st-gitops
 spec:
   destination:
-    namespace: b4mad-forgejo-test
+    namespace: b4mad-forgejo
     server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
   project: b4mad
   sources:

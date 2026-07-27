@@ -3,7 +3,7 @@
 A **throwaway test** deployment of [Forgejo](https://forgejo.org/) via the
 [forgejo-helm](https://code.forgejo.org/forgejo-helm/forgejo-helm) chart,
 running on the **nostromo** OpenShift cluster in namespace
-`b4mad-forgejo-test`. SSO via Keycloak, SQLite storage.
+`b4mad-forgejo`. SSO via Keycloak, SQLite storage.
 
 > ⚠️ **Test instance.** DB is SQLite (postgres/redis subcharts disabled),
 > persistence is 5Gi, the connection-test pod is off. Do not treat any data
@@ -14,7 +14,7 @@ running on the **nostromo** OpenShift cluster in namespace
 | | |
 |---|---|
 | Cluster | nostromo (OpenShift) |
-| Namespace | `b4mad-forgejo-test` |
+| Namespace | `b4mad-forgejo` |
 | Chart | `forgejo-helm` |
 | Canonical URL | <https://forgejo.b4mad.net/> |
 | Alt URL | <https://forgejo.b4mad.industries/> (redirects to canonical) |
@@ -39,7 +39,7 @@ running on the **nostromo** OpenShift cluster in namespace
 > repo's `.sops.yaml`) is the **source of truth**; its sibling `*.yaml` is the
 > **SealedSecret** Argo CD applies, generated with:
 > ```bash
-> scripts/sops2sealedsecret --context <nostromo-context> --namespace b4mad-forgejo-test \
+> scripts/sops2sealedsecret --context <nostromo-context> --namespace b4mad-forgejo \
 >   <name>.enc.yaml <name>.yaml --force
 > ```
 > After rotating a value: edit the `.enc.yaml` with `sops`, regenerate the

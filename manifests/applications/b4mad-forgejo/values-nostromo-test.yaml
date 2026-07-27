@@ -1,4 +1,4 @@
-# Test-instance overlay for Forgejo on nostromo (OpenShift), ns b4mad-forgejo-test.
+# Test-instance overlay for Forgejo on nostromo (OpenShift), ns b4mad-forgejo.
 # DB is SQLite (postgres/redis subcharts stay disabled) — fine for a throwaway test.
 # Docs: forgejo-helm README "Compatibility with OCP".
 

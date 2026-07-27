@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Create a service-account ("bot") user + named personal access token on the
-# nostromo Forgejo test instance (namespace b4mad-forgejo-test).
+# nostromo Forgejo test instance (namespace b4mad-forgejo).
 #
 # WHY a script: the instance is a throwaway SQLite deployment (see README.md).
 # Accounts/tokens created here are NOT captured in git and vanish if the volume
@@ -32,7 +32,7 @@
 #   is discarded, so no known credential lingers.
 set -euo pipefail
 
-NS=b4mad-forgejo-test
+NS=b4mad-forgejo
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # The public route of THIS instance (NS is hardcoded above, so the URL is too).
 # Deliberately NOT ${FORGEJO_URL:-…}: the environment already exports

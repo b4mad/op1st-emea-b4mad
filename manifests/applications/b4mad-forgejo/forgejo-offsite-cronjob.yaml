@@ -23,9 +23,9 @@
 # can write their caches / .config.
 #
 # Apply:
-#   oc -n b4mad-forgejo-test apply -f forgejo-offsite-cronjob.yaml
+#   oc -n b4mad-forgejo apply -f forgejo-offsite-cronjob.yaml
 # Run once now:
-#   oc -n b4mad-forgejo-test create job --from=cronjob/forgejo-offsite forgejo-offsite-manual
+#   oc -n b4mad-forgejo create job --from=cronjob/forgejo-offsite forgejo-offsite-manual
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -53,7 +53,7 @@ spec:
               hostnames: [store-1]
           containers:
             - name: borg
-              image: image-registry.openshift-image-registry.svc:5000/b4mad-forgejo-test/borg:latest
+              image: image-registry.openshift-image-registry.svc:5000/b4mad-forgejo/borg:latest
               imagePullPolicy: Always
               env:
                 - name: HOME
