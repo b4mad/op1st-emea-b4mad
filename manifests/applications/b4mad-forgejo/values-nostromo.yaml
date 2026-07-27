@@ -218,44 +218,55 @@ service:
 # initPreScript is copied verbatim to the TOP of that script, so creating the
 # directory here makes the chart's `[ ! -d ]` test false and skips the whole
 # block, unguarded chown included.
+#
+# The copy step below installs the custom templates/branding — see the
+# extraVolumes comment further down for why they are copied rather than
+# subPath-mounted.
 initPreScript: |
   mkdir -p "${GNUPGHOME}"
   chmod 700 "${GNUPGHOME}"
+
+  mkdir -p /data/gitea/templates/custom /data/gitea/public/assets/img
+  cp /custom-templates/home.tmpl   /data/gitea/templates/home.tmpl
+  cp /custom-templates/header.tmpl /data/gitea/templates/custom/header.tmpl
+  cp /custom-templates/logo.svg    /data/gitea/public/assets/img/logo.svg
+  cp /custom-templates/favicon.svg /data/gitea/public/assets/img/favicon.svg
 
 signing:
   enabled: true
   gpgHome: /data/git/.gnupg
   existingSecret: forgejo-gpg-signing-key
 
-# Custom landing page: mount the home.tmpl override from the
-# forgejo-custom-templates ConfigMap (see forgejo-home-template.configmap.yaml)
-# into Forgejo's custom template dir (GITEA_CUSTOM=/data/gitea). subPath mounts
-# just the single file on top of the PVC path.
+# Custom landing page + branding, from the forgejo-custom-templates ConfigMap
+# (see forgejo-home-template.configmap.yaml) into Forgejo's custom dir
+# (GITEA_CUSTOM=/data/gitea).
+#
+# ⚠️ These were subPath mounts landing directly on /data/gitea/... paths, which
+# breaks a from-scratch rebuild. To satisfy a subPath mount the kubelet has to
+# materialise the parent directories inside the data volume itself, and it
+# creates them root-owned after the fsGroup pass. On a fresh PVC that leaves
+# /data/gitea root-owned, so init_directory_structure.sh dies on its very first
+# statement:
+#
+#     mkdir: can't create directory '/data/gitea/conf': Permission denied
+#
+# Verified 2026-07-27: a pod with byte-identical runAsUser/fsGroup but WITHOUT
+# these mounts creates the same directory on the same fresh PVC without
+# complaint — the mounts are the whole difference. It stayed hidden for months
+# because the old PVC already had /data/gitea from the pre-GitOps helm install.
+#
+# So: mount the ConfigMap somewhere neutral, for the init containers only, and
+# copy the files into place in initPreScript — which runs as the assigned UID
+# and creates /data/gitea itself, with correct ownership. As a bonus this fixes
+# template updates: a subPath-mounted ConfigMap never propagates changes, while
+# this re-copies on every pod start.
 extraVolumes:
   - name: custom-templates
     configMap:
       name: forgejo-custom-templates
-extraVolumeMounts:
+extraInitVolumeMounts:
   - name: custom-templates
-    mountPath: /data/gitea/templates/home.tmpl
-    subPath: home.tmpl
-    readOnly: true
-  # Injected into <head> on every page — recolors the brand accent to green.
-  - name: custom-templates
-    mountPath: /data/gitea/templates/custom/header.tmpl
-    subPath: header.tmpl
-    readOnly: true
-  # The "forge-hash" brand mark (see forgejo-home-template.configmap.yaml).
-  # Forgejo's custom static root is $GITEA_CUSTOM/public/assets, so these
-  # override the stock /assets/img/logo.svg + favicon.svg instance-wide
-  # (navbar, home hero, browser tab).
-  - name: custom-templates
-    mountPath: /data/gitea/public/assets/img/logo.svg
-    subPath: logo.svg
-    readOnly: true
-  - name: custom-templates
-    mountPath: /data/gitea/public/assets/img/favicon.svg
-    subPath: favicon.svg
+    mountPath: /custom-templates
     readOnly: true
 
 # Keep the test lean.
