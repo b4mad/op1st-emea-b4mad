@@ -1,6 +1,6 @@
 # Custom Forgejo landing page (templates/home.tmpl override).
 # Mounted read-only at /data/gitea/templates/home.tmpl via extraVolumes/
-# extraVolumeMounts in values-nostromo-test.yaml. Forgejo replaces the whole
+# extraVolumeMounts in values-nostromo.yaml. Forgejo replaces the whole
 # home.tmpl, so this file IS the landing page for anonymous (and signed-out)
 # visitors. Based on Forgejo v16.0.1's default templates/home.tmpl.
 #

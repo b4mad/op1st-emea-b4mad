@@ -10,7 +10,7 @@ For the nostromo test instance (namespace `b4mad-forgejo`).
 | Git repositories | `/data/git/gitea-repositories` | dump / snapshot |
 | LFS, attachments, packages, avatars | `/data/gitea/…` | dump / snapshot |
 | `app.ini` | `/data/gitea/conf/app.ini` (rendered by the chart) | dump; also reproducible from helm values |
-| Helm values | `values-nostromo-test.yaml` | **git** |
+| Helm values | `values-nostromo.yaml` | **git** |
 | Secrets (oauth, GPG signing) | SOPS `*.enc.yaml` → k8s Secrets | **git** (SOPS) |
 | Landing-page template | `forgejo-home-template.configmap.yaml` | **git** |
 | Keycloak realm (SSO) | external Keycloak | **its own backup** — out of scope here |
@@ -82,7 +82,7 @@ authoritative procedure: <https://forgejo.org/docs/latest/admin/backup-and-resto
    sops -d forgejo-oauth-secret.enc.yaml        | oc -n b4mad-forgejo apply -f -
    sops -d forgejo-gpg-signing-secret.enc.yaml  | oc -n b4mad-forgejo apply -f -
    helm upgrade --install forgejo /var/home/goern/Source/forgejo-helm \
-     -n b4mad-forgejo -f values-nostromo-test.yaml
+     -n b4mad-forgejo -f values-nostromo.yaml
    ```
 2. **Quiesce**: `oc -n b4mad-forgejo scale deploy/forgejo --replicas=0`.
 3. **Unpack the archive into the PVC** (via a maintenance pod mounting

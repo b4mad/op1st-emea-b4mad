@@ -24,7 +24,7 @@ spec:
       helm:
         releaseName: forgejo
         valueFiles:
-          - $values/manifests/applications/b4mad-forgejo/values-nostromo-test.yaml
+          - $values/manifests/applications/b4mad-forgejo/values-nostromo.yaml
   # First sync (adoption of the previously helm-CLI-installed release) was
   # reviewed and applied manually on 2026-07-24; automated since.
   #

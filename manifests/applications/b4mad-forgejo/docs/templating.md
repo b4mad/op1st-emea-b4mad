@@ -15,7 +15,7 @@ We keep the template **in git**, not hand-edited on the PVC:
 | Piece | Where |
 |---|---|
 | Template source | `forgejo-home-template.configmap.yaml` (ConfigMap `forgejo-custom-templates`, key `home.tmpl`) |
-| Mount wiring | `extraVolumes` + `extraVolumeMounts` in `values-nostromo-test.yaml` |
+| Mount wiring | `extraVolumes` + `extraVolumeMounts` in `values-nostromo.yaml` |
 | Mount point | `/data/gitea/templates/home.tmpl` via `subPath: home.tmpl`, read-only |
 
 > ⚠️ Forgejo **replaces `home.tmpl` wholesale** — it does not merge with the

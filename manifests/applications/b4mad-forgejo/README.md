@@ -27,7 +27,7 @@ running on the **nostromo** OpenShift cluster in namespace
 | File | Purpose |
 |---|---|
 | `kustomization.yaml` | Everything Argo CD applies besides the chart (namespace, secrets, backups, borg build) |
-| `values-nostromo-test.yaml` | Helm values overlay, consumed by the Application's chart source via `$values` |
+| `values-nostromo.yaml` | Helm values overlay, consumed by the Application's chart source via `$values` |
 | `forgejo-admin-secret.enc.yaml` | SOPS-encrypted pinned `gitea_admin` break-glass credentials (`gitea.admin.existingSecret` — chart would otherwise render a fresh random password every sync) |
 | `forgejo-oauth-secret.enc.yaml` | SOPS-encrypted OIDC client id/secret → k8s Secret `forgejo-oauth-secret` (`data.key` = client-id, `data.secret` = client-secret) |
 | `forgejo-gpg-signing-secret.enc.yaml` | SOPS-encrypted GPG private key → k8s Secret `forgejo-gpg-signing-key` (`stringData.privateKey`) |
@@ -103,7 +103,7 @@ GitOps via Argo CD — the `b4mad-forgejo` Application
 sources:
 
 1. the `forgejo` chart (pinned version) from the `code.forgejo.org/forgejo-helm`
-   OCI registry, rendered with `values-nostromo-test.yaml` (`$values` ref),
+   OCI registry, rendered with `values-nostromo.yaml` (`$values` ref),
 2. this directory's kustomization (namespace, SealedSecrets, backup CronJobs,
    borg ImageStream + Tekton pipeline).
 
