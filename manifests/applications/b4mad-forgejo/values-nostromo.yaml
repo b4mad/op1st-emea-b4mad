@@ -1,5 +1,9 @@
 # Overlay for Forgejo on nostromo (OpenShift), ns b4mad-forgejo.
-# DB is SQLite (postgres/redis subcharts stay disabled) — fine for a throwaway test.
+# DB is PostgreSQL — the CloudNativePG cluster "prod" defined in
+# postgresql.yaml, reached through its PgBouncer pooler (see gitea.config
+# .database below). Chart 17.x bundles no postgres/redis subcharts at all, so
+# there is nothing to disable: an empty gitea.config.database silently means
+# SQLite, which is what this instance ran on until 2026-07-27.
 # Docs: forgejo-helm README "Compatibility with OCP".
 
 global:
@@ -70,11 +74,39 @@ gitea:
       # populated. Forgejo always prepends 'openid', so don't list it here.
       scopes: 'email profile'
 
+  # The DB password is the ONLY database field kept out of this file. CNPG
+  # mints it into the Secret "prod-app" (key: password) when it bootstraps the
+  # cluster, so it is never in git and rotates with the cluster. The chart
+  # passes these straight into the init-app-ini container, where
+  # config_environment.sh turns FORGEJO__<SECTION>__<KEY> into app.ini entries.
+  additionalConfigFromEnvs:
+    - name: FORGEJO__DATABASE__PASSWD
+      valueFrom:
+        secretKeyRef:
+          name: prod-app
+          key: password
+
   config:
     # Instance display name: browser tab, notification mails, and the
     # {{AppDisplayName}} template helper. Replaces the stock
     # "Forgejo: Beyond coding. We forge." slogan.
     APP_NAME: '#B4mad Forge'
+
+    # PostgreSQL via the CNPG PgBouncer pooler rather than the prod-rw service
+    # directly, so Forgejo's connection churn doesn't land on the primary.
+    # ⚠️ The pooler MUST stay poolMode: session (it is, in postgresql.yaml) —
+    # Forgejo uses session-scoped state that transaction pooling breaks.
+    # NAME/USER match bootstrap.initdb (database: forgejo, owner: forgejo).
+    database:
+      DB_TYPE: postgres
+      HOST: pooler-prod:5432
+      NAME: forgejo
+      USER: forgejo
+      # CNPG poolers serve TLS by default using the cluster's server cert.
+      # 'require' encrypts without verifying the CA (the cert is signed by the
+      # in-cluster CNPG CA, which Forgejo does not trust). Drop to 'disable' if
+      # the first boot fails on TLS.
+      SSL_MODE: require
     ui:
       # Commit the instance to the #B4mad phosphor CRT aesthetic: default every
       # visitor (incl. logged-out) to the dark theme, so the forge-hash logo,
