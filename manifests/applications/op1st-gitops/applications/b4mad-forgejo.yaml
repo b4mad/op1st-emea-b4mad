@@ -28,15 +28,14 @@ spec:
   # First sync (adoption of the previously helm-CLI-installed release) was
   # reviewed and applied manually on 2026-07-24; automated since.
   #
-  # 2026-07-27: auto-sync DISABLED on purpose — the test instance is being
-  # torn down and reinitialised from scratch. With `automated` in place,
-  # selfHeal would immediately scale the Forgejo StatefulSet back up and
-  # prune would fight any manual cleanup. Restore the `automated` block below
-  # once the reinitialisation is done.
+  # Auto-sync was briefly disabled on 2026-07-27 while the instance was torn
+  # down and reinitialised (selfHeal would have fought the teardown, prune the
+  # cleanup). The rebuild is done, so it is back on: this sync recreates the
+  # namespace from scratch on PostgreSQL rather than SQLite.
   syncPolicy:
-    # automated:
-    #   prune: true
-    #   selfHeal: true
+    automated:
+      prune: true
+      selfHeal: true
     syncOptions:
       - RespectIgnoreDifferences=true
     retry:
