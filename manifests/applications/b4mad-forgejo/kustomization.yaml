@@ -17,6 +17,10 @@ resources:
   # code.forgejo.org/forgejo-helm, values-nostromo.yaml via $values).
   - forgejo-home-template.configmap.yaml
 
+  # Alerting for Forgejo + its CNPG datastore. Scrape config lives with the
+  # things being scraped (chart values / postgresql.yaml); this is rules only.
+  - monitoring.yaml
+
   # Backups: daily logical dump to a local PVC + off-site borg push to store-1.
   - forgejo-backup-cronjob.yaml
   - forgejo-offsite-cronjob.yaml

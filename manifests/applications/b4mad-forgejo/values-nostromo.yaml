@@ -90,6 +90,25 @@ gitea:
       groupClaimName: groups
       adminGroup: forgejo-admins
 
+  # Prometheus metrics. `metrics.enabled` is the chart's shorthand for
+  # [metrics] ENABLED = true in app.ini (see _helpers.tpl); `serviceMonitor`
+  # renders a ServiceMonitor selecting the chart's labels and scraping port
+  # `http` at the default /metrics path. OpenShift user-workload monitoring
+  # picks it up as job/service "forgejo-http" (same path as
+  # b4mad-meshtastic-gateway). Alerts live in monitoring.yaml.
+  #
+  # ⚠️ /metrics is served by the SAME listener as the UI, and the ingress
+  # above routes `/` — so https://forgejo.b4mad.net/metrics is PUBLIC. It
+  # exposes instance telemetry (user/repo/issue counts, Go runtime, build
+  # info), no credentials. Deliberate call 2026-07-27: the only guard Forgejo
+  # offers is [metrics] TOKEN, and the chart's ServiceMonitor template has no
+  # bearerTokenSecret support, so a token would mean hand-writing the
+  # ServiceMonitor plus a SealedSecret. Not worth it for this instance.
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
   # The DB password is the ONLY database field kept out of this file. CNPG
   # mints it into the Secret "prod-app" (key: password) when it bootstraps the
   # cluster, so it is never in git and rotates with the cluster. The chart

@@ -1,0 +1,185 @@
+---
+# Alerting for Forgejo and its CloudNativePG datastore.
+#
+# Scraping is set up elsewhere:
+#   - Forgejo:  gitea.metrics.serviceMonitor in values-nostromo.yaml renders
+#               ServiceMonitor/forgejo -> job/service "forgejo-http".
+#   - Postgres: PodMonitor/prod in postgresql.yaml -> job "b4mad-forgejo/prod".
+#
+# Both land in OpenShift user-workload monitoring. UWM injects a
+# namespace="b4mad-forgejo" matcher into every expression below, so the
+# explicit namespace selectors are documentation, not enforcement.
+#
+# `openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus` routes a
+# rule to the UWM Prometheus instead of Thanos Ruler. The leaf only sees
+# user-workload metrics — fine here, since gitea_*/cnpg_*/up all come from the
+# two monitors above. The PVC rule further down deliberately OMITS the label;
+# see its comment.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: forgejo
+  labels:
+    openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus
+spec:
+  groups:
+    - name: forgejo
+      rules:
+        - alert: ForgejoDown
+          expr: up{namespace="b4mad-forgejo", job="forgejo-http"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "#B4mad Forge (forgejo.b4mad.net) is unreachable"
+            description: >-
+              Prometheus has failed to scrape the Forgejo pod {{ $labels.pod }}
+              for >= 5 minutes. Git over HTTPS and SSH, the web UI, and any
+              Renovate/GitOps automation pointing at forgejo.b4mad.net are
+              almost certainly down with it.
+
+        # The `up` alert above can only fire while a target exists. If the
+        # ServiceMonitor is deleted, the chart's metrics toggle is flipped off,
+        # or the Service labels drift, the target disappears and ForgejoDown
+        # goes silent forever — a monitoring outage that looks like health.
+        - alert: ForgejoMetricsTargetMissing
+          expr: absent(up{namespace="b4mad-forgejo", job="forgejo-http"})
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge has no Prometheus target"
+            description: >-
+              No scrape target matches job="forgejo-http" in b4mad-forgejo.
+              Forgejo may be fine, but ForgejoDown can no longer fire. Check
+              ServiceMonitor/forgejo and gitea.metrics in values-nostromo.yaml.
+
+    - name: forgejo-postgres
+      rules:
+        - alert: ForgejoPostgresDown
+          expr: cnpg_collector_up{namespace="b4mad-forgejo"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "#B4mad Forge PostgreSQL instance {{ $labels.pod }} is down"
+            description: >-
+              The CNPG metrics exporter on {{ $labels.pod }} reports the
+              PostgreSQL backend as not up for >= 5 minutes. The cluster is
+              single-instance (nostromo is SNO), so this means Forgejo has no
+              database at all.
+
+        # WAL segments pile up in pg_wal/archive_status as `.ready` when
+        # archive_command keeps failing — i.e. the S3 push to nostromo-cnpg is
+        # broken. Left alone this fills the 8Gi PVC and then wedges Postgres.
+        # Threshold is deliberately low: healthy steady state is 0.
+        - alert: ForgejoPostgresWALArchiveBacklog
+          expr: cnpg_collector_pg_wal_archive_status{namespace="b4mad-forgejo", value="ready"} > 20
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "#B4mad Forge PostgreSQL WAL archiving is failing"
+            description: >-
+              {{ $value }} WAL segments are waiting to be archived on
+              {{ $labels.pod }}. Continuous archiving to
+              s3://nostromo-cnpg/b4mad-forgejo/ is broken; point-in-time
+              recovery is degraded and pg_wal will eventually fill the volume.
+
+        - alert: ForgejoPostgresBackupFailed
+          expr: >-
+            cnpg_collector_last_failed_backup_timestamp{namespace="b4mad-forgejo"}
+            > cnpg_collector_last_available_backup_timestamp{namespace="b4mad-forgejo"}
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge PostgreSQL backup failed"
+            description: >-
+              The most recent CNPG base backup attempt failed and is newer than
+              the last successful one. Check `oc get backup -n b4mad-forgejo`
+              and the aws-creds SealedSecret.
+
+        # ScheduledBackup/daily runs at 05:00; 26h gives one missed run plus
+        # slack before this fires.
+        #
+        # ⚠️ cnpg_collector_last_available_backup_timestamp is 0 until the very
+        # first backup completes, so this alert FIRES on a freshly bootstrapped
+        # cluster. That is intended — "never backed up" is exactly the state
+        # worth knowing about — but expect it to be pending right after any
+        # reinit until the next 05:00 run.
+        - alert: ForgejoPostgresBackupStale
+          expr: >-
+            time() - cnpg_collector_last_available_backup_timestamp{namespace="b4mad-forgejo"}
+            > 26 * 3600
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge PostgreSQL has no recent base backup"
+            description: >-
+              No successful CNPG base backup in over 26 hours (daily
+              ScheduledBackup runs at 05:00). If the value looks like "never",
+              the cluster has not been backed up since it was bootstrapped.
+
+        # Autovacuum falling behind. Postgres refuses writes near 2^31; 300M is
+        # far enough out to be a warning, not an emergency.
+        - alert: ForgejoPostgresXIDWraparoundRisk
+          expr: cnpg_pg_database_xid_age{namespace="b4mad-forgejo"} > 300000000
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge PostgreSQL database {{ $labels.datname }} transaction age is high"
+            description: >-
+              Database {{ $labels.datname }} is {{ $value }} transactions past
+              its last freeze. Autovacuum is not keeping up; PostgreSQL stops
+              accepting writes as this approaches 2^31.
+---
+# PVC fill alerts, split into their own object ON PURPOSE.
+#
+# kubelet_volume_stats_* is a PLATFORM metric (kubelet -> platform Prometheus),
+# not a user-workload one. A leaf-prometheus-scoped rule is evaluated by the
+# UWM Prometheus, which never sees it, so the rule above cannot carry these.
+# Without the label the rule goes to Thanos Ruler, which queries Thanos
+# Querier and therefore spans both tenants; namespace enforcement still pins it
+# to b4mad-forgejo.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: forgejo-storage
+spec:
+  groups:
+    - name: forgejo-storage
+      rules:
+        # Covers both PVCs in the namespace: gitea-shared-storage (5Gi — repos,
+        # bleve code index, GPG home) and prod-1 (8Gi — PostgreSQL data + WAL).
+        # The code indexer is the usual reason the Forgejo volume grows without
+        # anyone pushing anything.
+        - alert: ForgejoVolumeFillingUp
+          expr: >-
+            kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo"}
+            / kubelet_volume_stats_capacity_bytes{namespace="b4mad-forgejo"} < 0.15
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge PVC {{ $labels.persistentvolumeclaim }} is {{ $value | humanizePercentage }} free"
+            description: >-
+              Less than 15% free on {{ $labels.persistentvolumeclaim }}. Both
+              PVCs are on lvms-vg1 with resizeInUseVolumes, so growing them is
+              an edit away — but a full volume wedges Forgejo or Postgres hard.
+
+        - alert: ForgejoVolumeAlmostFull
+          expr: >-
+            kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo"}
+            / kubelet_volume_stats_capacity_bytes{namespace="b4mad-forgejo"} < 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "#B4mad Forge PVC {{ $labels.persistentvolumeclaim }} is nearly full ({{ $value | humanizePercentage }} free)"
+            description: >-
+              Less than 5% free on {{ $labels.persistentvolumeclaim }}. Expand
+              it now — PostgreSQL stops accepting writes and Forgejo starts
+              failing pushes when the volume fills.
