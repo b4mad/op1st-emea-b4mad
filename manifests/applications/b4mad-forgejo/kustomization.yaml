@@ -39,6 +39,10 @@ resources:
   - forgejo-gpg-signing-secret.yaml
   - forgejo-offsite-borg-secret.yaml
   - forgejo-registry-push-secret.yaml
+  # Read-only Codeberg deploy key for the Tekton git-clone in the borg image
+  # build. Lived ONLY in the cluster until the b4mad-forgejo rename; now
+  # tracked here so the namespace can be recreated from scratch.
+  - forgejo-borg-git-ssh-secret.yaml
   # S3 backup credentials for the CNPG cluster (nostromo-cnpg bucket),
   # sourced from the feeldata-prod aws-creds secret.
   - aws-creds.yaml
