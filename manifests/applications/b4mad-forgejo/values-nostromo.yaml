@@ -199,6 +199,29 @@ service:
 # chart runs. gpgHome default matches the rootless image's persistent path.
 # Key UID: Forgejo (#B4mad Forgejo commit signing) <forgejo@b4mad.net>,
 # fp E8ACD36B3345ED1AC6450604720A29C30D58B935.
+# ⚠️ Works around a chart bug (17.1.3) that only bites on a FRESH data PVC.
+# scripts/init_directory_structure.sh.tpl guards its `chown 1000:1000` calls
+# behind `not .Values.image.rootless` for /data and $GITEA_TEMP — but NOT for
+# $GNUPGHOME:
+#
+#     if [ ! -d "${GNUPGHOME}" ]; then
+#       mkdir -p "${GNUPGHOME}"; chmod 700 "${GNUPGHOME}"
+#       chown 1000:1000 "${GNUPGHOME}"      # <- unguarded
+#     fi
+#
+# We run the rootless image under OpenShift's restricted-v2 SCC, so the
+# container is a random high UID with no CAP_CHOWN: that chown returns EPERM,
+# `set -e` kills init-directories, and the pod sits in Init:CrashLoopBackOff.
+# It never surfaced before because the block is skipped when the directory
+# already exists, and the old PVC had been carrying a .gnupg for months.
+#
+# initPreScript is copied verbatim to the TOP of that script, so creating the
+# directory here makes the chart's `[ ! -d ]` test false and skips the whole
+# block, unguarded chown included.
+initPreScript: |
+  mkdir -p "${GNUPGHOME}"
+  chmod 700 "${GNUPGHOME}"
+
 signing:
   enabled: true
   gpgHome: /data/git/.gnupg
