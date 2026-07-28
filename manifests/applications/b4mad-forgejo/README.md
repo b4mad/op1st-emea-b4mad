@@ -50,6 +50,31 @@ running on the **nostromo** OpenShift cluster in namespace
 > After rotating a value: edit the `.enc.yaml` with `sops`, regenerate the
 > sealed sibling, commit both.
 
+## Service accounts (bots)
+
+Local (non-SSO) accounts driving the API and git over PAT. They live in
+Forgejo's datastore, **not** in git — re-applying these manifests does not
+recreate them. `create-forge-bot.sh` is the record; the 2026-07-27 move to
+CNPG wiped all of them and each was re-created from it.
+
+| Account | Email | Token scopes | Token key in `forgejo-bot-tokens.enc.yaml` |
+|---|---|---|---|
+| `b4mad-renovate` | `renovate@b4mad.net` | `write:repository,write:issue,read:user` | `renovate-token` |
+| `b4mad-gitops` | `gitops@b4mad.net` | — | `gitops-token` |
+| `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `castra-token` |
+| `b4mad-release-bot` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:user` | `release-bot-token` |
+
+```bash
+./create-forge-bot.sh <username> <email> <scopes> [token-name]
+# avatar: AVATAR_FILE=/path/to.png (defaults to the renovate avatar —
+# set AVATAR_FILE= to skip rather than branding an unrelated bot with it)
+```
+
+The token prints once on stdout; put it straight into
+`forgejo-bot-tokens.enc.yaml` with `sops`. That file is SOPS-only and has no
+SealedSecret sibling — it is local tooling credential, never applied to the
+cluster.
+
 ## Networking
 
 - **HTTP/HTTPS** — chart `Ingress` (`className: openshift-default`) on both

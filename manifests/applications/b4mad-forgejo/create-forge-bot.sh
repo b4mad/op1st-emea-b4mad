@@ -2,9 +2,11 @@
 # Create a service-account ("bot") user + named personal access token on the
 # nostromo Forgejo test instance (namespace b4mad-forgejo).
 #
-# WHY a script: the instance is a throwaway SQLite deployment (see README.md).
-# Accounts/tokens created here are NOT captured in git and vanish if the volume
-# is lost. This script IS the record of how to recreate them.
+# WHY a script: accounts and tokens live in Forgejo's own datastore, not in git,
+# so they are NOT recreated by re-applying these manifests. This script IS the
+# record of how to recreate them. Proven on 2026-07-27, when the move to the
+# CNPG "prod" cluster (Systems-07w) wiped every bot account, user SSH key and
+# API token; each one had to be re-created from here.
 #
 # Auth model: DISABLE_REGISTRATION + ALLOW_ONLY_EXTERNAL_REGISTRATION +
 # ENABLE_INTERNAL_SIGNIN=false, so bots can neither self-register nor web-login.
