@@ -42,10 +42,37 @@ scripts/sops2sealedsecret --context <nostromo-context> --namespace b4mad-renovat
   environment-forgejo.enc.yaml environment-forgejo.yaml --force
 ```
 
-## Known drift
+## The SSH key is inert — and that is deliberate
 
-The `renovate` CronJob mounts a Secret named `ssh-key-secret`, which exists
-in-cluster but is **not** in this repo. The git-managed
-`codeberg-org-b4mad-renovate-ssh` SealedSecret is mounted by nothing. Deleting
-the namespace would lose the SSH identity. Unresolved; the Forgejo fleet
-deliberately avoids SSH so it does not inherit the problem.
+The `renovate` CronJob mounts `codeberg-org-b4mad-renovate-ssh` at
+`/home/ubuntu/.ssh`. **Nothing reads it.** Renovate clones over HTTPS with
+`RENOVATE_TOKEN`; `gitUrl` is unset, so the endpoint-derived HTTPS path is
+used and a successful run logs zero SSH activity.
+
+It could not work as mounted even if something tried: secret volumes land as
+`root:<fsGroup>` mode `0644`, the pod runs as an assigned UID from the
+namespace range (`1000740000/10000`), and OpenSSH hard-refuses a private key
+that is group- or world-readable. Making it functional needs an initContainer
+that copies the key to an `emptyDir` and `chmod 600`s it — deliberately not
+done, because nothing needs SSH. The Forgejo fleet mounts no key at all.
+
+The secret is kept, in git, so the namespace is reproducible and the bot
+identity (`christoph+renovate@goern.name`, 4096-bit RSA) has one recorded
+home. Its keys are the literal filenames ssh expects — `b4mad-renovate`,
+`b4mad-renovate.pub`, `config`, `known_hosts` — so the volume renders a
+usable `.ssh` directory the moment permissions are solved.
+
+### Resolved 2026-07-28
+
+The CronJob used to mount `ssh-key-secret`: hand-created in-cluster 569 days
+earlier, never in this repo, no owner references or labels — and it carried
+an operator's **personal** 3072-bit key (`goern@x1-erdgeschoss-b4mad-net`),
+not the bot's. Its `config` pointed `IdentityFile` at `~/.ssh/id_rsa`, while
+the git-managed secret held a different 4096-bit key under keys
+(`ssh-privatekey`/`ssh-publickey`) that ssh would never look for. The two
+halves were never connected. Both defects are gone; `ssh-key-secret` is
+unreferenced and can be deleted from the cluster.
+
+> `dot-ssh/` holds the working copies used to build the secret.
+> `.gitignore` excludes the private key, so **`codeberg-org-b4mad-renovate-ssh.enc.yaml`
+> is the only durable copy** — do not lose the SOPS recipients.

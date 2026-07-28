@@ -39,9 +39,15 @@ spec:
                 name: renovate
             - name: work-volume
               emptyDir: {}
+            # The git-managed SealedSecret, not the hand-made `ssh-key-secret`
+            # that used to live here untracked (and held a *personal* key).
+            # ⚠️ Inert by design: secret volumes land as root:fsGroup 0644 and
+            # the pod runs as an assigned UID, so OpenSSH refuses the key as
+            # "too open". Renovate clones over HTTPS with RENOVATE_TOKEN and
+            # never invokes ssh — see this app's README.
             - name: ssh-key-volume
               secret:
-                secretName: ssh-key-secret
+                secretName: codeberg-org-b4mad-renovate-ssh
             - name: cache
               persistentVolumeClaim:
                 claimName: renovate-cache
