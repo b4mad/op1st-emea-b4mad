@@ -38,9 +38,9 @@ data:
           "goern/sops2sealedsecret",
           "machdenstaat/lage",
           "machdenstaat/oparl-lite-2",
-          "machdenstaat/stadt-bonn-oparl",
-          "toolbxs/borgmatic",
-          "toolbxs/code-insiders",
-          "toolbxs/fedora-toolbox"
+          "machdenstaat/stadt-bonn-oparl"
+          // toolbxs/* removed 2026-07-28: forgejo.b4mad.net is primary for that
+          // org and codeberg is a push-mirror downstream. Renovating the mirror
+          // would fight the mirror-push. Re-enrol against the Forgejo endpoint.
         ],
     };
