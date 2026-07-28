@@ -31,14 +31,19 @@ content.)
 
 ## Backup
 
+Write the JSONL to `b4mad-erdgeschoss-systems/forgejo/`, not into this repo
+— that is the one place it is kept:
+
 ```bash
-./forge-org-sync.sh backup codeberg-orgs.jsonl            # all 11 owned orgs
-./forge-org-sync.sh backup out.jsonl b4mad toolbxs        # explicit subset
+S=~/Systems/forgejo                                       # b4mad-erdgeschoss-systems
+./forge-org-sync.sh backup "$S/codeberg-orgs.jsonl"       # all 11 owned orgs
+./forge-org-sync.sh backup "$S/out.jsonl" b4mad toolbxs   # explicit subset
 ```
 
 One typed JSON record per line: `org`, `label`, `repo`, `team`,
-`team_member`. **The JSONL holds private-org member lists — it is
-`.gitignore`d; keep it out of version control.**
+`team_member`. ⚠️ **The JSONL holds private-org member lists. It is
+`.gitignore`d in both repos — never commit it.** This repo is public;
+a copy was committed here on 2026-07-24 and removed on 2026-07-28.
 
 ## Restore (idempotent)
 

@@ -37,3 +37,8 @@ ansible/
 
 # Local git worktrees (superpowers:using-git-worktrees convention)
 .worktrees/
+
+# Codeberg org-structure backup — contains private-org member lists.
+# Produced by manifests/applications/b4mad-forgejo/forge-org-sync.sh; kept
+# untracked in b4mad-erdgeschoss-systems/forgejo/. NEVER commit.
+codeberg-orgs.jsonl
