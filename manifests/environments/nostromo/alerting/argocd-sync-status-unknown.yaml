@@ -1,0 +1,66 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  creationTimestamp: null
+  name: argocd-sync-status-unknown
+  namespace: openshift-monitoring
+spec:
+  groups:
+    - name: ArgoCDSyncStatus
+      rules:
+        # sync_status="Unknown" means the Application could not be RENDERED at
+        # all — a repo it cannot reach, a kustomize build error, or a cached
+        # manifest-generation failure. It is not the same as OutOfSync, which
+        # is a healthy, self-correcting state.
+        #
+        # This is silent by construction: the app keeps its last-known health,
+        # so children stay Synced/Healthy and nothing looks wrong on a
+        # dashboard. On 2026-07-28 a transient codeberg.org blip left
+        # op1st-gitops Unknown with a CACHED error; because it is the root
+        # app-of-apps, no change to op1st-emea-b4mad could reach the cluster
+        # for ~23 minutes and it was found only by accident. See Systems-nq5.
+        #
+        # max by (...) collapses duplicate series — the same Application is
+        # exported by both the argocd-metrics and openshift-gitops-metrics
+        # jobs during a controller rollover.
+        - alert: ArgoCDApplicationSyncStatusUnknown
+          expr: >-
+            max by (name, exported_namespace, dest_server) (
+              argocd_app_info{sync_status="Unknown"}
+            ) == 1
+          labels:
+            severity: warning
+          for: 15m
+          annotations:
+            message: >-
+              ArgoCD Application {{ $labels.exported_namespace }}/{{ $labels.name }}
+              has been unable to render for 15 minutes (sync_status=Unknown). Git
+              changes are NOT reaching the cluster for this app, and its children
+              will keep reporting their stale health. Check
+              `oc get application {{ $labels.name }} -n {{ $labels.exported_namespace }}
+              -o jsonpath='{.status.conditions}'`. If the message says
+              "(cached)" and the upstream has recovered, clear it with
+              `oc annotate application {{ $labels.name }}
+              -n {{ $labels.exported_namespace }} argocd.argoproj.io/refresh=hard
+              --overwrite`.
+
+        # An hour of Unknown is not a transient upstream blip. Either the error
+        # is cached and needs a hard refresh, or a credential/URL is genuinely
+        # broken and will not self-heal.
+        - alert: ArgoCDApplicationSyncStatusUnknownProlonged
+          expr: >-
+            max by (name, exported_namespace, dest_server) (
+              argocd_app_info{sync_status="Unknown"}
+            ) == 1
+          labels:
+            severity: critical
+          for: 1h
+          annotations:
+            message: >-
+              ArgoCD Application {{ $labels.exported_namespace }}/{{ $labels.name }}
+              has been unable to render for over an hour (sync_status=Unknown).
+              This will not recover on its own — ArgoCD caches manifest-generation
+              failures indefinitely, so a long-since-resolved upstream outage can
+              still be pinning this. Inspect the condition, then hard-refresh.
+              If it is a root app-of-apps, every application it manages is frozen
+              too.
