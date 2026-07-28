@@ -54,8 +54,9 @@ running on the **nostromo** OpenShift cluster in namespace
 
 Local (non-SSO) accounts driving the API and git over PAT. They live in
 Forgejo's datastore, **not** in git — re-applying these manifests does not
-recreate them. `create-forge-bot.sh` is the record; the 2026-07-27 move to
-CNPG wiped all of them and each was re-created from it.
+recreate them. The 2026-07-27 move to CNPG wiped all of them and each was
+re-created with `forgejo/create-forge-bot.sh` in the ops repo
+(`b4mad-erdgeschoss-systems`), which keeps this repo pure GitOps.
 
 | Account | Email | Token scopes | Token key in `forgejo-bot-tokens.enc.yaml` |
 |---|---|---|---|
@@ -65,7 +66,8 @@ CNPG wiped all of them and each was re-created from it.
 | `b4mad-release-bot` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:user` | `release-bot-token` |
 
 ```bash
-./create-forge-bot.sh <username> <email> <scopes> [token-name]
+# from a b4mad-erdgeschoss-systems checkout:
+./forgejo/create-forge-bot.sh <username> <email> <scopes> [token-name]
 # avatar: AVATAR_FILE=/path/to.png (defaults to the renovate avatar —
 # set AVATAR_FILE= to skip rather than branding an unrelated bot with it)
 ```
