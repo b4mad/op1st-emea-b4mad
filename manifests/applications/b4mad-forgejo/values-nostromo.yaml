@@ -150,10 +150,18 @@ gitea:
       DEFAULT_THEME: forgejo-dark
     # Server-side commit signing. `signing.existingSecret` below imports the
     # GPG private key into gpgHome; this section tells Forgejo what to sign.
-    # SIGNING_KEY=default = use the (single) key present in the pod's gpgHome.
     # Identity must match the key's UID (Forgejo <forgejo@b4mad.net>).
+    # ⚠️ SIGNING_KEY must be the literal key ID, NOT `default`. `default` does
+    # not mean "the key in gpgHome" — it means "whatever `git config
+    # user.signingkey` says", and Forgejo never writes that key into its
+    # gitconfig ($HOME/.gitconfig does not even exist in the pod). With
+    # `default` every PR shows "This instance does not have a key to sign this
+    # commit" (wont_sign.nokey) even though the key is imported and usable.
+    # Naming the key explicitly makes Forgejo resolve it from $GNUPGHOME.
     repository.signing:
-      SIGNING_KEY: default
+      # The fingerprint is PUBLIC, not a secret — Forgejo itself serves the key
+      # from /api/v1/signing-key.gpg. Hence the gitleaks allow-annotation.
+      SIGNING_KEY: "E8ACD36B3345ED1AC6450604720A29C30D58B935" # gitleaks:allow
       SIGNING_NAME: Forgejo
       SIGNING_EMAIL: forgejo@b4mad.net
       # Sign the commits Forgejo itself creates. Tune per policy later.
