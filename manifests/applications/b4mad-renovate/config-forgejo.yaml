@@ -40,6 +40,13 @@ data:
         "autodiscover": true,
         "autodiscoverFilter": [
           "toolbxs/*",
-          "b4mad/*"
+          "b4mad/*",
+          // Deliberately ONE repo, not `feeldata/*`. The org migrated off
+          // codeberg.org on 2026-07-28 with four repos, but only feeldata2.app
+          // is to be renovated: feeldata.app is the superseded site,
+          // feeldata2.app-oooooold is archived, and manifests was never
+          // usefully onboarded (its Codeberg onboarding PR sat unmerged from
+          // 2025-01-05 until it was closed). Widen only on purpose.
+          "feeldata/feeldata2.app"
         ],
     };
