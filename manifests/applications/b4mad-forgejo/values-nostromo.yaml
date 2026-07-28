@@ -173,7 +173,7 @@ gitea:
       ENABLED: false
     indexer:
       # Enable the repository code indexer for full-text code search.
-      # Default type is bleve (on-disk, in the 5Gi PVC); does an initial
+      # Default type is bleve (on-disk, in the 10Gi PVC); does an initial
       # index pass over existing repos.
       REPO_INDEXER_ENABLED: true
     oauth2_client:
@@ -304,9 +304,12 @@ extraInitVolumeMounts:
     mountPath: /custom-templates
     readOnly: true
 
-# Keep the test lean.
+# Raised 5Gi -> 10Gi on 2026-07-28: /data was at 67% (3.3G of 4.9G) and the
+# bleve code indexer grows this volume without anyone pushing anything.
+# lvms-vg1 has allowVolumeExpansion and resizeInUseVolumes, so this is an
+# in-place expansion — no reschedule, no downtime.
 persistence:
-  size: 5Gi
+  size: 10Gi
 
 # test-connection Pod uses busybox:latest from Docker Hub — skip to avoid
 # pull-rate flakiness on a throwaway install.
