@@ -37,7 +37,6 @@ running on the **nostromo** OpenShift cluster in namespace
 | `forgejo-oauth-secret.enc.yaml` | SOPS-encrypted OIDC client id/secret → k8s Secret `forgejo-oauth-secret` (`data.key` = client-id, `data.secret` = client-secret) |
 | `forgejo-gpg-signing-secret.enc.yaml` | SOPS-encrypted GPG private key → k8s Secret `forgejo-gpg-signing-key` (`stringData.privateKey`) |
 | `forgejo-offsite-borg-secret.enc.yaml` | SOPS-encrypted borg credentials (ssh key, known_hosts, passphrase) |
-| `forgejo-registry-push-secret.enc.yaml` | SOPS-encrypted `b4mad-ci` dockerconfigjson for pushing to the Forgejo registry |
 | `forgejo-bot-tokens.enc.yaml` | SOPS-only bot tokens — source of truth. Not applied to the cluster from here; `renovate-token` is copied into `../b4mad-renovate/environment-forgejo.enc.yaml`, so rotating it means updating both files |
 
 > Secret flow (repo convention): each `*.enc.yaml` (SOPS, recipients in the

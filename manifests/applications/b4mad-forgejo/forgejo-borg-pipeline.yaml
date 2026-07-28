@@ -8,8 +8,8 @@
 # ADDITIVE Forgejo mirror: after the internal push succeeds, a final
 # `push-forgejo` task skopeo-copies the same image (registry->registry, so it
 # does NOT touch buildah's local storage) to the Forgejo test instance's OCI
-# registry at forgejo.b4mad.net/b4mad-ci/borg:latest — surfacing it under
-# https://forgejo.b4mad.net/b4mad-ci/…/packages. This is purely additive: it runs
+# registry at forgejo.b4mad.net/b4mad-release-bot/borg:latest — surfacing it under
+# https://forgejo.b4mad.net/b4mad-release-bot/…/packages. This is purely additive: it runs
 # `runAfter: [build]` and never alters the internal push. ⚠️ forgejo.b4mad.net
 # is a THROWAWAY SQLite test instance (bd Systems-07w) — the mirrored image is
 # NON-DURABLE, this is not production-grade image distribution.
@@ -95,10 +95,13 @@ spec:
     - name: forgejo-image
       type: string
       # Forgejo container packages are OWNER-scoped: forgejo.b4mad.net/{owner}/{image}:{tag}.
-      # `b4mad-ci` is a dedicated CI bot pushing under its OWN user namespace, so
-      # the push needs no site-admin rights (a user can write packages under
-      # itself). Decoupled from the human `goern` account on purpose.
-      default: forgejo.b4mad.net/b4mad-ci/borg:latest
+      # `b4mad-release-bot` pushes under its OWN user namespace, so the push needs
+      # no site-admin rights (a user can always write packages under itself) and
+      # — unlike an ORG namespace — no org membership either. ⚠️ `write:package`
+      # alone does NOT authorise an org-namespace push; that failure surfaces only
+      # as a bare `authentication required`. Staying user-scoped avoids the trap.
+      # Decoupled from the human `goern` account on purpose.
+      default: forgejo.b4mad.net/b4mad-release-bot/borg:latest
     - name: containerfile
       type: string
       default: ./manifests/applications/b4mad-forgejo/borg/Containerfile
@@ -189,8 +192,9 @@ spec:
     #             --src-tls-verify=false; auth is the SA-token config.json the
     #             `registry-auth` task already wrote to the shared `auth` subPath.
     #      dest = forgejo.b4mad.net. Real Let's Encrypt cert → --dest-tls-verify
-    #             stays true; auth is the `b4mad-ci` bot's write:package credential
-    #             from the `forgejo-auth` Secret workspace (.dockerconfigjson).
+    #             stays true; auth is the `b4mad-release-bot` write:package
+    #             credential from the `forgejo-auth` Secret workspace
+    #             (.dockerconfigjson) — the reflected `forgejo-pusher`.
     #    Inline taskSpec (not the openshift-pipelines skopeo-copy cluster task)
     #    because that task authenticates from a single merged ~/.docker/config.json
     #    with no clean workspace to inject it; --src-authfile/--dest-authfile here

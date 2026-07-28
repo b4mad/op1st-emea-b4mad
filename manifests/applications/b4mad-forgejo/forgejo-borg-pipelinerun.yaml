@@ -18,8 +18,13 @@ spec:
     serviceAccountName: pipeline
   workspaces:
     - name: forgejo-auth
+      # `forgejo-pusher` is canonical in op1st-gitops and reflected here by the
+      # emberstack reflector (see op1st-pipelines-tokens/forgejo-pusher.enc.yaml).
+      # Identity: b4mad-release-bot. It replaced the dead `forgejo-registry-push`
+      # secret, which held a credential for the HUMAN account `goern` and stopped
+      # authenticating when the 2026-07-27 CNPG migration wiped the datastore.
       secret:
-        secretName: forgejo-registry-push
+        secretName: forgejo-pusher
     - name: shared
       volumeClaimTemplate:
         spec:
