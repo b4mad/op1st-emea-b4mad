@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: forgejo-pusher
+    namespace: op1st-gitops
+    annotations:
+        b4mad.net/href: https://forgejo.b4mad.net/b4mad-release-bot
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines
+        tekton.dev/docker-0: https://forgejo.b4mad.net
+type: kubernetes.io/dockerconfigjson
+stringData:
+    .dockerconfigjson: ENC[AES256_GCM,data:uc3LVbpOI8ICPlyf46EgGKRDyvBAcWYDyfzKd6b79gjiL8lU2yep1gIzJCeyxba7sAUHnnC4uexIMwDFOo/tFPgiSs+1QplKfdeYvcJQHZcOK022dwcYcz3SM0z0A+b/nEkQCV8cRbukXDvBcUSf5ZI1fYQIcmJJugUG,iv:nV/b5VOHALBPLa8Co8kOMBi/qInRDOG0JpBqmxXGg+o=,tag:zxML/SrjrJfqg/IAbpMrEQ==,type:str]
+sops:
+    lastmodified: "2026-07-28T10:03:03Z"
+    mac: ENC[AES256_GCM,data:OCITY/eC8lq/7ElAI6EkDldjYc4oTHpzEsp27xsF7fdazM3MGvBqkvP1VkVtXwRUFa7o5VG+3362HDbQqHw1QWg0Jr4RWtbnW532xSdn2vfZlA0811+39mumBfGA0rNAuJCV+B4fA6MVnUlqDZuMcFHaqC6wCEetMBSep4yx3LE=,iv:fBsgszIN4SPGgmjaBZM2kb/a7DKloMMlEoPFRpM/rdw=,tag:1NPbVLl9qULM7RAJ895tZg==,type:str]
+    pgp:
+        - created_at: "2026-07-28T10:03:03Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA9AgVmznaOk7AQ/5AbksfDxGDHE/3KTZpk7Ek4S3BBfQHtY9LeorcnsfwI5h
+            v9XVwiS0V0fbn3NhmxVjT5GVvs2jIgXi8w/zcPEm5YQHBa89tBVlCzs596Mjl2hv
+            RGtb25k9UQ5rcIFhPWxqsbuvdpDnPlIsvklqf9B3xafQbinET6QjrHMgADXZzJ+f
+            cFSdg39kbY70XPtLByAHbzZ8feqjfvG5kYz+TByJ+AjRgIea0njR30Y1rKb6N25U
+            SYBDT7hUj9ik6vrfeC3CMVPRvMI6E38zEUsfa7nidKleseMIcqJckJbQiSoQi9g0
+            9FmVVEbNTdOcYDG5UXlqBvkeNrxhqKChh1W36jtG0jQv/MBnmymTZAcrympOxsjo
+            ZLGwdaWOt+plmU8fWwghQLyp8sHkVid2P8I296+PDvxXu24bYyrmoqOEHgMfVm5g
+            HskvFcQsed2H1w36mXnPwa7DTK2l3FUUSZpLxJgv0cgq6z2grV+EcaV8Dv+OqKMb
+            SnB2MxozgLCzo0qJzqmmh0rztvyU4vjQumHNmkif3qx53poNak2kG+7KiM/2KK0M
+            u1E9psXtYGEsxj46KVDg+u0T+aFMRh0hmQzNtxyWHS700u3lksYL92amBwLNWCsb
+            X5rIaOxkNjcdTQfMriGD1pswoeMJx6U163vFxlkCgNEaQTYlBt30GOZYjr0ouQfS
+            XgHDXngOQ3Sqb87JpWjqzYkbHIdTnkupc3cnt7/3hFokdSpuWFwZyVw3UygKZtgI
+            E1MWBxfJJQkbx9z9T71gqecFtwfcu7jo4E7nyI6sLQsfv28XljlB5l02m3Vj0RM=
+            =VqHa
+            -----END PGP MESSAGE-----
+          fp: 04DAFCD9470A962A2F272984E5EB0DA32F3372AC
+        - created_at: "2026-07-28T10:03:03Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMAwSHi8yuDIZWARAAsoXc8b9LpyTnk6MjpsWXxkycBBDhtwt7xvciiMi/kNNQ
+            26oZ0GDdIAjNjtzZ2/BH/hfu/QtKY1MH0JYQTwlU+skllTMl9vpbuNdiP5rACnO6
+            aCfVaVy/6rqTXFyvFFKzWFBu2dMUJX7mNTfyQKvKGWkUGX91nYg1gYRBf5W7vQeN
+            sKq2p0N+zF4G3hXUhhpv2kaK02N8lhw8+dLPVaD1Eg4d/7HqO5Rock6P5ijx2GGd
+            dkZxWYMewkbmaTu6ztKcWQgP2s3pmrIovC2j9WP+fskOHfCOL3c2bNu7Np9aiyYt
+            3/F+IJKD1b0iMFxkCTG8JBTDrc1qbm91H6KyMzH4FMMdrR89hfCK362lxc1C12bB
+            iCoQG7qOWMpTacuLcV8ChqvYzWHLzXQG++KdYTgrr9gMHcN1WYHIML5hF27Nz5iB
+            SgS8JSfv4Lc0axlNctigOv41uzPhG5lwjUVzARU77mmNprY/piSKEdWY8ASRLeaz
+            NsSsGZBzpw70Kj3GcxSdmUh21YzoCHt5MopinQkEaOLSh8VTpXBPqBxK8bTy6zqT
+            My3y25UqFB6yvyz9EnvKXoFEMeLb6f+103Hb2Eb8/ZWH6x9v5lxmNVECPUtOABHM
+            rJLwAp34So3uedWuyI3L22lEwmNtwcdMxx7Eh1rQXHQ5BqAHqZ4+VGTuRxY/mnjS
+            XgHS9k1TREMeivT9T6xEj2fHNn+dIhNNLa/i8jUyFl0rLXFr9OfuLxHO2XgCEN4G
+            cogOEc6Fr5LSnps98jkogyM1i82hAMQeQrnG5KwSia+T4I6EJzTIeDNK6FT1LWk=
+            =WW08
+            -----END PGP MESSAGE-----
+          fp: 8A07D816280A983BBC35E85C280DB66A3E8C012E
+    encrypted_regex: ^(data|stringData|tls)$
+    version: 3.12.1

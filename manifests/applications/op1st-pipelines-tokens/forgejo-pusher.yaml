@@ -1,0 +1,23 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: forgejo-pusher
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    .dockerconfigjson: AgAuLFNazdrei6/AlXmZugA2ZGaH2+VXcwF9I6vsRW4uAUcDwWwa3NtcaF3aWpsbJpG0+m3FfNPIR6mjo3YXAdpN8/hcuBmcBapjQBGOx8QkETYVh0+sqsghavHjlddaf7yEAuxhQuRY8EVlEatWQMx/WPQanxyduki4bmCkWceQz8GV+fR5+vKZcWKhd/0Ff+5zMQyY8otsEkYAZqFWBiYNfD2Wc7QV0aTVRXO3ElPu61Ice18cQExvXGQsxWKVWX99lMbtJHSf+WwfclNEnrMg1g87SNVXvILDCXWK8Fk2VG5bTAhDovuUBKLObrz/uDgFWcY/U9dHuwqkQU+6ZfnyjpI1LMUPyDsZklLKQIeNoIBrawMl+0tbdfQwTb1s3yRJ1dgiszIsuAEvdjnQhvCb5q4gUcG1AXIoVp5bajlEZ2/RgeDzjf8Zqoj7B4HUinz9qTyjMkngWNeEGdA+xZhx+HzYkligwOKpoggFSD066aUncxSMa7eUacIqvZfXKdo+F/zES7g7swJiL9ORqrJqt7O1bxbcIdYR0j8jYi3ZFT68+IBc6FoKN7xNereZWRhYiOYUKPHUyF9CjoqZkNQzzs4Hz8YmfIv9q+wh46s0YBNTFiXnLrC6ZTy3niYa+LEfJlWoPYfNAvoKQ+JGuaPWXNoS2AqrrIZueL7bP+G0HVvEp9TgR8zfZGlvJAPSr28YVG3NCW5m/wLNHCG2k5Br2IRPe1BxGAxHZWT6Hkdv/D1yIrXoqT07ctcKHub4YmkPDd59fJzz3Fod545+WxxstawuYQwuOq/7rmDJus2O5EULKQSzzOtOXEKH94q79eF7gFB1queveo1B65U+nDqcQXBl5chM09UPkAc=
+  template:
+    metadata:
+      annotations:
+        b4mad.net/href: https://forgejo.b4mad.net/b4mad-release-bot
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines
+        tekton.dev/docker-0: https://forgejo.b4mad.net
+      creationTimestamp: null
+      name: forgejo-pusher
+      namespace: op1st-gitops
+    type: kubernetes.io/dockerconfigjson
+---

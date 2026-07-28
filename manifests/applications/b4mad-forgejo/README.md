@@ -65,6 +65,21 @@ re-created with `forgejo/create-forge-bot.sh` in the ops repo
 | `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `castra-token` |
 | `b4mad-release-bot` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:user` | `release-bot-token` |
 
+### Org memberships (not captured by `forge-org-sync.sh`)
+
+That script replays **Codeberg's** structure, where these bots do not exist —
+so bot memberships have no declarative source and must be recorded here.
+
+| Bot | Org | Team |
+|---|---|---|
+| `b4mad-release-bot` | `toolbxs` | `DevSecOps` (added 2026-07-28) |
+
+⚠️ A token scoped `write:package` is **not** sufficient to push to an *org*
+package namespace — the account must also be a member of that org. Without it
+the registry rejects the push as a bare `authentication required`, with nothing
+pointing at membership as the cause. This cost real time on 2026-07-28; if a
+push starts failing that way, check membership before re-minting tokens.
+
 ⚠️ `read:organization` is not optional for Renovate: it resolves each repo's
 owning org before processing it, so without that scope **every** repository
 fails with `403 … token does not have at least one of required scope(s):
