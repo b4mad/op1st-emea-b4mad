@@ -7,6 +7,18 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
+      # A healthy full-fleet run finishes in 20-45m. Anything past 90m is
+      # wedged, not slow — and because concurrencyPolicy is Forbid, a wedged
+      # run blocks every subsequent schedule while holding 2Gi of the
+      # namespace ResourceQuota. Observed 2026-07-28: one job Failed after
+      # 5h28m, its successor was still Running at 156m. Bound the damage.
+      activeDeadlineSeconds: 5400
+      # Default is 6. Renovate has no fleet-level resume: every retry re-runs
+      # the whole repository list from the top, so six retries meant six full
+      # ~25m passes stacked back to back. That, not any single slow repo, is
+      # where the 156m went (the job had burned 5 pods, 4 Error). Failures
+      # here are systemic rather than flaky, so one retry is enough.
+      backoffLimit: 1
       template:
         spec:
           containers:

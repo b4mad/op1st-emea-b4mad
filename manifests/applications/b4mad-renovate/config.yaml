@@ -31,7 +31,11 @@ data:
           "b4mad/semantic-release",
           "feeldata/feeldata2.app",
           "feeldata/manifests",
-          "goern/cccr",
+          // goern/cccr removed 2026-07-28: the repo no longer exists on
+          // codeberg.org. Renovate logged 2x "The target couldn't be found."
+          // (404) against it; an authenticated repo search with an admin
+          // token returns nothing, so this is a deleted/renamed repo rather
+          // than a permissions or rate-limit symptom.
           "goern/epaper-service",
           "goern/forgejo-mcp",
           "goern/hausmeister",
