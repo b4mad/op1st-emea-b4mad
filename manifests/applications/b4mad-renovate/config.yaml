@@ -39,10 +39,10 @@ data:
           "goern/epaper-service",
           "goern/forgejo-mcp",
           "goern/hausmeister",
-          "goern/sops2sealedsecret",
-          "machdenstaat/lage",
-          "machdenstaat/oparl-lite-2",
-          "machdenstaat/stadt-bonn-oparl"
+          "goern/sops2sealedsecret"
+          // machdenstaat/* removed 2026-07-28: renovate disabled for the whole
+          // org on operator request. Was lage, oparl-lite-2, stadt-bonn-oparl.
+          // These repos now receive NO dependency updates until re-enrolled.
           // toolbxs/* removed 2026-07-28: forgejo.b4mad.net is primary for that
           // org and codeberg is a push-mirror downstream. Renovating the mirror
           // would fight the mirror-push. Re-enrol against the Forgejo endpoint.
