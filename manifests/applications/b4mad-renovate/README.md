@@ -28,6 +28,20 @@ Forgejo is upstream and Codeberg is a push-mirror (the `toolbxs/*` case),
 renovating the mirror fights the mirror-push; only the upstream may be
 enrolled.
 
+## ⚠️ Two ResourceQuotas, enforced as an intersection
+
+`resource_quota.yaml` (`renovate`) and `compute_quota.yaml` (`compute-quota`)
+both bind this namespace. Kubernetes applies **every** quota, so the tightest
+value wins no matter which object it sits on — raising one alone accomplishes
+nothing. Keep the numbers identical in both files.
+
+This bit on 2026-07-28: `compute-quota` had lived untracked in-cluster for 442
+days at `limits.memory: 3Gi`, enough for exactly one renovate pod. Doubling
+only the git-managed `renovate` quota looked correct (`oc get resourcequota
+renovate` confirmed 6Gi) while `renovate-forgejo` failed every scheduled run
+with `FailedCreate: exceeded quota: compute-quota` whenever the Codeberg job
+held the memory. Diagnose with `oc get resourcequota` — plural, no name.
+
 ## Tokens
 
 The Forgejo fleet authenticates as the `b4mad-renovate` service account on

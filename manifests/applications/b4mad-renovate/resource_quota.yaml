@@ -7,6 +7,10 @@ spec:
   # scheduled 30min apart, but `concurrencyPolicy: Forbid` is per-CronJob only —
   # a long Codeberg run can still overlap the Forgejo one, so the quota has to
   # fit both pods at once.
+  #
+  # ⚠️ Not the only quota here — `compute_quota.yaml` also binds this namespace
+  # and Kubernetes enforces the intersection. Raising these numbers without
+  # raising those changes nothing. Keep the two files in lockstep.
   hard:
     limits.cpu: "2"
     limits.memory: 6Gi

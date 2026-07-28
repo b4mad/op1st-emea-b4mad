@@ -15,7 +15,9 @@ resources:
   - environment.yaml
   - namespace.yaml
   - pvc.yaml
+  # Two quotas, enforced as an intersection — keep their numbers in lockstep.
   - resource_quota.yaml
+  - compute_quota.yaml
   # forgejo.b4mad.net fleet — Renovate is one-platform-per-process, so this is
   # a parallel CronJob rather than extra config on the Codeberg one.
   - config-forgejo.yaml

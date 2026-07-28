@@ -1,0 +1,20 @@
+kind: ResourceQuota
+apiVersion: v1
+metadata:
+  name: compute-quota
+spec:
+  # ⚠️ This namespace carries TWO ResourceQuotas and Kubernetes enforces the
+  # INTERSECTION — the tightest value wins, whichever object it lives on.
+  # `compute-quota` existed untracked in-cluster for 442 days holding the
+  # pre-2026-07-28 values (1 cpu / 3Gi), which silently capped the namespace
+  # at a single renovate pod: every `renovate-forgejo` run died with
+  # "FailedCreate: exceeded quota: compute-quota" while the Codeberg job held
+  # the memory. Adopted into git so the limit is visible and reviewable.
+  #
+  # Keep these numbers IN LOCKSTEP with `resource_quota.yaml`. Raising one
+  # alone changes nothing — the other still binds.
+  hard:
+    limits.cpu: "2"
+    limits.memory: 6Gi
+    requests.cpu: "1"
+    requests.memory: 4Gi
