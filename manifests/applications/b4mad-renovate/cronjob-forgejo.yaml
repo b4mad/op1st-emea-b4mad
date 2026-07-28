@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renovate-forgejo
+spec:
+  # Offset from the Codeberg job (`@hourly`) so the two never contend for the
+  # namespace ResourceQuota.
+  schedule: "30 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - image: renovate
+              name: renovate
+              envFrom:
+                - secretRef:
+                    name: renovate-forgejo
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /opt/renovate/
+                - name: work-volume
+                  mountPath: /tmp/renovate/
+                - name: cache
+                  mountPath: "/home/ubuntu/.cache"
+              resources:
+                limits:
+                  cpu: 500m
+                  memory: 2048Mi
+                requests:
+                  cpu: 250m
+                  memory: 1024Mi
+          restartPolicy: Never
+          volumes:
+            - name: config-volume
+              configMap:
+                name: renovate-forgejo
+            - name: work-volume
+              emptyDir: {}
+            # No ssh-key volume: this job talks to forgejo.b4mad.net over
+            # HTTPS with RENOVATE_TOKEN, so it needs no git-SSH identity.
+            - name: cache
+              persistentVolumeClaim:
+                claimName: renovate-forgejo-cache

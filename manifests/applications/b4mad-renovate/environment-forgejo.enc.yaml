@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: renovate-forgejo
+type: Opaque
+stringData:
+    GITHUB_COM_TOKEN: ENC[AES256_GCM,data:3f8N3PE88pNAYgVTxO7OHiZmq4YtJZdQUIc8iJyxSiroNtgn+POlU3YTtso6ENTJKppo9ZoL3iSXKXr2e7QeihmO8WThtoEqML2vakfl7T4EIyMShdA1OVDqxPKW,iv:U6bEmHccdMKt4bw4cFXXC6DiI3yoWbEfVUoSlS9pkdM=,tag:W/895f80RalwcTCPklRwvw==,type:str]
+    LOG_LEVEL: ENC[AES256_GCM,data:UQNOVQ==,iv:pUVNF+wDtjpaNDvuATeiQ7zD0HgHp67IOyiG98F9qlA=,tag:z8RuERXMxLo4qK7WFR9thA==,type:str]
+    RENOVATE_TOKEN: ENC[AES256_GCM,data:3vk0PiqOC2oei3HapdgIQiDY5lGXYWtNXDKs+XPMypty8dbEZKPFag==,iv:NqLqCDyh8uySvHOBPaLPiDOBBT3HReycZgTsKtXblcc=,tag:9n+BIJ18e1uxfYg8lXibPQ==,type:str]
+    RENOVATE_CONFIG_FILE: ENC[AES256_GCM,data:ho3Dy4Q/Vt1Oregb1cgrXj7H8hHS6g0=,iv:1OSb6DIFQAWs2cKgSUfqY1YMk2jJ5Vm8ao/lurgWjPw=,tag:oiqv+Gdt1/BrERviX0hTfA==,type:str]
+sops:
+    lastmodified: "2026-07-28T09:13:05Z"
+    mac: ENC[AES256_GCM,data:Zwz/cB9xJZrm5kyp2+Bj9vfFaOvzuIUm5wvJ1uVSQjaxBYA3NfHr3TFxMu4k+FctZRNgv+vT0LpHfcM+wqSIUEpJQIxOtbJBwOoogGDRlitHDJhtx3nxa3wjaazqyeWPPEHVlZeQcSU0X+Zi5drmL3R6wLDV7ULnyFaPtJyGh5c=,iv:qytVDyzeenGJf9vJdIS9HDHcrCPm6Y/yRwMjZhM90fk=,tag:0Fs2bQQyF/RAH6Hpphvz+Q==,type:str]
+    pgp:
+        - created_at: "2026-07-28T09:13:05Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA9AgVmznaOk7ARAAqMAeDzJLADxs+4CrqwGFROXHpLgr9aCjD6wZa7DNTOXe
+            xH6SKLx+yACplHinPKrDc9JMblStq41cJuNkK4fAAOIhgfYhTP0iiQQ+OlnvcgVs
+            XzwjuNC1pSQH3Hdt9oW3yrmEf25EBYv6ouyXRIUAA93gTKqnXXSUqT3ByjQ3GzCU
+            zILT+Hl0iw7yZ+2rzoFuN/fHXfQbdHA2zSZz9yWpzUEIa0RNLWfkoO0lXcILgdAl
+            CuFJl/zXGXgwrff7HL/jH8q13GvcpW7LmWFTh0/A/xLCE9s+Xl0IhALIq4/lZyCs
+            Q59Qoik8D3xdHBIkiglHfhC039TrpF9QcqMtNyqUfeJJw1F+2SyJ4oKth/g2QYuY
+            nGzi0LNQa+CaL9Qr966cxWxAa84EPS3jxusD4CTS+fDzUvWbBz4S56eKjzjyFQq9
+            g2ijd1BLEEdD+A4TDEU1u0PXDxin8mYbPyTy+JZ8p6ItrrwiZftC+lq74Nt1RCsY
+            sS04F2sUss7QCZ4nM1s/apCfENFHrJmGzO6I8WnTMT6ofxMdPOCXfPfW/GpAf04r
+            oAH2VrzwOwV8QHw9TttlJ1rToDizKIKLbN5aqqjS/mTZaonN+VD9JlKdn+XYmaFD
+            5H1dRXNE++Uk/EntPT4PEq/5PGuLORPde0M2k2HEalIgSgLfwJAXOgate6khem7S
+            XgFwMubr5sbi5ojogcvGVB/F/xcJg6nJt3FS5sbbozsQq7PjPqAsFQ4itLIUfIjG
+            8VdpIyw6SQ7XXC3PAKjZwOeoCW68mqsCJXeNYAIX5RerBgj/65Fa1m95xlsoKbQ=
+            =0FKN
+            -----END PGP MESSAGE-----
+          fp: 04DAFCD9470A962A2F272984E5EB0DA32F3372AC
+        - created_at: "2026-07-28T09:13:05Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMAwSHi8yuDIZWARAAhwI0NgpRs3uokBcNEfzsMWPgLEt4FiuGSkF0uJdYCeYw
+            PpucSUs1w2np0p/G98pDoajC6oHdD406q+Uy436TqOP6Egf/Sn1Yewuncy/GUsOo
+            rKPNkzpFq2RnDcNP2v2Zsx3A3mo4cPvDN2s+np+1TDCeFxcEX1bCc3F07arIZNGi
+            RVXuD+NW8KmohuIugK6fiY1f4KUSP2n279ZgNEryeqsdrfOTvc2dsYmA80jcypuI
+            dJsWxXCgKUQkjhHbv+YI0WwHFeMZkDxbrn00BxFnV5sCLVnKu0KgmMVFD+P0WoEF
+            nVxL1PYdmQ6ybAxY5U4Nn2Nbsootmy2xf9c/HxL2iwSsK+a8bpv3v5iae35abVRH
+            uJkbIcGHPLxelc3KwDuQjMD82hMf+O7+otNfy25fTDomT9yvMV7xT8RgUzh+gwv/
+            6kKqqK9c/1Vk4kw7ph17jFkQJaGWBzr5cOyv7JcOFwguMWQJ1a2mk/lWF/5XIgR9
+            lMZkfrZMgweT3UtddFlnmxVVYN7UsVN0SpdmQNGb7ZvmhtfFxFB61sOyWnd8iVVQ
+            XRfbbg3TaMS2IY+uoQmAArHGTyC9jEsjwGMxmWyN1Ha/SpAkaHYeZt/ymGUiy2dI
+            AvJGX7DSfpzg8sQFcnfzY7vpyxrN5pB7dCHbC42OYmYzlCnotMDG8tS+/Aljd4TS
+            XgHZGdG7QUgm5gczbQiIvWXkh5RbQxQGweh9j76a4dDan2recyrAYDeP53QqdRnf
+            a5oGsyiY+cYRcMa6STBaGblPjx5q+eESRTrsRnDnTL6CPblKDZxfDeA8hGVgV/Q=
+            =X3sF
+            -----END PGP MESSAGE-----
+          fp: 8A07D816280A983BBC35E85C280DB66A3E8C012E
+    encrypted_regex: ^(data|stringData|tls)$
+    version: 3.12.1
