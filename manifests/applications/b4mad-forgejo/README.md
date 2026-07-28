@@ -68,9 +68,15 @@ re-created with `forgejo/create-forge-bot.sh` in the ops repo
 ```bash
 # from a b4mad-erdgeschoss-systems checkout:
 ./forgejo/create-forge-bot.sh <username> <email> <scopes> [token-name]
-# avatar: AVATAR_FILE=/path/to.png (defaults to the renovate avatar —
-# set AVATAR_FILE= to skip rather than branding an unrelated bot with it)
+
+# re-assert the shared avatar on an existing bot, minting no token:
+AVATAR_ONLY=1 ./forgejo/create-forge-bot.sh <username> <email> -
 ```
+
+**Every agent/bot wears the same avatar** (`forgejo/bot-avatar.png` in the ops
+repo) so service accounts are distinguishable from humans at a glance. The
+script re-applies it on every run, which is what keeps them uniform; `AVATAR_FILE`
+overrides it, but doing so is deliberate divergence from the convention.
 
 The token prints once on stdout; put it straight into
 `forgejo-bot-tokens.enc.yaml` with `sops`. That file is SOPS-only and has no
