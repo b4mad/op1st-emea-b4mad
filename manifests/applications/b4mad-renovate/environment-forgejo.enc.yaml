@@ -6,11 +6,11 @@ type: Opaque
 stringData:
     GITHUB_COM_TOKEN: ENC[AES256_GCM,data:3f8N3PE88pNAYgVTxO7OHiZmq4YtJZdQUIc8iJyxSiroNtgn+POlU3YTtso6ENTJKppo9ZoL3iSXKXr2e7QeihmO8WThtoEqML2vakfl7T4EIyMShdA1OVDqxPKW,iv:U6bEmHccdMKt4bw4cFXXC6DiI3yoWbEfVUoSlS9pkdM=,tag:W/895f80RalwcTCPklRwvw==,type:str]
     LOG_LEVEL: ENC[AES256_GCM,data:UQNOVQ==,iv:pUVNF+wDtjpaNDvuATeiQ7zD0HgHp67IOyiG98F9qlA=,tag:z8RuERXMxLo4qK7WFR9thA==,type:str]
-    RENOVATE_TOKEN: ENC[AES256_GCM,data:3vk0PiqOC2oei3HapdgIQiDY5lGXYWtNXDKs+XPMypty8dbEZKPFag==,iv:NqLqCDyh8uySvHOBPaLPiDOBBT3HReycZgTsKtXblcc=,tag:9n+BIJ18e1uxfYg8lXibPQ==,type:str]
+    RENOVATE_TOKEN: ENC[AES256_GCM,data:uCSNQXMXEi/iNXMixMhza8OScyMSAdi9W6/UtbCvgaFbcfm2uVxAfg==,iv:+ZLx5IJeR86lCKdH1JS06ZYGUvdpqK0a13YtZFFUFTg=,tag:C+Ye5RHdMGclia/oZH7Ymw==,type:str]
     RENOVATE_CONFIG_FILE: ENC[AES256_GCM,data:ho3Dy4Q/Vt1Oregb1cgrXj7H8hHS6g0=,iv:1OSb6DIFQAWs2cKgSUfqY1YMk2jJ5Vm8ao/lurgWjPw=,tag:oiqv+Gdt1/BrERviX0hTfA==,type:str]
 sops:
-    lastmodified: "2026-07-28T09:13:05Z"
-    mac: ENC[AES256_GCM,data:Zwz/cB9xJZrm5kyp2+Bj9vfFaOvzuIUm5wvJ1uVSQjaxBYA3NfHr3TFxMu4k+FctZRNgv+vT0LpHfcM+wqSIUEpJQIxOtbJBwOoogGDRlitHDJhtx3nxa3wjaazqyeWPPEHVlZeQcSU0X+Zi5drmL3R6wLDV7ULnyFaPtJyGh5c=,iv:qytVDyzeenGJf9vJdIS9HDHcrCPm6Y/yRwMjZhM90fk=,tag:0Fs2bQQyF/RAH6Hpphvz+Q==,type:str]
+    lastmodified: "2026-07-28T09:46:35Z"
+    mac: ENC[AES256_GCM,data:s2ZTg/rYGbLXr1BGmj7OnDaNByyU7a3A6D9E1rHsr4dDc1NXE+4zk87ShRZHcR2cgI7UT121ReoS05nr5+IjDOcuG60pgHqHlBI5utM1m3v+EOfAWpvQXDgaF3BWtejoM7pA+nzWS+UuEvj/WMs+VqCIviMVfRZV4mJVBtg52lg=,iv:dbBgOJe2ZtdwQEHJi7oPs68MHxBZzbNlYp9fNkkS4Nk=,tag:yjzuKDHY8N7M2q4dH9aYXA==,type:str]
     pgp:
         - created_at: "2026-07-28T09:13:05Z"
           enc: |-

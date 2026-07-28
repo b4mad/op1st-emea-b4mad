@@ -60,10 +60,32 @@ re-created with `forgejo/create-forge-bot.sh` in the ops repo
 
 | Account | Email | Token scopes | Token key in `forgejo-bot-tokens.enc.yaml` |
 |---|---|---|---|
-| `b4mad-renovate` | `renovate@b4mad.net` | `write:repository,write:issue,read:user` | `renovate-token` |
+| `b4mad-renovate` | `renovate@b4mad.net` | `write:repository,write:issue,read:user,read:organization` | `renovate-token` |
 | `b4mad-gitops` | `gitops@b4mad.net` | — | `gitops-token` |
 | `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `castra-token` |
 | `b4mad-release-bot` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:user` | `release-bot-token` |
+
+⚠️ `read:organization` is not optional for Renovate: it resolves each repo's
+owning org before processing it, so without that scope **every** repository
+fails with `403 … token does not have at least one of required scope(s):
+[read:organization]`. Added 2026-07-28 after the Forgejo fleet's first run.
+
+⚠️ Re-running the script mints an **additional** token — it does not rotate.
+Revoke the old one first, or names collide and stale credentials accumulate.
+Token endpoints need basic auth (a PAT will not do), so:
+
+```bash
+POD=$(oc -n b4mad-forgejo get pod -l app.kubernetes.io/name=forgejo \
+        -o jsonpath='{.items[0].metadata.name}')
+TMPPW="tmp-$(openssl rand -hex 16)"
+oc -n b4mad-forgejo exec pod/$POD -c forgejo -- forgejo admin user change-password \
+  --username <bot> --password "$TMPPW" --must-change-password=false
+curl -s -u "<bot>:$TMPPW" https://forgejo.b4mad.net/api/v1/users/<bot>/tokens   # list
+curl -X DELETE -u "<bot>:$TMPPW" https://forgejo.b4mad.net/api/v1/users/<bot>/tokens/<id>
+```
+
+The script's avatar step then resets the password to its own random throwaway,
+so no known credential is left behind once you re-mint.
 
 ```bash
 # from a b4mad-erdgeschoss-systems checkout:

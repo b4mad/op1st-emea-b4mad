@@ -4,13 +4,13 @@ metadata:
     name: forgejo-bot-tokens
 type: Opaque
 stringData:
-    renovate-token: ENC[AES256_GCM,data:BjazKJVXCAcIK11dFS1/E7Z6gEcjlmXtbmji6N3CR9lBRhMJuj0/qg==,iv:u54gsvPZ6x9i6f1kw8R7TASYSkkAXrfNorafz81zNCU=,tag:YFQY4aRS5XHVtcc3dE+G9A==,type:str]
+    renovate-token: ENC[AES256_GCM,data:4EiqW3nkoHXJeIRbelCFmWEvzMJfvnv1XBH9f2YxEThczpjaEI7kVQ==,iv:siHCx44Uaj6AkiyS7PFZsUSmpjs4PXy6wrGkwBZWaQU=,tag:4b739COujjsH9vMVmsUHjw==,type:str]
     gitops-token: ENC[AES256_GCM,data:IIdLP4PhJONF5qdAjbhIQfuDQUbc0kZazfbG2oB58jPhKcn3TlJdrg==,iv:Z6BEbcLdzbcz+FPRh6jrVn7NBenj/5Fed3K9A+cV5xg=,tag:vFlbuDpYqJcFC2jrvpKkUg==,type:str]
     castra-token: ENC[AES256_GCM,data:HVw3JOHmOw1oyquE4fAzKJoMlhNUWqWlZcI+Try/SUYBkzABLMxzeA==,iv:nDU7q+wW7woKikZ6qI0BWLXhcEwl4PZvdC0NuyXlF0A=,tag:AlBLorQj6ByTX/T1kPSh5Q==,type:str]
     release-bot-token: ENC[AES256_GCM,data:Jg7qAHzPpjPjZqsKGjNHK78bGxVjxux+mhu8Tg5eU3ZBxa6VR9g7Vw==,iv:yFnM5thB8aEX9j1Na59LY48dN81hOgM5FPKUwjZi3n4=,tag:j5bvdv39jhWdLfKQOBm4OQ==,type:str]
 sops:
-    lastmodified: "2026-07-28T08:45:24Z"
-    mac: ENC[AES256_GCM,data:zvoF4HY2a8sEQuC1VPtQmfkEbMbAa+Vzjn3g2WHEgbxTlHsTQlhqjtyzeFNfNP3WQrg6kkEMtYL4wwr0j3F/5pblrg2ZdNphdUSaJcVqPlrcVBh9fmEyO2IfAaruM2s1vupcpqQ17QQkxWAy1PIU7KtvLoYWdPRKiMdpfMjDS68=,iv:6OGzL+CtFpo/yAEwJFpiyKih69QQ6dRPllLjAo7rnVY=,tag:SJ7P8yPN+QRlQL4tRHeCVQ==,type:str]
+    lastmodified: "2026-07-28T09:46:34Z"
+    mac: ENC[AES256_GCM,data:utjBFXfZ6JcTLSh1hqExCGaDBO0rqHECRVwDds0KzjjRDryJMUuTA4e7d9SWU+VONqxure8Z53rT2uWuNl8c7llsWcu+MXVwKsUqcYZjfUPZd464mwEMF4BzfRyzU5uKatP2+yq8zoHPpmypn52EHNSdqi9w4R9YklbnwIf1O4w=,iv:n/lCluI5po0fYMOdVGaT/qryZU4H0wgCrd9DnPzWcIA=,tag:Y90L9N83EJNjUh8kmN857A==,type:str]
     pgp:
         - created_at: "2026-07-28T08:45:22Z"
           enc: |-
