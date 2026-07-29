@@ -54,4 +54,35 @@ data:
           // 2025-01-05 until it was closed). Widen only on purpose.
           "feeldata/feeldata2.app"
         ],
+        "packageRules": [
+          {
+            // Unattended merging for feeldata, gated by CI. `platformAutomerge`
+            // above hands the merge to Forgejo at PR-creation time, so the ONLY
+            // thing standing between a bad bump and `main` is branch
+            // protection: feeldata2.app `main` requires the status check glob
+            // `op1st Pipelines as Code / *`. Without that rule Forgejo merges
+            // immediately, before Pipelines-as-Code has posted anything.
+            //
+            // ⚠️ Do not enable this for a repo that has no equivalent required
+            // check. Verify with:
+            //   GET /api/v1/repos/<owner>/<repo>/branch_protections
+            // (the forgejo-mcp `list_branch_protections` tool has been seen
+            // returning an empty list for a repo that does have a rule — trust
+            // the raw API, not the tool.)
+            //
+            // Majors are excluded on purpose: a green pipeline is much weaker
+            // evidence of safety for a breaking change than for a patch.
+            "matchRepositories": [
+              "feeldata/**"
+            ],
+            "matchUpdateTypes": [
+              "minor",
+              "patch",
+              "digest",
+              "pin",
+              "lockFileMaintenance"
+            ],
+            "automerge": true
+          }
+        ],
     };
