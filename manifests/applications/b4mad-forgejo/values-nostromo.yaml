@@ -69,7 +69,19 @@ gitea:
     - name: 'b4mad'
       provider: openidConnect
       existingSecret: forgejo-oauth-secret
-      autoDiscoverUrl: https://keycloak.erdgeschoss.b4mad.net/realms/b4mad.industries/.well-known/openid-configuration
+      # ⚠️ Cut over from realm b4mad.industries on 2026-07-29. The client
+      # secret is deliberately identical in both realms (b4mad-forgejo reuses
+      # the one issued in b4mad.industries), so this needed no reseal of
+      # forgejo-oauth-secret — verified equal by digest before the switch.
+      #
+      # ⚠️ Forgejo keys an OAuth account by login_source + login_name, where
+      # login_name holds the `sub` claim. `sub` is realm-scoped, so every
+      # pre-existing account's stored sub is now stale. Re-linking relies
+      # entirely on ACCOUNT_LINKING=auto below, which matches on email — user
+      # `goern` carried sub 81527376-… from the old realm and will be relinked
+      # on first login. If ACCOUNT_LINKING is ever set to `disabled`, this
+      # cutover strands every existing SSO account instead.
+      autoDiscoverUrl: https://keycloak.erdgeschoss.b4mad.net/realms/b4mad-forgejo/.well-known/openid-configuration
       # Request email/profile so auto-created accounts get email + username
       # populated. Forgejo always prepends 'openid', so don't list it here.
       scopes: 'email profile'
