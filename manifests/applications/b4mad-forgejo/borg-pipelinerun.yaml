@@ -3,7 +3,7 @@
 # generateName resources and would start a fresh build on every sync).
 #
 # Start a build:
-#   oc -n b4mad-forgejo create -f forgejo-borg-pipelinerun.yaml
+#   oc -n b4mad-forgejo create -f borg-pipelinerun.yaml
 # Watch:
 #   tkn -n b4mad-forgejo pipelinerun logs -f --last
 apiVersion: tekton.dev/v1

@@ -33,11 +33,11 @@ running on the **nostromo** OpenShift cluster in namespace
 |---|---|
 | `kustomization.yaml` | Everything Argo CD applies besides the chart (namespace, secrets, backups, borg build) |
 | `values-nostromo.yaml` | Helm values overlay, consumed by the Application's chart source via `$values` |
-| `forgejo-admin-secret.enc.yaml` | SOPS-encrypted pinned `gitea_admin` break-glass credentials (`gitea.admin.existingSecret` — chart would otherwise render a fresh random password every sync) |
-| `forgejo-oauth-secret.enc.yaml` | SOPS-encrypted OIDC client id/secret → k8s Secret `forgejo-oauth-secret` (`data.key` = client-id, `data.secret` = client-secret) |
-| `forgejo-gpg-signing-secret.enc.yaml` | SOPS-encrypted GPG private key → k8s Secret `forgejo-gpg-signing-key` (`stringData.privateKey`) |
-| `forgejo-offsite-borg-secret.enc.yaml` | SOPS-encrypted borg credentials (ssh key, known_hosts, passphrase) |
-| `forgejo-bot-tokens.enc.yaml` | SOPS-only bot tokens — source of truth for the four pre-2026-07-29 bots. Not applied to the cluster from here; `renovate-token` is copied into `../b4mad-renovate/environment-forgejo.enc.yaml`, so rotating it means updating both files |
+| `admin-secret.enc.yaml` | SOPS-encrypted pinned `gitea_admin` break-glass credentials (`gitea.admin.existingSecret` — chart would otherwise render a fresh random password every sync) |
+| `oauth-secret.enc.yaml` | SOPS-encrypted OIDC client id/secret → k8s Secret `forgejo-oauth-secret` (`data.key` = client-id, `data.secret` = client-secret) |
+| `gpg-signing-secret.enc.yaml` | SOPS-encrypted GPG private key → k8s Secret `forgejo-gpg-signing-key` (`stringData.privateKey`) |
+| `offsite-borg-secret.enc.yaml` | SOPS-encrypted borg credentials (ssh key, known_hosts, passphrase) |
+| `bot-tokens.enc.yaml` | SOPS-only bot tokens — source of truth for the four pre-2026-07-29 bots. Not applied to the cluster from here; `renovate-token` is copied into `../b4mad-renovate/environment-forgejo.enc.yaml`, so rotating it means updating both files |
 | `forgejo-agent-<name>.enc.yaml` | SOPS-encrypted full agent credentials (token + SSH + GPG private keys) written by `create-forge-agent.py`; the only copy — the plaintext is shredded at generation |
 | `forgejo-agent-<name>.yaml` | Its SealedSecret sibling, applied by Argo CD |
 
@@ -62,10 +62,10 @@ project, which keeps this repo pure GitOps.
 
 | Account | Email | Token scopes | Credentials | Keys |
 |---|---|---|---|---|
-| `b4mad-renovate` | `renovate@b4mad.net` | `write:repository,write:issue,read:user,read:organization` | `forgejo-bot-tokens.enc.yaml` → `renovate-token` | none |
-| `b4mad-gitops` | `gitops@b4mad.net` | — | `forgejo-bot-tokens.enc.yaml` → `gitops-token` | none |
-| `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `forgejo-bot-tokens.enc.yaml` → `castra-token` | none |
-| `b4mad-release-bot` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:user` | `forgejo-bot-tokens.enc.yaml` → `release-bot-token` | none |
+| `b4mad-renovate` | `renovate@b4mad.net` | `write:repository,write:issue,read:user,read:organization` | `bot-tokens.enc.yaml` → `renovate-token` | none |
+| `b4mad-gitops` | `gitops@b4mad.net` | — | `bot-tokens.enc.yaml` → `gitops-token` | none |
+| `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `bot-tokens.enc.yaml` → `castra-token` | none |
+| `b4mad-release-bot` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:user` | `bot-tokens.enc.yaml` → `release-bot-token` | none |
 
 ⚠️ All four predate `create-forge-agent.py` and have **neither an SSH nor a GPG
 key** (validated 2026-07-29). Their commits are therefore unsigned and
@@ -129,7 +129,7 @@ script re-applies it on every run, which is what keeps them uniform; `AVATAR_FIL
 overrides it, but doing so is deliberate divergence from the convention.
 
 The token prints once on stdout; put it straight into
-`forgejo-bot-tokens.enc.yaml` with `sops`. That file is SOPS-only and has no
+`bot-tokens.enc.yaml` with `sops`. That file is SOPS-only and has no
 SealedSecret sibling — it is local tooling credential, never applied to the
 cluster.
 

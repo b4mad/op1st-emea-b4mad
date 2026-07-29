@@ -3,7 +3,7 @@
 # provenance. The output is a Fedora 41 + borgbackup + openssh-clients image,
 # pushed to the internal ImageStream tag
 #   image-registry.openshift-image-registry.svc:5000/b4mad-forgejo/borg:latest
-# so forgejo-offsite-cronjob.yaml needs ZERO changes.
+# so offsite-cronjob.yaml needs ZERO changes.
 #
 # ADDITIVE Forgejo mirror: after the internal push succeeds, a final
 # `push-forgejo` task skopeo-copies the same image (registry->registry, so it
@@ -14,7 +14,7 @@
 # is a THROWAWAY SQLite test instance (bd Systems-07w) — the mirrored image is
 # NON-DURABLE, this is not production-grade image distribution.
 #
-# The ImageStream `borg` itself lives in forgejo-borg-image.yaml (the
+# The ImageStream `borg` itself lives in borg-image.yaml (the
 # pipeline only writes to its :latest tag).
 #
 # Build context source: the Containerfile committed at
@@ -24,10 +24,10 @@
 #
 # GITOPS: Pipeline + RBAC in this file are applied by Argo CD (kustomization).
 # A build is started MANUALLY by creating a PipelineRun — see
-# forgejo-borg-pipelinerun.yaml (uses generateName, so it is deliberately NOT
+# borg-pipelinerun.yaml (uses generateName, so it is deliberately NOT
 # part of the kustomization: Argo cannot manage generateName resources and
 # would start a fresh build on every sync).
-#   oc -n b4mad-forgejo create -f forgejo-borg-pipelinerun.yaml
+#   oc -n b4mad-forgejo create -f borg-pipelinerun.yaml
 # Watch:  tkn -n b4mad-forgejo pipelinerun logs -f --last
 #
 # SCC: the operator already binds the namespace `pipeline` ServiceAccount to

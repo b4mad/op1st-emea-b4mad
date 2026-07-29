@@ -12,14 +12,14 @@
 #
 # HOW IT IS BUILT: a Tekton (OpenShift Pipelines) pipeline — git-clone ->
 # buildah build+push of borg/Containerfile — writes this ImageStream's
-# :latest tag. See forgejo-borg-pipeline.yaml. (This replaced the old
+# :latest tag. See borg-pipeline.yaml. (This replaced the old
 # BuildConfig, removed with commit migrating to Tekton.)
 #
 # Apply + build:
-#   oc -n b4mad-forgejo apply -f forgejo-borg-image.yaml            # this ImageStream
-#   sops -d forgejo-borg-git-ssh-secret.enc.yaml | oc apply -f -         # clone deploy key
-#   oc -n b4mad-forgejo apply -f forgejo-borg-pipeline.yaml         # Pipeline + RBAC
-#   oc -n b4mad-forgejo create -f forgejo-borg-pipeline.yaml        # start a PipelineRun
+#   oc -n b4mad-forgejo apply -f borg-image.yaml            # this ImageStream
+#   sops -d borg-git-ssh-secret.enc.yaml | oc apply -f -         # clone deploy key
+#   oc -n b4mad-forgejo apply -f borg-pipeline.yaml         # Pipeline + RBAC
+#   oc -n b4mad-forgejo create -f borg-pipeline.yaml        # start a PipelineRun
 # The job references the resulting ImageStream tag by its internal registry
 # ref (image-registry.openshift-image-registry.svc:5000/<ns>/borg:latest).
 ---

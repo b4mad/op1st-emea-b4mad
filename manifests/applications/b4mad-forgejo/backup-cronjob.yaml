@@ -15,7 +15,7 @@
 # consistent dump, quiesce first (scale deploy/forgejo to 0).
 #
 # Apply:
-#   oc -n b4mad-forgejo apply -f forgejo-backup-cronjob.yaml
+#   oc -n b4mad-forgejo apply -f backup-cronjob.yaml
 # Run once now:
 #   oc -n b4mad-forgejo create job --from=cronjob/forgejo-backup forgejo-backup-manual
 ---

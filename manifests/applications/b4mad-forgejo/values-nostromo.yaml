@@ -53,7 +53,7 @@ ingress:
 
 gitea:
   # Pinned break-glass admin credentials (SealedSecret forgejo-admin, source of
-  # truth forgejo-admin-secret.enc.yaml). Without existingSecret the chart
+  # truth admin-secret.enc.yaml). Without existingSecret the chart
   # renders a FRESH random password on every helm render, which keeps the
   # Secret permanently OutOfSync in Argo CD and — via the chart's default
   # GITEA_ADMIN_PASSWORD_MODE=keepUpdated — would rewrite the gitea_admin DB
@@ -279,7 +279,7 @@ service:
 # Server-side commit signing. Imports the ed25519 GPG private key into the
 # pod's gpgHome so Forgejo can sign the commits it creates (see the
 # [repository.signing] config under gitea.config above). The key lives in the
-# SOPS-encrypted secret forgejo-gpg-signing-secret.enc.yaml (data key:
+# SOPS-encrypted secret gpg-signing-secret.enc.yaml (data key:
 # privateKey), which must be decrypted+applied into the namespace before the
 # chart runs. gpgHome default matches the rootless image's persistent path.
 # Key UID: Forgejo (#B4mad Forgejo commit signing) <forgejo@b4mad.net>,
@@ -324,7 +324,7 @@ signing:
   existingSecret: forgejo-gpg-signing-key
 
 # Custom landing page + branding, from the forgejo-custom-templates ConfigMap
-# (see forgejo-home-template.configmap.yaml) into Forgejo's custom dir
+# (see home-template.configmap.yaml) into Forgejo's custom dir
 # (GITEA_CUSTOM=/data/gitea).
 #
 # ⚠️ These were subPath mounts landing directly on /data/gitea/... paths, which

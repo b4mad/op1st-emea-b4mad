@@ -17,7 +17,7 @@
 #
 # To change the page: edit the home.tmpl content below, re-apply this
 # ConfigMap, and bounce the pod (subPath configmap mounts don't hot-reload):
-#   oc -n b4mad-forgejo apply -f forgejo-home-template.configmap.yaml
+#   oc -n b4mad-forgejo apply -f home-template.configmap.yaml
 #   oc -n b4mad-forgejo rollout restart deploy/forgejo
 apiVersion: v1
 kind: ConfigMap

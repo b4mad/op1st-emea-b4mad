@@ -47,7 +47,7 @@ held the memory. Diagnose with `oc get resourcequota` — plural, no name.
 The Forgejo fleet authenticates as the `b4mad-renovate` service account on
 forgejo.b4mad.net. Its PAT is minted by `create-forge-agent.py` in
 `agentic-forges/forge-agents` and stored as `renovate-token` in
-`../b4mad-forgejo/forgejo-bot-tokens.enc.yaml` — that file is the source of
+`../b4mad-forgejo/bot-tokens.enc.yaml` — that file is the source of
 truth. `environment-forgejo.enc.yaml` here holds a **copy**, so a rotation
 means editing both, then regenerating the sealed sibling:
 

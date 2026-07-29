@@ -7,8 +7,8 @@
 #   off-site push: 04:40 UTC (06:40 Europe/Berlin CEST)  (this job)
 #
 # PREREQS (all live):
-#   - image:  ImageStream borg:latest  (forgejo-borg-image.yaml)
-#   - secret: forgejo-offsite-borg  (sops -d forgejo-offsite-borg-secret.enc.yaml | oc apply -f -)
+#   - image:  ImageStream borg:latest  (borg-image.yaml)
+#   - secret: forgejo-offsite-borg  (sops -d offsite-borg-secret.enc.yaml | oc apply -f -)
 #   - repo:   ssh://borg@store-1/volume1/BorgBackup/forgejo.erdgeschoss  (repokey-blake2, already initialized)
 #
 # store-1 lives on the isolated NAS VLAN; its name is pinned via hostAliases to
@@ -23,7 +23,7 @@
 # can write their caches / .config.
 #
 # Apply:
-#   oc -n b4mad-forgejo apply -f forgejo-offsite-cronjob.yaml
+#   oc -n b4mad-forgejo apply -f offsite-cronjob.yaml
 # Run once now:
 #   oc -n b4mad-forgejo create job --from=cronjob/forgejo-offsite forgejo-offsite-manual
 ---

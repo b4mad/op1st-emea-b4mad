@@ -12,7 +12,7 @@ For the nostromo test instance (namespace `b4mad-forgejo`).
 | `app.ini` | `/data/gitea/conf/app.ini` (rendered by the chart) | dump; also reproducible from helm values |
 | Helm values | `values-nostromo.yaml` | **git** |
 | Secrets (oauth, GPG signing) | SOPS `*.enc.yaml` → k8s Secrets | **git** (SOPS) |
-| Landing-page template | `forgejo-home-template.configmap.yaml` | **git** |
+| Landing-page template | `home-template.configmap.yaml` | **git** |
 | Keycloak realm (SSO) | external Keycloak | **its own backup** — out of scope here |
 
 > So a full recovery = **git** (values + SOPS secrets + ConfigMap) **plus** the
@@ -23,7 +23,7 @@ For the nostromo test instance (namespace `b4mad-forgejo`).
 
 ### Scheduled logical dump (implemented)
 
-`forgejo-backup-cronjob.yaml` defines a daily CronJob (**03:00 UTC**,
+`backup-cronjob.yaml` defines a daily CronJob (**03:00 UTC**,
 = 05:00 Europe/Berlin CEST; UTC is mandatory — a named `timeZone` crashes
 cluster-wide kube-state-metrics, whose image lacks tzdata) that runs
 `forgejo dump` into a dedicated PVC `forgejo-backup`,
@@ -31,7 +31,7 @@ keeping the **last 7** archives (`forgejo-<UTC-timestamp>.tar.zst`). The
 off-site push (below) runs 04:40, after this dump completes.
 
 ```bash
-oc -n b4mad-forgejo apply -f forgejo-backup-cronjob.yaml   # install
+oc -n b4mad-forgejo apply -f backup-cronjob.yaml   # install
 oc -n b4mad-forgejo create job --from=cronjob/forgejo-backup forgejo-backup-manual  # run now
 oc -n b4mad-forgejo get pods -l job-name=forgejo-backup-manual     # watch
 ```
@@ -78,9 +78,9 @@ authoritative procedure: <https://forgejo.org/docs/latest/admin/backup-and-resto
 
 1. **Rebuild the declarative layer** (fresh cluster / namespace):
    ```bash
-   oc -n b4mad-forgejo apply -f forgejo-home-template.configmap.yaml
-   sops -d forgejo-oauth-secret.enc.yaml        | oc -n b4mad-forgejo apply -f -
-   sops -d forgejo-gpg-signing-secret.enc.yaml  | oc -n b4mad-forgejo apply -f -
+   oc -n b4mad-forgejo apply -f home-template.configmap.yaml
+   sops -d oauth-secret.enc.yaml        | oc -n b4mad-forgejo apply -f -
+   sops -d gpg-signing-secret.enc.yaml  | oc -n b4mad-forgejo apply -f -
    helm upgrade --install forgejo /var/home/goern/Source/forgejo-helm \
      -n b4mad-forgejo -f values-nostromo.yaml
    ```
@@ -103,7 +103,7 @@ authoritative procedure: <https://forgejo.org/docs/latest/admin/backup-and-resto
 
 ## Off-site (implemented — Path A: in-cluster borg push to store-1)
 
-A second daily CronJob, **`forgejo-offsite`** (`forgejo-offsite-cronjob.yaml`,
+A second daily CronJob, **`forgejo-offsite`** (`offsite-cronjob.yaml`,
 **04:40 UTC** = 06:40 Europe/Berlin CEST, ~100 min after the dump), pushes the newest local dump
 into an **encrypted borg repo on the `store-1` NAS**, then prunes to
 **keep-daily 7 / keep-weekly 4**. This is the off-node/off-disk copy the local
@@ -119,9 +119,9 @@ Moving parts (all in git):
 
 | Piece | File | Notes |
 |---|---|---|
-| borg image | `forgejo-borg-image.yaml` (ImageStream) + `forgejo-borg-pipeline.yaml` (Tekton build) | Tekton pipeline `git-clone` → `buildah` builds `borg/Containerfile` → ImageStream `borg:latest`. Fedora base + `borgbackup` (borg 1.4.1). |
-| off-site job | `forgejo-offsite-cronjob.yaml` | mounts `forgejo-backup` PVC read-only + the credential secret; `hostAliases` `store-1`→`10.144.8.24`. |
-| credentials | `forgejo-offsite-borg-secret.enc.yaml` | SOPS/PGP → Secret `forgejo-offsite-borg`: `id_ed25519`, `known_hosts` (pinned store-1 host keys), `borg-passphrase`. |
+| borg image | `borg-image.yaml` (ImageStream) + `borg-pipeline.yaml` (Tekton build) | Tekton pipeline `git-clone` → `buildah` builds `borg/Containerfile` → ImageStream `borg:latest`. Fedora base + `borgbackup` (borg 1.4.1). |
+| off-site job | `offsite-cronjob.yaml` | mounts `forgejo-backup` PVC read-only + the credential secret; `hostAliases` `store-1`→`10.144.8.24`. |
+| credentials | `offsite-borg-secret.enc.yaml` | SOPS/PGP → Secret `forgejo-offsite-borg`: `id_ed25519`, `known_hosts` (pinned store-1 host keys), `borg-passphrase`. |
 
 Why a **custom** borg image: public borg images (e.g.
 `ghcr.io/borgmatic-collective/borgmatic`) are Alpine-based and ship binaries
@@ -145,7 +145,7 @@ Manual steps are only the build trigger and an optional test run:
 
 ```bash
 # --- build the borg image (Tekton, OpenShift Pipelines) ---
-oc -n b4mad-forgejo create -f forgejo-borg-pipelinerun.yaml      # start a PipelineRun (generateName)
+oc -n b4mad-forgejo create -f borg-pipelinerun.yaml      # start a PipelineRun (generateName)
 tkn -n b4mad-forgejo pipelinerun logs -f --last                  # watch the build
 # --- off-site job: test now ---
 oc -n b4mad-forgejo create job --from=cronjob/forgejo-offsite forgejo-offsite-manual
@@ -157,7 +157,7 @@ oc -n b4mad-forgejo logs -f -l job-name=forgejo-offsite-manual
 > replaced the deprecated OpenShift `BuildConfig`. The pipeline clones this
 > repo (github.com/b4mad/op1st-emea-b4mad — public, anonymous https; the old
 > private-Codeberg deploy key is gone) and pushes to the same
-> internal ImageStream tag, so `forgejo-offsite-cronjob.yaml` is unchanged.
+> internal ImageStream tag, so `offsite-cronjob.yaml` is unchanged.
 > buildah runs under the operator's `pipelines-scc` (SETFCAP, `STORAGE_DRIVER=vfs`
 > — no privileged) as the namespace `pipeline` ServiceAccount, which is granted
 > `system:image-builder` for the registry push.

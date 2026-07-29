@@ -14,7 +14,7 @@ We keep the template **in git**, not hand-edited on the PVC:
 
 | Piece | Where |
 |---|---|
-| Template source | `forgejo-home-template.configmap.yaml` (ConfigMap `forgejo-custom-templates`, key `home.tmpl`) |
+| Template source | `home-template.configmap.yaml` (ConfigMap `forgejo-custom-templates`, key `home.tmpl`) |
 | Mount wiring | `extraVolumes` + `extraVolumeMounts` in `values-nostromo.yaml` |
 | Mount point | `/data/gitea/templates/home.tmpl` via `subPath: home.tmpl`, read-only |
 
@@ -27,7 +27,7 @@ We keep the template **in git**, not hand-edited on the PVC:
 ## Update procedure
 
 1. Edit the `home.tmpl` block in
-   `forgejo-home-template.configmap.yaml`. Editable spots are marked
+   `home-template.configmap.yaml`. Editable spots are marked
    `{{/* ---- EDIT ---- */}}`. The `{{if not .IsSigned}}` block is shown
    **only to logged-out visitors**.
 
@@ -35,7 +35,7 @@ We keep the template **in git**, not hand-edited on the PVC:
    hot-reload**, so a pod restart is required to pick up the new content:
 
    ```bash
-   oc -n b4mad-forgejo apply -f forgejo-home-template.configmap.yaml
+   oc -n b4mad-forgejo apply -f home-template.configmap.yaml
    oc -n b4mad-forgejo rollout restart deploy/forgejo
    oc -n b4mad-forgejo rollout status deploy/forgejo
    ```
