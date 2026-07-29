@@ -1,0 +1,113 @@
+# Realm backing the #B4mad Forge (Forgejo) SSO.
+#
+# ⚠️ CREATE-ONLY. The operator imports with `kc.sh import --override=false`
+# and the CRD exposes no strategy field, so everything below is applied
+# exactly once — when the realm does not yet exist. After that, edits to this
+# file are a silent no-op against the live realm (same failure mode that
+# forced ensure-forgejo-groups-mapper-job.yaml into existence for realm
+# b4mad.industries). Get it right on the first sync; anything that has to
+# converge repeatedly needs a kcadm PostSync hook instead.
+#
+# ⚠️ NOT yet wired to Forgejo. b4mad-forgejo/values-nostromo.yaml still points
+# its `autoDiscoverUrl` at realm b4mad.industries. Cutting over is a separate,
+# deliberate step — see the checklist in the client comment below.
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: KeycloakRealmImport
+metadata:
+  name: b4mad-forgejo
+spec:
+  keycloakCRName: b4mad-erdgeschoss
+  realm:
+    id: b4mad-forgejo
+    realm: b4mad-forgejo
+    displayName: "#B4mad Forge - a Tier-2 forge"
+    enabled: true
+    # Reachable only over the Let's Encrypt-terminated route; `external`
+    # still permits plain HTTP from inside the cluster for health probes.
+    sslRequired: external
+    # Accounts come from SSO administration, not self-service. Forgejo's own
+    # ENABLE_AUTO_REGISTRATION creates the *Forgejo* account from claims — it
+    # does not create Keycloak users, so nothing here needs to be open.
+    registrationAllowed: false
+    resetPasswordAllowed: true
+    loginWithEmailAllowed: true
+    duplicateEmailsAllowed: false
+
+    groups:
+      # Membership here is what grants Forgejo site-admin, via the `groups`
+      # claim + `adminGroup: forgejo-admins` in b4mad-forgejo/values-nostromo.yaml.
+      # ⚠️ Forgejo re-evaluates is_admin on every SSO login — emptying or
+      # renaming this group silently demotes every admin at next sign-in.
+      - name: forgejo-admins
+
+    users:
+      - username: goern
+        enabled: true
+        email: goern@b4mad.net
+        firstName: Christoph
+        lastName: Görn
+        # Pre-verified: the address is the operator's own and there is no SMTP
+        # sender configured on this realm, so a verification mail would never
+        # arrive and the account would be unusable.
+        emailVerified: true
+        groups:
+          - /forgejo-admins
+        # ⚠️ No credential is defined — deliberately, so no password or hash
+        # ever lands in git. The account cannot authenticate until one is set
+        # out of band, once, after the first sync:
+        #
+        #   kcadm.sh set-password -r b4mad-forgejo --username goern \
+        #     --new-password '<generated>' --temporary
+        #
+        # `--temporary` makes Keycloak force a change at first login.
+        requiredActions: []
+
+    clients:
+      # Confidential OIDC client for Forgejo's `b4mad` auth source.
+      #
+      # ⚠️ No `secret:` field here, on purpose. This is a plain CR, and
+      # .sops.yaml only encrypts data/stringData/tls — a literal secret would
+      # sit in git in cleartext. Keycloak generates a random one at import,
+      # and copy-forgejo-client-secret-job.yaml then overwrites it with the
+      # value already in use by realm b4mad.industries, so the existing
+      # sealed forgejo-oauth-secret keeps working unchanged.
+      #
+      # Remaining cutover step, once the realm is up: repoint autoDiscoverUrl
+      # in b4mad-forgejo/values-nostromo.yaml at
+      # /realms/b4mad-forgejo/.well-known/openid-configuration. Until then
+      # this client is provisioned but unused.
+      - clientId: forgejo
+        name: "#B4mad Forge"
+        enabled: true
+        protocol: openid-connect
+        publicClient: false
+        # Authorization-code flow only. No direct grant (no password-grant
+        # surface), no service account — Forgejo only ever acts on behalf of
+        # a browser user.
+        standardFlowEnabled: true
+        implicitFlowEnabled: false
+        directAccessGrantsEnabled: false
+        serviceAccountsEnabled: false
+        # Forgejo builds this from ROOT_URL + the auth source name (`b4mad`).
+        # It must match exactly — no wildcard, so a ROOT_URL change breaks
+        # login loudly rather than widening the redirect surface.
+        redirectUris:
+          - https://forgejo.b4mad.net/user/oauth2/b4mad/callback
+        webOrigins:
+          - https://forgejo.b4mad.net
+        protocolMappers:
+          # The group claim Forgejo's adminGroup mapping keys off. Declared
+          # inline here precisely because this realm is created from scratch —
+          # unlike b4mad.industries, which needed a kcadm Job to retrofit it.
+          #
+          # full.path=false emits bare names ("forgejo-admins"); a leading
+          # slash ("/forgejo-admins") would never compare equal to adminGroup.
+          - name: groups
+            protocol: openid-connect
+            protocolMapper: oidc-group-membership-mapper
+            config:
+              claim.name: groups
+              full.path: "false"
+              id.token.claim: "true"
+              access.token.claim: "true"
+              userinfo.token.claim: "true"

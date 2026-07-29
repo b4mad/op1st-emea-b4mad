@@ -1,4 +1,5 @@
 manifests/applications/b4mad-keycloak/realms/erdgeschoss.b4mad.net.yaml:generic-api-key:6
+manifests/applications/b4mad-keycloak/realms/b4mad-forgejo.yaml:generic-api-key:19
 manifests/organizational-unit-scope/kustomization.yaml:generic-api-key:25
 manifests/organizational-unit-scope/kustomization.yaml:generic-api-key:29
 manifests/organizational-unit-scope/kustomization.yaml:generic-api-key:30
