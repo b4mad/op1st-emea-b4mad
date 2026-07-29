@@ -41,6 +41,11 @@ data:
         "autodiscoverFilter": [
           "toolbxs/*",
           "b4mad/*",
+          // Deliberately ONE repo, not `agentic-forges/*`. forgejo-mcp moved
+          // off codeberg.org on 2026-07-29 and was dropped from the Codeberg
+          // fleet in the same change; forge-agents is not yet onboarded.
+          // Widen only on purpose.
+          "agentic-forges/forgejo-mcp",
           // Deliberately ONE repo, not `feeldata/*`. The org migrated off
           // codeberg.org on 2026-07-28 with four repos, but only feeldata2.app
           // is to be renovated: feeldata.app is the superseded site,
