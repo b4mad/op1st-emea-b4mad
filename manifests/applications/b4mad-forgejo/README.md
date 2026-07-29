@@ -21,11 +21,11 @@ running on the **nostromo** OpenShift cluster in namespace
 | Cluster | nostromo (OpenShift) |
 | Namespace | `b4mad-forgejo` |
 | Chart | `forgejo-helm` |
-| Canonical URL | <https://forgejo.b4mad.net/> |
-| Alt URL | <https://git.b4mad.industries/> (redirects to canonical) |
+| Canonical URL | <https://git.b4mad.industries/> |
+| Alt URL | <https://forgejo.b4mad.net/> (redirects to canonical) |
 | Database | PostgreSQL — CNPG cluster `prod` via `pooler-prod` |
 | Auth | Keycloak OIDC, SSO-only |
-| git-SSH | `ssh://git@forgejo.b4mad.net:2222/…` |
+| git-SSH | `ssh://git@git.b4mad.industries:2222/…` (old host still works) |
 
 ## Files
 
@@ -57,7 +57,7 @@ Local (non-SSO) accounts driving the API and git over PAT. They live in
 Forgejo's datastore, **not** in git — re-applying these manifests does not
 recreate them. The 2026-07-27 move to CNPG wiped all of them and each was
 re-created with `create-forge-agent.py` from the
-[`agentic-forges/forge-agents`](https://forgejo.b4mad.net/agentic-forges/forge-agents)
+[`agentic-forges/forge-agents`](https://git.b4mad.industries/agentic-forges/forge-agents)
 project, which keeps this repo pure GitOps.
 
 | Account | Email | Token scopes | Credentials | Keys |
@@ -108,9 +108,9 @@ ADMIN=$(oc -n b4mad-forgejo get secret forgejo-admin \
           -o jsonpath='{.data.username}' | base64 -d)
 PW=$(oc -n b4mad-forgejo get secret forgejo-admin \
           -o jsonpath='{.data.password}' | base64 -d)
-curl -s -u "$ADMIN:$PW" https://forgejo.b4mad.net/api/v1/admin/users/<bot>/tokens
+curl -s -u "$ADMIN:$PW" https://git.b4mad.industries/api/v1/admin/users/<bot>/tokens
 curl -s -u "$ADMIN:$PW" -X DELETE \
-     https://forgejo.b4mad.net/api/v1/admin/users/<bot>/tokens/<id-or-name>
+     https://git.b4mad.industries/api/v1/admin/users/<bot>/tokens/<id-or-name>
 # SSH keys: DELETE /api/v1/admin/users/<bot>/keys/<id>
 # GPG keys are user-scoped only — DELETE /api/v1/user/gpg_keys/<id> as the agent
 ```
@@ -142,7 +142,7 @@ cluster.
   built-in SSH server (`:2222`) is exposed via a fixed **NodePort 32222**.
   The erdgeschoss gateway forwards the external path:
   ```
-  ssh -p 2222 git@forgejo.b4mad.net
+  ssh -p 2222 git@git.b4mad.industries
     → gateway 88.153.142.188:2222
     → node 192.168.0.148:32222 (nodePort)
     → svc forgejo-ssh:22 → pod :2222

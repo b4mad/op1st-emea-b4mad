@@ -31,11 +31,11 @@ spec:
           labels:
             severity: critical
           annotations:
-            summary: "#B4mad Forge (forgejo.b4mad.net) is unreachable"
+            summary: "#B4mad Forge (git.b4mad.industries) is unreachable"
             description: >-
               Prometheus has failed to scrape the Forgejo pod {{ $labels.pod }}
               for >= 5 minutes. Git over HTTPS and SSH, the web UI, and any
-              Renovate/GitOps automation pointing at forgejo.b4mad.net are
+              Renovate/GitOps automation pointing at either forge hostname are
               almost certainly down with it.
 
         # The `up` alert above can only fire while a target exists. If the

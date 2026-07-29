@@ -206,11 +206,14 @@ gitea:
       ACCOUNT_LINKING: auto
     server:
       # Canonical URL Forgejo advertises (clone URLs, cookies, callbacks).
-      # git.b4mad.industries also reaches the UI but redirects here.
-      DOMAIN: forgejo.b4mad.net
-      ROOT_URL: https://forgejo.b4mad.net/
+      # forgejo.b4mad.net also reaches the UI but redirects here. It stays in
+      # the ingress indefinitely: every existing clone remote, registry image
+      # ref and API caller still names it, and none of those follow a redirect.
+      DOMAIN: git.b4mad.industries
+      ROOT_URL: https://git.b4mad.industries/
       PROTOCOL: http
-      # git-SSH advertised in clone URLs: ssh://git@forgejo.b4mad.net:2222/…
+      # git-SSH advertised in clone URLs: ssh://git@git.b4mad.industries:2222/…
+      # No SSH_DOMAIN is set, so this follows DOMAIN above.
       # Pod listens on SSH_LISTEN_PORT 2222 (rootless default); the forgejo-ssh
       # NodePort below exposes it, and the erdgeschoss gateway forwards
       # 88.153.142.188:2222 -> node 192.168.0.148:32222.
