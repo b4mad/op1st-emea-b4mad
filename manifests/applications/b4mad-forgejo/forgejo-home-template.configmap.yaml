@@ -280,6 +280,48 @@ data:
       {{end}}
     </div>
     {{template "base/footer" .}}
+
+  # Overrides templates/user/auth/signin.tmpl (mounted at
+  # /data/gitea/templates/user/auth/signin.tmpl). Every path that demands
+  # authentication — the navbar Sign In button, hitting a private repo while
+  # logged out — lands here. With ENABLE_INTERNAL_SIGNIN off, upstream's page
+  # is a single "b4mad" SSO button, so this replaces it with an immediate
+  # bounce into /user/oauth2/b4mad.
+  #
+  # This is a full replacement, NOT a fork of upstream's signin.tmpl —
+  # Forgejo ships templates as bindata, so there was nothing to copy, and
+  # keeping it minimal means a chart/Forgejo upgrade can't leave us rendering
+  # a stale copy of the real login form.
+  #
+  # ⚠️ The flash-error branch is what stops an infinite redirect loop. A failed
+  # OAuth sign-in (deactivated user, auto-registration conflict) sets a flash
+  # and redirects back here; auto-bouncing would send the still-authenticated
+  # browser through Keycloak and straight back to the same error, forever. So:
+  # if there is an error to show, show it and let the human click.
+  #
+  # redirect_to needs no forwarding — Forgejo has already stashed the original
+  # URL in the redirect_to cookie before routing here, and SignInOAuth leaves
+  # that cookie alone.
+  #
+  # Break-glass if this ever misbehaves: drop this key, re-apply, restart.
+  # There is no local login form to fall back to either way — the internal
+  # signin form is disabled instance-wide (see values-nostromo.yaml).
+  signin.tmpl: |
+    {{template "base/head" .}}
+    <div role="main" aria-label="{{.Title}}" class="page-content ui container tw-max-w-2xl tw-text-center tw-py-16">
+      {{if and .Flash .Flash.ErrorMsg}}
+        <div class="ui negative message">{{.Flash.ErrorMsg | SafeHTML}}</div>
+        <a class="ui primary button b4mad-btn" href="{{AppSubUrl}}/user/oauth2/b4mad">Try signing in again</a>
+      {{else}}
+        {{/* Meta refresh rather than inline JS: no dependency on the CSP
+             posture, and it still works with scripting disabled. */}}
+        <meta http-equiv="refresh" content="0; url={{AppSubUrl}}/user/oauth2/b4mad">
+        <p>Redirecting to b4mad.net sign-in&hellip;</p>
+        <a class="ui primary button b4mad-btn" href="{{AppSubUrl}}/user/oauth2/b4mad">Continue</a>
+      {{end}}
+    </div>
+    {{template "base/footer" .}}
+
   # Injected into <head> on EVERY page. Recolors Forgejo's brand accent
   # (--color-primary, default orange/red #c2410c light / #fb923c dark) to
   # #B4mad phosphor green, instance-wide, for both light and dark themes.

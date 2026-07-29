@@ -311,8 +311,9 @@ initPreScript: |
   mkdir -p "${GNUPGHOME}"
   chmod 700 "${GNUPGHOME}"
 
-  mkdir -p /data/gitea/templates/custom /data/gitea/public/assets/img
+  mkdir -p /data/gitea/templates/custom /data/gitea/templates/user/auth /data/gitea/public/assets/img
   cp /custom-templates/home.tmpl   /data/gitea/templates/home.tmpl
+  cp /custom-templates/signin.tmpl /data/gitea/templates/user/auth/signin.tmpl
   cp /custom-templates/header.tmpl /data/gitea/templates/custom/header.tmpl
   cp /custom-templates/logo.svg    /data/gitea/public/assets/img/logo.svg
   cp /custom-templates/favicon.svg /data/gitea/public/assets/img/favicon.svg
