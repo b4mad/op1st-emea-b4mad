@@ -220,6 +220,36 @@ gitea:
       # button remains. NOTE: this also disables web login for the local
       # 'gitea_admin' account — break-glass is `oc exec … gitea admin …`.
       ENABLE_INTERNAL_SIGNIN: false
+    webhook:
+      # Allow webhook delivery to the in-cluster Pipelines-as-Code controller.
+      #
+      # Forgejo's default ALLOWED_HOST_LIST is `external`, which denies every
+      # private/loopback/link-local target. That is why PaC webhooks for
+      # forgejo-hosted repos silently stopped being delivered on 2026-07-28:
+      #
+      #   webhook can only call allowed HTTP servers (check your
+      #   webhook.ALLOWED_HOST_LIST setting), deny
+      #   'pipelines-as-code-controller-…(192.168.0.148:443)'
+      #
+      # 192.168.0.148 is this node's LAN address — the external route
+      # *.apps.nostromo… resolves there from inside the cluster, so the
+      # round-trip through the ingress is denied as "private".
+      #
+      # ⚠️ Forgejo and the PaC controller run in the SAME cluster, so repos
+      # hosted here should point their webhook at the internal Service
+      # (pipelines-as-code-controller.openshift-pipelines.svc.cluster.local:8080)
+      # rather than hairpinning through the public route. 172.30.0.0/16 is this
+      # cluster's serviceNetwork, which is what that name resolves to.
+      #
+      # `external` is kept first so outbound webhooks to real internet hosts
+      # keep working exactly as before — this widens the list, it does not
+      # replace it. Scoped to the service CIDR rather than the broader
+      # `private` category so a compromised repo cannot aim a webhook at the
+      # LAN.
+      #
+      # Codeberg-hosted repos are unaffected: they reach PaC from outside via
+      # the route, and never consult this setting.
+      ALLOWED_HOST_LIST: "external, 172.30.0.0/16"
 
 # Expose Forgejo's built-in git-SSH via a fixed NodePort so the erdgeschoss
 # gateway can forward external :2222 to it (no LoadBalancer/MetalLB on this
