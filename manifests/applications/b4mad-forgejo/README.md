@@ -56,8 +56,9 @@ running on the **nostromo** OpenShift cluster in namespace
 Local (non-SSO) accounts driving the API and git over PAT. They live in
 Forgejo's datastore, **not** in git — re-applying these manifests does not
 recreate them. The 2026-07-27 move to CNPG wiped all of them and each was
-re-created with `forgejo/create-forge-agent.py` in the ops repo
-(`b4mad-erdgeschoss-systems`), which keeps this repo pure GitOps.
+re-created with `create-forge-agent.py` from the
+[`agentic-forges/forge-agents`](https://forgejo.b4mad.net/agentic-forges/forge-agents)
+project, which keeps this repo pure GitOps.
 
 | Account | Email | Token scopes | Credentials | Keys |
 |---|---|---|---|---|
@@ -115,11 +116,11 @@ curl -s -u "$ADMIN:$PW" -X DELETE \
 ```
 
 ```bash
-# from a b4mad-erdgeschoss-systems checkout:
-./forgejo/create-forge-agent.py <username> <email> --scopes <comma,separated>
+# from an agentic-forges/forge-agents checkout (~/Source/forge-agents):
+./create-forge-agent.py <username> <email> --scopes <comma,separated>
 
 # re-assert the shared avatar on an existing agent, touching nothing else:
-./forgejo/create-forge-agent.py <username> <email> --avatar-only
+./create-forge-agent.py <username> <email> --avatar-only
 ```
 
 **Every agent/bot wears the same avatar** (`forgejo/bot-avatar.png` in the ops
