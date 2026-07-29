@@ -9,6 +9,12 @@
 # default forgejo-auto theme under prefers-color-scheme: dark). Light mode
 # keeps Forgejo's defaults. Only the home hero is styled, not Forgejo's chrome.
 #
+# ⚠️ The Sign-in buttons link straight to /user/oauth2/b4mad (Forgejo's
+# "start OIDC flow" route) instead of /user/login, skipping the interstitial
+# login page — internal signin is off, so that page only ever showed this one
+# button. `b4mad` MUST stay in sync with gitea.oauth[0].name in
+# values-nostromo.yaml; rename the login source and these links 404.
+#
 # To change the page: edit the home.tmpl content below, re-apply this
 # ConfigMap, and bounce the pod (subPath configmap mounts don't hot-reload):
 #   oc -n b4mad-forgejo apply -f forgejo-home-template.configmap.yaml
@@ -189,7 +195,7 @@ data:
         {{if not .IsSigned}}
           {{/* ---- Shown ONLY to logged-out visitors ---- */}}
           <p>Sign in with your b4mad.net account to continue.</p>
-          <a class="ui primary button b4mad-btn" href="{{AppSubUrl}}/user/login">Sign in</a>
+          <a class="ui primary button b4mad-btn" href="{{AppSubUrl}}/user/oauth2/b4mad">Sign in</a>
         {{end}}
       </div>
 
@@ -267,7 +273,7 @@ data:
 
         <section class="sv-cta">
           <p>Agents work here. The vault just holds.</p>
-          <a class="ui primary button b4mad-btn" href="{{AppSubUrl}}/user/login">Sign in with b4mad.net</a>
+          <a class="ui primary button b4mad-btn" href="{{AppSubUrl}}/user/oauth2/b4mad">Sign in with b4mad.net</a>
         </section>
 
       </div>
