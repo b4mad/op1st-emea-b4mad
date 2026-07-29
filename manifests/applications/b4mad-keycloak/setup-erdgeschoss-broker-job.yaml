@@ -1,21 +1,19 @@
-# Provisions the erd/G/eschoss side of the b4mad-forgejo identity brokering,
-# and closes the loop by injecting the resulting secret into the IdP config.
+# Provisions the erd/G/eschoss side of the b4mad-forgejo identity brokering:
+# the OIDC client realm b4mad-forgejo authenticates as, and the protocol
+# mapper that makes it emit the `groups` claim.
 #
-# Three things that cannot be declared anywhere:
-#   1. the `b4mad-forgejo-broker` OIDC client in realm erdgeschoss — that
-#      realm's KeycloakRealmImport is create-only and was imported long ago,
-#      so adding to realms/erdgeschoss.b4mad.net.yaml is a silent no-op;
-#   2. its group-membership protocol mapper, which is what actually emits the
-#      `groups` claim the IdP mapper in realm b4mad-forgejo keys on;
-#   3. the client secret, which must not sit in a plain CR in git (.sops.yaml
-#      only encrypts data/stringData/tls).
+# ⚠️ Why this is still a hand-written Job when realm b4mad-forgejo moved to
+# keycloak-config-cli: these two objects live in realm *erdgeschoss*, which
+# config-cli does not manage. That realm holds 6 users and 15 clients that
+# git does not describe, so pointing a reconciling importer at it without a
+# full export first would be reckless. This Job touches exactly two objects
+# and deletes nothing.
 #
-# ⚠️ This is the SECOND secret-shuttling Job in this app. The pattern works
-# but it is compensating for create-only realm imports; if a third appears,
-# replace all of it with keycloak-config-cli as a single reconciling hook.
+# It no longer shuttles a secret. Both sides now read the same value from the
+# Secret b4mad-forgejo-realm-secrets: this Job sets it on the client here,
+# and config-cli substitutes it into the identity provider config over there.
 #
-# PostSync at wave 1, i.e. after the b4mad-forgejo realm import has created
-# the IdP instance this updates. Re-converges on every Argo CD sync.
+# PostSync at wave 1 — after config-cli (wave 0) has created the realm.
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -54,6 +52,13 @@ spec:
                 secretKeyRef:
                   name: b4mad-erdgeschoss-initial-admin
                   key: password
+            # Same value config-cli substitutes into the IdP config.
+            # ⚠️ Prerequisite Secret — see README.md.
+            - name: BROKER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: b4mad-forgejo-realm-secrets
+                  key: ERDGESCHOSS_BROKER_SECRET
           command:
             - /bin/bash
             - -ceu
@@ -81,8 +86,8 @@ spec:
                 --realm master --user "$KC_ADMIN" --password "$KC_ADMIN_PASSWORD"
 
               # --- 1. the broker client in realm erdgeschoss ----------------
-              # Confidential, auth-code only: Keycloak-to-Keycloak back-channel
-              # exchange, so no implicit and no direct grant.
+              # Confidential, auth-code only: a Keycloak-to-Keycloak
+              # back-channel exchange, so no implicit and no direct grant.
               CLIENT_ARGS=(
                 -s "clientId=$CLIENT"
                 -s 'name=#B4mad Forge (brokered)'
@@ -93,6 +98,7 @@ spec:
                 -s implicitFlowEnabled=false
                 -s directAccessGrantsEnabled=false
                 -s serviceAccountsEnabled=false
+                -s "secret=$BROKER_SECRET"
                 -s "redirectUris=[\"$BASE/realms/$DST_REALM/broker/$IDP_ALIAS/endpoint\"]"
               )
 
@@ -146,23 +152,6 @@ spec:
                 $KCADM create "clients/$CID/protocol-mappers/models" \
                   --config "$CFG" -r "$SRC_REALM" "${MAPPER_ARGS[@]}"
               fi
-
-              # --- 3. push the secret into the IdP config ------------------
-              # `get clients/<id>/client-secret` returns a single JSON object
-              # {"type":"password","value":"…"}; --fields/--format only apply
-              # to lists, so pull the value with sed.
-              SECRET=$($KCADM get "clients/$CID/client-secret" \
-                --config "$CFG" -r "$SRC_REALM" \
-                | sed -n 's/.*"value"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
-              [ -n "$SECRET" ] || { echo "ERROR: no client-secret for $CLIENT" >&2; exit 1; }
-              echo "read broker secret (${#SECRET} chars)"
-
-              # kcadm GETs the instance and merges -s edits before PUTting, so
-              # the rest of the IdP config declared in the realm import is
-              # preserved and only clientSecret is replaced.
-              $KCADM update "identity-provider/instances/$IDP_ALIAS" \
-                --config "$CFG" -r "$DST_REALM" \
-                -s "config.clientSecret=$SECRET"
               echo "done"
           resources:
             requests:

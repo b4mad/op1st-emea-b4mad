@@ -21,21 +21,33 @@ resources:
   - postgresql.yaml
   - pod-disruption-budget.yaml
 
+  # ⚠️ Create-only: the operator imports with `kc.sh import --override=false`,
+  # so this CR applied once, years ago, and edits to it no longer reach the
+  # live realm. Realm b4mad-forgejo was migrated to keycloak-config-cli
+  # (realm-config/ below); erdgeschoss still needs a full export before it
+  # can follow.
   - realms/erdgeschoss.b4mad.net.yaml
-  - realms/b4mad-forgejo.yaml
 
   # PostSync hook: ensures the Forgejo OIDC client in realm b4mad.industries
   # emits the `groups` claim that Forgejo's admin-group mapping depends on.
   # A KeycloakRealmImport cannot do this — see the header of the Job.
   - forgejo-groups-mapper-job.yaml
 
-  # PostSync hook: mirrors that client's secret into realm b4mad-forgejo, so
-  # the sealed forgejo-oauth-secret works against either realm.
-  - copy-forgejo-client-secret-job.yaml
+  # PostSync hook: reconciles realm b4mad-forgejo from realm-config/ on every
+  # sync. Unlike the CR above, this one actually applies changes.
+  - keycloak-config-cli-job.yaml
 
-  # PostSync hook: provisions the broker client (plus its groups mapper) in
-  # realm erdgeschoss and injects its secret into the b4mad-forgejo IdP.
+  # PostSync hook: provisions the broker client and its groups mapper in realm
+  # erdgeschoss, which config-cli deliberately does not manage.
   - setup-erdgeschoss-broker-job.yaml
+
+configMapGenerator:
+  # Mounted at /config in the keycloak-config-cli Job. The generated name
+  # carries a content hash, so editing a realm file rolls the ConfigMap and
+  # the PostSync Job picks it up on the next sync.
+  - name: b4mad-forgejo-realm-config
+    files:
+      - realm-config/b4mad-forgejo.yaml
 
 images:
   - name: keycloak

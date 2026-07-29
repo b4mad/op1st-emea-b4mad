@@ -1,0 +1,198 @@
+# Realm backing the #B4mad Forge (Forgejo) SSO.
+#
+# This is a keycloak-config-cli document — a bare Keycloak realm
+# representation, NOT a KeycloakRealmImport CR. It replaced the CR because
+# the operator imports with `kc.sh import --override=false`, which applies
+# exactly once and silently no-ops thereafter. keycloak-config-cli PUTs the
+# desired state on every Argo CD sync, so this file is now authoritative:
+# edits here actually reach the live realm, and hand-edits in the admin
+# console are corrected.
+#
+# ⚠️ Scope is deliberately this realm ONLY. Realm erdgeschoss holds 6 users
+# and 15 clients that git does not describe; bringing it under config-cli
+# needs a full export first and is tracked separately. The one thing this
+# realm needs from erdgeschoss — a broker client — is still provisioned by
+# setup-erdgeschoss-broker-job.yaml.
+#
+# Secrets are `$(env:…)` references resolved at import time from the Secret
+# b4mad-forgejo-realm-secrets (see README.md). Nothing sensitive is in git,
+# and IMPORT_VARSUBSTITUTION_UNDEFINEDISERROR (default true) makes a missing
+# value fail the sync loudly rather than importing an empty secret.
+realm: b4mad-forgejo
+id: b4mad-forgejo
+displayName: "#B4mad Forge - a Tier-2 forge"
+enabled: true
+sslRequired: external
+
+# ⚠️ registrationAllowed governs the *local* signup form only, which stays
+# off — there are no local passwords in this realm. It does NOT gate the
+# identity providers below: a successful GitHub or Codeberg login creates a
+# brokered account, and Forgejo's ENABLE_AUTO_REGISTRATION then creates a
+# forge account from it. Anyone with a GitHub or Codeberg account can
+# therefore obtain an account on forgejo.b4mad.net. That is the intended
+# public-forge posture for a Tier-2 forge, chosen deliberately — it is not
+# an oversight. To close it again, set linkOnly: true on both providers.
+registrationAllowed: false
+resetPasswordAllowed: false
+loginWithEmailAllowed: true
+duplicateEmailsAllowed: false
+
+# ⚠️ No SMTP is configured on this Keycloak (no realm has one). Every
+# provider below therefore sets trustEmail: true — with it false, Keycloak
+# would raise a VERIFY_EMAIL required action that can never be satisfied and
+# every first login would dead-end. The stock "first broker login" flow still
+# challenges an incoming identity whose email collides with an existing
+# account, so this does not by itself permit account takeover: the user must
+# re-authenticate as the existing account to link.
+groups:
+  # Membership grants Forgejo site-admin, via the `groups` claim +
+  # `adminGroup: forgejo-admins` in b4mad-forgejo/values-nostromo.yaml.
+  # Nobody is enrolled from git — membership is derived on every login from
+  # the erdgeschoss group /admins by the IdP mapper below. GitHub and
+  # Codeberg logins deliberately map to no group, so they are ordinary users.
+  # ⚠️ Forgejo re-evaluates is_admin on every SSO login — emptying or
+  # renaming this group silently demotes every admin at next sign-in.
+  - name: forgejo-admins
+
+# No `users:` block, on purpose. This realm holds no identities of its own.
+# Keycloak creates a local shadow account on first broker login — unavoidable
+# in brokering — but it is credential-less and derived entirely from upstream.
+identityProviders:
+  # --- erd/G/eschoss: the trusted, admin-granting source ------------------
+  - alias: erdgeschoss
+    displayName: "erd/G/eschoss"
+    providerId: oidc
+    enabled: true
+    trustEmail: true
+    storeToken: false
+    addReadTokenRoleOnCreate: false
+    linkOnly: false
+    firstBrokerLoginFlowAlias: "first broker login"
+    config:
+      clientId: b4mad-forgejo-broker
+      clientSecret: "$(env:ERDGESCHOSS_BROKER_SECRET)"
+      clientAuthMethod: client_secret_post
+      issuer: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss
+      authorizationUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/auth
+      tokenUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/token
+      userInfoUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/userinfo
+      logoutUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/logout
+      jwksUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/certs
+      useJwksUrl: "true"
+      validateSignature: "true"
+      # `groups` is absent on purpose: the claim comes from a protocol mapper
+      # attached directly to the broker client, so it needs no scope request.
+      defaultScope: "openid profile email"
+      syncMode: FORCE
+
+  # --- GitHub: ordinary contributors -------------------------------------
+  # Keycloak ships a native `github` provider (OAuth2, not OIDC), so the
+  # endpoints are built in and only credentials are configured.
+  # ⚠️ GitHub only returns a verified primary address on the user:email
+  # scope, which is what makes trustEmail defensible here.
+  - alias: github
+    displayName: GitHub
+    providerId: github
+    enabled: true
+    trustEmail: true
+    storeToken: false
+    addReadTokenRoleOnCreate: false
+    linkOnly: false
+    firstBrokerLoginFlowAlias: "first broker login"
+    config:
+      clientId: "$(env:GITHUB_CLIENT_ID)"
+      clientSecret: "$(env:GITHUB_CLIENT_SECRET)"
+      defaultScope: "user:email"
+      syncMode: IMPORT
+
+  # --- Codeberg: ordinary contributors -----------------------------------
+  # Codeberg runs Forgejo, which is a full OIDC provider; the endpoints below
+  # were taken from https://codeberg.org/.well-known/openid-configuration.
+  # ⚠️ Codeberg's discovery advertises a `groups` scope, deliberately not
+  # requested — nothing here should grant privilege from a public forge.
+  - alias: codeberg
+    displayName: Codeberg
+    providerId: oidc
+    enabled: true
+    trustEmail: true
+    storeToken: false
+    addReadTokenRoleOnCreate: false
+    linkOnly: false
+    firstBrokerLoginFlowAlias: "first broker login"
+    config:
+      clientId: "$(env:CODEBERG_CLIENT_ID)"
+      clientSecret: "$(env:CODEBERG_CLIENT_SECRET)"
+      clientAuthMethod: client_secret_post
+      issuer: https://codeberg.org
+      authorizationUrl: https://codeberg.org/login/oauth/authorize
+      tokenUrl: https://codeberg.org/login/oauth/access_token
+      userInfoUrl: https://codeberg.org/login/oauth/userinfo
+      jwksUrl: https://codeberg.org/login/oauth/keys
+      useJwksUrl: "true"
+      validateSignature: "true"
+      defaultScope: "openid profile email"
+      syncMode: IMPORT
+
+identityProviderMappers:
+  # Site-admin is delegated all the way up to erd/G/eschoss: whoever is in
+  # its /admins group lands in /forgejo-admins here, and Forgejo turns that
+  # into is_admin. No name is hardcoded in git.
+  #
+  # ⚠️ erdgeschoss has BOTH /admin and /admins, each containing only goern —
+  # one of them is a typo nobody has cleaned up. This keys on /admins;
+  # editing /admin will silently do nothing.
+  #
+  # ⚠️ Scoped to the erdgeschoss provider by identityProviderAlias. There is
+  # deliberately no equivalent for github or codeberg: a mapper there would
+  # let a public-forge group name grant admin on this forge.
+  #
+  # syncMode FORCE re-evaluates on every login, matching Forgejo's own
+  # re-evaluation of is_admin. IMPORT would apply once and then drift.
+  - name: forgejo-admins-from-erdgeschoss-admins
+    identityProviderAlias: erdgeschoss
+    identityProviderMapper: oidc-advanced-group-idp-mapper
+    config:
+      syncMode: FORCE
+      # Bare name, not /admins — the broker client's mapper sets
+      # full.path=false, so the claim carries unqualified group names.
+      claims: '[{"key":"groups","value":"admins"}]'
+      are.claim.values.regex: "false"
+      group: /forgejo-admins
+
+clients:
+  # Confidential OIDC client for Forgejo's `b4mad` auth source. The secret is
+  # the one already stored in the sealed Secret b4mad-forgejo/forgejo-oauth-secret
+  # (originally issued in realm b4mad.industries), so cutting Forgejo over to
+  # this realm needs no reseal on the Forgejo side.
+  - clientId: forgejo
+    name: "#B4mad Forge"
+    enabled: true
+    protocol: openid-connect
+    publicClient: false
+    secret: "$(env:FORGEJO_CLIENT_SECRET)"
+    # Authorization-code flow only. No direct grant (no password-grant
+    # surface), no service account — Forgejo only ever acts for a browser user.
+    standardFlowEnabled: true
+    implicitFlowEnabled: false
+    directAccessGrantsEnabled: false
+    serviceAccountsEnabled: false
+    # Forgejo builds this from ROOT_URL + the auth source name (`b4mad`).
+    # Exact match, no wildcard, so a ROOT_URL change breaks login loudly
+    # rather than widening the redirect surface.
+    redirectUris:
+      - https://forgejo.b4mad.net/user/oauth2/b4mad/callback
+    webOrigins:
+      - https://forgejo.b4mad.net
+    protocolMappers:
+      # The group claim Forgejo's adminGroup mapping keys off.
+      # full.path=false emits bare names ("forgejo-admins"); a leading slash
+      # would never compare equal to adminGroup.
+      - name: groups
+        protocol: openid-connect
+        protocolMapper: oidc-group-membership-mapper
+        config:
+          claim.name: groups
+          full.path: "false"
+          id.token.claim: "true"
+          access.token.claim: "true"
+          userinfo.token.claim: "true"

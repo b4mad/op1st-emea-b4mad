@@ -1,0 +1,101 @@
+# Reconciles realm b4mad-forgejo from realm-config/ on every Argo CD sync.
+#
+# Replaces the KeycloakRealmImport CR for this realm. The operator's importer
+# runs `kc.sh import --override=false`, so a CR applies exactly once and is a
+# silent no-op forever after — which is why realm b4mad.industries needed a
+# hand-written kcadm Job to retrofit a single protocol mapper. This tool PUTs
+# desired state instead, so the YAML in realm-config/ is genuinely
+# authoritative and console hand-edits are corrected.
+#
+# ⚠️ Deletion semantics: import.managed.* defaults to `full`, but
+# import.remote-state.enabled defaults to true, which restricts purging to
+# resources keycloak-config-cli itself created (it tracks them in realm
+# attributes). Both defaults are left alone. This is safe only because the
+# tool owns realm b4mad-forgejo outright — do NOT add realm erdgeschoss to
+# IMPORT_FILES_LOCATIONS without exporting its 6 users and 15 clients first.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keycloak-config-cli
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    # Replace the previous hook Job on each sync; without this the immutable
+    # Job spec collides with the leftover object from the last sync.
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    # Wave 0: the broker client in erdgeschoss (wave 1) is only referenced by
+    # this realm, so it may be created after. Nothing here depends on it.
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: keycloak-config-cli
+          # Tag format is <cli-version>-<keycloak-version>.
+          # ⚠️ There is no build targeting 26.4.7 (the server version); the
+          # 26.x line publishes 26.0.5, 26.1.0, 26.5.4, 26.5.5. This pins the
+          # nearest above, so the admin client is slightly newer than the
+          # server. Same major, so the admin REST API is compatible — but
+          # this pin must be revisited when Keycloak itself is upgraded.
+          image: docker.io/adorsys/keycloak-config-cli:6.5.1-26.5.5
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            # Public route rather than the in-cluster Service: the Service
+            # serves the `tls-backend` cert, which the JVM truststore does not
+            # trust, while the route carries a real Let's Encrypt cert.
+            - name: KEYCLOAK_URL
+              value: https://keycloak.erdgeschoss.b4mad.net
+            - name: KEYCLOAK_LOGINREALM
+              value: master
+            # Operator-managed bootstrap admin in the `master` realm.
+            - name: KEYCLOAK_USER
+              valueFrom:
+                secretKeyRef:
+                  name: b4mad-erdgeschoss-initial-admin
+                  key: username
+            - name: KEYCLOAK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: b4mad-erdgeschoss-initial-admin
+                  key: password
+            # Keycloak may still be rolling when the hook fires; wait rather
+            # than fail the sync.
+            - name: KEYCLOAK_AVAILABILITYCHECK_ENABLED
+              value: "true"
+            - name: KEYCLOAK_AVAILABILITYCHECK_TIMEOUT
+              value: 120s
+            - name: IMPORT_FILES_LOCATIONS
+              value: /config/*.yaml
+            # Off by default upstream. Required for the $(env:…) secret
+            # references in the realm file. IMPORT_VARSUBSTITUTION_UNDEFINEDISERROR
+            # defaults to true, so a missing key fails the sync loudly instead
+            # of importing an empty secret.
+            - name: IMPORT_VARSUBSTITUTION_ENABLED
+              value: "true"
+          envFrom:
+            # Supplies FORGEJO_CLIENT_SECRET, ERDGESCHOSS_BROKER_SECRET,
+            # GITHUB_CLIENT_ID/SECRET, CODEBERG_CLIENT_ID/SECRET.
+            # ⚠️ Prerequisite, not created by this kustomization — see README.md.
+            - secretRef:
+                name: b4mad-forgejo-realm-secrets
+          volumeMounts:
+            - name: realm-config
+              mountPath: /config
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+      volumes:
+        - name: realm-config
+          configMap:
+            name: b4mad-forgejo-realm-config
