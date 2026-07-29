@@ -136,11 +136,34 @@ cluster.
 
 ## Auth (SSO-only)
 
-- OIDC login source `b4mad` against Keycloak realm **b4mad.industries**
-  (`https://keycloak.erdgeschoss.b4mad.net/realms/b4mad.industries`).
+- OIDC login source `b4mad` against Keycloak realm **b4mad-forgejo**
+  (`https://keycloak.erdgeschoss.b4mad.net/realms/b4mad-forgejo`). Cut over
+  from realm `b4mad.industries` on 2026-07-29.
+- That realm holds **no local identities**. It brokers to erd/G/eschoss (which
+  grants site-admin, via `/admins` → `forgejo-admins`) and to Codeberg (which
+  does not). See `b4mad-keycloak/README.md`.
 - First SSO login **auto-provisions** an account
   (`ENABLE_AUTO_REGISTRATION`, username from `preferred_username`, linked by
   email).
+
+### ⚠️ The realm cutover re-links accounts by email
+
+Forgejo keys an OAuth account by login source + `login_name`, which stores the
+`sub` claim. `sub` is **realm-scoped**, so changing realm invalidates the
+stored value for every pre-existing SSO account — at the time of the cutover,
+just `goern` (sub `81527376-…`).
+
+Nothing breaks only because `ACCOUNT_LINKING = auto` re-links an incoming
+identity to an existing account with the same email, rewriting `login_name`.
+Setting `ACCOUNT_LINKING: disabled` would instead strand every existing SSO
+account behind a login that can never match.
+
+⚠️ The same mechanism is a takeover path now that a **public** provider
+(Codeberg) is enabled with `trustEmail: true`: anyone who can present a
+verified address matching an existing Forgejo user's email auto-links to that
+account. Today every such address is `@b4mad.net`, a domain we control, which
+is what keeps this bounded — it stops being bounded the moment a user with an
+address on a third-party domain exists.
 - Local username/password sign-in is **disabled** (`ENABLE_INTERNAL_SIGNIN:
   false`). Only the Keycloak button appears.
 - ⚠️ This also disables web login for the built-in `gitea_admin` account —
