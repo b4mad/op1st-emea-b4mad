@@ -1,0 +1,55 @@
+apiVersion: v1
+data:
+    client-id: ENC[AES256_GCM,data:TyJIZNo0+V9X5Pa0YTDlYaf78wk6vtWzQqJquSalzRkR8CLNUhPQaiMr24+N10a/,iv:DRaytWeLOsQ9cpdg7AZgMRQol8VyV+9Gq/Eu2sDZJDo=,tag:FKpv7Ye1faxvxTo5ONZnvw==,type:str]
+    client-secret: ENC[AES256_GCM,data:B/y7Ig/i757epkYQXNH377bwwR4b0NUe+XsDil7d7XwL8dYodT2lufVzN8QufS0oxkPd3JSHTXo++uvI+hGNUS9WYQpg1xDzJg/spQ==,iv:FuoBhEFOoqK1GXiH55SuGimKW2VdmLIQRLRK5FgFOWg=,tag:rM8dWooenQ9uBo/sIZiRaw==,type:str]
+kind: Secret
+metadata:
+    creationTimestamp: null
+    name: codeberg-oauth2-app
+    namespace: b4mad-keycloak
+sops:
+    lastmodified: "2026-07-29T09:33:19Z"
+    mac: ENC[AES256_GCM,data:+yelgWunjW5tsE7IMrDzS+EzdwGS0P8v+dHg7cdEV9TNXyGpLnntiuSikxljksIndjr+PayNGgp6Wxq6CF0uA6dKiZxYVEwM5cdS09guEPpdaUiMUo98I6Ns5td37RRHb3ePTlvMEPWfsxTUvMZCAKdXC65js0sE8KS57acBGN8=,iv:+CsTKXNg/QO3eTn3iVUwMCI3f25UW3EfG1zHj+pJock=,tag:ep19Fp7eXA7uXWB4H+n+QQ==,type:str]
+    pgp:
+        - created_at: "2026-07-29T09:33:19Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA9AgVmznaOk7AQ//XXdhLad0GDX99WXPPsnknNzwvRx2MeF1WLmjtCLPK/Bt
+            wMNHBPnBohN4v+ZuIK+BhOLfUfq5s/54XX74LxX2K97ymEAJHmEfB/OOb5RtGzd6
+            h+lrc0Lj/7mCt6oLGgC6tEtbO4LSXMqKyQaUA/PkmXxuseVxsuFDMUqIVjs/Z+wP
+            Q6Hggd/+x0rP08hJFtTMcRpjwL8qP6HE0za+KHnV8Lv0hMEmG7YrxUERvhMMe9Bo
+            RVsqxZADDQwzUv71rT8ecR2v1XzerPsUJNq0nUDedEhQecGiCl3CioRtoGmWhNl8
+            z7SnICioYfu/aFNb6b9+w3Jwt9cpQlfCk/kip1AxErrQYPeWVWh4qrOo7x+L56KX
+            J2elGuYefJkQrbcl218NfXsml3X79uO0tuiKjhRgfl9YmjWzcqDazXSuLug8RX2k
+            jFWV7umLpfheA3H2EJlMQqlR2C+34gIrbLZlL7asYBTDemjwg5/ttvtu+iRh1NAb
+            BZHdlggWEiWBFxlYiyAgjwZBnZsIjyi43/ETU8fsCs8MGNMyEqRfyGUvx3XCkDB5
+            Bf+gzhQc0k8TrpaAZjmcyDtfWOMr4U8yXklKRzVqNWY9aD+Irzck7QA3UuCqILh9
+            UKhCCW0mWMbw3FzDAgIElCieLkiFAlsVvRjC+T6xK5S8rhbnUfxp2PpOgi7ruAPS
+            XgFH+Ash3XgDoC5SoB/S3zj67EceGrtGZpiJnenTgxZw3tVRpZ0rb8jZxMVMms9n
+            KN7umeQA7cDkCxS5nSSPpY1HdUmiSBZSlCftVMyQclbkmMsnfGzQkf67DMnxXrk=
+            =r4+/
+            -----END PGP MESSAGE-----
+          fp: 04DAFCD9470A962A2F272984E5EB0DA32F3372AC
+        - created_at: "2026-07-29T09:33:19Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMAwSHi8yuDIZWAQ//ZYVXG41kPWwXZNQSutULHvoaG+rXztHnFxfToHAB/QJ8
+            7v6rio5ONCK3/uh2iFrdYJ35DOkHre5AocGAXxHeGBBlPRL/IWBRe1/kRPWDigde
+            fIcYr+hfQVLyya3+y1kMpWlhYeq+c45pNAFJ0gVpjhrtqM4J6eVMJcJGeOeKghrP
+            zyAllky4pJUU80fB1F5yRzzbMPSvmEaik1JRTQWp86b3N0sf/vr3BD/Ro8m2hnnw
+            EJwkNCdd/aDOH7KML1P59wasykVpL+n5l2RE8EziXbqTrs0PqRwbzqfGP52E7wOv
+            e4Ye/lt5QCe89oOzq8DQRTtfXzb0b+SIDi862gYDfS+WxUslsf61wZd2YeVQd2RR
+            6nUEXhBLabsJkZFswoixJs5xhrdsWwDis59KyC0omMeGd2I3aXzWUNJAAZN3g7db
+            BntzQpdbz370iJjuJt8kMI6p1nhv85hhoko5JjODb3x+QWtqMizsCf2+Xdp1cnQV
+            /1mm3rL8L30cn5b3jxvos/7WiBH19iw+TDeeyYlhyTRqnjOx5y0G9CPLxc4KLvlf
+            10VHOr9jxhUBMKYeKnMvC2hn+w36oHXk9cQAfp9+M41ozKSrfjzkFvIvcXiKldnf
+            TP5ejM5K8Rzb3/vYqmYUp+1p5nWaMoQRJqCGnEVHdfrvanvys3oy/rCQNw+KBnjS
+            XgHyezZe1+VmagaaC8zw+y6lmImdo7aBzroXvrMOc55vnzeD+iYnW1s7D0mFEUHM
+            2rL8P4e3gqp5HLfy0IZ+LTYdd4Nfpb9jqf55PRS+woltfcPpJl9T2O7/JpSZEZM=
+            =wzim
+            -----END PGP MESSAGE-----
+          fp: 8A07D816280A983BBC35E85C280DB66A3E8C012E
+    encrypted_regex: ^(data|stringData|tls)$
+    version: 3.12.1

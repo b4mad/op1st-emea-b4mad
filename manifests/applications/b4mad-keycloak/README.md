@@ -46,11 +46,17 @@ missing key fails the sync loudly rather than importing an empty secret.
 
 One Secret per OAuth app, so each rotates independently.
 
-| Secret                       | Keys                        | Source |
+| Secret                       | Keys                        | Status |
 | ---------------------------- | --------------------------- | ------ |
-| `codeberg-oauth2-app`        | `client-id`, `client-secret` | Codeberg OAuth2 application (below) |
-| `github-oauth2-app`          | `client-id`, `client-secret` | GitHub OAuth App (below) |
-| `b4mad-forgejo-realm-secrets`| `FORGEJO_CLIENT_SECRET`, `ERDGESCHOSS_BROKER_SECRET` | reused / generated (below) |
+| `codeberg-oauth2-app`        | `client-id`, `client-secret` | ✅ in repo |
+| `b4mad-forgejo-realm-secrets`| `FORGEJO_CLIENT_SECRET`, `ERDGESCHOSS_BROKER_SECRET` | ✅ in repo |
+| `github-oauth2-app`          | `client-id`, `client-secret` | ❌ **missing** — OAuth App not registered yet |
+
+⚠️ Until `github-oauth2-app` exists, the `keycloak-config-cli` Job cannot
+start (`CreateContainerConfigError` on the missing `secretKeyRef`) and the
+PostSync hook fails the sync. Either register the app and seal the Secret, or
+temporarily drop the `github` provider from `realm-config/b4mad-forgejo.yaml`
+together with its two `env` entries in `keycloak-config-cli-job.yaml`.
 
 `FORGEJO_CLIENT_SECRET` is the existing `forgejo` client secret from realm
 `b4mad.industries` — reuse it so the sealed `b4mad-forgejo/forgejo-oauth-secret`
