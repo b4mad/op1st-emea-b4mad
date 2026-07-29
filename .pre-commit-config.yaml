@@ -3,3 +3,14 @@ repos:
     rev: v8.29.0
     hooks:
     -   id: gitleaks
+
+# The .enc.yaml suffix is a naming convention, so nothing stops an
+# unencrypted Secret from wearing it. This checks the file actually went
+# through sops rather than trusting the name.
+-   repo: local
+    hooks:
+    -   id: sops-encrypted
+        name: Ensure *.enc.yaml are actually SOPS-encrypted
+        entry: scripts/check-sops-encrypted.sh
+        language: script
+        files: '\.enc\.ya?ml$'
