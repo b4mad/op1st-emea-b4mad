@@ -37,7 +37,9 @@ running on the **nostromo** OpenShift cluster in namespace
 | `forgejo-oauth-secret.enc.yaml` | SOPS-encrypted OIDC client id/secret → k8s Secret `forgejo-oauth-secret` (`data.key` = client-id, `data.secret` = client-secret) |
 | `forgejo-gpg-signing-secret.enc.yaml` | SOPS-encrypted GPG private key → k8s Secret `forgejo-gpg-signing-key` (`stringData.privateKey`) |
 | `forgejo-offsite-borg-secret.enc.yaml` | SOPS-encrypted borg credentials (ssh key, known_hosts, passphrase) |
-| `forgejo-bot-tokens.enc.yaml` | SOPS-only bot tokens — source of truth. Not applied to the cluster from here; `renovate-token` is copied into `../b4mad-renovate/environment-forgejo.enc.yaml`, so rotating it means updating both files |
+| `forgejo-bot-tokens.enc.yaml` | SOPS-only bot tokens — source of truth for the four pre-2026-07-29 bots. Not applied to the cluster from here; `renovate-token` is copied into `../b4mad-renovate/environment-forgejo.enc.yaml`, so rotating it means updating both files |
+| `forgejo-agent-<name>.enc.yaml` | SOPS-encrypted full agent credentials (token + SSH + GPG private keys) written by `create-forge-agent.py`; the only copy — the plaintext is shredded at generation |
+| `forgejo-agent-<name>.yaml` | Its SealedSecret sibling, applied by Argo CD |
 
 > Secret flow (repo convention): each `*.enc.yaml` (SOPS, recipients in the
 > repo's `.sops.yaml`) is the **source of truth**; its sibling `*.yaml` is the
@@ -54,15 +56,26 @@ running on the **nostromo** OpenShift cluster in namespace
 Local (non-SSO) accounts driving the API and git over PAT. They live in
 Forgejo's datastore, **not** in git — re-applying these manifests does not
 recreate them. The 2026-07-27 move to CNPG wiped all of them and each was
-re-created with `forgejo/create-forge-bot.sh` in the ops repo
-(`b4mad-erdgeschoss-systems`), which keeps this repo pure GitOps.
+re-created with `create-forge-agent.py` from the
+[`agentic-forges/forge-agents`](https://forgejo.b4mad.net/agentic-forges/forge-agents)
+project, which keeps this repo pure GitOps.
 
-| Account | Email | Token scopes | Token key in `forgejo-bot-tokens.enc.yaml` |
-|---|---|---|---|
-| `b4mad-renovate` | `renovate@b4mad.net` | `write:repository,write:issue,read:user,read:organization` | `renovate-token` |
-| `b4mad-gitops` | `gitops@b4mad.net` | — | `gitops-token` |
-| `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `castra-token` |
-| `b4mad-release-bot` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:user` | `release-bot-token` |
+| Account | Email | Token scopes | Credentials | Keys |
+|---|---|---|---|---|
+| `b4mad-renovate` | `renovate@b4mad.net` | `write:repository,write:issue,read:user,read:organization` | `forgejo-bot-tokens.enc.yaml` → `renovate-token` | none |
+| `b4mad-gitops` | `gitops@b4mad.net` | — | `forgejo-bot-tokens.enc.yaml` → `gitops-token` | none |
+| `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `forgejo-bot-tokens.enc.yaml` → `castra-token` | none |
+| `b4mad-release-bot` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:user` | `forgejo-bot-tokens.enc.yaml` → `release-bot-token` | none |
+
+⚠️ All four predate `create-forge-agent.py` and have **neither an SSH nor a GPG
+key** (validated 2026-07-29). Their commits are therefore unsigned and
+unverifiable — anything holding the token is indistinguishable from the agent
+itself. Backfilling is tracked as `Systems-3ywf`; it is not a re-run, because
+re-running adds credentials rather than rotating them.
+
+Agents created from 2026-07-29 onward get one `forgejo-agent-<name>.enc.yaml`
+holding token + SSH + GPG private keys, plus a `forgejo-agent-<name>.yaml`
+SealedSecret sibling, and are listed with `Keys: ssh+gpg`.
 
 ### Org memberships (not captured by `forge-org-sync.sh`)
 
@@ -84,29 +97,30 @@ owning org before processing it, so without that scope **every** repository
 fails with `403 … token does not have at least one of required scope(s):
 [read:organization]`. Added 2026-07-28 after the Forgejo fleet's first run.
 
-⚠️ Re-running the script mints an **additional** token — it does not rotate.
-Revoke the old one first, or names collide and stale credentials accumulate.
-Token endpoints need basic auth (a PAT will not do), so:
+⚠️ Re-running the script mints an **additional** token and uploads **additional**
+keys — it does not rotate. Revoke the old ones first, or names collide and stale
+credentials accumulate. The `/admin/users/{u}/tokens` endpoints take the
+`gitea_admin` break-glass credentials, so no password rotation on the agent is
+needed to clean up:
 
 ```bash
-POD=$(oc -n b4mad-forgejo get pod -l app.kubernetes.io/name=forgejo \
-        -o jsonpath='{.items[0].metadata.name}')
-TMPPW="tmp-$(openssl rand -hex 16)"
-oc -n b4mad-forgejo exec pod/$POD -c forgejo -- forgejo admin user change-password \
-  --username <bot> --password "$TMPPW" --must-change-password=false
-curl -s -u "<bot>:$TMPPW" https://forgejo.b4mad.net/api/v1/users/<bot>/tokens   # list
-curl -X DELETE -u "<bot>:$TMPPW" https://forgejo.b4mad.net/api/v1/users/<bot>/tokens/<id>
+ADMIN=$(oc -n b4mad-forgejo get secret forgejo-admin \
+          -o jsonpath='{.data.username}' | base64 -d)
+PW=$(oc -n b4mad-forgejo get secret forgejo-admin \
+          -o jsonpath='{.data.password}' | base64 -d)
+curl -s -u "$ADMIN:$PW" https://forgejo.b4mad.net/api/v1/admin/users/<bot>/tokens
+curl -s -u "$ADMIN:$PW" -X DELETE \
+     https://forgejo.b4mad.net/api/v1/admin/users/<bot>/tokens/<id-or-name>
+# SSH keys: DELETE /api/v1/admin/users/<bot>/keys/<id>
+# GPG keys are user-scoped only — DELETE /api/v1/user/gpg_keys/<id> as the agent
 ```
 
-The script's avatar step then resets the password to its own random throwaway,
-so no known credential is left behind once you re-mint.
-
 ```bash
-# from a b4mad-erdgeschoss-systems checkout:
-./forgejo/create-forge-bot.sh <username> <email> <scopes> [token-name]
+# from an agentic-forges/forge-agents checkout (~/Source/forge-agents):
+./create-forge-agent.py <username> <email> --scopes <comma,separated>
 
-# re-assert the shared avatar on an existing bot, minting no token:
-AVATAR_ONLY=1 ./forgejo/create-forge-bot.sh <username> <email> -
+# re-assert the shared avatar on an existing agent, touching nothing else:
+./create-forge-agent.py <username> <email> --avatar-only
 ```
 
 **Every agent/bot wears the same avatar** (`forgejo/bot-avatar.png` in the ops
