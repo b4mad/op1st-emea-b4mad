@@ -14,3 +14,15 @@ repos:
         entry: scripts/check-sops-encrypted.sh
         language: script
         files: '\.enc\.ya?ml$'
+
+# keycloak-config-cli substitutes over raw file text before parsing YAML, so a
+# substitution reference written in a comment is resolved like a real one and
+# aborts the import. Valid YAML, passes kustomize build, fails only against the
+# live server — exactly the class of bug worth catching mechanically.
+-   repo: local
+    hooks:
+    -   id: realm-config-substitution
+        name: No substitution variables in realm-config comments
+        entry: scripts/check-realm-config-substitution.sh
+        language: script
+        files: 'realm-config/.*\.ya?ml$'

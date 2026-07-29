@@ -14,10 +14,17 @@
 # realm needs from erdgeschoss — a broker client — is still provisioned by
 # setup-erdgeschoss-broker-job.yaml.
 #
-# Secrets are `$(env:…)` references resolved at import time from the Secret
+# Secrets are env-variable references resolved at import time from the Secret
 # b4mad-forgejo-realm-secrets (see README.md). Nothing sensitive is in git,
 # and IMPORT_VARSUBSTITUTION_UNDEFINEDISERROR (default true) makes a missing
 # value fail the sync loudly rather than importing an empty secret.
+#
+# ⚠️ Do NOT write a substitution reference in a comment, not even as an
+# example. keycloak-config-cli substitutes over the RAW FILE TEXT before any
+# YAML is parsed, so it cannot tell a comment from a value: a prose mention
+# is resolved like a real reference and aborts the whole import with
+# "Cannot resolve variable". This exact line once read "$" + "(env:…)" and
+# broke the first live sync. Name variables in prose without the sigil.
 realm: b4mad-forgejo
 id: b4mad-forgejo
 displayName: "#B4mad Forge - a Tier-2 forge"
