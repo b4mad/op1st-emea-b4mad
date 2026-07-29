@@ -79,12 +79,43 @@ spec:
             # of importing an empty secret.
             - name: IMPORT_VARSUBSTITUTION_ENABLED
               value: "true"
-          envFrom:
-            # Supplies FORGEJO_CLIENT_SECRET, ERDGESCHOSS_BROKER_SECRET,
-            # GITHUB_CLIENT_ID/SECRET, CODEBERG_CLIENT_ID/SECRET.
-            # ⚠️ Prerequisite, not created by this kustomization — see README.md.
-            - secretRef:
-                name: b4mad-forgejo-realm-secrets
+
+            # --- $(env:…) values referenced by realm-config/ ---------------
+            # One Secret per OAuth app, so each can be rotated on its own
+            # without touching the others. ⚠️ All are prerequisites, NOT
+            # created by this kustomization — see README.md.
+            - name: CODEBERG_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: codeberg-oauth2-app
+                  key: client-id
+            - name: CODEBERG_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: codeberg-oauth2-app
+                  key: client-secret
+            - name: GITHUB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-oauth2-app
+                  key: client-id
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: github-oauth2-app
+                  key: client-secret
+            # Not an OAuth app: one is reused from realm b4mad.industries,
+            # the other is generated and shared with setup-erdgeschoss-broker.
+            - name: FORGEJO_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: b4mad-forgejo-realm-secrets
+                  key: FORGEJO_CLIENT_SECRET
+            - name: ERDGESCHOSS_BROKER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: b4mad-forgejo-realm-secrets
+                  key: ERDGESCHOSS_BROKER_SECRET
           volumeMounts:
             - name: realm-config
               mountPath: /config

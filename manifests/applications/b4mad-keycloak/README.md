@@ -37,45 +37,67 @@ defaults to `true`, which limits purging to resources keycloak-config-cli
 itself created (tracked in realm attributes). Both defaults are left alone.
 That is safe only because the tool owns `b4mad-forgejo` outright.
 
-## Prerequisite: the `b4mad-forgejo-realm-secrets` Secret
+## Prerequisite Secrets
 
-⚠️ **The `keycloak-config-cli` Job will fail until this Secret exists.** It is
-not created by this kustomization because four of its six values originate
-outside the cluster. `IMPORT_VARSUBSTITUTION_UNDEFINEDISERROR` defaults to
-`true`, so a missing key fails the sync loudly rather than silently importing
-an empty secret.
+⚠️ **The `keycloak-config-cli` Job fails until all three exist.** They are not
+created by this kustomization because their values originate outside the
+cluster. `IMPORT_VARSUBSTITUTION_UNDEFINEDISERROR` defaults to `true`, so a
+missing key fails the sync loudly rather than importing an empty secret.
 
-| Key                         | Where it comes from |
-| --------------------------- | ------------------- |
-| `FORGEJO_CLIENT_SECRET`     | Existing `forgejo` client in realm `b4mad.industries` — reuse it so the sealed `b4mad-forgejo/forgejo-oauth-secret` needs no reseal |
-| `ERDGESCHOSS_BROKER_SECRET` | Generate: `openssl rand -hex 32` |
-| `GITHUB_CLIENT_ID`          | GitHub OAuth App (below) |
-| `GITHUB_CLIENT_SECRET`      | GitHub OAuth App (below) |
-| `CODEBERG_CLIENT_ID`        | Codeberg OAuth2 application (below) |
-| `CODEBERG_CLIENT_SECRET`    | Codeberg OAuth2 application (below) |
+One Secret per OAuth app, so each rotates independently.
 
-Read the existing Forgejo client secret:
+| Secret                       | Keys                        | Source |
+| ---------------------------- | --------------------------- | ------ |
+| `codeberg-oauth2-app`        | `client-id`, `client-secret` | Codeberg OAuth2 application (below) |
+| `github-oauth2-app`          | `client-id`, `client-secret` | GitHub OAuth App (below) |
+| `b4mad-forgejo-realm-secrets`| `FORGEJO_CLIENT_SECRET`, `ERDGESCHOSS_BROKER_SECRET` | reused / generated (below) |
+
+`FORGEJO_CLIENT_SECRET` is the existing `forgejo` client secret from realm
+`b4mad.industries` — reuse it so the sealed `b4mad-forgejo/forgejo-oauth-secret`
+needs no reseal. Read it with:
 
 ```bash
 oc -n b4mad-keycloak exec deploy/b4mad-erdgeschoss -- /opt/keycloak/bin/kcadm.sh \
   get clients -r b4mad.industries -q clientId=forgejo --fields id,secret
 ```
 
-Then seal it — never commit the plaintext:
+`ERDGESCHOSS_BROKER_SECRET` is generated (`openssl rand -hex 32`) and shared:
+`setup-erdgeschoss-broker-job.yaml` sets it on the client in realm
+`erdgeschoss`, and config-cli substitutes the same value into the identity
+provider config here.
+
+### ⚠️ `.enc.yaml` does not mean encrypted
+
+The convention in this repo is a **pair** of files:
+
+- `foo.enc.yaml` — a plain `Secret`, encrypted with SOPS. Human source of truth.
+- `foo.yaml` — the `SealedSecret`, listed in `kustomization.yaml`. What Argo applies.
+
+The `.enc.yaml` suffix is only a name. `kubectl create secret --dry-run -o yaml`
+produces base64, which is **encoding, not encryption** — anyone can reverse it.
+A genuine SOPS file has a top-level `sops:` block with PGP fingerprints; if that
+block is absent, the file is plaintext. The `sops-encrypted` pre-commit hook
+(`scripts/check-sops-encrypted.sh`) enforces this.
+
+If a plaintext secret ever reaches a commit, **rotate it**. Rewriting history
+does not un-publish a value that has already been distributed.
+
+Full round trip for one app:
 
 ```bash
-kubectl create secret generic b4mad-forgejo-realm-secrets \
+kubectl create secret generic codeberg-oauth2-app \
   --namespace b4mad-keycloak --dry-run=client -o yaml \
-  --from-literal=FORGEJO_CLIENT_SECRET='…' \
-  --from-literal=ERDGESCHOSS_BROKER_SECRET="$(openssl rand -hex 32)" \
-  --from-literal=GITHUB_CLIENT_ID='…' \
-  --from-literal=GITHUB_CLIENT_SECRET='…' \
-  --from-literal=CODEBERG_CLIENT_ID='…' \
-  --from-literal=CODEBERG_CLIENT_SECRET='…' \
-| kubeseal --format yaml > b4mad-forgejo-realm-secrets.yaml
+  --from-literal=client-id='…' \
+  --from-literal=client-secret='…' \
+  > codeberg-oauth2-app.enc.yaml
+
+sops -e -i codeberg-oauth2-app.enc.yaml          # <-- the step that matters
+sops -d codeberg-oauth2-app.enc.yaml | kubeseal --format yaml \
+  > codeberg-oauth2-app.yaml
 ```
 
-Add the result to `resources:` in `kustomization.yaml` once it exists.
+Add the resulting `*.yaml` (the SealedSecret) to `resources:` in
+`kustomization.yaml`.
 
 ## Registering the OAuth apps
 
