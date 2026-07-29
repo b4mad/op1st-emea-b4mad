@@ -180,10 +180,20 @@ clients:
     # Forgejo builds this from ROOT_URL + the auth source name (`b4mad`).
     # Exact match, no wildcard, so a ROOT_URL change breaks login loudly
     # rather than widening the redirect surface.
+    #
+    # Both hostnames are registered on purpose, and only for the duration of
+    # the git.b4mad.industries cutover: the entry for the host Forgejo is
+    # about to adopt MUST exist here before ROOT_URL moves, or the first SSO
+    # login after the flip is rejected as an unregistered redirect_uri — and
+    # with local signin off and gitea_admin web login disabled, that locks
+    # everyone out of the UI. Drop the forgejo.b4mad.net pair once ROOT_URL
+    # has moved and SSO is confirmed working on the new host.
     redirectUris:
       - https://forgejo.b4mad.net/user/oauth2/b4mad/callback
+      - https://git.b4mad.industries/user/oauth2/b4mad/callback
     webOrigins:
       - https://forgejo.b4mad.net
+      - https://git.b4mad.industries
     protocolMappers:
       # The group claim Forgejo's adminGroup mapping keys off.
       # full.path=false emits bare names ("forgejo-admins"); a leading slash
