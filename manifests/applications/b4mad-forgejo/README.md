@@ -22,7 +22,7 @@ running on the **nostromo** OpenShift cluster in namespace
 | Namespace | `b4mad-forgejo` |
 | Chart | `forgejo-helm` |
 | Canonical URL | <https://forgejo.b4mad.net/> |
-| Alt URL | <https://forgejo.b4mad.industries/> (redirects to canonical) |
+| Alt URL | <https://git.b4mad.industries/> (redirects to canonical) |
 | Database | PostgreSQL — CNPG cluster `prod` via `pooler-prod` |
 | Auth | Keycloak OIDC, SSO-only |
 | git-SSH | `ssh://git@forgejo.b4mad.net:2222/…` |

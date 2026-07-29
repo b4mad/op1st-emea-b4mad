@@ -38,7 +38,7 @@ ingress:
         - path: /
           pathType: Prefix
           port: http
-    - host: forgejo.b4mad.industries
+    - host: git.b4mad.industries
       paths:
         - path: /
           pathType: Prefix
@@ -47,9 +47,9 @@ ingress:
     - secretName: forgejo.b4mad.net
       hosts:
         - forgejo.b4mad.net
-    - secretName: forgejo.b4mad.industries
+    - secretName: git.b4mad.industries
       hosts:
-        - forgejo.b4mad.industries
+        - git.b4mad.industries
 
 gitea:
   # Pinned break-glass admin credentials (SealedSecret forgejo-admin, source of
@@ -206,7 +206,7 @@ gitea:
       ACCOUNT_LINKING: auto
     server:
       # Canonical URL Forgejo advertises (clone URLs, cookies, callbacks).
-      # forgejo.b4mad.industries also reaches the UI but redirects here.
+      # git.b4mad.industries also reaches the UI but redirects here.
       DOMAIN: forgejo.b4mad.net
       ROOT_URL: https://forgejo.b4mad.net/
       PROTOCOL: http
