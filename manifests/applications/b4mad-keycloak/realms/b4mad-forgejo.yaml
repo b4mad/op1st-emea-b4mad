@@ -36,31 +36,76 @@ spec:
     groups:
       # Membership here is what grants Forgejo site-admin, via the `groups`
       # claim + `adminGroup: forgejo-admins` in b4mad-forgejo/values-nostromo.yaml.
+      # Nobody is enrolled from git — membership is derived on every login from
+      # the erdgeschoss group /admins by the IdP mapper below.
       # ⚠️ Forgejo re-evaluates is_admin on every SSO login — emptying or
       # renaming this group silently demotes every admin at next sign-in.
       - name: forgejo-admins
 
-    users:
-      - username: goern
+    # No `users:` block, on purpose. This realm holds no identities of its
+    # own; erd/G/eschoss is the source of truth. Keycloak still creates a
+    # local shadow account on first broker login — that is unavoidable in
+    # brokering — but it carries no password and is fully derived from
+    # upstream, so nothing about a person needs to live in git.
+    identityProviders:
+      - alias: erdgeschoss
+        displayName: "erd/G/eschoss"
+        providerId: oidc
         enabled: true
-        email: goern@b4mad.net
-        firstName: Christoph
-        lastName: Görn
-        # Pre-verified: the address is the operator's own and there is no SMTP
-        # sender configured on this realm, so a verification mail would never
-        # arrive and the account would be unusable.
-        emailVerified: true
-        groups:
-          - /forgejo-admins
-        # ⚠️ No credential is defined — deliberately, so no password or hash
-        # ever lands in git. The account cannot authenticate until one is set
-        # out of band, once, after the first sync:
-        #
-        #   kcadm.sh set-password -r b4mad-forgejo --username goern \
-        #     --new-password '<generated>' --temporary
-        #
-        # `--temporary` makes Keycloak force a change at first login.
-        requiredActions: []
+        # Same Keycloak instance, different realm, so the upstream email is as
+        # trustworthy as our own — skip the verification mail on account
+        # creation (this realm has no SMTP sender anyway).
+        trustEmail: true
+        storeToken: false
+        addReadTokenRoleOnCreate: false
+        linkOnly: false
+        firstBrokerLoginFlowAlias: "first broker login"
+        config:
+          clientId: b4mad-forgejo-broker
+          # ⚠️ Placeholder. Overwritten in place by the
+          # setup-erdgeschoss-broker PostSync Job, which creates the matching
+          # client in realm erdgeschoss and copies its generated secret over.
+          # A real secret cannot live here: this is a plain CR and .sops.yaml
+          # only encrypts data/stringData/tls.
+          clientSecret: "set-by-setup-erdgeschoss-broker-job"
+          clientAuthMethod: client_secret_post
+          issuer: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss
+          authorizationUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/auth
+          tokenUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/token
+          userInfoUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/userinfo
+          logoutUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/logout
+          jwksUrl: https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss/protocol/openid-connect/certs
+          useJwksUrl: "true"
+          validateSignature: "true"
+          # `groups` is deliberately absent: the claim is emitted by a
+          # protocol mapper attached directly to the broker client, not by a
+          # client scope, so it needs no scope request. Realm erdgeschoss is
+          # itself create-only, so that mapper is installed by the same Job.
+          defaultScope: "openid profile email"
+          syncMode: FORCE
+
+    identityProviderMappers:
+      # Site-admin is delegated all the way up to erd/G/eschoss: whoever is in
+      # its /admins group lands in /forgejo-admins here, and Forgejo turns that
+      # into is_admin. No name is hardcoded in git.
+      #
+      # ⚠️ erdgeschoss has BOTH /admin and /admins, each containing only goern
+      # — one of them is a typo nobody has cleaned up. This keys on /admins;
+      # editing /admin will silently do nothing.
+      #
+      # syncMode FORCE re-evaluates membership on every login, matching
+      # Forgejo's own re-evaluation of is_admin. IMPORT would apply once at
+      # account creation and then drift forever.
+      - name: forgejo-admins-from-erdgeschoss-admins
+        identityProviderAlias: erdgeschoss
+        identityProviderMapper: oidc-advanced-group-idp-mapper
+        config:
+          syncMode: FORCE
+          # Bare name, not /admins — the broker client's mapper sets
+          # full.path=false, so the claim carries unqualified group names.
+          claims: '[{"key":"groups","value":"admins"}]'
+          are.claim.values.regex: "false"
+          group: /forgejo-admins
 
     clients:
       # Confidential OIDC client for Forgejo's `b4mad` auth source.

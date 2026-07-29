@@ -1,0 +1,170 @@
+# Provisions the erd/G/eschoss side of the b4mad-forgejo identity brokering,
+# and closes the loop by injecting the resulting secret into the IdP config.
+#
+# Three things that cannot be declared anywhere:
+#   1. the `b4mad-forgejo-broker` OIDC client in realm erdgeschoss — that
+#      realm's KeycloakRealmImport is create-only and was imported long ago,
+#      so adding to realms/erdgeschoss.b4mad.net.yaml is a silent no-op;
+#   2. its group-membership protocol mapper, which is what actually emits the
+#      `groups` claim the IdP mapper in realm b4mad-forgejo keys on;
+#   3. the client secret, which must not sit in a plain CR in git (.sops.yaml
+#      only encrypts data/stringData/tls).
+#
+# ⚠️ This is the SECOND secret-shuttling Job in this app. The pattern works
+# but it is compensating for create-only realm imports; if a third appears,
+# replace all of it with keycloak-config-cli as a single reconciling hook.
+#
+# PostSync at wave 1, i.e. after the b4mad-forgejo realm import has created
+# the IdP instance this updates. Re-converges on every Argo CD sync.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup-erdgeschoss-broker
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: kcadm
+          # Same image as the Keycloak CR so kcadm.sh matches the server
+          # version. NOT rewritten by the kustomize `images:` transformer —
+          # that one is scoped to kind=Keycloak spec/image only.
+          image: codeberg.org/b4mad/keycloak-op1st:26.4.7-0.11
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            # Operator-managed bootstrap admin in the `master` realm.
+            - name: KC_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: b4mad-erdgeschoss-initial-admin
+                  key: username
+            - name: KC_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: b4mad-erdgeschoss-initial-admin
+                  key: password
+          command:
+            - /bin/bash
+            - -ceu
+            - |
+              # NOTE: no `set -x` anywhere below — the client secret passes
+              # through shell variables and must not reach the pod log.
+              KCADM=/opt/keycloak/bin/kcadm.sh
+              SRC_REALM=erdgeschoss          # identity source of truth
+              DST_REALM=b4mad-forgejo        # brokering realm
+              IDP_ALIAS=erdgeschoss
+              CLIENT=b4mad-forgejo-broker
+              MAPPER=groups
+              BASE=https://keycloak.erdgeschoss.b4mad.net
+
+              # OpenShift runs this pod under a random UID with no writable
+              # HOME, so kcadm's default ~/.keycloak/kcadm.config is
+              # unwritable — every call must carry --config explicitly.
+              CFG=/tmp/kcadm.config
+
+              # Public route rather than the in-cluster Service: the Service
+              # serves the `tls-backend` cert, which the JVM truststore does
+              # not trust, while the route carries a real Let's Encrypt cert.
+              $KCADM config credentials --config "$CFG" \
+                --server "$BASE" \
+                --realm master --user "$KC_ADMIN" --password "$KC_ADMIN_PASSWORD"
+
+              # --- 1. the broker client in realm erdgeschoss ----------------
+              # Confidential, auth-code only: Keycloak-to-Keycloak back-channel
+              # exchange, so no implicit and no direct grant.
+              CLIENT_ARGS=(
+                -s "clientId=$CLIENT"
+                -s 'name=#B4mad Forge (brokered)'
+                -s enabled=true
+                -s protocol=openid-connect
+                -s publicClient=false
+                -s standardFlowEnabled=true
+                -s implicitFlowEnabled=false
+                -s directAccessGrantsEnabled=false
+                -s serviceAccountsEnabled=false
+                -s "redirectUris=[\"$BASE/realms/$DST_REALM/broker/$IDP_ALIAS/endpoint\"]"
+              )
+
+              CID=$($KCADM get clients --config "$CFG" -r "$SRC_REALM" \
+                -q clientId="$CLIENT" --fields id --format csv --noquotes)
+              if [ -z "$CID" ]; then
+                echo "client '$CLIENT' missing in $SRC_REALM — creating"
+                $KCADM create clients --config "$CFG" -r "$SRC_REALM" "${CLIENT_ARGS[@]}"
+                CID=$($KCADM get clients --config "$CFG" -r "$SRC_REALM" \
+                  -q clientId="$CLIENT" --fields id --format csv --noquotes)
+              else
+                echo "client '$CLIENT' exists ($CID) — reconciling"
+                # clientId is immutable on update; drop it from the arg list.
+                $KCADM update "clients/$CID" --config "$CFG" -r "$SRC_REALM" \
+                  "${CLIENT_ARGS[@]:1}"
+              fi
+              [ -n "$CID" ] || { echo "ERROR: could not resolve $CLIENT" >&2; exit 1; }
+
+              # --- 2. the groups claim on that client ----------------------
+              # Attached to the client itself rather than to a client scope,
+              # so the claim needs no scope request from the brokering realm.
+              # full.path=false emits bare names ("admins"), which is what the
+              # oidc-advanced-group-idp-mapper in $DST_REALM compares against;
+              # "/admins" would never match.
+              MAPPER_ARGS=(
+                -s "name=$MAPPER"
+                -s protocol=openid-connect
+                -s protocolMapper=oidc-group-membership-mapper
+                -s 'config."claim.name"=groups'
+                -s 'config."full.path"=false'
+                -s 'config."id.token.claim"=true'
+                -s 'config."access.token.claim"=true'
+                -s 'config."userinfo.token.claim"=true'
+              )
+
+              # Parsed with bash builtins on purpose: the Keycloak image is
+              # UBI-micro and ships no awk (nor jq/python). sed/grep/cut exist.
+              MID=""
+              while IFS=, read -r id name _rest; do
+                if [ "$name" = "$MAPPER" ]; then MID="$id"; break; fi
+              done < <($KCADM get "clients/$CID/protocol-mappers/models" \
+                --config "$CFG" -r "$SRC_REALM" --fields id,name --format csv \
+                --noquotes)
+
+              if [ -n "$MID" ]; then
+                echo "mapper '$MAPPER' exists ($MID) — reconciling"
+                $KCADM update "clients/$CID/protocol-mappers/models/$MID" \
+                  --config "$CFG" -r "$SRC_REALM" "${MAPPER_ARGS[@]}"
+              else
+                echo "mapper '$MAPPER' missing — creating"
+                $KCADM create "clients/$CID/protocol-mappers/models" \
+                  --config "$CFG" -r "$SRC_REALM" "${MAPPER_ARGS[@]}"
+              fi
+
+              # --- 3. push the secret into the IdP config ------------------
+              # `get clients/<id>/client-secret` returns a single JSON object
+              # {"type":"password","value":"…"}; --fields/--format only apply
+              # to lists, so pull the value with sed.
+              SECRET=$($KCADM get "clients/$CID/client-secret" \
+                --config "$CFG" -r "$SRC_REALM" \
+                | sed -n 's/.*"value"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+              [ -n "$SECRET" ] || { echo "ERROR: no client-secret for $CLIENT" >&2; exit 1; }
+              echo "read broker secret (${#SECRET} chars)"
+
+              # kcadm GETs the instance and merges -s edits before PUTting, so
+              # the rest of the IdP config declared in the realm import is
+              # preserved and only clientSecret is replaced.
+              $KCADM update "identity-provider/instances/$IDP_ALIAS" \
+                --config "$CFG" -r "$DST_REALM" \
+                -s "config.clientSecret=$SECRET"
+              echo "done"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi

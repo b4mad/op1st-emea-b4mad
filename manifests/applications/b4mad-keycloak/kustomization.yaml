@@ -33,6 +33,10 @@ resources:
   # the sealed forgejo-oauth-secret works against either realm.
   - copy-forgejo-client-secret-job.yaml
 
+  # PostSync hook: provisions the broker client (plus its groups mapper) in
+  # realm erdgeschoss and injects its secret into the b4mad-forgejo IdP.
+  - setup-erdgeschoss-broker-job.yaml
+
 images:
   - name: keycloak
     newName: codeberg.org/b4mad/keycloak-op1st
