@@ -310,7 +310,12 @@ data:
     {{template "base/head" .}}
     <div role="main" aria-label="{{.Title}}" class="page-content ui container tw-max-w-2xl tw-text-center tw-py-16">
       {{if and .Flash .Flash.ErrorMsg}}
-        <div class="ui negative message">{{.Flash.ErrorMsg | SafeHTML}}</div>
+        {{/* ⚠️ Plain field access, no pipe function and no sub-template.
+             `SafeHTML` does NOT exist in Forgejo 16.0.1 and cost an outage:
+             Forgejo treats a custom-template error as FATAL and refuses to
+             boot, so a typo here takes the whole forge down, and the only way
+             back in is oc/kubectl. Keep this template dependency-free. */}}
+        <div class="ui negative message">{{.Flash.ErrorMsg}}</div>
         <a class="ui primary button b4mad-btn" href="{{AppSubUrl}}/user/oauth2/b4mad">Try signing in again</a>
       {{else}}
         {{/* Meta refresh rather than inline JS: no dependency on the CSP
