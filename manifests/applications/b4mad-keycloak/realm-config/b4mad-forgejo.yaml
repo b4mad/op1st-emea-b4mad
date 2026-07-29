@@ -128,9 +128,13 @@ identityProviderMappers:
   # its /admins group lands in /forgejo-admins here, and Forgejo turns that
   # into is_admin. No name is hardcoded in git.
   #
-  # ⚠️ erdgeschoss has BOTH /admin and /admins, each containing only goern —
-  # one of them is a typo nobody has cleaned up. This keys on /admins;
-  # editing /admin will silently do nothing.
+  # ⚠️ /admins is deliberately kept in step with the OpenShift Group
+  # b4mad-admins (manifests/organizational-unit-scope/groups/), so forge
+  # site-admin and cluster-admin move together. Both are goern + durandom.
+  # Nothing enforces that — they are two hand-maintained lists that happen to
+  # agree, and they will drift the moment someone edits one. A duplicate
+  # /admin group was deleted on 2026-07-29; it had no members beyond goern
+  # and no role mappings.
   #
   # ⚠️ Scoped to the erdgeschoss provider by identityProviderAlias. There is
   # deliberately no equivalent for github or codeberg: a mapper there would

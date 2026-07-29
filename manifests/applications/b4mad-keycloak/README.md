@@ -143,9 +143,25 @@ from the `erdgeschoss` group `/admins`, via a mapper scoped to that provider
 alias. There is deliberately no group mapper on `codeberg` — nor should one
 be added for `github`.
 
-⚠️ `erdgeschoss` has both `/admin` and `/admins`, each containing only
-`goern`. The mapper keys on `/admins`; editing `/admin` does nothing. One of
-them is a typo that wants cleaning up.
+### Who is an admin
+
+Site-admin on the forge derives from the `erdgeschoss` group `/admins`.
+That group is kept deliberately in step with the OpenShift Group
+`b4mad-admins` (`manifests/organizational-unit-scope/groups/`), so forge
+site-admin and cluster-admin move together. Both are **goern, durandom**.
+
+⚠️ Nothing enforces that alignment. They are two hand-maintained lists that
+happen to agree today, in two different systems, and neither is declared in
+git — `erdgeschoss` is still on the create-only CR. They will drift the first
+time someone edits one and not the other, and the failure is silent: an
+operator quietly lacks forge admin, or quietly keeps it. Closing this
+properly means bringing `erdgeschoss` under keycloak-config-cli.
+
+Cleaned up on 2026-07-29: `erdgeschoss` also had a duplicate `/admin` group
+(typo, goern only). It was verified inert — no role mappings, and no client
+or client scope in the realm emitted a group claim at all — then deleted.
+Before this change, *nothing* consumed these groups; the brokering mapper is
+their first real consumer, which is what made the duplicate worth fixing.
 
 ## ⚠️ No SMTP
 
