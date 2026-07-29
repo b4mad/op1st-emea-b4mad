@@ -94,16 +94,11 @@ spec:
                 secretKeyRef:
                   name: codeberg-oauth2-app
                   key: client-secret
-            - name: GITHUB_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: github-oauth2-app
-                  key: client-id
-            - name: GITHUB_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: github-oauth2-app
-                  key: client-secret
+            # GITHUB_CLIENT_ID / GITHUB_CLIENT_SECRET are deliberately absent:
+            # the github provider is deferred until an OAuth App exists
+            # (op1st-emea-b4mad-4w5). A secretKeyRef to a Secret that does not
+            # exist is not a soft failure — the pod never starts
+            # (CreateContainerConfigError) and the PostSync hook fails the sync.
             # Not an OAuth app: one is reused from realm b4mad.industries,
             # the other is generated and shared with setup-erdgeschoss-broker.
             - name: FORGEJO_CLIENT_SECRET

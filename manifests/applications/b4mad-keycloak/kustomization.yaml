@@ -23,9 +23,8 @@ resources:
 
   # Credentials the keycloak-config-cli Job substitutes into realm-config/.
   # Each is a SealedSecret; the paired *.enc.yaml is the SOPS-encrypted
-  # source of truth (see README.md).
-  # ⚠️ github-oauth2-app.yaml is still missing — the OAuth App has not been
-  # registered yet. Until it exists the config-cli Job cannot start.
+  # source of truth (see README.md). A github-oauth2-app.yaml joins these
+  # when the GitHub provider is restored (op1st-emea-b4mad-4w5).
   - codeberg-oauth2-app.yaml
   - b4mad-forgejo-realm-secrets.yaml
 

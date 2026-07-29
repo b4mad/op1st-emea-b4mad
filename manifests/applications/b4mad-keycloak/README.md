@@ -50,13 +50,14 @@ One Secret per OAuth app, so each rotates independently.
 | ---------------------------- | --------------------------- | ------ |
 | `codeberg-oauth2-app`        | `client-id`, `client-secret` | ✅ in repo |
 | `b4mad-forgejo-realm-secrets`| `FORGEJO_CLIENT_SECRET`, `ERDGESCHOSS_BROKER_SECRET` | ✅ in repo |
-| `github-oauth2-app`          | `client-id`, `client-secret` | ❌ **missing** — OAuth App not registered yet |
 
-⚠️ Until `github-oauth2-app` exists, the `keycloak-config-cli` Job cannot
-start (`CreateContainerConfigError` on the missing `secretKeyRef`) and the
-PostSync hook fails the sync. Either register the app and seal the Secret, or
-temporarily drop the `github` provider from `realm-config/b4mad-forgejo.yaml`
-together with its two `env` entries in `keycloak-config-cli-job.yaml`.
+A `github-oauth2-app` Secret will join these when the GitHub identity
+provider is restored — deferred, tracked as **op1st-emea-b4mad-4w5**.
+
+⚠️ A `secretKeyRef` to a Secret that does not exist is not a soft failure:
+the pod never starts (`CreateContainerConfigError`) and the PostSync hook
+fails the whole sync. Add the env references and the provider config in the
+same change as the Secret, never ahead of it.
 
 `FORGEJO_CLIENT_SECRET` is the existing `forgejo` client secret from realm
 `b4mad.industries` — reuse it so the sealed `b4mad-forgejo/forgejo-oauth-secret`
@@ -107,14 +108,8 @@ Add the resulting `*.yaml` (the SealedSecret) to `resources:` in
 
 ## Registering the OAuth apps
 
-Both callback URLs follow Keycloak's broker endpoint pattern
+Callback URLs follow Keycloak's broker endpoint pattern
 `…/realms/<realm>/broker/<idp-alias>/endpoint`.
-
-**GitHub** — <https://github.com/settings/developers> → New OAuth App:
-
-- Homepage URL: `https://forgejo.b4mad.net`
-- Authorization callback URL:
-  `https://keycloak.erdgeschoss.b4mad.net/realms/b4mad-forgejo/broker/github/endpoint`
 
 **Codeberg** — Settings → Applications → Manage OAuth2 Applications:
 
@@ -126,20 +121,27 @@ Codeberg runs Forgejo and is a full OIDC provider; the endpoints in
 `realm-config/b4mad-forgejo.yaml` came from
 <https://codeberg.org/.well-known/openid-configuration>.
 
+**GitHub** — not registered yet, see **op1st-emea-b4mad-4w5**. When it is:
+<https://github.com/settings/developers> → New OAuth App, homepage
+`https://forgejo.b4mad.net`, callback
+`https://keycloak.erdgeschoss.b4mad.net/realms/b4mad-forgejo/broker/github/endpoint`.
+
 ## ⚠️ Realm `b4mad-forgejo` is open to the public
 
-GitHub and Codeberg are enabled as identity providers with `linkOnly: false`.
-Any GitHub or Codeberg user can authenticate, receive a brokered account, and
-— because `b4mad-forgejo/values-nostromo.yaml` sets
-`ENABLE_AUTO_REGISTRATION: true` — get an account on forgejo.b4mad.net.
+Codeberg is enabled as an identity provider with `linkOnly: false`. Any
+Codeberg user can authenticate, receive a brokered account, and — because
+`b4mad-forgejo/values-nostromo.yaml` sets `ENABLE_AUTO_REGISTRATION: true` —
+get an account on forgejo.b4mad.net. Restoring the GitHub provider
+(op1st-emea-b4mad-4w5) widens this to GitHub's user base as well.
 
 This is the intended posture for a Tier-2 forge and was chosen deliberately.
-To close it again, set `linkOnly: true` on both providers; existing users can
-still link and use those logins, but no new accounts are created.
+To close it again, set `linkOnly: true` on the provider; existing users can
+still link and use that login, but no new accounts are created.
 
 Privilege is **not** delegated to the public providers. Site-admin comes only
 from the `erdgeschoss` group `/admins`, via a mapper scoped to that provider
-alias. There is deliberately no group mapper on `github` or `codeberg`.
+alias. There is deliberately no group mapper on `codeberg` — nor should one
+be added for `github`.
 
 ⚠️ `erdgeschoss` has both `/admin` and `/admins`, each containing only
 `goern`. The mapper keys on `/admins`; editing `/admin` does nothing. One of

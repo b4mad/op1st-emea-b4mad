@@ -85,25 +85,15 @@ identityProviders:
       defaultScope: "openid profile email"
       syncMode: FORCE
 
-  # --- GitHub: ordinary contributors -------------------------------------
-  # Keycloak ships a native `github` provider (OAuth2, not OIDC), so the
-  # endpoints are built in and only credentials are configured.
-  # ⚠️ GitHub only returns a verified primary address on the user:email
-  # scope, which is what makes trustEmail defensible here.
-  - alias: github
-    displayName: GitHub
-    providerId: github
-    enabled: true
-    trustEmail: true
-    storeToken: false
-    addReadTokenRoleOnCreate: false
-    linkOnly: false
-    firstBrokerLoginFlowAlias: "first broker login"
-    config:
-      clientId: "$(env:GITHUB_CLIENT_ID)"
-      clientSecret: "$(env:GITHUB_CLIENT_SECRET)"
-      defaultScope: "user:email"
-      syncMode: IMPORT
+  # --- GitHub: deferred, see op1st-emea-b4mad-4w5 -------------------------
+  # A `github` provider was written and validated here, then removed before
+  # merge: no GitHub OAuth App had been registered, so the github-oauth2-app
+  # Secret did not exist, the config-cli Job could not start, and the whole
+  # PostSync hook failed. The config is recoverable from commit 8f4ae3d.
+  #
+  # ⚠️ Restoring it re-opens forgejo.b4mad.net to any GitHub user (linkOnly
+  # false + Forgejo ENABLE_AUTO_REGISTRATION). Intended posture, but worth
+  # re-confirming deliberately rather than by reflex.
 
   # --- Codeberg: ordinary contributors -----------------------------------
   # Codeberg runs Forgejo, which is a full OIDC provider; the endpoints below
