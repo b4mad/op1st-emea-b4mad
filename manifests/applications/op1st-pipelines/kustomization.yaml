@@ -17,6 +17,9 @@ resources:
   - unprivileged-building-of-container-images-using-buildah/
 
   - repositories/github-com-b4mad-op1st-emea-b4mad.yaml
+  - repositories/forgejo-toolbxs-borgmatic.yaml
+  - repositories/forgejo-toolbxs-code-insiders.yaml
+  - repositories/forgejo-toolbxs-fedora-toolbox.yaml
 
 patches:
   - patch: |-
