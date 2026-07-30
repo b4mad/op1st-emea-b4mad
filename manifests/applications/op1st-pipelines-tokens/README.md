@@ -12,10 +12,11 @@ and are fanned out to consumer namespaces by emberstack/reflector.
 | `codeberg-pusher` | `kubernetes.io/dockerconfigjson` | Codeberg container-registry push credentials. | `op1st-pipelines` |
 | `cosign-signing-key` | `Opaque` | Password-less Cosign signing key for forgejo-mcp release **artifact** signing. Keys: `cosign.key`, `cosign.password` (empty), `cosign.pub`. Locally generated via `cosign generate-key-pair` with `COSIGN_PASSWORD=""`. Public key also published as plain file `cosign-signing-key.pub` in this directory for verifier consumption via raw URL. | `op1st-pipelines` |
 | `cosign-signing-key-images` | `Opaque` | Password-less Cosign signing key for the release-tools **container image** signing. Same key layout as `cosign-signing-key`; kept distinct so a compromised release-tools image cannot forge signatures on artifact releases. Public key published as plain file `cosign-signing-key-images.pub`. | `op1st-pipelines` |
-| `forgejo-b4mad` | `Opaque` | PaC API token + webhook secret for `git.b4mad.industries`, identity `b4mad-gitops`. Keys: `provider.token`, `webhook.secret`. The webhook secret matches the **`agentic-forges` org hook** (id 2). Referenced by the `forgejo-b4mad-agentic-forges-forgejo-mcp` `Repository` CR. Note `feeldata-dev` keeps its own same-named secret, sealed in the feeldata manifests repo — deliberately not reflected here, so the two do not fight. | `op1st-pipelines` |
+| `forgejo-b4mad` | `Opaque` | PaC API token + webhook secret for `git.b4mad.industries`, identity `b4mad-gitops`. Keys: `provider.token`, `webhook.secret`. The webhook secret matches the **`agentic-forges` org hook** (id 6 — replaced id 2 on 2026-07-30, see below). Referenced by the `forgejo-b4mad-agentic-forges-forgejo-mcp` `Repository` CR. Note `feeldata-dev` keeps its own same-named secret, sealed in the feeldata manifests repo — deliberately not reflected here, so the two do not fight. | `op1st-pipelines` |
 | `forgejo-pac-token` | `Opaque` | PaC API token + webhook secret for the `b4mad-gitops` Forgejo user on forgejo.b4mad.net. Keys: `provider.token`, `webhook.secret`. Consumed by the `forgejo-toolbxs-*` `Repository` CRs. ⚠️ PaC v0.42.2 enforces HMAC signature validation for the Forgejo provider, so `webhook.secret` must match the secret configured on every `toolbxs` webhook. The bot must stay a `toolbxs` member with write permission — commit-status updates fail silently (`404`) otherwise. | `op1st-pipelines` |
 | `forgejo-pusher` | `kubernetes.io/dockerconfigjson` | git.b4mad.industries container-registry push credentials, identity `b4mad-release-agent` (renamed from `b4mad-release-bot` 2026-07-30 — the username inside the dockerconfigjson is cosmetic, the forge resolves identity from the PAT alone). Consumed by the `push-to-forgejo` skopeo-copy task in toolbxs `on-tag` pipelines, by the `push-forgejo` task of the `borg-build` pipeline in `b4mad-forgejo`, and by the forgejo-mcp release pipeline. ⚠️ The agent must stay a member of the target org — an org-namespace package push without membership fails as a bare `authentication required`. | `op1st-pipelines`, `b4mad-forgejo` |
-| `op1st-release-token` | `Opaque` | Release credentials. Keys: `username`, `token`. | `op1st-pipelines` |
+| `b4mad-release-token` | `Opaque` | Release credentials for `git.b4mad.industries`. Key: `token`. Consumed by the forgejo-mcp release pipeline — `goreleaser-release` (creates the release), `cosign-sign-release` and `mcpb-pack` (upload assets). Needs `write:repository` on `agentic-forges/forgejo-mcp`. ⚠️ Currently a **personal** PAT belonging to `goern` (user id 2), so automated releases are attributed to a human and the token carries repo admin — broader than the pipeline needs. Replacing it with a dedicated release identity is the tighter option. | `op1st-pipelines` |
+| `op1st-release-token` | `Opaque` | Codeberg release credentials. Keys: `username`, `token`. No longer referenced by forgejo-mcp (superseded by `b4mad-release-token` when that repo moved to git.b4mad.industries); retained for any other consumer. | `op1st-pipelines` |
 
 Add new tokens here as they appear.
 
@@ -106,6 +107,23 @@ sops codeberg-pusher.enc.yaml
 git add codeberg-pusher.{enc.,}yaml
 git commit -m "chore(secrets): reseal codeberg-pusher for op1st-gitops"
 ```
+
+## agentic-forges org webhook (2026-07-30)
+
+Hook id 2 was deleted and recreated as id 6. Two faults, both worth knowing
+before touching a hook again:
+
+1. It pointed at the PaC controller's **public route**, which the forge
+   refuses: `ALLOWED_HOST_LIST = external, 172.30.0.0/16`, and the route
+   resolves to `192.168.0.148` — a private LAN address that does not count as
+   `external`. Every delivery failed with *"webhook can only call allowed HTTP
+   servers"*. Use the in-cluster service URL
+   `http://pipelines-as-code-controller.openshift-pipelines.svc.cluster.local:8080`.
+2. Setting the secret via `PATCH /orgs/{org}/hooks/{id}` with `config.secret`
+   returns `200` but **does not store it** — deliveries then arrive unsigned
+   and PaC rejects them with *"gitea/forgejo webhook signature validation
+   failed"*. The API never echoes `secret` back, so this failure is invisible.
+   Supply the secret at **creation** time via `POST` instead.
 
 > ⚠️ **`reseal` rewrites every `*.enc.yaml` in the directory, not just yours.**
 > Two consequences, both observed on 2026-07-30:
