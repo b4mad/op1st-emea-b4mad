@@ -1,0 +1,22 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: forgejo-b4mad
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    provider.token: AgDCZP8ZGv3ybC+I7fy/eVzd6OphfQ5pNuJfX9aoeBOd51DnTdNu8a6PevloXtnyr3xNyzRw/IcrjfoDPE15eQhHjTYaxS7XKH8m41BJF8rmvE1kkeQgILpgEEleDmYt0H8draVvF/xbvNYCTjntojyDh93WLPhxNPjfHzL/NB6lsOqxfDf4MqBzh3CTmKQ6u+Qo0WnGSp/hkK0krZxbveZMX7mpAzK7mS5flZCDbdezKRyawB5g98jjFGFJBx9B41t8XyH0L0sow0d0PjTQ7sC4adWewlPRpUdzkhs/yGhwSZWj71clYQbVkq1LQUs3bSrWjUD0PA4gUe7wkp31vZZ4E2RBFYBg6+N3UffxI4xfq834NnMS1qgg3WpK9xLlLnxTOIxpYH6zxpRndj6Id6Qdm2G/h+t3HV4kF8XzToQTBj1G7C5+StvtcY+MMBehVeeiQcSOTtdAP+MD/LNDJKfiLn4igZAexDgl1IZCPJnncdPjzJnrq8xMHZWUMWsR5HGJGR4obpzkFCPpqKjO3+4DuDJKeGhShNDAUugqPN56XpiCl/D+fyJyecVLfpgEwtsI4TBLrIJCI2gdqL1DQZ78+AZtVHwYAEiOM8gFpDXyEpbzG6C7wKtCQRvthAAMLO94vtW5mDRT51Mh9pGzm7DTI/msnNsD1Q4r1vuJIxE3Y49SjyH6p/uVJwAd06MovY/CrT/sLhBgIcJW60NqtEezHM4j90kAsUMUiQMbqoPgwigSZvHBINEp
+    webhook.secret: AgBrLrT7ncyCGad9bCmXorW99xBknf/9d3yYDVFKeRAfhAr3/Z2eq3jmSZSJjrTBAPwCBPvpH5YW69Tbh8QgFsTGvvqiosMpMLYqVkGI5tGDKKbYEvr6iTXr4//P2YbwaNEzKLcGawNCpBM/+MAtgHRNrWaWkia7mPvY/LaaSwTOhm1e9lQdTPvlzmfkmqZUMOKcCzjKrhp1Xg9RTuzgq2lPZ9mQ6anLmTd88VJ5nrKh0v5Tj5hRACzlLYIknoqv2dd256RjeJ9gzpxVisH0IphokkCcW9sD8bSAFB2eMpS3zqTv7feis3BiIt/g3x3LPf8XGlnATagXTTK0P2HU12PN0i19KBpcJMKNvOMHMxQ65+r3FtEDdmDCkluWCXqEJQW85fOYOymecs1xlLuK80gdS4K1iiiiuSGIjq9mwX78dy3eM77KhV+26PnC9EakitHz35+d3Q12eYpyosflxYJzz2ts+7lw0nvu+dQLHTtB1wpJimZNMmWbwCgeARNqfOapBfN0+drBSXazGrK0tH79YU70N1UhQYd163YPLCQem7ZVneUxc04SS21B2m9mhl8K/n7NU7p1J7bGz00sSu9fwZaUAF2CuNKii/B0RwMzWTuApnP7mTKr1ZRcctEcRtOhI6P7hTb7coKEHE/PQRyqyjhvQIPo3wiT5anbs8kuXt9bOo3TWdQAlk5+AjV/pVen0/I2UmpnBGFPhYn0pWtS3G04rHVq6mCAxZ9IOA8jGJdyFfqy9AaVutC+CE8G6BDogngM3nQOuC2/laf/i3fw
+  template:
+    metadata:
+      annotations:
+        "b4mad.net/href": "https://git.b4mad.industries/b4mad-gitops"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces": "op1st-pipelines"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-enabled": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces": "op1st-pipelines"
+      creationTimestamp: null
+      name: forgejo-b4mad
+      namespace: op1st-gitops
+    type: Opaque
