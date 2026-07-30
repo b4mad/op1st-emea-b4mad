@@ -16,6 +16,7 @@ resources:
 
   - forgejo-pac-token.yaml
   - forgejo-pusher.yaml
+  - forgejo-b4mad.yaml
 
   - arena-forge-forgejo-read.yaml
   - arena-forge-forgejo-write.yaml
