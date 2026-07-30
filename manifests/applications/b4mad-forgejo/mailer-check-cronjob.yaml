@@ -10,9 +10,13 @@
 # one message to the mailbox itself. A failure here is the same failure
 # Forgejo would hit trying to send a real notification.
 #
-# Credentials are the discrete host/user/passwd keys on the same forgejo-mailer
-# Secret that values-nostromo.yaml's additionalConfigSources wires into
-# Forgejo's own app.ini.
+# Credentials are the discrete host/user/passwd keys on forgejo-mailer-creds —
+# a SEPARATE Secret from forgejo-mailer (whose `mailer` key
+# values-nostromo.yaml's additionalConfigSources wires into Forgejo's own
+# app.ini). They can't share a Secret: additionalConfigSources treats EVERY
+# key of the referenced Secret as its own app.ini section, so a bare `host`
+# scalar there crashes the init-app-ini init container — learned the hard way
+# 2026-07-30 (~5 minutes of Forgejo Init:CrashLoopBackOff in production).
 #
 # Alerting: ForgejoMailerCheckFailing / ForgejoMailerCheckStale in
 # monitoring.yaml, driven by kube_job_status_failed / kube_cronjob_status_last_successful_time
@@ -52,17 +56,17 @@ spec:
                 - name: SMTP_HOST
                   valueFrom:
                     secretKeyRef:
-                      name: forgejo-mailer
+                      name: forgejo-mailer-creds
                       key: host
                 - name: SMTP_USER
                   valueFrom:
                     secretKeyRef:
-                      name: forgejo-mailer
+                      name: forgejo-mailer-creds
                       key: user
                 - name: SMTP_PASS
                   valueFrom:
                     secretKeyRef:
-                      name: forgejo-mailer
+                      name: forgejo-mailer-creds
                       key: passwd
                 - name: SMTP_PORT
                   value: "587"
