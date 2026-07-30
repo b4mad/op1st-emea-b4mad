@@ -9,6 +9,7 @@ resources:
   - cosign-signing-key-artifacts.yaml
   - cosign-signing-key-images.yaml
   - op1st-release-token.yaml
+  - b4mad-release-token.yaml
 
   - deploy-keys/codeberg-goern-epaper_service.yaml
   - deploy-keys/codeberg-goern-hausmeister-deploy-key.yaml

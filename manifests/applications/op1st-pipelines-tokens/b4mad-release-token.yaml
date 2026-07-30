@@ -1,0 +1,21 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: b4mad-release-token
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    token: AgC6pLmILouZVFu2qdhr79LUtJlK7oYt4wuxc3g0o+oIONh933fPo91k1nT1ncJgM9v0DWNv/7GFmvHduvXIvs2kz9fqKp3CVvSBvUMzgLm/O4IAGAqjC+HooULtMtF4BjOqOidaiTfhQnFtf5PuBBPvK9KPTN4EtJqM8cGwVssslulFI6/CU6SjVKBDMcpyIZo0JUsvtrGH5DaGEc9t3fA0Dqr7e636GM3uCPA04fA9VMkagORzEGDM5sgBN1dz/muycEaejhBHBTZm4VtIgmHB7F/aa9OX6TRcOukqIM/2k/YYBZmyFGONmdrAMgumAfksgKVlaZK06pe+/1qaKYiArh/UPsZAqySBE4dWynvsoTQA8n9etj35Ps55N8k5TbkrR9XTkzUvZC49nb1+l7kHbHh7SoEK9VyIIUZDkvbtXcDsWxJ0YSEvCtNNsAE8Fqgj6UxWl264bXhMdO0B2wc/jwRKNPfc272eqXFfVOxtPl8lRqTvu8AYakxniknDzw+zyZ/MeyocxtQLMdtt4Q6QkuR9jl2tRx0+zNCN1quLFQtTERykfrnGgvFff3sDtOGWdrcKgjlpZthVq1U7gnhKpv/pMnOWCL85nyg5dMlXskEZNyAR+/USP7bI6s3MvGjEm3uqDHVlMxLNyWBzDePAUOqmc7rGJc49ENrQOARBNDclk+1TVnNaJk0CMMB6Rcv5SpofyGUzcy2BX3wjIKF9AKZJrTmu3gBJzz+P2agNOvXROYU7lZYK
+  template:
+    metadata:
+      annotations:
+        "b4mad.net/href": "https://git.b4mad.industries/goern"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces": "op1st-pipelines"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-enabled": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces": "op1st-pipelines"
+      creationTimestamp: null
+      name: b4mad-release-token
+      namespace: op1st-gitops
+    type: Opaque
