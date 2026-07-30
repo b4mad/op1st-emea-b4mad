@@ -175,6 +175,12 @@ gitea:
       # green accent, and scanline hero always render at their best. Users can
       # still switch themes from their settings.
       DEFAULT_THEME: forgejo-dark
+    picture:
+      # Keep Gravatar as the fallback avatar source (not disabled)...
+      DISABLE_GRAVATAR: false
+      # ...and also let Forgejo resolve avatars via federated ActivityPub
+      # profiles, not just Gravatar/upload.
+      ENABLE_FEDERATED_AVATAR: true
     # Server-side commit signing. `signing.existingSecret` below imports the
     # GPG private key into gpgHome; this section tells Forgejo what to sign.
     # Identity must match the key's UID (Forgejo <forgejo@b4mad.net>).
