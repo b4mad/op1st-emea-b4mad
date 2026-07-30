@@ -15,7 +15,6 @@ resources:
   - deploy-keys/codeberg-goern-hausmeister-deploy-key.yaml
   - deploy-keys/codeberg-machdenstaat-oparl-lite-2-deploy-key.yaml
 
-  - forgejo-pac-token.yaml
   - forgejo-pusher.yaml
   - forgejo-b4mad.yaml
 
