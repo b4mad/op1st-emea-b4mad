@@ -15,6 +15,7 @@ resources:
   - deploy-keys/codeberg-machdenstaat-oparl-lite-2-deploy-key.yaml
 
   - forgejo-pusher.yaml
+  - forgejo-b4mad.yaml
 
   - arena-forge-forgejo-read.yaml
   - arena-forge-forgejo-write.yaml
