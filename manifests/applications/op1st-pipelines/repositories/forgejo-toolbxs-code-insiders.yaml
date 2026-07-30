@@ -1,0 +1,17 @@
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: forgejo-toolbxs-code-insiders
+spec:
+  url: https://forgejo.b4mad.net/toolbxs/code-insiders
+  git_provider:
+    # Explicit — PaC defaults to `github` when type is unset. The retired
+    # codeberg-org-toolbxs-* CRs omitted it and worked only by accident.
+    type: forgejo
+    url: https://forgejo.b4mad.net
+    secret:
+      name: forgejo-pac-token
+      key: provider.token
+    webhook_secret:
+      name: forgejo-pac-token
+      key: webhook.secret
