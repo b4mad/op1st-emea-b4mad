@@ -3,15 +3,15 @@ kind: Repository
 metadata:
   name: forgejo-toolbxs-fedora-toolbox
 spec:
-  url: https://forgejo.b4mad.net/toolbxs/fedora-toolbox
+  url: https://git.b4mad.industries/toolbxs/fedora-toolbox
   git_provider:
     # Explicit — PaC defaults to `github` when type is unset. The retired
     # codeberg-org-toolbxs-* CRs omitted it and worked only by accident.
     type: forgejo
-    url: https://forgejo.b4mad.net
+    url: https://git.b4mad.industries
     secret:
-      name: forgejo-pac-token
+      name: forgejo-b4mad
       key: provider.token
     webhook_secret:
-      name: forgejo-pac-token
+      name: forgejo-b4mad
       key: webhook.secret
