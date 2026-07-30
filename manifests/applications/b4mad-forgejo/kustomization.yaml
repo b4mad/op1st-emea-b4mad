@@ -25,6 +25,10 @@ resources:
   - backup-cronjob.yaml
   - offsite-cronjob.yaml
 
+  # Synthetic SMTP send test standing in for a mail-delivery metric Forgejo
+  # doesn't expose. Alerts for it live in monitoring.yaml above.
+  - mailer-check-cronjob.yaml
+
   # In-cluster borg image: ImageStream + Tekton build pipeline.
   # borg-pipelinerun.yaml is deliberately NOT listed (generateName —
   # a build is started manually with `oc create -f`).
@@ -42,6 +46,7 @@ resources:
   - oauth-secret.yaml
   - gpg-signing-secret.yaml
   - offsite-borg-secret.yaml
+  - forgejo-mailer.yaml
   # NOTE: there is deliberately no registry-push secret here. The borg build's
   # `push-forgejo` task authenticates as b4mad-release-bot via `forgejo-pusher`,
   # which is canonical in op1st-gitops and reflected into this namespace by the

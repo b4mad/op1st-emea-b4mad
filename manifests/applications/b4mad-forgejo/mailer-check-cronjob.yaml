@@ -1,0 +1,107 @@
+# Synthetic Forgejo-mailer health check.
+#
+# Forgejo/Gitea expose no mail-delivery metric — confirmed by scraping a live
+# pod's /metrics on 2026-07-30, no gitea_mail*/notification series exist at
+# all — and this cluster has no log-aggregation stack to alert on mailer
+# error lines either. So this CronJob exercises the exact path Forgejo's own
+# [mailer] section uses: connect to the pinned host (see forgejo-mailer.enc.yaml
+# and Systems-mcz8 for why it's pinned to www49.your-server.de rather than the
+# vanity name), STARTTLS with full certificate verification, AUTH, then send
+# one message to the mailbox itself. A failure here is the same failure
+# Forgejo would hit trying to send a real notification.
+#
+# Credentials are the discrete host/user/passwd keys on the same forgejo-mailer
+# Secret that values-nostromo.yaml's additionalConfigSources wires into
+# Forgejo's own app.ini.
+#
+# Alerting: ForgejoMailerCheckFailing / ForgejoMailerCheckStale in
+# monitoring.yaml, driven by kube_job_status_failed / kube_cronjob_status_last_successful_time
+# (kube-state-metrics; no gitea-side metric exists to alert on instead).
+#
+# Apply:
+#   oc -n b4mad-forgejo apply -f mailer-check-cronjob.yaml
+# Run once now:
+#   oc -n b4mad-forgejo create job --from=cronjob/forgejo-mailer-check forgejo-mailer-check-manual
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: forgejo-mailer-check
+spec:
+  # Every 4h, offset from the hour so it doesn't line up with other cluster
+  # cron traffic.
+  schedule: "17 */4 * * *"
+  # ⚠️ Must be UTC (or omitted), never a named zone: OpenShift's kube-state-metrics
+  # image ships without tzdata, so a named .spec.timeZone makes KSM
+  # panic/CrashLoopBackOff cluster-wide (TargetDown) — see backup-cronjob.yaml.
+  timeZone: UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 120
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: mailer-check
+              image: docker.io/library/python:3-alpine
+              env:
+                - name: SMTP_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: forgejo-mailer
+                      key: host
+                - name: SMTP_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: forgejo-mailer
+                      key: user
+                - name: SMTP_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: forgejo-mailer
+                      key: passwd
+                - name: SMTP_PORT
+                  value: "587"
+              command: ["python3", "-c"]
+              args:
+                - |
+                  import email.utils
+                  import os
+                  import smtplib
+                  import ssl
+                  import sys
+                  from email.mime.text import MIMEText
+
+                  host = os.environ["SMTP_HOST"]
+                  port = int(os.environ["SMTP_PORT"])
+                  user = os.environ["SMTP_USER"]
+                  passwd = os.environ["SMTP_PASS"]
+
+                  msg = MIMEText("Synthetic check from the forgejo-mailer-check CronJob.")
+                  msg["Subject"] = "Forgejo mailer check"
+                  msg["From"] = user
+                  msg["To"] = user
+                  msg["Date"] = email.utils.formatdate(localtime=True)
+                  msg["Message-ID"] = email.utils.make_msgid(domain="b4mad-service.net")
+
+                  try:
+                      with smtplib.SMTP(host, port, timeout=20) as smtp:
+                          smtp.ehlo()
+                          smtp.starttls(context=ssl.create_default_context())
+                          smtp.ehlo()
+                          smtp.login(user, passwd)
+                          smtp.send_message(msg)
+                      print("OK: mailer check sent successfully")
+                  except Exception as exc:
+                      print(f"FAIL: {exc}", file=sys.stderr)
+                      sys.exit(1)
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 64Mi

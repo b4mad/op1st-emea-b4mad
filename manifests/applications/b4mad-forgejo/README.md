@@ -37,6 +37,8 @@ running on the **nostromo** OpenShift cluster in namespace
 | `oauth-secret.enc.yaml` | SOPS-encrypted OIDC client id/secret → k8s Secret `forgejo-oauth-secret` (`data.key` = client-id, `data.secret` = client-secret) |
 | `gpg-signing-secret.enc.yaml` | SOPS-encrypted GPG private key → k8s Secret `forgejo-gpg-signing-key` (`stringData.privateKey`) |
 | `offsite-borg-secret.enc.yaml` | SOPS-encrypted borg credentials (ssh key, known_hosts, passphrase) |
+| `forgejo-mailer.enc.yaml` | SOPS-encrypted `b4mad-forge@b4mad-service.net` mailbox credentials → k8s Secret `forgejo-mailer`, mounted both as discrete `host`/`user`/`passwd` keys (for `mailer-check-cronjob.yaml`) and as an `mailer` app.ini block (`gitea.additionalConfigSources` in `values-nostromo.yaml`) |
+| `mailer-check-cronjob.yaml` | Synthetic SMTP send test standing in for the mail-delivery metric Forgejo doesn't expose — alerts in `monitoring.yaml` |
 | `bot-tokens.enc.yaml` | SOPS-only bot tokens — source of truth for the four pre-2026-07-29 bots. Not applied to the cluster from here; `renovate-token` is copied into `../b4mad-renovate/environment-forgejo.enc.yaml`, so rotating it means updating both files |
 | `forgejo-agent-<name>.enc.yaml` | SOPS-encrypted full agent credentials (token + SSH + GPG private keys) written by `create-forge-agent.py`; the only copy — the plaintext is shredded at generation |
 | `forgejo-agent-<name>.yaml` | Its SealedSecret sibling, applied by Argo CD |
@@ -195,6 +197,29 @@ CRUD actions, wiki, merges) — not users' pushed commits.
 - Delivered via `existingSecret: forgejo-gpg-signing-key` (see Files above);
   `[repository.signing]` uses `SIGNING_KEY: default` (the single key in the
   pod's gpgHome).
+
+## Mailer
+
+`[mailer]` is wired via `gitea.additionalConfigSources` (`values-nostromo.yaml`)
+pointing at the `forgejo-mailer` Secret's `mailer` key — there is no
+`mailer.existingSecret` in this chart (verified against
+`values.yaml`/`values.schema.json` 2026-07-30), so `additionalConfigSources` is
+the generic escape hatch instead.
+
+⚠️ `SMTP_ADDR` is pinned to `www49.your-server.de`, not the vanity name
+`mail.b4mad-service.net` — Hetzner's shared-hosting cert on that host doesn't
+cover the vanity name. See `forgejo-mailer.enc.yaml` and `Systems-mcz8` in the
+ops repo for the full story; the pin is load-bearing and breaks silently if
+Hetzner migrates the account.
+
+Forgejo/Gitea expose no mail-delivery metric (checked against a live pod's
+`/metrics` 2026-07-30), and this cluster has no log-aggregation stack to catch
+mailer error lines either. `mailer-check-cronjob.yaml` stands in for both: a
+CronJob every 4h that authenticates and sends a real test email over the same
+host/credentials Forgejo uses, so it fails exactly when Forgejo's own send
+path would. `ForgejoMailerCheckFailing` / `ForgejoMailerCheckStale` in
+`monitoring.yaml` alert on it via `kube_job_status_failed` /
+`kube_cronjob_status_last_successful_time` (kube-state-metrics).
 
 ## OpenShift-specific fixes
 

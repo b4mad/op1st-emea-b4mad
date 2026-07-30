@@ -136,6 +136,63 @@ spec:
               its last freeze. Autovacuum is not keeping up; PostgreSQL stops
               accepting writes as this approaches 2^31.
 ---
+# Mailer-check alerts, split into their own object ON PURPOSE.
+#
+# kube_job_status_failed / kube_cronjob_status_last_successful_time are
+# kube-state-metrics (platform) metrics, same tenancy reasoning as the PVC
+# rule below: a leaf-prometheus-scoped rule only sees user-workload metrics,
+# so this one deliberately omits the label and goes to Thanos Ruler instead.
+#
+# There is no gitea_mail*/notification metric to alert on directly (verified
+# against a live pod's /metrics 2026-07-30) — mailer-check-cronjob.yaml is a
+# synthetic send test standing in for one.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: forgejo-mailer
+spec:
+  groups:
+    - name: forgejo-mailer
+      rules:
+        - alert: ForgejoMailerCheckFailing
+          expr: >-
+            kube_job_status_failed{namespace="b4mad-forgejo", job_name=~"forgejo-mailer-check-.*"} > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge mailer synthetic check is failing"
+            description: >-
+              The forgejo-mailer-check CronJob's most recent Job failed to
+              send a test email through the pinned SMTP host. Forgejo's own
+              [mailer] section uses the same host/credentials, so real
+              notification mail is almost certainly failing too. Check
+              `oc -n b4mad-forgejo logs job/<job-name>` — likely causes are
+              the TLS cert on www49.your-server.de no longer matching (see
+              Systems-mcz8) or the mailbox credentials having changed.
+
+        # Mirrors ForgejoPostgresBackupStale's reasoning: catches the check
+        # silently stopping (CronJob suspended, image pull failing before the
+        # container even runs, schedule misconfigured) — cases where
+        # ForgejoMailerCheckFailing above never fires because no Job exists to
+        # report kube_job_status_failed. Schedule is every 4h; 10h gives one
+        # missed run plus slack.
+        - alert: ForgejoMailerCheckStale
+          expr: >-
+            time() - kube_cronjob_status_last_successful_time{namespace="b4mad-forgejo", cronjob="forgejo-mailer-check"}
+            > 10 * 3600
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge mailer check has not succeeded recently"
+            description: >-
+              No successful run of the forgejo-mailer-check CronJob in over
+              10 hours (schedule is every 4h). Check
+              `oc -n b4mad-forgejo get cronjob forgejo-mailer-check` — the
+              check itself may be broken rather than the mail path it tests.
+
+---
 # PVC fill alerts, split into their own object ON PURPOSE.
 #
 # kubelet_volume_stats_* is a PLATFORM metric (kubelet -> platform Prometheus),

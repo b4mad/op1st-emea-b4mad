@@ -133,6 +133,21 @@ gitea:
           name: prod-app
           key: password
 
+  # [mailer] section, entirely out of git. The chart has no mailer.existingSecret
+  # (verified against values.yaml/values.schema.json 2026-07-30 — that
+  # indirection only exists for admin/oauth/signing above); additionalConfigSources
+  # is the generic escape hatch instead: the referenced Secret's `mailer` key
+  # holds the section's KEY=value lines verbatim, merged via env-to-ini
+  # (https://github.com/go-gitea/gitea/tree/main/contrib/environment-to-ini).
+  # Host is pinned to www49.your-server.de rather than the mail.b4mad-service.net
+  # vanity name — see forgejo-mailer.enc.yaml and Systems-mcz8 for why
+  # (Hetzner shared-hosting cert doesn't cover the vanity name). Delivery
+  # itself is checked by mailer-check-cronjob.yaml + the ForgejoMailerCheck*
+  # alerts in monitoring.yaml, since Forgejo/Gitea expose no mail metric.
+  additionalConfigSources:
+    - secret:
+        secretName: forgejo-mailer
+
   config:
     # Instance display name: browser tab, notification mails, and the
     # {{AppDisplayName}} template helper. Replaces the stock
