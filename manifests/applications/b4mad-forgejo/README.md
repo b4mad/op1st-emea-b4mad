@@ -68,10 +68,17 @@ project, which keeps this repo pure GitOps.
 | `b4mad-renovate` | `renovate@b4mad.net` | `write:repository,write:issue,read:user,read:organization` | `bot-tokens.enc.yaml` → `renovate-token` | none |
 | `b4mad-gitops` | `gitops@b4mad.net` | — | `bot-tokens.enc.yaml` → `gitops-token` | none |
 | `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `bot-tokens.enc.yaml` → `castra-token` | none |
-| `b4mad-release-bot` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:user` | `bot-tokens.enc.yaml` → `release-bot-token` | none |
+| `b4mad-release-agent` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:organization,read:user` | `forgejo-agent-b4mad-release-agent.enc.yaml` | ssh+gpg |
 
-⚠️ All four predate `create-forge-agent.py` and have **neither an SSH nor a GPG
-key** (validated 2026-07-29). Their commits are therefore unsigned and
+⚠️ `b4mad-release-agent` was renamed from `b4mad-release-bot` on 2026-07-30 and
+backfilled with keys on 2026-07-31, so it no longer belongs to the unsigned set
+below. Its `bot-tokens.enc.yaml` → `release-bot-token` entry is **superseded**
+by the `forgejo-agent-` Secret and no longer valid — that token was revoked when
+the agent was backfilled. `read:organization` was added at the same time: it is
+required for anything that walks org repos.
+
+⚠️ The remaining three predate `create-forge-agent.py` and have **neither an SSH
+nor a GPG key** (validated 2026-07-29). Their commits are therefore unsigned and
 unverifiable — anything holding the token is indistinguishable from the agent
 itself. Backfilling is tracked as `Systems-3ywf`; it is not a re-run, because
 re-running adds credentials rather than rotating them.
@@ -87,7 +94,11 @@ so bot memberships have no declarative source and must be recorded here.
 
 | Bot | Org | Team |
 |---|---|---|
-| `b4mad-release-bot` | `toolbxs` | `DevSecOps` (added 2026-07-28) |
+| `b4mad-release-agent` | `toolbxs` | `DevSecOps` (added 2026-07-28 as `b4mad-release-bot`) |
+
+⚠️ `toolbxs` is the **only** org it belongs to. Its `write:package` /
+`write:repository` scopes reach no other org's namespace until it is added
+there as a member — the scope is the ceiling, membership is the reach.
 
 ⚠️ A token scoped `write:package` is **not** sufficient to push to an *org*
 package namespace — the account must also be a member of that org. Without it
