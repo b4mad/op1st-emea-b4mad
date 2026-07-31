@@ -95,10 +95,18 @@ so bot memberships have no declarative source and must be recorded here.
 | Bot | Org | Team |
 |---|---|---|
 | `b4mad-release-agent` | `toolbxs` | `DevSecOps` (added 2026-07-28 as `b4mad-release-bot`) |
+| `b4mad-release-agent` | `feeldata` | team not recorded — enumerated from the API 2026-07-31 |
+| `b4mad-release-agent` | `agentic-forges` | team not recorded — enumerated from the API 2026-07-31 |
 
-⚠️ `toolbxs` is the **only** org it belongs to. Its `write:package` /
-`write:repository` scopes reach no other org's namespace until it is added
-there as a member — the scope is the ceiling, membership is the reach.
+⚠️ The last two were found by querying `/api/v1/user/orgs` as the agent, not from
+any record — this table had only the `toolbxs` row. Treat it as a floor, not an
+inventory, until someone reconciles it against the forge.
+
+⚠️ Org membership and repo permission are **separate** gates. As of 2026-07-31
+the agent is a member of `agentic-forges` but has no push on
+`agentic-forges/forgejo-mcp`; it can push to every repo in `toolbxs` and
+`feeldata`. A scope is the ceiling, membership gets you into the namespace, and
+the per-repo permission is what finally decides.
 
 ⚠️ A token scoped `write:package` is **not** sufficient to push to an *org*
 package namespace — the account must also be a member of that org. Without it
