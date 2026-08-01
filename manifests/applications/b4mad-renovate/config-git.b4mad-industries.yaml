@@ -51,6 +51,19 @@ data:
         // bulk pre-created here at 2026-07-28T07:56Z and never pushed to; the
         // content is still on codeberg.org. Check `size`/`empty` before
         // concluding anything from a repo's existence.
+        //
+        // ⚠️ Nor is a NON-empty one. goern/hausmeister exists here with real
+        // content at the same HEAD as codeberg.org, and codeberg.org is still
+        // primary: Argo reads its manifests from there, every workload in
+        // b4mad-hausmeister runs an image from the Codeberg registry (this
+        // forge has no container packages under goern/ at all), and the
+        // Pipelines-as-Code webhook is on the Codeberg copy. The copy here is
+        // an inert snapshot taken 2026-08-01T14:40Z with no CI, no consumers
+        // and no mirror in either direction. Left in place deliberately;
+        // Renovate stays pointed at Codeberg via config.yaml. See Systems-dhk7
+        // before moving it — a real migration is four coupled changes (Argo
+        // repoURL, rebuild+publish images, workload image refs, PaC webhook)
+        // and the Renovate enrolment is the LAST of them, not the first.
         "autodiscover": true,
         "autodiscoverFilter": [
           "toolbxs/*",
