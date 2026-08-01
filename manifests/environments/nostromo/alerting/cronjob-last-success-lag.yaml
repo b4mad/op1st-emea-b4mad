@@ -1,0 +1,138 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  creationTimestamp: null
+  name: cronjob-last-success-lag
+  namespace: openshift-monitoring
+spec:
+  groups:
+    - name: CronJobLastSuccess
+      rules:
+        # A CronJob that fails forever is INVISIBLE. The CronJob object stays
+        # Active, the namespace looks fine, and the only trace is
+        # `.status.lastSuccessfulTime` quietly falling behind
+        # `.status.lastScheduleTime`. Nothing in the platform reports that gap.
+        #
+        # This was not hypothetical when the rule was written. On 2026-08-01 a
+        # single dry run of this expression against Thanos returned SEVEN
+        # failing CronJobs, of which five were unknown to anyone:
+        #
+        #   b4mad-hausmeister/shopping-cleanup              ~61 days
+        #   b4mad-hausmeister/shopping-judge                ~42 days
+        #   machdenstaat-oparl-lite-stage/oparl-scraper-*    2-3 days (x3)
+        #   b4mad-renovate/renovate                        2.5 days  (Systems-m9y2)
+        #   b4mad-forgejo/forgejo-backup                     1 day    (Systems-36of)
+        #
+        # Both known ones had been found by accident days late — m9y2 while
+        # verifying an unrelated merge, 36of while investigating m9y2. That is
+        # the actual defect this rule fixes: discovery depended on somebody
+        # happening to look.
+        #
+        # WHY THIS EXPRESSION AND NOT `kube_job_status_failed`: a failed Job is
+        # normal and self-correcting — the next scheduled run usually succeeds,
+        # and alerting on it is noise. The thing that matters is a CronJob that
+        # has stopped succeeding, which is exactly the schedule-minus-success
+        # gap.
+        #
+        # For a HEALTHY CronJob the gap is the duration of the last run, or
+        # slightly negative when the run finished after its scheduled instant.
+        # Measured across all 21 CronJobs on nostromo on 2026-08-01, the healthy
+        # ones sat between -0.07 h and 0 h and the broken ones started at 24 h.
+        # Nothing in between — so the threshold below has a very wide margin and
+        # no false positives on this cluster.
+        #
+        # `max by (namespace, cronjob)` on both sides collapses duplicate series
+        # from overlapping kube-state-metrics scrapes; without it a
+        # many-to-many match kills the whole rule during a KSM rollover.
+        #
+        # Suspended CronJobs are excluded and must stay excluded: suspending one
+        # freezes lastScheduleTime while lastSuccessfulTime stays put, so the
+        # gap grows forever and would alert on a deliberately-off job. There is
+        # exactly one today (b4mad-matrix/hookshot-smoke), so this clause is
+        # load-bearing, not defensive.
+        - alert: CronJobLastSuccessLagging
+          expr: >-
+            (
+              max by (namespace, cronjob) (kube_cronjob_status_last_schedule_time)
+              - max by (namespace, cronjob) (kube_cronjob_status_last_successful_time)
+            ) > 3 * 3600
+            and on (namespace, cronjob)
+            max by (namespace, cronjob) (kube_cronjob_spec_suspend) == 0
+          labels:
+            severity: warning
+          for: 15m
+          annotations:
+            message: >-
+              CronJob {{ $labels.namespace }}/{{ $labels.cronjob }} has not
+              completed successfully since well before its last scheduled run
+              ({{ $value | humanizeDuration }} behind). For an @hourly job that
+              is at least three consecutive failures; for a daily job it is a
+              missed run. Nothing else reports this — the CronJob still looks
+              Active. Check
+              `oc -n {{ $labels.namespace }} get cronjob {{ $labels.cronjob }}
+              -o custom-columns=LASTSCHED:.status.lastScheduleTime,LASTOK:.status.lastSuccessfulTime`
+              then read the failed Job's pod logs IMMEDIATELY — pods are
+              garbage-collected and a failed run can leave nothing to debug
+              (that is what happened in Systems-36of).
+
+        # Three days is not a transient upstream blip or a flaky run. At this
+        # point the job is broken in a way that will not self-heal, and for
+        # anything on a daily schedule three consecutive failures means the
+        # thing it produces — a backup, a scrape, a snapshot — has a
+        # three-day hole in it.
+        - alert: CronJobLastSuccessLaggingProlonged
+          expr: >-
+            (
+              max by (namespace, cronjob) (kube_cronjob_status_last_schedule_time)
+              - max by (namespace, cronjob) (kube_cronjob_status_last_successful_time)
+            ) > 72 * 3600
+            and on (namespace, cronjob)
+            max by (namespace, cronjob) (kube_cronjob_spec_suspend) == 0
+          labels:
+            severity: critical
+          for: 15m
+          annotations:
+            message: >-
+              CronJob {{ $labels.namespace }}/{{ $labels.cronjob }} has not
+              succeeded in over three days ({{ $value | humanizeDuration }}).
+              This will not recover on its own. If it produces a backup or a
+              periodic snapshot, assume there is a gap of that length in the
+              output and check whether anything downstream depends on it.
+
+        # A CronJob that has NEVER succeeded exports no
+        # kube_cronjob_status_last_successful_time series at all, so the
+        # subtraction above yields nothing and the two alerts are blind to it.
+        # This is the worst case, not an edge case: it is a job that has been
+        # broken since the day it was created and has therefore never once done
+        # the thing it exists to do.
+        #
+        # Found exactly this on 2026-08-01: machdenstaat-lage-bonn/eval-snapshot,
+        # created 2026-07-20, daily at 03:00, lastSuccessfulTime <none> — twelve
+        # days of failures, invisible to the gap query.
+        #
+        # `for: 2h` so a newly-created CronJob's genuinely-long first run is not
+        # reported as a failure. The longest activeDeadlineSeconds in the fleet
+        # is 3600s (forgejo-backup), so 2h clears it.
+        - alert: CronJobNeverSucceeded
+          expr: >-
+            (
+              max by (namespace, cronjob) (kube_cronjob_status_last_schedule_time)
+              unless on (namespace, cronjob)
+              max by (namespace, cronjob) (kube_cronjob_status_last_successful_time)
+            )
+            and on (namespace, cronjob)
+            max by (namespace, cronjob) (kube_cronjob_spec_suspend) == 0
+          labels:
+            severity: warning
+          for: 2h
+          annotations:
+            message: >-
+              CronJob {{ $labels.namespace }}/{{ $labels.cronjob }} has been
+              scheduled at least once but has NEVER completed successfully —
+              it exports no lastSuccessfulTime at all. It has not worked since
+              the day it was created, so treat this as a broken deployment
+              rather than a failing run. Check
+              `oc -n {{ $labels.namespace }} get jobs | grep {{ $labels.cronjob }}`
+              and capture a failed pod's logs before they are
+              garbage-collected. If the job is meant to be off, suspend it —
+              suspended CronJobs are deliberately excluded from these alerts.
