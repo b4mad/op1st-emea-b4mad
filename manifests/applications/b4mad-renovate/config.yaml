@@ -35,7 +35,7 @@ data:
           // the platform call 404s, Renovate maps that to result=unknown-error,
           // the pod exits non-zero and the whole Job fails — so one dead entry
           // takes down dependency updates for the entire fleet. Re-enrolled on
-          // the Forgejo fleet in this same change — see config-forgejo.yaml.
+          // the Forgejo fleet in this same change — see config-git.b4mad-industries.yaml.
           // feeldata/* removed 2026-07-28: the org is being migrated off
           // codeberg.org, so renovating the soon-to-be-stale copy is wasted
           // work. Was feeldata2.app and manifests. These repos receive NO
@@ -55,8 +55,8 @@ data:
           // forgejo.b4mad.net/agentic-forges/forgejo-mcp. Codeberg is now a
           // push-mirror downstream and renovating a mirror fights the
           // mirror-push. Re-enrolled on the Forgejo fleet in the same change,
-          // so this repo keeps receiving updates — see config-forgejo.yaml.
-          // toolbxs/* removed 2026-07-28: forgejo.b4mad.net is primary for that
+          // so this repo keeps receiving updates — see config-git.b4mad-industries.yaml.
+          // toolbxs/* removed 2026-07-28: git.b4mad.industries is primary for that
           // org and codeberg is a push-mirror downstream. Renovating the mirror
           // would fight the mirror-push. Re-enrol against the Forgejo endpoint.
         ],

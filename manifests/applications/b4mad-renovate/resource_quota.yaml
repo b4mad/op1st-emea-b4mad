@@ -3,7 +3,7 @@ apiVersion: v1
 metadata:
   name: renovate
 spec:
-  # Doubled 2026-07-28 for the second (forgejo.b4mad.net) CronJob. The two are
+  # Doubled 2026-07-28 for the second (git.b4mad.industries) CronJob. The two are
   # scheduled 30min apart, but `concurrencyPolicy: Forbid` is per-CronJob only —
   # a long Codeberg run can still overlap the Forgejo one, so the quota has to
   # fit both pods at once.

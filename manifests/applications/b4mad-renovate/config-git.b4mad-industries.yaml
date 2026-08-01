@@ -5,7 +5,7 @@ metadata:
 data:
   config.js: |-
     // Renovate binds exactly one platform/endpoint per process, so the
-    // Forgejo fleet is a *second* CronJob rather than a second entry here.
+    // git.b4mad.industries fleet is a *second* CronJob rather than a second entry here.
     // The Codeberg counterpart is `config.yaml` / CronJob `renovate`.
     module.exports = {
         "endpoint": "https://git.b4mad.industries/api/v1",

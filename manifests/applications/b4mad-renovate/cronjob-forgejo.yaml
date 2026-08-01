@@ -38,7 +38,7 @@ spec:
                 name: renovate-forgejo
             - name: work-volume
               emptyDir: {}
-            # No ssh-key volume: this job talks to forgejo.b4mad.net over
+            # No ssh-key volume: this job talks to git.b4mad.industries over
             # HTTPS with RENOVATE_TOKEN, so it needs no git-SSH identity.
             - name: cache
               persistentVolumeClaim:
