@@ -8,8 +8,8 @@ CronJobs — not two entries in one config.
 |---|---|---|
 | CronJob | `renovate` | `renovate-forgejo` |
 | Schedule | `@hourly` | `30 * * * *` |
-| Endpoint | `https://codeberg.org/api/v1` | `https://forgejo.b4mad.net/api/v1` |
-| Config | `config.yaml` | `config-forgejo.yaml` |
+| Endpoint | `https://codeberg.org/api/v1` | `https://git.b4mad.industries/api/v1` |
+| Config | `config.yaml` | `config-git.b4mad-industries.yaml` |
 | Secret | `environment.enc.yaml` → `environment.yaml` | `environment-forgejo.enc.yaml` → `environment-forgejo.yaml` |
 | Cache PVC | `renovate-cache` | `renovate-forgejo-cache` |
 | Repo selection | explicit `repositories` array | `autodiscover` + `autodiscoverFilter` |
@@ -17,7 +17,7 @@ CronJobs — not two entries in one config.
 
 ## ⚠️ Migration hazard: don't renovate the same repo twice
 
-Repos are moving off codeberg.org onto forgejo.b4mad.net. The Forgejo job
+Repos are moving off codeberg.org onto git.b4mad.industries. The Forgejo job
 autodiscovers `b4mad/*`, which overlaps the Codeberg job's explicit list
 (`hash-B4mad-op1st`, `hugo.containerimage`, `semantic-release`). Today the
 Forgejo copies are empty shells and Renovate skips them.
@@ -45,7 +45,7 @@ held the memory. Diagnose with `oc get resourcequota` — plural, no name.
 ## Tokens
 
 The Forgejo fleet authenticates as the `b4mad-renovate` service account on
-forgejo.b4mad.net. Its PAT is minted by `create-forge-agent.py` in
+git.b4mad.industries. Its PAT is minted by `create-forge-agent.py` in
 `agentic-forges/forge-agents` and stored as `renovate-token` in
 `../b4mad-forgejo/bot-tokens.enc.yaml` — that file is the source of
 truth. `environment-forgejo.enc.yaml` here holds a **copy**, so a rotation

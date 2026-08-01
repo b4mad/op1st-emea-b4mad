@@ -5,7 +5,7 @@ metadata:
 data:
   config.js: |-
     // Renovate binds exactly one platform/endpoint per process, so the
-    // Forgejo fleet is a *second* CronJob rather than a second entry here.
+    // git.b4mad.industries fleet is a *second* CronJob rather than a second entry here.
     // The Codeberg counterpart is `config.yaml` / CronJob `renovate`.
     module.exports = {
         "endpoint": "https://git.b4mad.industries/api/v1",
@@ -33,10 +33,24 @@ data:
         // The filter still bounds the blast radius to orgs we own.
         //
         // ⚠️ `b4mad/*` also appears in the Codeberg job's `repositories`
-        // (hash-B4mad-op1st, hugo.containerimage, semantic-release). Today
-        // those are empty shells here so Renovate skips them; once a repo is
-        // actually migrated, DELETE it from `config.yaml` in the same commit
-        // or both jobs will open duplicate PRs against the two forges.
+        // (hash-B4mad-op1st, hugo.containerimage). hash-B4mad-op1st is an
+        // empty shell here so Renovate skips it, and hugo.containerimage does
+        // not exist on this forge at all; both are still live on codeberg.org.
+        // Once a repo is actually migrated, DELETE it from `config.yaml` in
+        // the same commit or both jobs will open duplicate PRs against the
+        // two forges.
+        //
+        // That warning has now been missed twice — goern/cccr (2026-07-28) and
+        // b4mad/semantic-release (2026-08-01) both 404'd for days and failed
+        // the whole Codeberg job. A dead entry there is not a warning, it is a
+        // fleet outage. Nothing alerts on it; see the lastSuccessfulTime gap
+        // in Systems-m9y2.
+        //
+        // ⚠️ An EMPTY repo on this forge is not evidence that a migration
+        // happened. Nine machdenstaat/* repos and b4mad/semantic-release were
+        // bulk pre-created here at 2026-07-28T07:56Z and never pushed to; the
+        // content is still on codeberg.org. Check `size`/`empty` before
+        // concluding anything from a repo's existence.
         "autodiscover": true,
         "autodiscoverFilter": [
           "toolbxs/*",
@@ -46,6 +60,12 @@ data:
           // fleet in the same change; forge-agents is not yet onboarded.
           // Widen only on purpose.
           "agentic-forges/forgejo-mcp",
+          // Added 2026-08-01, same change that dropped b4mad/semantic-release
+          // from the Codeberg fleet. It moved to agentic-forges/, not b4mad/,
+          // so `b4mad/*` above does NOT cover it and it was left with no fleet
+          // at all. Still listed one-by-one rather than `agentic-forges/*`:
+          // forge-agents is deliberately not onboarded. Widen only on purpose.
+          "agentic-forges/semantic-release",
           // Deliberately ONE repo, not `feeldata/*`. The org migrated off
           // codeberg.org on 2026-07-28 with four repos, but only feeldata2.app
           // is to be renovated: feeldata.app is the superseded site,
