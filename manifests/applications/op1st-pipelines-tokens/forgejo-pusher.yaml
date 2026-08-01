@@ -6,16 +6,17 @@ metadata:
   namespace: op1st-gitops
 spec:
   encryptedData:
-    .dockerconfigjson: AgCfDLYLUdahArfoVjZPaSbz8MtNGoYCm1HYoVdQFdW8LV8H1VOJHG97/2obyhhAn/ldiw9pOMld32yiQ7wD/Kg41T3eOUIMIJ9VjPO99ScXegFFks4hTWSbxSSZe//nz3qbcb1GhaZ2/MEx3eTDYf6kfyeAGfjrehHBX+2y1fCCp9Kum4FXvaJ6XfVKceALXMghwO4hb3ZH1amKWWOQ/2PKCetUtdtnBY928uQMZ6agJB3RXV7fJCSwRlYmMaq97nWuFEzGiXnrz/sPUg0qoeKlX3UWElDg3TWL70uWV2oV1c8J2INpECIPasd82XftGJfbUBII/64grbktNuqx7bzBQTjP1PrfYMy1yCI45kEcJ6XCfcYOPtDPLiYIXiDFETu2NEbbJ0aLB9D06j1zNI28WeAi8qglhSZ6/mffj2vW4Gch9M0t6uBlduaTitU778y7zNujdtHHv2ITgNhNneYq28Q15zJ16Hi9mQ+SHHNXU4Vw5si42JfDBBa6P5B7QwjDxInw13sMzniGPPu/HOBLtCkf4w0ro69TteKfrVClgLVcKmSzs8NDjM40APyT6AqGQsbVzAjVXx6GvOOAQVO9yLk35xYYkw8w02OOAbuEBhmsER1M5kWoS4tC5xaIycjQ215YZ/OlsCvfJ869Cz2mns/1+IbbzfcW5LfwuASd/l3ryIC6H/DCo5uk44JaqG1PCQeMN78yfWewL/5AtU52VnUAKsuKsBSZt9pYNXVHKNJ/2VqonUzybQmy6NkB9/rQ0s1vP6V43W3O9VwqyEqHXG0ndN/5m64wyRE17Wypl0ilSmJ1EYe8G4Z0UBWFrVgODoS959sv4ogZB2uzpFX+0BE2OyhJvKx58UM=
+    .dockerconfigjson: AgA9BQp2FFW2DzwQnf7HYNsjuDGsivE5a59okIbyMEOjPeW0kTShg22WRjvVVdlS4zCjixUssoMRtaq0ZPbGgGi7YiSaa4PWzSW9+CDUnFO1SnIlnTbBTJKtlmgyYdwoolfW5HpudqZprVwEaTtc+hYx5dpsRlabd3dn7boeckqqyd7T5taKp0t2X3He4HVMOzqrMtVOpJ0SyDwK+guicbL1NUaQaF+h9IycMi9aPGCFaK+4tUcj+14D5IMc/HzXN9lE5y4hGFheSRgj9NjBIpMJlpBRPN/iPvEMTnzRLtKWrZ09S9WMuyAyD++oPutc7uk/hIUl/z/mUqO0yyPWuC5uFJ4vOIgzMnD/dV57w6elGf4cfl8yQ4PJ531wo7P90tFIz6fP0hK1WAEF28NJNj+ChjZY3D/Jt653hMiqFLl50b3Ew6wxcJy1gNa8UllaNRz1OcIx/LZNGuibaUg4NZeJ98iot/yodoTK9D7nVHViE9XXWjoDXJ/O/IswKsy3nNe9FTxIa+iOhesj2PyNd6kYQVRJgHwdjzvGrk1UsIdYEtvP3Bb691bTuhCj25Agz741utE6fbBXvTjfEbmb5eWxEqLE52mugSwqejqI3jRZZDCfYNS5yU9hWFB3vVbOcllfgLoDzUe+2HJ4NGNgDclPLRuj/LDn/9/YA1UJsYlCHXpglDfdz+heNhW+G9UPA1Iy2kvS+lllDCBfJWlUoLoe3Ls4Nb/WL7NydfOM3OGL8si24esRAAis5VbPcIPwGM7Lfc/SwTq+eFC582znzPxmYWLxldIrW9+DcBjfmEyOMQfyYHkedG7nncJ5XMVwZNp13XrO53IYL7bsksTsx1uyg7EetLfktyyTITi80IyBhT/ucsXPJLYCI5uNg5Mo0OlYl/viJQc85osHYEmYPTkwk8WbCOJhZIkbMlQ9G2kND54KIymWehRFbGRsdIZwsfwaIUudBPLLjoNNCOeKtbNUgaDkqZ702ZbAsmJBErd8q5iSNVEWo5UQi1SNmRyY
   template:
     metadata:
       annotations:
-        b4mad.net/href: https://forgejo.b4mad.net/b4mad-release-bot
+        b4mad.net/href: https://git.b4mad.industries/b4mad-release-bot
         reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
         reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines,b4mad-forgejo
         reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
         reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines,b4mad-forgejo
-        tekton.dev/docker-0: https://forgejo.b4mad.net
+        tekton.dev/docker-0: https://git.b4mad.industries
+        tekton.dev/docker-1: https://forgejo.b4mad.net
       creationTimestamp: null
       name: forgejo-pusher
       namespace: op1st-gitops

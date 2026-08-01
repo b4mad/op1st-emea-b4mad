@@ -8,7 +8,7 @@ data:
     // Forgejo fleet is a *second* CronJob rather than a second entry here.
     // The Codeberg counterpart is `config.yaml` / CronJob `renovate`.
     module.exports = {
-        "endpoint": "https://forgejo.b4mad.net/api/v1",
+        "endpoint": "https://git.b4mad.industries/api/v1",
         "gitAuthor": "the #B4mad Renovate bot <renovate@b4mad.net>",
         "platform": "forgejo",
         "platformAutomerge": true,

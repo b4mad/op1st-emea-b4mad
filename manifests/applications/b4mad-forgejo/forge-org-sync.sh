@@ -2,7 +2,7 @@
 #
 # forge-org-sync.sh — back up Codeberg org structure to JSONL, replay onto Forgejo.
 #
-# Both codeberg.org and forgejo.b4mad.net run Forgejo, so one API dialect
+# Both codeberg.org and git.b4mad.industries run Forgejo, so one API dialect
 # (/api/v1, Gitea-compatible) covers read and write.
 #
 # Structure captured/recreated: orgs, teams (+ units/permission), team
@@ -16,7 +16,7 @@
 #            writes one typed JSON record per line to the JSONL file.
 #            With no org args, defaults to the 11 orgs goern owns.
 #   restore  reads the JSONL and creates anything missing on $FORGEJO_URL
-#            (default https://forgejo.b4mad.net). Idempotent: existing
+#            (default https://git.b4mad.industries). Idempotent: existing
 #            objects are left untouched. Set DRY_RUN=1 to preview.
 #
 set -euo pipefail
@@ -26,7 +26,7 @@ CODEBERG_URL=${CODEBERG_URL:-https://codeberg.org}
 # We deliberately IGNORE those for the restore target and require an explicit
 # FORGEJO_TARGET_URL + FORGEJO_TOKEN, so `source .envrc` can't silently point a
 # restore back at the source instance. Do NOT fall back to FORGEJO_ACCESS_TOKEN.
-FORGEJO_URL=${FORGEJO_TARGET_URL:-https://forgejo.b4mad.net}
+FORGEJO_URL=${FORGEJO_TARGET_URL:-https://git.b4mad.industries}
 DRY_RUN=${DRY_RUN:-0}
 PAGE=50
 
@@ -147,7 +147,7 @@ target_team_id() { # org name
 
 restore() {
   local in=$1
-  : "${FORGEJO_TOKEN:?set FORGEJO_TOKEN (a forgejo.b4mad.net token, NOT the Codeberg one)}"
+  : "${FORGEJO_TOKEN:?set FORGEJO_TOKEN (a git.b4mad.industries token, NOT the Codeberg one)}"
   [[ -f $in ]] || { say "no such file: $in"; exit 1; }
 
   # Safety: never let the restore target resolve to the source host.
@@ -156,7 +156,7 @@ restore() {
   thost=$(sed -E 's#https?://([^/]+).*#\1#' <<<"$FORGEJO_URL")
   [[ $shost == "$thost" ]] && {
     say "ABORT: restore target ($thost) equals source ($shost)."
-    say "  Set FORGEJO_TARGET_URL to forgejo.b4mad.net; do not inherit FORGEJO_URL from .envrc."
+    say "  Set FORGEJO_TARGET_URL to git.b4mad.industries; do not inherit FORGEJO_URL from .envrc."
     exit 1
   }
   # Verify the token actually authenticates on the target before mutating.
