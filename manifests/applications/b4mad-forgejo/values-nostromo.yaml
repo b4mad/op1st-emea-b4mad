@@ -208,6 +208,15 @@ gitea:
       # unit blocklist; repo.wiki = the built-in wiki, repo.ext_wiki = the
       # "external wiki URL" variant. Wikis aren't part of the #B4mad forge story.
       DISABLED_REPO_UNITS: repo.wiki,repo.ext_wiki
+      # Units a NEW repo starts with. Upstream defaults to all eight; we drop
+      # repo.projects and repo.packages so a fresh repo is code/issues/PRs only.
+      # Unlike DISABLED_REPO_UNITS above this is only a default — an owner can
+      # still switch either back on in repo settings. repo.wiki and repo.actions
+      # are absent because they are already dead instance-wide (see
+      # DISABLED_REPO_UNITS and [actions] ENABLED below); listing them here
+      # would be misleading, not additive. repo.code and repo.releases cannot
+      # be deactivated at all, so they stay.
+      DEFAULT_REPO_UNITS: repo.code,repo.releases,repo.issues,repo.pulls
     actions:
       # Disable Forgejo Actions (CI/CD) instance-wide: hides the Actions tab
       # and prevents any workflow execution. No act_runner is deployed anyway.
