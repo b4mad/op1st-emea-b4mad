@@ -6,7 +6,18 @@ This repository implements [Operate First SIG/SRE Infrastructure Services](https
 
 and partialy [Hybride Cloud Patterns: Multicluster DevSecOps](https://hybrid-cloud-patterns.io/patterns/devsecops/)
 
-It is also available via [radicle](https://radicle.xyz/guides/user) as [rad:z2y94Zx8RUfQBNQD2nSpPLN5CW7NQ](https://app.radicle.xyz/nodes/radicle.b4mad.net/rad:z2y94Zx8RUfQBNQD2nSpPLN5CW7NQ).
+## Where this repo lives
+
+Two tiers, strictly different roles — see the Source Vault concept: agents work
+on the forge, the vault just receives.
+
+| Tier | Where | What it is for |
+|------|-------|----------------|
+| Forge | [`git.b4mad.industries/operate-first/op1st-emea-b4mad`](https://git.b4mad.industries/operate-first/op1st-emea-b4mad) | **Clone, branch and open PRs here.** Disposable utility tier. |
+| Vault | [`rad:z2y94Zx8RUfQBNQD2nSpPLN5CW7NQ`](https://app.radicle.xyz/nodes/radicle.b4mad.net/rad:z2y94Zx8RUfQBNQD2nSpPLN5CW7NQ) | Canonical, passive, replicated [radicle](https://radicle.xyz/guides/user) copy. Nobody works here. |
+
+⚠️ `github.com/b4mad/op1st-emea-b4mad` is a **read-only push mirror** of the
+forge, synced every 8h. A PR opened there is overwritten on the next sync.
 
 ## Service Status
 
@@ -16,13 +27,8 @@ On the nostromo environment we have deployed and configured the following infras
 
 - Operate First GitOps [![CD/GitOps](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=op1st-gitops&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/op1st-gitops)
 - Operate First Pipelines [![CI/Pipelines](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=op1st-pipelines&revision=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/op1st-pipelines)
-- Open Policy Agent Gatekeeper [![App Status](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/api/badge?name=gatekeeper&revision=true&showAppName=true)](https://openshift-gitops-server-openshift-gitops.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/applications/gatekeeper)
 
 These services are deployed on the nostromo environment.
-
-### Hosted community services
-
-- [#B4mad Racing](https://b4mad.racing/) [![#B4mad Racing](https://argocd.b4mad.emea.operate-first.cloud/api/badge?name=b4mad-racing&revision=true)](https://argocd.b4mad.emea.operate-first.cloud/applications/b4mad-racing)
 
 We follow an app-of-apps pattern, where we have a single `kustomization.yaml` file that references all other manifests,
 it can be found in the `manifests/applications/app-of-apps.yaml` file.
