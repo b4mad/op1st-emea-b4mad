@@ -7,12 +7,12 @@
 #
 # ADDITIVE Forgejo mirror: after the internal push succeeds, a final
 # `push-forgejo` task skopeo-copies the same image (registry->registry, so it
-# does NOT touch buildah's local storage) to the Forgejo test instance's OCI
-# registry at forgejo.b4mad.net/b4mad-release-bot/borg:latest — surfacing it under
-# https://forgejo.b4mad.net/b4mad-release-bot/…/packages. This is purely additive: it runs
-# `runAfter: [build]` and never alters the internal push. ⚠️ forgejo.b4mad.net
-# is a THROWAWAY SQLite test instance (bd Systems-07w) — the mirrored image is
-# NON-DURABLE, this is not production-grade image distribution.
+# does NOT touch buildah's local storage) to the b4mad forge's OCI registry at
+# git.b4mad.industries/b4mad-release-bot/borg:latest — surfacing it under
+# https://git.b4mad.industries/b4mad-release-bot/…/packages. This is purely additive: it runs
+# `runAfter: [build]` and never alters the internal push. The internal
+# ImageStream above stays the authoritative source for offsite-cronjob.yaml;
+# the mirror is for human visibility, not for the CronJob to pull from.
 #
 # The ImageStream `borg` itself lives in borg-image.yaml (the
 # pipeline only writes to its :latest tag).
@@ -94,20 +94,20 @@ spec:
       default: image-registry.openshift-image-registry.svc:5000/b4mad-forgejo/borg:latest
     - name: forgejo-image
       type: string
-      # Forgejo container packages are OWNER-scoped: forgejo.b4mad.net/{owner}/{image}:{tag}.
+      # Forgejo container packages are OWNER-scoped: git.b4mad.industries/{owner}/{image}:{tag}.
       # `b4mad-release-bot` pushes under its OWN user namespace, so the push needs
       # no site-admin rights (a user can always write packages under itself) and
       # — unlike an ORG namespace — no org membership either. ⚠️ `write:package`
       # alone does NOT authorise an org-namespace push; that failure surfaces only
       # as a bare `authentication required`. Staying user-scoped avoids the trap.
       # Decoupled from the human `goern` account on purpose.
-      default: forgejo.b4mad.net/b4mad-release-bot/borg:latest
+      default: git.b4mad.industries/b4mad-release-bot/borg:latest
     - name: containerfile
       type: string
       default: ./manifests/applications/b4mad-forgejo/borg/Containerfile
   workspaces:
     - name: shared        # RWO PVC: holds the clone (subPath source) + registry auth (subPath auth)
-    - name: forgejo-auth  # dockerconfigjson Secret with the forgejo.b4mad.net push credential
+    - name: forgejo-auth  # dockerconfigjson Secret with the git.b4mad.industries push credential
   tasks:
     # 1a. Mint an internal-registry auth file (config.json) for buildah from the
     #     pod's ServiceAccount token. Keeps zero registry credentials in git;
@@ -191,7 +191,7 @@ spec:
     #             default trust store and traffic is in-cluster, so
     #             --src-tls-verify=false; auth is the SA-token config.json the
     #             `registry-auth` task already wrote to the shared `auth` subPath.
-    #      dest = forgejo.b4mad.net. Real Let's Encrypt cert → --dest-tls-verify
+    #      dest = git.b4mad.industries. Real Let's Encrypt cert → --dest-tls-verify
     #             stays true; auth is the `b4mad-release-bot` write:package
     #             credential from the `forgejo-auth` Secret workspace
     #             (.dockerconfigjson) — the reflected `forgejo-pusher`.
