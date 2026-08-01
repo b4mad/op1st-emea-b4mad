@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - argocd-sync-status-unknown.yaml
+  - cronjob-last-success-lag.yaml
   - sno-bridge-disk.yaml
   - sno-bridge-thermal.yaml
   - drop-cnpg-primary-pdb-at-limit.yaml
