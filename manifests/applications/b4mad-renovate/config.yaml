@@ -25,9 +25,46 @@ data:
             "timeout": 60000
           }
         ],
+        // ⚠️ This fleet is now machdenstaat-ONLY, by operator decision on
+        // 2026-08-02. Everything else was removed in one change; the entries
+        // below are the whole list, not a subset of a longer one.
+        //
+        // The five repos dropped that day — b4mad/hash-B4mad-op1st,
+        // b4mad/hugo.containerimage, goern/epaper-service, goern/hausmeister,
+        // goern/sops2sealedsecret — were all verified live and primary on
+        // codeberg.org at the time, and NONE of them are covered by the
+        // git.b4mad.industries fleet: hugo.containerimage, epaper-service and
+        // sops2sealedsecret do not exist on that forge at all,
+        // hash-B4mad-op1st is an empty shell there, and hausmeister's Argo
+        // source, container images and PaC webhook are all still on Codeberg
+        // (Systems-dhk7). So they now receive NO dependency updates and NO CVE
+        // bumps from any fleet, indefinitely, and that is intended rather than
+        // an oversight. Re-enrol them here if that changes.
+        //
+        // This is the third time a set of repos has been dropped from a fleet
+        // without a new home — after feeldata/* and toolbxs/* — so treat the
+        // gap as a standing state to revisit, not a temporary one.
         "repositories": [
-          "b4mad/hash-B4mad-op1st",
-          "b4mad/hugo.containerimage",
+          // Re-enrolled 2026-08-02, reversing the 2026-07-28 removal that
+          // disabled Renovate for the whole org on operator request
+          // (Systems-njm). All three verified live, non-empty and unarchived
+          // on codeberg.org before enrolling; lage had been pushed to that
+          // morning. They live on Codeberg and nowhere else — the nine
+          // machdenstaat repos on git.b4mad.industries are empty shells
+          // bulk-created 2026-07-28 and never pushed to — so Codeberg is the
+          // correct fleet for them.
+          //
+          // Expect a burst on the first run: the org has had no dependency
+          // updates since 2026-07-28, twelve Renovate PRs were closed then,
+          // and the three Dependency Dashboard issues were closed too, so
+          // Renovate will re-open dashboards and re-raise the backlog.
+          "machdenstaat/lage",
+          "machdenstaat/oparl-lite-2",
+          "machdenstaat/stadt-bonn-oparl"
+          // ── history of removals, newest first ────────────────────────────
+          // b4mad/hash-B4mad-op1st, b4mad/hugo.containerimage,
+          // goern/epaper-service, goern/hausmeister and goern/sops2sealedsecret
+          // removed 2026-08-02 — see the note above this array.
           // b4mad/semantic-release removed 2026-08-01: the repo no longer
           // exists on codeberg.org — it moved to git.b4mad.industries under
           // agentic-forges/, NOT b4mad/. Leaving it here failed EVERY hourly
@@ -45,12 +82,8 @@ data:
           // (404) against it; an authenticated repo search with an admin
           // token returns nothing, so this is a deleted/renamed repo rather
           // than a permissions or rate-limit symptom.
-          "goern/epaper-service",
-          "goern/hausmeister",
-          "goern/sops2sealedsecret"
-          // machdenstaat/* removed 2026-07-28: renovate disabled for the whole
-          // org on operator request. Was lage, oparl-lite-2, stadt-bonn-oparl.
-          // These repos now receive NO dependency updates until re-enrolled.
+          // machdenstaat/* removed 2026-07-28 and RE-ADDED 2026-08-02 — see
+          // the enrolled entries at the top of this array.
           // goern/forgejo-mcp removed 2026-07-29: migrated to
           // forgejo.b4mad.net/agentic-forges/forgejo-mcp. Codeberg is now a
           // push-mirror downstream and renovating a mirror fights the
