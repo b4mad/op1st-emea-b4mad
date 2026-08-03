@@ -79,4 +79,4 @@ patches:
           # from an inline pipelineSpec (all Pipelines-as-Code runs) have no
           # parent to enumerate and are never pruned.
           prune-per-resource: false
-          schedule: "0 8 * * *"
+          schedule: "0 1 * * *"
