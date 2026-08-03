@@ -1,0 +1,17 @@
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: forgejo-operate-first-op1st-emea-b4mad
+spec:
+  url: https://git.b4mad.industries/operate-first/op1st-emea-b4mad
+  git_provider:
+    # Explicit — PaC defaults to `github` when type is unset. The retired
+    # codeberg-org-toolbxs-* CRs omitted it and worked only by accident.
+    type: forgejo
+    url: https://git.b4mad.industries
+    secret:
+      name: forgejo-b4mad
+      key: provider.token
+    webhook_secret:
+      name: forgejo-b4mad
+      key: webhook.secret
