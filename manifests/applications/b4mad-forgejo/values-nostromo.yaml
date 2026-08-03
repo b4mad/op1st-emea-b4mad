@@ -388,6 +388,19 @@ extraInitVolumeMounts:
     mountPath: /custom-templates
     readOnly: true
 
+# Gitea container resources. Set 2026-08-03: the pod ran unbounded until now,
+# sitting at ~276Mi RSS idle, so the request is pinned just above that and the
+# limit at 768Mi. ⚠️ A memory limit is a hard OOMKill boundary, not throttling
+# — the bleve code indexer and archive/clone bursts are the spiky consumers
+# here, hence ~2.8x idle of headroom rather than a snug limit. If the pod
+# starts restarting with OOMKilled, raise the limit rather than chasing it in
+# Forgejo config.
+resources:
+  requests:
+    memory: 320Mi
+  limits:
+    memory: 768Mi
+
 # Raised 5Gi -> 10Gi -> 20Gi on 2026-07-28: the bleve code indexer grows this
 # volume without anyone pushing anything, so we headroom ahead of demand rather
 # than react to the ForgejoVolumeFillingUp alert. lvms-vg1 has
