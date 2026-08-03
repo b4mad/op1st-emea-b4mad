@@ -70,6 +70,12 @@ patches:
           resources:
             - taskrun
             - pipelinerun
-          keep: 10
-          prune-per-resource: true
-          schedule: "* 8 * * *"
+          # Namespace-wide retention (see prune-per-resource below), not
+          # per-Pipeline: this is the total number of runs kept per namespace.
+          keep: 50
+          # false: prune namespace-wide. With `true` the pruner enumerates
+          # parent Pipelines and prunes per-Pipeline, so PipelineRuns created
+          # from an inline pipelineSpec (all Pipelines-as-Code runs) have no
+          # parent to enumerate and are never pruned.
+          prune-per-resource: false
+          schedule: "0 8 * * *"
