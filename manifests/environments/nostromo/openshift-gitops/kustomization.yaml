@@ -24,6 +24,16 @@ patches:
         name: openshift-gitops
         namespace: openshift-gitops
       spec:
+        # Keep the GitOps control plane off the control-plane node so bridge
+        # gets its ~600m of requests back. Selects on a label rather than on
+        # kubernetes.io/hostname deliberately: ArgoCD.spec.nodePlacement only
+        # supports nodeSelector (no affinity), so scheduling here is hard, and
+        # the recovery path must not require ArgoCD itself. If the target node
+        # is down or being reinstalled, `oc label node bridge
+        # b4mad.net/gitops=true` brings ArgoCD back without a git round-trip.
+        nodePlacement:
+          nodeSelector:
+            b4mad.net/gitops: "true"
         extraConfig:
           timeout.reconciliation: 600s
         resourceExclusions: |
