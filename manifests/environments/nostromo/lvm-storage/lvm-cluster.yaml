@@ -21,3 +21,4 @@ spec:
                   operator: In
                   values:
                     - bridge
+                    - river
