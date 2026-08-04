@@ -1,0 +1,32 @@
+# castra issue-label pipelines. Brought under GitOps 2026-08-04; until then this
+# Application was hand-applied from the castra repo's own
+# manifests/argocd/application.yaml and existed only in the cluster.
+#
+# Source moved off codeberg.org: https://codeberg.org/b4mad/castra 404s and Argo
+# has failed to compare since 2026-08-03 ("failed to list refs: repository not
+# found"). The workloads kept running from the 2026-07-13 sync, but with
+# prune+selfHeal every resource sat marked requiresPruning.
+#
+# ⚠️ The new home is agentic-forges/castra, NOT b4mad/castra: the latter exists
+# on this forge but is one of the empty shells bulk-created 2026-07-28 (size 0,
+# manifests/environment/nostromo returns []). Pointing here at that repo renders
+# zero manifests and prunes the whole b4mad-castra namespace. Same trap
+# documented in b4mad-renovate/config-git.b4mad-industries.yaml.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-castra
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: b4mad-castra
+    server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
+  project: b4mad
+  source:
+    path: manifests/environment/nostromo
+    repoURL: https://git.b4mad.industries/agentic-forges/castra
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
