@@ -72,12 +72,29 @@ patches:
           resources:
             - taskrun
             - pipelinerun
-          # Namespace-wide retention (see prune-per-resource below), not
-          # per-Pipeline: this is the total number of runs kept per namespace.
-          keep: 50
-          # false: prune namespace-wide. With `true` the pruner enumerates
-          # parent Pipelines and prunes per-Pipeline, so PipelineRuns created
-          # from an inline pipelineSpec (all Pipelines-as-Code runs) have no
-          # parent to enumerate and are never pruned.
-          prune-per-resource: false
-          schedule: "0 1 * * *"
+          # Namespace-wide retention, not per-Pipeline: the total number of
+          # runs kept per namespace. Every retained PipelineRun also retains
+          # its workspace volumeClaimTemplate PVC, and a TopoLVM PV carries
+          # nodeAffinity for the node it was provisioned on -- so retention
+          # here is directly a claim on one node's LVM thin pool, not just on
+          # etcd. Deleted runs lose nothing: Tekton Results archives every run
+          # and its logs (results.tekton.dev/stored=true) before the pruner
+          # ever sees it.
+          keep: 20
+          # Hourly, not daily. Pipelines-as-Code runs arrive in bursts, and the
+          # pruner only enforces `keep` at the moment it runs -- a daily
+          # schedule lets a namespace sit a full day above the limit (observed
+          # 2026-08-04: 62 runs in op1st-pipelines = 49 kept + 13 created since
+          # the 01:00 prune). Hourly bounds the overshoot to one hour.
+          schedule: "0 * * * *"
+          # Do NOT set `prune-per-resource: true`. With `true` the pruner
+          # enumerates parent Pipelines and prunes per-Pipeline, so runs
+          # created from an inline pipelineSpec (all Pipelines-as-Code runs
+          # here) have no parent to enumerate and are never pruned.
+          #
+          # It is also deliberately not declared as `false`: false is the
+          # default, the field is omitempty, so the operator never writes it
+          # back to the live TektonConfig. Declaring it kept this Application
+          # permanently OutOfSync in ArgoCD against a diff that could never
+          # converge. Omitting it is behaviourally identical -- verified in
+          # the generated pruner CronJob args, which still end in `;false`.
