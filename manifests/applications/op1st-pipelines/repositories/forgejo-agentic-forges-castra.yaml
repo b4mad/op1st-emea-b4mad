@@ -1,0 +1,24 @@
+# PaC for the castra worker image. Added 2026-08-04: castra had no CI of any
+# kind across its whole history — no .tekton, no Repository CR — so its images
+# were built and pushed by hand. That is how the deployed pin came to outlive
+# codeberg.org/b4mad/castra, the repo it was built from (op1st-emea-b4mad-0i4).
+#
+# The webhook already exists at the ORG level on agentic-forges (hook id 6 →
+# pipelines-as-code-controller.openshift-pipelines.svc), so every repo in that
+# org already reaches PaC. Only this CR and the in-repo .tekton/ were missing.
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: forgejo-agentic-forges-castra
+spec:
+  url: https://git.b4mad.industries/agentic-forges/castra
+  git_provider:
+    # Explicit — PaC defaults to `github` when type is unset.
+    type: forgejo
+    url: https://git.b4mad.industries
+    secret:
+      name: forgejo-b4mad
+      key: provider.token
+    webhook_secret:
+      name: forgejo-b4mad
+      key: webhook.secret

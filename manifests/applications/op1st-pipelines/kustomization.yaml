@@ -16,6 +16,7 @@ resources:
   - tekton-chains.yaml
   - unprivileged-building-of-container-images-using-buildah/
 
+  - repositories/forgejo-agentic-forges-castra.yaml
   - repositories/github-com-b4mad-op1st-emea-b4mad.yaml
   - repositories/forgejo-operate-first-op1st-emea-b4mad.yaml
   - repositories/forgejo-toolbxs-borgmatic.yaml
