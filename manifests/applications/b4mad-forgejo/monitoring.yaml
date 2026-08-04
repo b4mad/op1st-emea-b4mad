@@ -209,7 +209,7 @@ spec:
   groups:
     - name: forgejo-storage
       rules:
-        # Covers both PVCs in the namespace: gitea-shared-storage (20Gi — repos,
+        # Covers both PVCs in the namespace: gitea-shared-storage (32Gi — repos,
         # bleve code index, GPG home) and prod-1 (8Gi — PostgreSQL data + WAL).
         # The code indexer is the usual reason the Forgejo volume grows without
         # anyone pushing anything.
