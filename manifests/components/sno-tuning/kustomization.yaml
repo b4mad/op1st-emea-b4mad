@@ -12,4 +12,3 @@ resources:
 
   - Configuring_crun_as_the_default_container_runtime.yaml
   - Disable_automatic_CRI-O_cache_wipe.yaml
-  - ReduceOLMFootprint.yaml
