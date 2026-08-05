@@ -372,6 +372,16 @@ data:
         }
       }
     </style>
+  # Appended to the footer's right-hand link row on EVERY page, next to the
+  # language picker / Licenses / API links. `custom/extra_links_footer` is the
+  # hook Forgejo's templates/base/footer_content.tmpl renders inside
+  # <div class="right-links">, so this ADDS a link rather than replacing the
+  # footer — no stock markup is overridden. (Do not use `custom/footer` for
+  # this: that hook sits after the scripts, just before </body>, and is meant
+  # for injected JS, not visible links.)
+  # Mounted at /data/gitea/templates/custom/extra_links_footer.tmpl.
+  extra_links_footer.tmpl: |
+    <a href="https://b4mad.industries/">#B4mad Network</a>
   # The "forge-hash" brand mark: #B4mad's hashtag redrawn as a Forgejo git
   # graph — two branch-lines, two merge-rungs, three commit beads climbing to
   # an orange HEAD. Shape from Forgejo, colours from b4mad (phosphor green
