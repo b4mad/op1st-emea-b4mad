@@ -2,15 +2,24 @@
 #
 # A daily CronJob runs `forgejo dump` (app-consistent archive: DB + repos +
 # LFS + attachments + packages + config) into a DEDICATED backup PVC, keeping
-# the last 2 archives. This is the same forgejo image the app runs, mounting
+# the last archive only. This is the same forgejo image the app runs, mounting
 # the live data PVC read-only.
 #
-# ⚠️ LOCAL RETENTION IS 2, DELIBERATELY. This PVC is a staging area for the
+# ⚠️ LOCAL RETENTION IS 1, DELIBERATELY. This PVC is a staging area for the
 # off-site borg push (offsite-cronjob.yaml), which is where deep history
 # lives: keep-daily 7 + keep-weekly 4 on store-1. Holding 7 archives here
 # cost ~21G against a 10Gi PVC and filled the disk on 2026-08-01, breaking
-# every run for six days (Systems-agaa). Local = "yesterday and today", not
-# an archive.
+# every run for six days (Systems-agaa). Local = "the copy waiting to ship",
+# not an archive.
+#
+# ⚠️ RETENTION IS 1 RATHER THAN 2 BECAUSE DUMPS ARE GROWING FAST. Measured
+# archive sizes: 2.04G (07-29), 3.00G (07-30), 3.02G (07-31), 8.39G (08-06).
+# Peak usage is RETENTION+1 dumps, so retention 2 would have needed >25G
+# against the 24Gi first proposed here — it would have fitted for two nights
+# and then broken again on 08-08. Retention 1 peaks at ~17G. The 2.8x jump in
+# six days is itself unexplained and tracked separately; if it turns out to be
+# a one-off (a package/registry import, say) retention 2 becomes affordable
+# again on a 32Gi volume.
 #
 # ⚠️ THE PRUNE RUNS BEFORE THE DUMP. Pruning afterwards cannot free space for
 # the write it is about to make, which is the other half of the same bug.
@@ -38,11 +47,12 @@ spec:
   storageClassName: lvms-vg1
   resources:
     requests:
-      # Sized for RETENTION+1 dumps: the prune keeps 2, then the new dump is
-      # written alongside them. At ~3G/dump that is ~9G, plus headroom for
-      # growth (the forge grew 2.0G -> 3.0G/dump over three days in Jul 2026).
+      # Sized for RETENTION+1 = 2 dumps. Measured 2026-08-06: a dump is 8.4G
+      # (it was 3.0G on 07-31 — see the RETENTION note above), so the peak is
+      # ~17G and the steady state ~8.4G. 32Gi leaves room for the dump to
+      # roughly double again before this needs revisiting.
       # lvms-vg1 has allowVolumeExpansion: true, so this can grow in place.
-      storage: 24Gi
+      storage: 32Gi
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -82,7 +92,7 @@ spec:
               args:
                 - |
                   set -eu
-                  RETENTION=2
+                  RETENTION=1
 
                   prune() {
                     # Keep the ${RETENTION} newest archives, drop the rest.
@@ -91,7 +101,7 @@ spec:
                       | while read -r f; do echo "pruning ${f}"; rm -f "${f}"; done
                   }
 
-                  # 1. PRUNE FIRST. Keeps ${RETENTION} known-good archives —
+                  # 1. PRUNE FIRST. Keeps ${RETENTION} known-good archive(s) —
                   #    we never delete a good dump to make room for one that
                   #    might fail. Peak usage is therefore RETENTION+1 dumps.
                   echo "== prune before dump (keep ${RETENTION}) =="
