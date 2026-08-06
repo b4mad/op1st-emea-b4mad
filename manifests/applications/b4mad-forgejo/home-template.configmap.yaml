@@ -771,6 +771,162 @@ data:
     </body>
     </html>
 
+  # Served at https://git.b4mad.industries/robots.txt — Forgejo picks up
+  # $GITEA_CUSTOM/robots.txt (i.e. /data/gitea/robots.txt), NOT public/assets/,
+  # so initPreScript copies it to the custom root rather than next to the fonts.
+  #
+  # ⚠️ A custom robots.txt REPLACES Forgejo's built-in one wholesale. That is why
+  # the whole default path list is reproduced below instead of just the AI
+  # stanza: dropping it would re-expose blame/commits/raw/compare to crawlers,
+  # which is the opposite of the intent. On a Forgejo upgrade, diff the built-in
+  # default (forgejo.org/docs/latest/admin/search-engines-indexation/) against
+  # part 1 and fold in anything new.
+  robots.txt: |
+    # robots.txt for #B4mad Forge (git.b4mad.industries / forgejo.b4mad.net)
+    #
+    # Part 1 is Forgejo's built-in default, verbatim — it is byte-identical to
+    # https://codeberg.org/robots.txt minus Codeberg-specific paths (Codeberg is
+    # upstream for it). Reproduced because a custom robots.txt REPLACES the default
+    # wholesale rather than extending it. It keeps crawlers off the endpoints that
+    # cost real work per request: blame, commits, raw, compare, tree-list, search.
+    #
+    # Part 2 blocks AI training and scraping agents: the union of Codeberg's list
+    # and https://codeberg.org/nitronic/block-ai-robots, which is maintained.
+    #
+    # ⚠️ robots.txt is advisory. It is a courtesy notice to well-behaved crawlers,
+    # NOT a protection. Nothing here stops a scraper that ignores it — the real
+    # guards are elsewhere (see DISABLE_DOWNLOAD_SOURCE_ARCHIVES in
+    # values-nostromo.yaml for the archive DoS vector, which was closed in config).
+
+    User-agent: *
+    Disallow: /api/
+    Disallow: /avatars/
+    Disallow: /user/
+    Disallow: /swagger.*.json
+    Disallow: /explore/*?*
+
+    Disallow: /repo/create
+    Disallow: /repo/migrate
+    Disallow: /org/create
+    Disallow: /*/*/fork
+
+    Disallow: /*/*/watchers
+    Disallow: /*/*/stargazers
+    Disallow: /*/*/forks
+
+    Disallow: /*/*/src/
+    Disallow: /*/*/blame/
+    Disallow: /*/*/commit/
+    Disallow: /*/*/commits/
+    Disallow: /*/*/raw/
+    Disallow: /*/*/media/
+    Disallow: /*/*/tags
+    Disallow: /*/*/graph
+    Disallow: /*/*/branches
+    Disallow: /*/*/compare
+    Disallow: /*/*/lastcommit/
+    Disallow: /*/*/rss/branch/
+    Disallow: /*/*/atom/branch/
+
+    Disallow: /*/*/activity
+    Disallow: /*/*/activity_author_data
+
+    Disallow: /*/*/actions
+    Disallow: /*/*/projects
+    Disallow: /*/*/labels
+    Disallow: /*/*/milestones
+
+    Disallow: /*/*/find/
+    Disallow: /*/*/tree-list/
+    Disallow: /*/*/search/
+    Disallow: /*/-/code
+
+    Disallow: /*/*/issues/new
+    Disallow: /*/*/pulls/*/files
+    Disallow: /*/*/pulls/*/commits
+
+    Disallow: /attachments/
+    Disallow: /*/*/attachments/
+    Disallow: /*/*/issues/*/attachments/
+    Disallow: /*/*/pulls/*/attachments/
+    Disallow: /*/*/releases/attachments
+    Disallow: /*/*/releases/download
+
+    Disallow: /*/*/archive/
+    Disallow: /*.bundle$
+    Disallow: /*.patch$
+    Disallow: /*.diff$
+    Disallow: /*.atom$
+    Disallow: /*.rss$
+
+    Disallow: /*lang=*
+    Disallow: /*redirect_to=*
+    Disallow: /*tab=*
+    Disallow: /*q=*
+    Disallow: /*sort=*
+    Disallow: /*repo-search-archived=*
+
+    # Single pod with a hard 768Mi limit — archive and clone bursts are the spiky
+    # consumers, so ask for more headroom than Codeberg's 2s. Ignored by Google,
+    # honoured by most others.
+    Crawl-delay: 5
+
+    # ---- AI training / scraping agents: not welcome ----
+    User-agent: AI2Bot
+    User-agent: Ai2Bot-Dolma
+    User-agent: Amazonbot
+    User-agent: anthropic-ai
+    User-agent: Applebot-Extended
+    User-agent: Brightbot 1.0
+    User-agent: Bytespider
+    User-agent: CCBot
+    User-agent: ChatGPT-User
+    User-agent: Claude-Web
+    User-agent: ClaudeBot
+    User-agent: cohere-ai
+    User-agent: cohere-training-data-crawler
+    User-agent: Crawlspace
+    User-agent: Diffbot
+    User-agent: DuckAssistBot
+    User-agent: FacebookBot
+    User-agent: facebookexternalhit
+    User-agent: FriendlyCrawler
+    User-agent: Google-Extended
+    User-agent: GoogleOther
+    User-agent: GoogleOther-Image
+    User-agent: GoogleOther-Video
+    User-agent: GPTBot
+    User-agent: iaskspider/2.0
+    User-agent: ICC-Crawler
+    User-agent: ImagesiftBot
+    User-agent: img2dataset
+    User-agent: imgproxy
+    User-agent: ISSCyberRiskCrawler
+    User-agent: Kangaroo Bot
+    User-agent: meta-externalagent
+    User-agent: Meta-ExternalAgent
+    User-agent: Meta-ExternalFetcher
+    User-agent: NovaAct
+    User-agent: OAI-SearchBot
+    User-agent: Omgili
+    User-agent: omgili
+    User-agent: omgilibot
+    User-agent: Omgilibot
+    User-agent: Operator
+    User-agent: PanguBot
+    User-agent: Perplexity-User
+    User-agent: PerplexityBot
+    User-agent: PetalBot
+    User-agent: Scrapy
+    User-agent: SemrushBot-OCOB
+    User-agent: SemrushBot-SWA
+    User-agent: Sidetrade indexer bot
+    User-agent: Timpibot
+    User-agent: VelenPublicWebCrawler
+    User-agent: Webzio-Extended
+    User-agent: YouBot
+    Disallow: /
+
   # The "forge-hash" brand mark: #B4mad's hashtag redrawn as a Forgejo git
   # graph — two branch-lines, two merge-rungs, three commit beads climbing to
   # an orange HEAD. Shape from Forgejo, colours from b4mad (phosphor green

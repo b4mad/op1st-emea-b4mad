@@ -398,6 +398,9 @@ initPreScript: |
   # materialises as real binaries — no base64 handling needed here.
   cp /custom-templates/josefin-sans-latin.woff2     /data/gitea/public/assets/fonts/
   cp /custom-templates/josefin-sans-latin-ext.woff2 /data/gitea/public/assets/fonts/
+  # robots.txt lands in the custom ROOT, not public/assets — that is where
+  # Forgejo looks for an override of its built-in one.
+  cp /custom-templates/robots.txt /data/gitea/robots.txt
 
 signing:
   enabled: true
