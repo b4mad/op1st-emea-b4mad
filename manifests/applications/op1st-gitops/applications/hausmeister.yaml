@@ -10,7 +10,7 @@ spec:
   project: b4mad
   source:
     path: manifests/environments/nostromo
-    repoURL: https://codeberg.org/goern/hausmeister/
+    repoURL: https://git.b4mad.industries/goern/hausmeister/
     targetRevision: main
   syncPolicy:
     automated:
