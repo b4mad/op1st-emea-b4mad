@@ -16,6 +16,7 @@ resources:
   - deploy-keys/codeberg-machdenstaat-oparl-lite-2-deploy-key.yaml
 
   - forgejo-pusher.yaml
+  - b4mad-op1st-pusher.yaml
   - forgejo-b4mad.yaml
   - forgejo-agent-b4mad-release-agent.yaml
 

@@ -1,0 +1,22 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: b4mad-op1st-pusher
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    .dockerconfigjson: AgCqjOpIQHv4+jY7PAzq+xmwenyNHN8/iFqchCNE149kE99n24Wh/PhDW8UPvnmG76hyp/A/5EUcAzOzrgIoWSwALFO+s9Uhb6EYfG+s40JCbcpmg9ogrotLk6JrpwJhjykEczszjOKVl/81pXn7iJs04LrEnyRDKx3SHn8yTvxFjJ9rCPtXXXJ1Iv0ER2gub1NHbnviFv1D49eV1Dvhty3OH7CO+ni9Y3CXc5+OJgZJVF/Y6WtllnqG6vMDRAcsQ5BD4gXYAWMDdAjtP7Wq8dqgZtHB7OjWCF8UfbpXwuSRQKMjRncGJ7gSTQx1mDl9VMdqhJDf8A0MaeAdVDr8IzSIWiXootQqJWc+rNJaxPj6RKglFIsvXvjp6sw5SwBjOksGM8exPSZxzxjE7zOGCHlDKZmHBzCkZia+DDTFhtJ2VfFR/9dAl1fHa6AEzzBesMe3jwFKL6E6wZZgmYpZm5cVRAj+cRbU1kgxAub63fcPb2X28i0ndHmhby6aUeveuEbS6/LCA0NNDn1Q3FHRMUvefx5mfWlDYHJzXyR8AqUH0aNbz7cSdtsttopmNqbhvT7VuPwnFWgw0moOC5w3+cPeEvQpCIyMqDYVjz4dnD1YM38spY28pdh9aQKy3iy8DHZZ3FKpVmLbKrIdxrYEBoyz3siAOqWHoFrqPRUkMgAWwSC88V2I8Lm2XY+lzKvSrpKb197Lfe4sAmNrnL3k9ytprco8oeGScv/Mod8q0jabFXImCSVC8a/LV06RNCIHnx3IDILjA079i7xtzXsKw2nhWCOwDPbaiqhQJbcCykWon4kr7eDU7uipI6Vx6pA9mvkD3N3rAcewJ7xe4YROkD/Dvp8thBzYRCuFisov6IBXYc8tg8h7uT6FoC4CC6C0zKlDi7/FyM8UN2oa1Qz9peeGb+5tEmVuhDzzptY5bHMgIORUpCp5791inW64sOcLLg==
+  template:
+    metadata:
+      annotations:
+        "b4mad.net/href": "https://quay.io/repository/b4mad/operate-first-site-operator"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces": "op1st-pipelines"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-enabled": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces": "op1st-pipelines"
+        "tekton.dev/docker-0": "https://quay.io"
+      creationTimestamp: null
+      name: b4mad-op1st-pusher
+      namespace: op1st-gitops
+    type: kubernetes.io/dockerconfigjson
