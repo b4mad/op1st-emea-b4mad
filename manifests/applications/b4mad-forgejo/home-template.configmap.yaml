@@ -629,7 +629,8 @@ data:
               dort betriebenen Mailserver</td>
         </tr>
         <tr>
-          <td>Amazon Web Services (S3)</td>
+          <td>Amazon Web Services EMEA SARL, Region Frankfurt
+              (<code>eu-central-1</code>)</td>
           <td>verschlüsselte Sicherungen der Datenbank — Konten, Issues,
               Kommentare — als Auftragsverarbeitung</td>
         </tr>
@@ -644,6 +645,12 @@ data:
       Die Sicherungen der Repository-Daten — Git-Inhalte und Anhänge — verbleiben
       vollständig auf einem eigenen, verschlüsselten Speichersystem des
       Verantwortlichen. Ein Repository-Spiegel zu Dritten besteht derzeit nicht.
+    </p>
+    <p>
+      Die Verarbeitung findet innerhalb der EU statt; eine Übermittlung in ein
+      Drittland ist nicht beabsichtigt. Für die Sicherungen bei AWS besteht ein
+      Auftragsverarbeitungsvertrag nach Art. 28 DSGVO; die Daten sind dort
+      zusätzlich verschlüsselt abgelegt.
     </p>
 
     <h2>8. Profilbilder (Avatare)</h2>

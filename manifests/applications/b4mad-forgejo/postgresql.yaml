@@ -20,6 +20,13 @@ spec:
     storageClass: lvms-vg1
   backup:
     barmanObjectStore:
+      # ⚠️ This bucket is real Amazon S3 (no endpointURL) and holds the full
+      # Forgejo database — every account, e-mail address, issue and comment.
+      # Verified 2026-08-06: x-amz-bucket-region = eu-central-1 (Frankfurt).
+      # The Datenschutzerklärung (privacy.html in home-template.configmap.yaml,
+      # §7) names AWS EMEA SARL / eu-central-1 as processor and states that no
+      # third-country transfer takes place. Moving this bucket out of the EU
+      # makes that statement false — update the page in the same change.
       destinationPath: s3://nostromo-cnpg/b4mad-forgejo/
       s3Credentials:
         accessKeyId:
