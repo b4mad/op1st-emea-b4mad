@@ -217,6 +217,14 @@ gitea:
       # would be misleading, not additive. repo.code and repo.releases cannot
       # be deactivated at all, so they stay.
       DEFAULT_REPO_UNITS: repo.code,repo.releases,repo.issues,repo.pulls
+      # Disable on-the-fly source archive downloads (…/archive/<ref>.tar.gz|zip):
+      # the route returns 404 and the UI links/buttons disappear. This closes an
+      # unauthenticated asymmetric-amplification DoS vector — a tiny GET makes
+      # the single Forgejo pod spawn git-archive + gzip and write a tarball to
+      # the shared 32Gi PVC, and archive/clone bursts are already the spiky
+      # consumer that risks OOMKill against the hard 768Mi memory limit. Does
+      # NOT affect `git clone`, raw single-file download, or release attachments.
+      DISABLE_DOWNLOAD_SOURCE_ARCHIVES: true
     actions:
       # Disable Forgejo Actions (CI/CD) instance-wide: hides the Actions tab
       # and prevents any workflow execution. No act_runner is deployed anyway.
