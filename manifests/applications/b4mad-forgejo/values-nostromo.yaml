@@ -239,6 +239,25 @@ gitea:
       # Disable Forgejo Actions (CI/CD) instance-wide: hides the Actions tab
       # and prevents any workflow execution. No act_runner is deployed anyway.
       ENABLED: false
+    log:
+      # ⚠️ THIS IS A PUBLISHED PRIVACY COMMITMENT, NOT A PREFERENCE.
+      # privacy.html (home-template.configmap.yaml, §3) states in a highlighted
+      # box: "Es werden keine Zugriffsprotokolle mit IP-Adressen geführt."
+      # Turning this on makes that statement false the moment the pod restarts.
+      #
+      # false is already Forgejo's default — pinned here so the commitment is
+      # enforced by the manifest and anyone enabling it has to read this first.
+      # The remaining router log lines (path, status, duration) carry no client
+      # IP: requests arrive via the OpenShift router, so the peer address is
+      # always the router pod's, and svc/forgejo-ssh runs
+      # externalTrafficPolicy: Cluster, which SNATs the git-SSH path too.
+      #
+      # The other half of the commitment lives OUTSIDE this repo:
+      # ingresscontroller/default in openshift-ingress-operator has no
+      # .spec.logging stanza, so HAProxy writes no access log. Enabling that
+      # (spec.logging.access) reintroduces client-IP logging cluster-wide and
+      # also falsifies §3 — check both before changing either.
+      ENABLE_ACCESS_LOG: false
     indexer:
       # Enable the repository code indexer for full-text code search.
       # Default type is bleve (on-disk, in the 20Gi PVC); does an initial

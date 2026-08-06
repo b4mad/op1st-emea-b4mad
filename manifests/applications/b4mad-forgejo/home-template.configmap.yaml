@@ -574,16 +574,28 @@ data:
     </p>
 
     <h2>3. Zugriffsdaten (Server-Logs)</h2>
+    <div class="note">
+      <p>
+        <b>Es werden keine Zugriffsprotokolle mit IP-Adressen geführt.</b> Weder
+        der vorgelagerte Webserver noch die Anwendung schreibt ein Access-Log.
+        Ihre IP-Adresse wird ausschließlich flüchtig verarbeitet, soweit dies
+        zur Zustellung der Verbindung technisch unvermeidbar ist — sie wird
+        nicht protokolliert, nicht gespeichert und nicht ausgewertet. Das gilt
+        für den Web-Zugriff wie für Git-Zugriffe über SSH.
+      </p>
+    </div>
     <p>
-      Bei jedem Aufruf werden technisch notwendige Zugriffsdaten verarbeitet:
-      IP-Adresse, Zeitpunkt, angeforderte Ressource, HTTP-Statuscode, übertragene
-      Datenmenge, User-Agent und Referrer. Gleichartige Verbindungsdaten fallen bei
-      Git-Zugriffen über SSH an.
+      Die Anwendung schreibt lediglich ein Betriebsprotokoll über den Verlauf
+      einzelner Anfragen — angeforderte Ressource, HTTP-Statuscode und
+      Bearbeitungsdauer. Eine Absenderadresse taucht darin nur als
+      clusterinterne Adresse der vorgelagerten Komponenten auf, nie als Ihre.
+      Ein Personenbezug lässt sich daraus nicht herstellen.
     </p>
     <p>
-      Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; das berechtigte Interesse
-      liegt im sicheren und störungsfreien Betrieb sowie in der Abwehr von
-      Missbrauch. Eine Zusammenführung dieser Daten mit Benutzerkonten zu
+      Dieses Protokoll dient allein der Störungsanalyse; Rechtsgrundlage ist
+      Art. 6 Abs. 1 lit. f DSGVO. Es wird nicht eingesammelt oder archiviert,
+      sondern besteht nur, solange der Anwendungsprozess läuft, und geht bei
+      jedem Neustart verloren. Eine Zusammenführung mit Benutzerkonten zu
       Auswertungszwecken findet nicht statt.
     </p>
 
@@ -702,7 +714,7 @@ data:
     <div class="wrap">
       <table>
         <tr><th>Daten</th><th>Dauer</th></tr>
-        <tr><td>Server-Logs</td><td>kurzfristig, nur zur Störungs- und Missbrauchsanalyse</td></tr>
+        <tr><td>Betriebsprotokoll der Anwendung (ohne IP-Adressen)</td><td>bis zum nächsten Neustart der Anwendung; keine Archivierung</td></tr>
         <tr><td>Konto- und Inhaltsdaten</td><td>bis zur Löschung des Kontos bzw. des Inhalts</td></tr>
         <tr><td>Datenbank-Sicherungen</td><td>bis zu 30 Tage</td></tr>
         <tr><td>Off-site-Sicherungen</td><td>7 tägliche und 4 wöchentliche Stände (max. ca. 5 Wochen)</td></tr>
