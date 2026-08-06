@@ -24,16 +24,18 @@ patches:
         name: openshift-gitops
         namespace: openshift-gitops
       spec:
-        # Keep the GitOps control plane off the control-plane node so bridge
-        # gets its ~600m of requests back. Selects on a label rather than on
-        # kubernetes.io/hostname deliberately: ArgoCD.spec.nodePlacement only
-        # supports nodeSelector (no affinity), so scheduling here is hard, and
-        # the recovery path must not require ArgoCD itself. If the target node
-        # is down or being reinstalled, `oc label node bridge
-        # b4mad.net/gitops=true` brings ArgoCD back without a git round-trip.
-        nodePlacement:
-          nodeSelector:
-            b4mad.net/gitops: "true"
+        # Do NOT add spec.nodePlacement here. The argocd-operator (v1.21.1)
+        # deletes it from the ArgoCD CR within ~2 resourceVersions of any
+        # writer setting it -- reproduced with a plain `oc patch`, with Argo
+        # uninvolved, even though the field is valid in the v1beta1 CRD schema
+        # (the CRD converts via webhook and the operator's round-trip loses
+        # it). Because Argo can never make the field stick, the Application
+        # stays permanently OutOfSync and re-applies forever: on 2026-08-06
+        # that pinned a sync in phase=Running for 2h, drove ~8.7 operator
+        # reconciles/min, and pushed etcd p99 WAL fsync from 15ms to 450ms.
+        #
+        # Node placement is set via openshift.io/node-selector on the
+        # namespace instead -- see namespace.yaml.
         extraConfig:
           timeout.reconciliation: 600s
         resourceExclusions: |

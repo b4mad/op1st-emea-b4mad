@@ -3,6 +3,17 @@ kind: Namespace
 metadata:
   annotations:
     openshift.io/display-name: "Red Hat OpenShift GitOps"
+    # Keeps the GitOps control plane off the control-plane node so bridge gets
+    # its ~600m of requests back. This lives on the namespace rather than on
+    # ArgoCD.spec.nodePlacement because the argocd-operator (v1.21.1) strips
+    # spec.nodePlacement from the ArgoCD CR within milliseconds of any writer
+    # setting it -- see the note in kustomization.yaml.
+    #
+    # Selects on a label rather than on kubernetes.io/hostname deliberately, so
+    # the recovery path does not require ArgoCD itself: if the target node is
+    # down or being reinstalled, `oc label node <node> b4mad.net/gitops=true`
+    # brings the control plane back without a git round-trip.
+    openshift.io/node-selector: "b4mad.net/gitops=true"
   labels:
     openshift.io/cluster-monitoring: "true"
   name: openshift-gitops
