@@ -398,9 +398,14 @@ initPreScript: |
   # materialises as real binaries — no base64 handling needed here.
   cp /custom-templates/josefin-sans-latin.woff2     /data/gitea/public/assets/fonts/
   cp /custom-templates/josefin-sans-latin-ext.woff2 /data/gitea/public/assets/fonts/
-  # robots.txt lands in the custom ROOT, not public/assets — that is where
-  # Forgejo looks for an override of its built-in one.
-  cp /custom-templates/robots.txt /data/gitea/robots.txt
+  # robots.txt goes in the custom PUBLIC root: $GITEA_CUSTOM/public/ is mapped
+  # to /, so public/robots.txt is served at /robots.txt (the same mechanism that
+  # puts public/assets/img/logo.svg at /assets/img/logo.svg).
+  # ⚠️ NOT $GITEA_CUSTOM/robots.txt. Several docs and forum posts say custom
+  # root; on Forgejo 16.0.1 that file is simply ignored and the built-in default
+  # keeps being served — verified live 2026-08-06, the override only took effect
+  # once the file moved into public/.
+  cp /custom-templates/robots.txt /data/gitea/public/robots.txt
 
 signing:
   enabled: true

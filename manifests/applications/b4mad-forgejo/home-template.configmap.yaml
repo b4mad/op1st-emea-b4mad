@@ -771,9 +771,10 @@ data:
     </body>
     </html>
 
-  # Served at https://git.b4mad.industries/robots.txt — Forgejo picks up
-  # $GITEA_CUSTOM/robots.txt (i.e. /data/gitea/robots.txt), NOT public/assets/,
-  # so initPreScript copies it to the custom root rather than next to the fonts.
+  # Served at https://git.b4mad.industries/robots.txt from
+  # $GITEA_CUSTOM/public/robots.txt — see the copy step in values-nostromo.yaml,
+  # which also records why the custom ROOT (a common piece of advice) does not
+  # work on Forgejo 16.
   #
   # ⚠️ A custom robots.txt REPLACES Forgejo's built-in one wholesale. That is why
   # the whole default path list is reproduced below instead of just the AI
