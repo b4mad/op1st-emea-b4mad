@@ -362,7 +362,7 @@ initPreScript: |
   mkdir -p "${GNUPGHOME}"
   chmod 700 "${GNUPGHOME}"
 
-  mkdir -p /data/gitea/templates/custom /data/gitea/templates/user/auth /data/gitea/public/assets/img /data/gitea/public/assets/legal
+  mkdir -p /data/gitea/templates/custom /data/gitea/templates/user/auth /data/gitea/public/assets/img /data/gitea/public/assets/legal /data/gitea/public/assets/fonts
   cp /custom-templates/home.tmpl   /data/gitea/templates/home.tmpl
   cp /custom-templates/signin.tmpl /data/gitea/templates/user/auth/signin.tmpl
   cp /custom-templates/header.tmpl /data/gitea/templates/custom/header.tmpl
@@ -373,6 +373,12 @@ initPreScript: |
   # under public/assets/ rather than a custom template: Forgejo aborts startup
   # on a broken template, and a legal page must not be able to do that.
   cp /custom-templates/privacy.html /data/gitea/public/assets/legal/privacy.html
+  # Josefin Sans (the b4mad.industries typeface) as cacheable static files.
+  # header.tmpl points --fonts-proportional at these, so the whole Forgejo UI
+  # renders in it. They arrive via the ConfigMap's binaryData, which the kubelet
+  # materialises as real binaries — no base64 handling needed here.
+  cp /custom-templates/josefin-sans-latin.woff2     /data/gitea/public/assets/fonts/
+  cp /custom-templates/josefin-sans-latin-ext.woff2 /data/gitea/public/assets/fonts/
 
 signing:
   enabled: true
