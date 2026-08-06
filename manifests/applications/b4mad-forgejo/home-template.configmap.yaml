@@ -406,8 +406,21 @@ data:
   # template as FATAL and refuses to boot (see the signin.tmpl note above — it
   # already cost one outage). A legal page must never be able to take the forge
   # down, and it needs no template context, so plain HTML it is. Trade-off:
-  # no Forgejo chrome (navbar/footer), so it carries its own minimal styling,
-  # theme-aware via prefers-color-scheme.
+  # no Forgejo chrome (navbar/footer), so it carries its own styling.
+  #
+  # That styling is the b4mad.industries `body.inner` design — the same look as
+  # https://b4mad.industries/legal/impressum/, so the two legal pages match:
+  # black ground, phosphor green #9bcd9b with glow, orange links, lowercase
+  # 300-weight headings, 42rem column, site-strip / rule / main / rule / footer.
+  # The CSS is a copy of the upstream `body.inner` rules, NOT a <link> to them:
+  # upstream's filename is content-hashed (main.min.<hash>.css) and changes on
+  # every Hugo rebuild, which would 404 this page's stylesheet on their next
+  # deploy. Josefin Sans 300 is embedded as a base64 data: URI for the same
+  # reason plus CORS — b4mad.industries sends no Access-Control-Allow-Origin,
+  # so a cross-origin @font-face from git.b4mad.industries is blocked outright.
+  # Cost: ~16K of base64 in this ConfigMap. If the upstream design changes,
+  # re-copy the `body.inner` block; tables and .note callouts are additions in
+  # the same idiom (upstream styles neither — no inner page has needed them).
   #
   # ⚠️ CONTENT IS A DRAFT DESCRIPTION OF ACTUAL PROCESSING, NOT LEGAL ADVICE.
   # It was written from this deployment's configuration; if you change what the
@@ -421,268 +434,294 @@ data:
     <!doctype html>
     <html lang="de">
     <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <meta name="robots" content="noindex">
-      <title>Datenschutzerklärung — #B4mad Forge</title>
-      <style>
-        :root {
-          --bg: #ffffff; --fg: #1f2328; --muted: #5c6672;
-          --accent: #698b69; --rule: #d8dee4; --box: #f6f8fa;
-        }
-        @media (prefers-color-scheme: dark) {
-          :root {
-            --bg: #0e1512; --fg: #dfe8e1; --muted: #9aa8a0;
-            --accent: #9bcd9b; --rule: #263229; --box: #16201d;
-          }
-        }
-        body {
-          background: var(--bg); color: var(--fg); margin: 0;
-          font-family: ui-sans-serif, "Helvetica Neue", Arial, sans-serif;
-          line-height: 1.6; font-size: 16px;
-        }
-        main { max-width: 46rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
-        h1 {
-          font-weight: 300; letter-spacing: .06em; text-transform: uppercase;
-          font-size: 1.6rem; margin: 0 0 .3rem;
-        }
-        h2 {
-          font-weight: 400; font-size: 1.1rem; margin: 2.5rem 0 .6rem;
-          padding-top: 1.2rem; border-top: 1px solid var(--rule);
-        }
-        h3 { font-weight: 500; font-size: 1rem; margin: 1.4rem 0 .3rem; }
-        a { color: var(--accent); }
-        code { font-family: ui-monospace, monospace; font-size: .9em; }
-        .lede { color: var(--muted); margin: 0 0 2rem; }
-        .box {
-          background: var(--box); border-left: 3px solid var(--accent);
-          padding: .8rem 1rem; margin: 1rem 0;
-        }
-        table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .93em; }
-        th, td { text-align: left; vertical-align: top; padding: .5rem .6rem; border-bottom: 1px solid var(--rule); }
-        th { color: var(--muted); font-weight: 500; }
-        .wrap { overflow-x: auto; }
-        footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: .9em; }
-      </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <meta name="author" content="Christoph Görn">
+    <meta name="robots" content="noindex">
+    <meta name="description" content="Datenschutzerklärung für die Git-Forge #B4mad Forge.">
+    <title>Datenschutzerklärung — #B4mad Forge</title>
+    <style>
+      /* Lifted from b4mad.industries/css/main.min.<hash>.css — the `body.inner`
+         rules, which style /legal/impressum/ and the other inner pages. Inlined
+         rather than linked: the upstream filename is content-hashed and changes on
+         every site rebuild, and a legal page must not 404 its own stylesheet.
+         The font is embedded for the same reason plus CORS — b4mad.industries
+         serves no Access-Control-Allow-Origin, so a cross-origin @font-face from
+         git.b4mad.industries is blocked by the browser. */
+      @font-face {
+        font-family: josefin sans; font-style: normal; font-weight: 300; font-display: swap;
+        src: url(data:font/woff2;base64,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) format('woff2');
+      }
+      html, body { margin: 0; padding: 0; background: #000; font-family: josefin sans, helvetica neue, Arial, sans-serif; }
+      html { height: 100% }
+      body { min-height: 100%; color: #9bcd9b; text-shadow: 0 0 4px rgba(105,139,105,.4); }
+      .site-strip, hr, main, footer {
+        max-width: 42rem; margin-left: auto; margin-right: auto;
+        padding-left: 1rem; padding-right: 1rem; box-sizing: border-box;
+      }
+      .site-strip {
+        padding-top: 2rem; padding-bottom: .5rem;
+        font-family: ui-monospace, sf mono, Menlo, Consolas, monospace;
+        font-size: .9rem; color: rgba(155,205,155,.7);
+      }
+      .site-strip a { color: #9bcd9b; border-bottom: none; text-shadow: 0 0 4px rgba(105,139,105,.5); }
+      .site-strip a:hover { border-bottom: 1px solid rgba(155,205,155,.6) }
+      main, footer { padding-top: 1rem; padding-bottom: 2rem; font-size: 1.1rem; line-height: 1.7; }
+      h1, h2, h3 {
+        color: #9bcd9b; text-transform: lowercase; letter-spacing: .06em; font-weight: 300;
+        text-shadow: 0 0 4px #698b69, 0 0 10px rgba(105,139,105,.5);
+      }
+      h1 { font-size: 2rem; margin: 1.5em 0 .5em }
+      h2 { font-size: 1.5rem }
+      h3 { font-size: 1.25rem }
+      p, ul, ol, blockquote { margin: 0 0 1em }
+      a { color: orange; text-decoration: none; border-bottom: 1px solid rgba(255,165,0,.35); text-shadow: 0 0 4px rgba(255,165,0,.4); }
+      a:hover { border-bottom-color: rgba(255,165,0,.8) }
+      code { font-family: ui-monospace, sf mono, Menlo, Consolas, monospace; background: rgba(105,139,105,.1); color: #9bcd9b; padding: .1em .3em; }
+      hr { border: none; border-top: 1px solid rgba(155,205,155,.3); margin: 2rem 0; }
+      .meta { font-family: ui-monospace, sf mono, Menlo, Consolas, monospace; font-size: .9rem; color: rgba(155,205,155,.7); }
+
+      /* Additions in the same idiom — the upstream sheet styles no tables or
+         callouts, because no inner page has needed them yet. */
+      .wrap { overflow-x: auto; margin: 0 0 1em }
+      table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+      th, td { text-align: left; vertical-align: top; padding: .5rem .7rem; border-bottom: 1px solid rgba(155,205,155,.2); }
+      th {
+        font-family: ui-monospace, sf mono, Menlo, Consolas, monospace;
+        font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+        font-weight: 400; color: rgba(155,205,155,.7);
+      }
+      .note {
+        border: 1px solid rgba(255,165,0,.4); padding: 1rem 1.25rem; margin: 1.5rem 0;
+        background: linear-gradient(rgba(105,139,105,.04), rgba(105,139,105,.04)),
+                    repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(0,0,0,.25) 3px, rgba(0,0,0,.25) 4px);
+      }
+      .note p:last-child { margin-bottom: 0 }
+      .note b { color: orange; font-weight: 400; text-shadow: 0 0 4px rgba(255,165,0,.4); }
+    </style>
     </head>
-    <body>
-    <main>
+    <body class="inner">
 
-      <h1>Datenschutzerklärung</h1>
-      <p class="lede">
-        Für die Git-Forge <strong>#B4mad Forge</strong>, erreichbar unter
-        <code>git.b4mad.industries</code> und <code>forgejo.b4mad.net</code>.
-        Stand: 6. August 2026.
-      </p>
+    <div class="site-strip"><a href="/">git.b4mad.industries</a></div>
+    <hr>
+    <main><article>
 
-      <p>
-        Diese Erklärung gilt ausschließlich für diesen Dienst. Für die Website
-        <a href="https://b4mad.industries/">b4mad.industries</a> gilt die dort
-        veröffentlichte Datenschutzerklärung.
-      </p>
+    <h1>Datenschutzerklärung</h1>
 
-      <h2>1. Verantwortlicher</h2>
-      <p>
-        Christoph Görn, Müldorfer Anger 34, 53229 Bonn, Deutschland.<br>
-        Kontakt: siehe <a href="https://b4mad.industries/legal/impressum/">Impressum</a>.
-      </p>
-      <p>
-        Ein Datenschutzbeauftragter ist nicht bestellt; die Voraussetzungen des
-        § 38 BDSG liegen nicht vor.
-      </p>
+    <p class="meta">
+      Git-Forge #B4mad Forge · <code>git.b4mad.industries</code> ·
+      <code>forgejo.b4mad.net</code> · Stand: 6. August 2026
+    </p>
 
-      <h2>2. Was dieser Dienst ist</h2>
-      <p>
-        #B4mad Forge ist eine selbst betriebene Instanz der freien Software
-        <a href="https://forgejo.org/">Forgejo</a>. Sie dient dem Hosten von
-        Git-Repositories und der Zusammenarbeit daran (Issues, Pull Requests,
-        Releases). Der Dienst läuft auf Infrastruktur, die der Verantwortliche
-        selbst betreibt; er ist nicht bei einem Cloud-Anbieter gehostet.
-      </p>
+    <p>
+      Diese Erklärung gilt ausschließlich für diesen Dienst. Für die Website
+      <a href="https://b4mad.industries/">b4mad.industries</a> gilt die dort
+      veröffentlichte Datenschutzerklärung.
+    </p>
 
-      <h2>3. Zugriffsdaten (Server-Logs)</h2>
-      <p>
-        Bei jedem Aufruf werden technisch notwendige Zugriffsdaten verarbeitet:
-        IP-Adresse, Zeitpunkt, angeforderte Ressource, HTTP-Statuscode,
-        übertragene Datenmenge, User-Agent und Referrer. Gleichartige
-        Verbindungsdaten fallen bei Git-Zugriffen über SSH an.
-      </p>
-      <p>
-        Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; das berechtigte
-        Interesse liegt im sicheren und störungsfreien Betrieb sowie in der
-        Abwehr von Missbrauch. Eine Zusammenführung dieser Daten mit
-        Benutzerkonten zu Auswertungszwecken findet nicht statt.
-      </p>
+    <h2>1. Verantwortlicher</h2>
+    <p>
+      Christoph Görn<br>
+      Müldorfer Anger 34<br>
+      53229 Bonn
+    </p>
+    <p>
+      Kontakt: siehe <a href="https://b4mad.industries/legal/impressum/">Impressum</a>.
+    </p>
+    <p>
+      Ein Datenschutzbeauftragter ist nicht bestellt; die Voraussetzungen des
+      § 38 BDSG liegen nicht vor.
+    </p>
 
-      <h2>4. Benutzerkonto und Anmeldung</h2>
-      <p>
-        Eine Registrierung mit Benutzername und Passwort ist nicht möglich. Die
-        Anmeldung erfolgt ausschließlich über den Single-Sign-on-Dienst
-        (Keycloak) unter <code>keycloak.erdgeschoss.b4mad.net</code>, der
-        ebenfalls vom Verantwortlichen betrieben wird.
-      </p>
-      <p>
-        Bei der ersten Anmeldung wird automatisch ein Forge-Konto angelegt. Aus
-        dem SSO werden dabei übernommen: Benutzername, E-Mail-Adresse,
-        Anzeigename sowie die Gruppenzugehörigkeit (zur Vergabe von
-        Administratorrechten). Im Konto entstehen weiter: Zeitpunkt der letzten
-        Anmeldung, von Ihnen hinterlegte SSH- und GPG-Public-Keys, von Ihnen
-        erzeugte Zugriffstoken sowie Ihre Einstellungen.
-      </p>
-      <p>
-        Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des
-        Dienstes Ihnen gegenüber) bzw. Art. 6 Abs. 1 lit. f DSGVO.
-      </p>
+    <h2>2. Was dieser Dienst ist</h2>
+    <p>
+      #B4mad Forge ist eine selbst betriebene Instanz der freien Software
+      <a href="https://forgejo.org/">Forgejo</a>. Sie dient dem Hosten von
+      Git-Repositories und der Zusammenarbeit daran — Issues, Pull Requests,
+      Releases. Der Dienst läuft auf Infrastruktur, die der Verantwortliche selbst
+      betreibt; er ist nicht bei einem Cloud-Anbieter gehostet.
+    </p>
 
-      <h2>5. Von Ihnen eingestellte Inhalte</h2>
-      <p>
-        Repositories, Commits, Issues, Pull Requests, Kommentare, Anhänge und
-        Releases werden gespeichert, um den Dienst zu erbringen.
-      </p>
-      <div class="box">
-        <p>
-          <strong>Bitte beachten:</strong> Git-Commits enthalten den von Ihnen
-          konfigurierten Autorennamen und die Autoren-E-Mail-Adresse. Diese
-          Angaben sind untrennbarer Bestandteil der Git-Historie. Bei
-          öffentlichen Repositories sind sie — wie der gesamte Inhalt —
-          weltweit ohne Anmeldung abrufbar und können von Dritten kopiert
-          werden. Auf Kopien, die Dritte durch <code>git clone</code>
-          angefertigt haben, hat der Verantwortliche keinen Einfluss.
-        </p>
-      </div>
-      <p>
-        Wenn Sie dies vermeiden möchten, konfigurieren Sie in Git vor dem
-        ersten Commit einen Pseudonym-Namen und eine
-        Weiterleitungs-/Noreply-Adresse.
-      </p>
+    <h2>3. Zugriffsdaten (Server-Logs)</h2>
+    <p>
+      Bei jedem Aufruf werden technisch notwendige Zugriffsdaten verarbeitet:
+      IP-Adresse, Zeitpunkt, angeforderte Ressource, HTTP-Statuscode, übertragene
+      Datenmenge, User-Agent und Referrer. Gleichartige Verbindungsdaten fallen bei
+      Git-Zugriffen über SSH an.
+    </p>
+    <p>
+      Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; das berechtigte Interesse
+      liegt im sicheren und störungsfreien Betrieb sowie in der Abwehr von
+      Missbrauch. Eine Zusammenführung dieser Daten mit Benutzerkonten zu
+      Auswertungszwecken findet nicht statt.
+    </p>
 
-      <h2>6. Cookies</h2>
-      <p>
-        Es werden ausschließlich technisch notwendige Cookies gesetzt — kein
-        Tracking, keine Reichweitenmessung, keine Werbung, keine Einbindung
-        von Analyse-Diensten. Eine Einwilligung ist dafür nach § 25 Abs. 2
-        TDDDG nicht erforderlich.
-      </p>
-      <div class="wrap">
-        <table>
-          <tr><th>Cookie</th><th>Zweck</th><th>Dauer</th></tr>
-          <tr><td><code>i_like_gitea</code></td><td>Sitzungskennung nach der Anmeldung</td><td>Sitzung</td></tr>
-          <tr><td><code>_csrf</code></td><td>Schutz vor Cross-Site-Request-Forgery</td><td>Sitzung / kurzlebig</td></tr>
-          <tr><td><code>lang</code></td><td>gewählte Oberflächensprache</td><td>dauerhaft</td></tr>
-          <tr><td><code>redirect_to</code></td><td>merkt die vor der Anmeldung aufgerufene Seite</td><td>kurzlebig</td></tr>
-        </table>
-      </div>
+    <h2>4. Benutzerkonto und Anmeldung</h2>
+    <p>
+      Eine Registrierung mit Benutzername und Passwort ist nicht möglich. Die
+      Anmeldung erfolgt ausschließlich über den Single-Sign-on-Dienst (Keycloak)
+      unter <code>keycloak.erdgeschoss.b4mad.net</code>, der ebenfalls vom
+      Verantwortlichen betrieben wird.
+    </p>
+    <p>
+      Bei der ersten Anmeldung wird automatisch ein Forge-Konto angelegt. Aus dem
+      SSO werden dabei übernommen: Benutzername, E-Mail-Adresse, Anzeigename sowie
+      die Gruppenzugehörigkeit — letztere zur Vergabe von Administratorrechten. Im
+      Konto entstehen weiter: Zeitpunkt der letzten Anmeldung, von Ihnen
+      hinterlegte SSH- und GPG-Public-Keys, von Ihnen erzeugte Zugriffstoken sowie
+      Ihre Einstellungen.
+    </p>
+    <p>
+      Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO — Bereitstellung des Dienstes
+      Ihnen gegenüber — bzw. Art. 6 Abs. 1 lit. f DSGVO.
+    </p>
 
-      <h2>7. Empfänger und Auftragsverarbeiter</h2>
+    <h2>5. Von Ihnen eingestellte Inhalte</h2>
+    <p>
+      Repositories, Commits, Issues, Pull Requests, Kommentare, Anhänge und
+      Releases werden gespeichert, um den Dienst zu erbringen.
+    </p>
+    <div class="note">
       <p>
-        Eine Weitergabe zu Werbe- oder Analysezwecken findet nicht statt.
-        Datenverarbeitung findet gegenüber folgenden Stellen statt:
+        <b>Bitte beachten:</b> Git-Commits enthalten den von Ihnen konfigurierten
+        Autorennamen und die Autoren-E-Mail-Adresse. Diese Angaben sind
+        untrennbarer Bestandteil der Git-Historie. Bei öffentlichen Repositories
+        sind sie — wie der gesamte Inhalt — weltweit ohne Anmeldung abrufbar und
+        können von Dritten kopiert werden. Auf Kopien, die Dritte durch
+        <code>git clone</code> angefertigt haben, hat der Verantwortliche keinen
+        Einfluss.
       </p>
-      <div class="wrap">
-        <table>
-          <tr><th>Empfänger</th><th>Anlass</th></tr>
-          <tr>
-            <td>Hetzner Online GmbH, Gunzenhausen (DE)</td>
-            <td>Versand der Benachrichtigungs- und System-E-Mails der Forge über
-                den dort betriebenen Mailserver</td>
-          </tr>
-          <tr>
-            <td>Amazon Web Services (S3)</td>
-            <td>verschlüsselte Sicherungen der Datenbank (Konten, Issues,
-                Kommentare) als Auftragsverarbeitung</td>
-          </tr>
-          <tr>
-            <td>Öffentlichkeit</td>
-            <td>Inhalte öffentlicher Repositories einschließlich der
-                Commit-Metadaten (siehe Abschnitt&nbsp;5)</td>
-          </tr>
-        </table>
-      </div>
-      <p>
-        Die Sicherungen der Repository-Daten (Git-Inhalte, Anhänge) verbleiben
-        vollständig auf einem eigenen, verschlüsselten Speichersystem des
-        Verantwortlichen. Ein Repository-Spiegel zu Dritten besteht derzeit
-        nicht.
-      </p>
+    </div>
+    <p>
+      Wenn Sie dies vermeiden möchten, konfigurieren Sie in Git vor dem ersten
+      Commit einen Pseudonym-Namen und eine Weiterleitungs- oder Noreply-Adresse.
+    </p>
 
-      <h2>8. Profilbilder (Avatare)</h2>
-      <p>
-        Externe Avatar-Dienste werden nicht kontaktiert. Gravatar und
-        föderierte Avatare sind auf dieser Instanz abgeschaltet: Haben Sie kein
-        eigenes Profilbild hochgeladen, erzeugt Forgejo lokal ein Bildmuster.
-        Ihre E-Mail-Adresse — auch als Hashwert — verlässt die Instanz dafür
-        nicht.
-      </p>
+    <h2>6. Cookies</h2>
+    <p>
+      Es werden ausschließlich technisch notwendige Cookies gesetzt — kein
+      Tracking, keine Reichweitenmessung, keine Werbung, keine Einbindung von
+      Analyse-Diensten. Eine Einwilligung ist dafür nach § 25 Abs. 2 TDDDG nicht
+      erforderlich.
+    </p>
+    <div class="wrap">
+      <table>
+        <tr><th>Cookie</th><th>Zweck</th><th>Dauer</th></tr>
+        <tr><td><code>i_like_gitea</code></td><td>Sitzungskennung nach der Anmeldung</td><td>Sitzung</td></tr>
+        <tr><td><code>_csrf</code></td><td>Schutz vor Cross-Site-Request-Forgery</td><td>Sitzung / kurzlebig</td></tr>
+        <tr><td><code>lang</code></td><td>gewählte Oberflächensprache</td><td>dauerhaft</td></tr>
+        <tr><td><code>redirect_to</code></td><td>merkt die vor der Anmeldung aufgerufene Seite</td><td>kurzlebig</td></tr>
+      </table>
+    </div>
 
-      <h2>9. Verschlüsselung</h2>
-      <p>
-        Die Verbindung ist per TLS verschlüsselt. Die Zertifikate werden über
-        Let&#39;s Encrypt (ISRG) ausgestellt; dabei werden lediglich die
-        Hostnamen des Dienstes verarbeitet, keine Nutzerdaten.
-      </p>
+    <h2>7. Empfänger und Auftragsverarbeiter</h2>
+    <p>
+      Eine Weitergabe zu Werbe- oder Analysezwecken findet nicht statt.
+      Datenverarbeitung findet gegenüber folgenden Stellen statt:
+    </p>
+    <div class="wrap">
+      <table>
+        <tr><th>Empfänger</th><th>Anlass</th></tr>
+        <tr>
+          <td>Hetzner Online GmbH, Gunzenhausen (DE)</td>
+          <td>Versand der Benachrichtigungs- und System-E-Mails der Forge über den
+              dort betriebenen Mailserver</td>
+        </tr>
+        <tr>
+          <td>Amazon Web Services (S3)</td>
+          <td>verschlüsselte Sicherungen der Datenbank — Konten, Issues,
+              Kommentare — als Auftragsverarbeitung</td>
+        </tr>
+        <tr>
+          <td>Öffentlichkeit</td>
+          <td>Inhalte öffentlicher Repositories einschließlich der Commit-Metadaten
+              (siehe Abschnitt 5)</td>
+        </tr>
+      </table>
+    </div>
+    <p>
+      Die Sicherungen der Repository-Daten — Git-Inhalte und Anhänge — verbleiben
+      vollständig auf einem eigenen, verschlüsselten Speichersystem des
+      Verantwortlichen. Ein Repository-Spiegel zu Dritten besteht derzeit nicht.
+    </p>
 
-      <h2>10. Speicherdauer</h2>
-      <div class="wrap">
-        <table>
-          <tr><th>Daten</th><th>Dauer</th></tr>
-          <tr><td>Server-Logs</td><td>kurzfristig, nur zur Störungs- und Missbrauchsanalyse</td></tr>
-          <tr><td>Konto- und Inhaltsdaten</td><td>bis zur Löschung des Kontos bzw. des Inhalts</td></tr>
-          <tr><td>Datenbank-Sicherungen</td><td>bis zu 30 Tage</td></tr>
-          <tr><td>Off-site-Sicherungen</td><td>7 tägliche und 4 wöchentliche Stände (max. ca. 5 Wochen)</td></tr>
-        </table>
-      </div>
-      <p>
-        Gelöschte Daten können daher bis zum Ablauf der jeweiligen
-        Sicherungsfrist noch in Backups vorhanden sein; sie werden dort nicht
-        weiterverarbeitet und laufen turnusmäßig aus.
-      </p>
+    <h2>8. Profilbilder (Avatare)</h2>
+    <p>
+      Externe Avatar-Dienste werden nicht kontaktiert. Gravatar und föderierte
+      Avatare sind auf dieser Instanz abgeschaltet: Haben Sie kein eigenes
+      Profilbild hochgeladen, erzeugt Forgejo lokal ein Bildmuster. Ihre
+      E-Mail-Adresse — auch als Hashwert — verlässt die Instanz dafür nicht.
+    </p>
 
-      <h2>11. Ihre Rechte</h2>
-      <p>
-        Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung
-        (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung
-        (Art. 18), Datenübertragbarkeit (Art. 20) sowie ein
-        <strong>Widerspruchsrecht</strong> gegen Verarbeitungen auf Grundlage
-        von Art. 6 Abs. 1 lit. f DSGVO (Art. 21).
-      </p>
-      <div class="box">
-        <p>
-          <strong>Grenzen der Löschung:</strong> Ihr Konto und Ihre
-          Profildaten können vollständig gelöscht werden. Commit-Metadaten in
-          bereits veröffentlichten Repositories lassen sich technisch nur durch
-          ein Umschreiben der Git-Historie entfernen — das betrifft alle
-          weiteren Beteiligten und wirkt nicht auf Kopien, die Dritte bereits
-          gezogen haben. Sprechen Sie uns an; wir setzen um, was technisch
-          möglich ist, und sagen offen, was es nicht ist.
-        </p>
-      </div>
-      <p>
-        Ihnen steht ferner ein Beschwerderecht bei einer Aufsichtsbehörde zu
-        (Art. 77 DSGVO), für den Verantwortlichen zuständig ist die
-        Landesbeauftragte für Datenschutz und Informationsfreiheit
-        Nordrhein-Westfalen.
-      </p>
-      <p>
-        Eine automatisierte Entscheidungsfindung einschließlich Profiling
-        findet nicht statt.
-      </p>
+    <h2>9. Verschlüsselung</h2>
+    <p>
+      Die Verbindung ist per TLS verschlüsselt. Die Zertifikate werden über
+      Let&#39;s Encrypt (ISRG) ausgestellt; dabei werden lediglich die Hostnamen des
+      Dienstes verarbeitet, keine Nutzerdaten.
+    </p>
 
-      <h2>12. Öffentliche Metriken</h2>
+    <h2>10. Speicherdauer</h2>
+    <div class="wrap">
+      <table>
+        <tr><th>Daten</th><th>Dauer</th></tr>
+        <tr><td>Server-Logs</td><td>kurzfristig, nur zur Störungs- und Missbrauchsanalyse</td></tr>
+        <tr><td>Konto- und Inhaltsdaten</td><td>bis zur Löschung des Kontos bzw. des Inhalts</td></tr>
+        <tr><td>Datenbank-Sicherungen</td><td>bis zu 30 Tage</td></tr>
+        <tr><td>Off-site-Sicherungen</td><td>7 tägliche und 4 wöchentliche Stände (max. ca. 5 Wochen)</td></tr>
+      </table>
+    </div>
+    <p>
+      Gelöschte Daten können daher bis zum Ablauf der jeweiligen Sicherungsfrist
+      noch in Backups vorhanden sein; sie werden dort nicht weiterverarbeitet und
+      laufen turnusmäßig aus.
+    </p>
+
+    <h2>11. Ihre Rechte</h2>
+    <p>
+      Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16),
+      Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18),
+      Datenübertragbarkeit (Art. 20) sowie ein Widerspruchsrecht gegen
+      Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (Art. 21).
+    </p>
+    <div class="note">
       <p>
-        Unter <code>/metrics</code> stellt die Instanz Betriebskennzahlen im
-        Prometheus-Format bereit (z.&nbsp;B. Anzahl der Repositories, Issues
-        und Konten). Es handelt sich um aggregierte Zählwerte ohne Personen-
-        oder Inhaltsbezug.
+        <b>Grenzen der Löschung:</b> Ihr Konto und Ihre Profildaten können
+        vollständig gelöscht werden. Commit-Metadaten in bereits veröffentlichten
+        Repositories lassen sich technisch nur durch ein Umschreiben der
+        Git-Historie entfernen — das betrifft alle weiteren Beteiligten und wirkt
+        nicht auf Kopien, die Dritte bereits gezogen haben. Sprechen Sie uns an;
+        wir setzen um, was technisch möglich ist, und sagen offen, was es nicht
+        ist.
       </p>
+    </div>
+    <p>
+      Ihnen steht ferner ein Beschwerderecht bei einer Aufsichtsbehörde zu
+      (Art. 77 DSGVO); für den Verantwortlichen zuständig ist die
+      Landesbeauftragte für Datenschutz und Informationsfreiheit
+      Nordrhein-Westfalen.
+    </p>
+    <p>
+      Eine automatisierte Entscheidungsfindung einschließlich Profiling findet
+      nicht statt.
+    </p>
 
-      <footer>
-        <a href="/">&larr; Zurück zur Forge</a> &middot;
-        <a href="https://b4mad.industries/legal/impressum/">Impressum</a>
-      </footer>
+    <h2>12. Öffentliche Metriken</h2>
+    <p>
+      Unter <code>/metrics</code> stellt die Instanz Betriebskennzahlen im
+      Prometheus-Format bereit, etwa die Anzahl der Repositories, Issues und
+      Konten. Es handelt sich um aggregierte Zählwerte ohne Personen- oder
+      Inhaltsbezug.
+    </p>
 
-    </main>
+    </article></main>
+    <hr>
+    <footer>
+      <p>← <a href="/">git.b4mad.industries</a> · <a href="https://b4mad.industries/legal/impressum/">Impressum</a></p>
+    </footer>
     </body>
     </html>
+
   # The "forge-hash" brand mark: #B4mad's hashtag redrawn as a Forgejo git
   # graph — two branch-lines, two merge-rungs, three commit beads climbing to
   # an orange HEAD. Shape from Forgejo, colours from b4mad (phosphor green
