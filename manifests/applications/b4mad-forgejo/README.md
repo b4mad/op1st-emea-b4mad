@@ -262,6 +262,32 @@ path would. `ForgejoMailerCheckFailing` / `ForgejoMailerCheckStale` in
   **Do not set `RUN_USER`** — Forgejo asserts it equals the real OS user at
   startup and refuses to boot otherwise.
 
+## Hardening
+
+- **`DISABLE_DOWNLOAD_SOURCE_ARCHIVES: true`** (`[repository]` in
+  `values-nostromo.yaml`). Turns off on-the-fly source-archive downloads: the
+  `…/archive/<ref>.tar.gz|.zip` route returns `404` and the download
+  links/buttons disappear from the repo and release UIs.
+
+  *Why:* the archive route is an unauthenticated asymmetric-amplification DoS
+  vector. A byte-cheap `GET` makes the server spawn `git archive` + gzip and
+  write a tarball to disk — expensive work, and per-unique-ref so the archive
+  cache doesn't absorb a flood. On this instance the blast radius is sharp:
+  a **single** Forgejo pod (`replicaCount: 1`, no HA) with a **hard 768Mi
+  memory limit** (OOMKill boundary — our own values comment names
+  archive/clone bursts as the spiky consumer) and **no CPU limit** (so it can
+  starve node co-tenants), all writing into **one 32Gi PVC** shared with the
+  bleve code index. One flood can OOMKill the pod (full forge outage) or fill
+  the PVC, cascading to op1st-pipelines CI, Renovate, and the release agents
+  that read from the forge.
+
+  *What it does NOT break:* `git clone`/fetch, raw single-file download
+  (`/raw/…`), and release **attachments** (`/releases/download/…`) are
+  separate routes and keep working. ⚠️ It *does* break anything fetching
+  tarballs by URL (Renovate `fetchzip`-style sources, Go module proxy for
+  non-vanity paths, `curl …/archive/…` in builds) — none in this fleet rely on
+  it today; re-check before assuming so.
+
 ## Deploy
 
 GitOps via Argo CD — the `b4mad-forgejo` Application
