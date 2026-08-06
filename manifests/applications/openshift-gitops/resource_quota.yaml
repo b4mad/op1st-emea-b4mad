@@ -3,8 +3,19 @@ kind: ResourceQuota
 metadata:
   name: openshift-gitops
 spec:
+  # Sized to leave headroom for a rolling update of every Argo CD Deployment at
+  # once, not just for steady state. The six Deployments (server, repo-server,
+  # applicationset, redis, dex, notifications) add +2304Mi limits / +896Mi
+  # requests of surge pods while rolling; the application-controller is a
+  # StatefulSet and recreates in place, so it contributes no surge.
+  #
+  # Steady state on nostromo is ~6912Mi limits / ~2176Mi requests, so the
+  # previous 8Gi/3Gi caps were *both* exceeded by a simultaneous roll
+  # (9216Mi and 3072Mi needed). That turned every rollout into FailedCreate ->
+  # operator retry, which amplified a reconcile loop into ~11MB/s of etcd
+  # writes and pushed etcd p99 fsync to 450ms. Keep the surge headroom.
   hard:
-    limits.cpu: "5"
-    limits.memory: 8Gi
-    requests.cpu: "3"
-    requests.memory: 3Gi
+    limits.cpu: "6"
+    limits.memory: 12Gi
+    requests.cpu: "4"
+    requests.memory: 5Gi
