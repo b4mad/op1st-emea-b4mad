@@ -209,10 +209,17 @@ spec:
   groups:
     - name: forgejo-storage
       rules:
-        # Covers both PVCs in the namespace: gitea-shared-storage (32Gi — repos,
-        # bleve code index, GPG home) and prod-1 (8Gi — PostgreSQL data + WAL).
-        # The code indexer is the usual reason the Forgejo volume grows without
-        # anyone pushing anything.
+        # Covers the two CONTINUOUSLY-MOUNTED PVCs: gitea-shared-storage (32Gi —
+        # repos, bleve code index, GPG home) and prod-1 (8Gi — PostgreSQL data
+        # + WAL). The code indexer is the usual reason the Forgejo volume grows
+        # without anyone pushing anything.
+        #
+        # ⚠️ The namespace's third PVC, forgejo-backup, is NOT covered and
+        # cannot be: kubelet exports kubelet_volume_stats_* only for volumes a
+        # pod currently mounts, and that one is mounted for seconds a night by
+        # a CronJob. It reports no series at all. It filled to 100% unnoticed
+        # on 2026-08-01 (Systems-agaa); the ForgejoBackup* job-level alerts
+        # below are what watch it now.
         - alert: ForgejoVolumeFillingUp
           expr: >-
             kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo"}
@@ -240,3 +247,91 @@ spec:
               Less than 5% free on {{ $labels.persistentvolumeclaim }}. Expand
               it now — PostgreSQL stops accepting writes and Forgejo starts
               failing pushes when the volume fills.
+
+---
+# Backup-path alerting. Split out because it must NOT carry the
+# leaf-prometheus label: kube_job_*/kube_cronjob_* come from kube-state-metrics
+# in openshift-monitoring, which the UWM Prometheus never scrapes. No label ->
+# Thanos Ruler -> Thanos Querier -> both tenants.
+#
+# ⚠️ WHY THESE EXIST (Systems-agaa). forgejo-backup filled its 10Gi PVC on
+# 2026-08-01 and failed every night for six days with nothing alerting. The
+# forgejo-storage rules above could not have caught it: kubelet only exports
+# kubelet_volume_stats_* for volumes a pod currently mounts, and PVC
+# forgejo-backup is mounted for a few seconds a night by the CronJob, so it
+# has NO series at all — verified empty against prometheus-k8s. A PVC that
+# only a CronJob touches is invisible to fill alerts by construction. The
+# backup path therefore has to be watched at the Job level, here.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: forgejo-backup
+spec:
+  groups:
+    - name: forgejo-backup
+      rules:
+        - alert: ForgejoBackupJobFailed
+          expr: >-
+            kube_job_status_failed{namespace="b4mad-forgejo", job_name=~"forgejo-backup-.*"} > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "#B4mad Forge nightly dump job failed"
+            description: >-
+              The forgejo-backup CronJob's most recent Job failed. This is the
+              ONLY backup covering git repos, LFS, attachments and packages —
+              the CNPG barman backups cover Postgres alone, so a failure here
+              is not redundant. The job deletes its own pod once backoffLimit
+              trips, so `oc logs job/<name>` will say "timed out waiting for
+              the condition"; that is the missing pod, not the error. Read the
+              preceding job's log, or re-run the container as a bare pod.
+
+        # Mirrors ForgejoPostgresBackupStale: catches the job silently ceasing
+        # to run at all (CronJob suspended, schedule wrong, image unpullable),
+        # where no Job object exists for the alert above to see. Daily
+        # schedule; 30h allows one missed run plus slack.
+        - alert: ForgejoBackupStale
+          expr: >-
+            time() - kube_cronjob_status_last_successful_time{namespace="b4mad-forgejo", cronjob="forgejo-backup"}
+            > 30 * 3600
+          for: 30m
+          labels:
+            severity: critical
+          annotations:
+            summary: "#B4mad Forge has no fresh logical dump"
+            description: >-
+              No successful forgejo-backup run in over 30 hours (schedule is
+              daily at 03:00 UTC). Repos, LFS, attachments and packages are
+              accumulating unbacked-up changes. Check
+              `oc -n b4mad-forgejo get cronjob forgejo-backup` and the free
+              space on PVC forgejo-backup.
+
+        - alert: ForgejoOffsiteJobFailed
+          expr: >-
+            kube_job_status_failed{namespace="b4mad-forgejo", job_name=~"forgejo-offsite-.*"} > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge off-site borg push failed"
+            description: >-
+              forgejo-offsite failed to push the newest dump to store-1. Note
+              this job now fails deliberately when the local dump is stale, so
+              a ForgejoBackupJobFailed alert alongside this one means one root
+              cause, not two. Otherwise suspect the NAS VLAN, the pinned
+              hostAlias 10.144.8.24, or the borg repo lock.
+
+        - alert: ForgejoOffsiteStale
+          expr: >-
+            time() - kube_cronjob_status_last_successful_time{namespace="b4mad-forgejo", cronjob="forgejo-offsite"}
+            > 30 * 3600
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge dumps are not reaching store-1"
+            description: >-
+              No successful forgejo-offsite run in over 30 hours (schedule is
+              daily at 04:40 UTC). Whatever is on the local backup PVC is the
+              only copy, and it shares a node and disk with the live data.

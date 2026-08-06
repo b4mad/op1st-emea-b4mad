@@ -6,6 +6,9 @@
 #   local dump   : 03:00 UTC (05:00 Europe/Berlin CEST)  (forgejo-backup -> PVC forgejo-backup)
 #   off-site push: 04:40 UTC (06:40 Europe/Berlin CEST)  (this job)
 #
+# ⚠️ This job FAILS if the newest local dump is older than 2 days, rather than
+# quietly re-pushing what it already has. See the staleness guard below.
+#
 # PREREQS (all live):
 #   - image:  ImageStream borg:latest  (borg-image.yaml)
 #   - secret: forgejo-offsite-borg  (sops -d offsite-borg-secret.enc.yaml | oc apply -f -)
@@ -45,7 +48,10 @@ spec:
       activeDeadlineSeconds: 3600
       template:
         spec:
-          restartPolicy: OnFailure
+          # Never, not OnFailure: OnFailure lets the Job controller delete the
+          # pod when backoffLimit trips, destroying the logs. See the same
+          # note in backup-cronjob.yaml.
+          restartPolicy: Never
           # No securityContext: restricted-v2 injects the UID/fsGroup. The
           # forgejo-backup PVC is group-owned by that range, so RO mount works.
           hostAliases:
@@ -91,6 +97,23 @@ spec:
                   NAME=$(basename "${FILE}" .tar.zst)   # forgejo-<UTC-timestamp>
                   echo "latest local dump: ${FILE}"
                   echo "target archive   : ::${NAME}"
+
+                  # ⚠️ STALENESS GUARD. Without this the job is a liar: when
+                  # forgejo-backup is broken, the newest file in /backup stops
+                  # advancing, the "already present, skipping create" branch
+                  # below is taken every night, and the job exits 0 while
+                  # shipping nothing. That is exactly how Systems-agaa went
+                  # six days unnoticed — the local dump was dead and this job
+                  # was green the whole time. A backup that cannot fail cannot
+                  # be trusted.
+                  MAX_AGE_MIN=$(( 2 * 24 * 60 ))
+                  if [ -z "$(find "${FILE}" -mmin -${MAX_AGE_MIN})" ]; then
+                    echo "ERROR: newest local dump ${FILE} is older than 2 days." >&2
+                    echo "       forgejo-backup is not producing dumps; refusing" >&2
+                    echo "       to report success on stale data." >&2
+                    ls -la /backup >&2
+                    exit 1
+                  fi
 
                   # Idempotent: skip create if this archive already exists (job
                   # re-run on the same day). Never re-create/overwrite.

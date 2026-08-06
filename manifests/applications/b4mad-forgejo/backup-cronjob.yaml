@@ -2,8 +2,18 @@
 #
 # A daily CronJob runs `forgejo dump` (app-consistent archive: DB + repos +
 # LFS + attachments + packages + config) into a DEDICATED backup PVC, keeping
-# the last 7 archives. This is the same forgejo image the app runs, mounting
+# the last 2 archives. This is the same forgejo image the app runs, mounting
 # the live data PVC read-only.
+#
+# ⚠️ LOCAL RETENTION IS 2, DELIBERATELY. This PVC is a staging area for the
+# off-site borg push (offsite-cronjob.yaml), which is where deep history
+# lives: keep-daily 7 + keep-weekly 4 on store-1. Holding 7 archives here
+# cost ~21G against a 10Gi PVC and filled the disk on 2026-08-01, breaking
+# every run for six days (Systems-agaa). Local = "yesterday and today", not
+# an archive.
+#
+# ⚠️ THE PRUNE RUNS BEFORE THE DUMP. Pruning afterwards cannot free space for
+# the write it is about to make, which is the other half of the same bug.
 #
 # ⚠️ SCOPE: dumps land on lvms (same node/disk as the data PVC), so this
 # protects against accidental deletion, bad upgrades and app-level corruption
@@ -28,7 +38,11 @@ spec:
   storageClassName: lvms-vg1
   resources:
     requests:
-      storage: 10Gi
+      # Sized for RETENTION+1 dumps: the prune keeps 2, then the new dump is
+      # written alongside them. At ~3G/dump that is ~9G, plus headroom for
+      # growth (the forge grew 2.0G -> 3.0G/dump over three days in Jul 2026).
+      # lvms-vg1 has allowVolumeExpansion: true, so this can grow in place.
+      storage: 24Gi
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -50,7 +64,14 @@ spec:
       activeDeadlineSeconds: 3600
       template:
         spec:
-          restartPolicy: OnFailure
+          # ⚠️ Never, NOT OnFailure. With OnFailure the Job controller DELETES
+          # the pod once backoffLimit trips, taking the logs with it — which
+          # is why six days of failures left nothing to read but
+          # "error: timed out waiting for the condition" (that string is
+          # `oc logs` complaining the pod is gone, not the dump's error).
+          # With Never each attempt is a separate pod that STAYS, so
+          # `oc -n b4mad-forgejo logs <pod>` shows what actually happened.
+          restartPolicy: Never
           # No securityContext: OpenShift's restricted-v2 SCC injects a UID and
           # fsGroup from the namespace range, matching the app pod so the data
           # PVC (group-owned) is readable and the backup PVC is writable.
@@ -61,18 +82,72 @@ spec:
               args:
                 - |
                   set -eu
+                  RETENTION=2
+
+                  prune() {
+                    # Keep the ${RETENTION} newest archives, drop the rest.
+                    ls -1t /backup/forgejo-*.tar.zst 2>/dev/null \
+                      | tail -n +$((RETENTION + 1)) \
+                      | while read -r f; do echo "pruning ${f}"; rm -f "${f}"; done
+                  }
+
+                  # 1. PRUNE FIRST. Keeps ${RETENTION} known-good archives —
+                  #    we never delete a good dump to make room for one that
+                  #    might fail. Peak usage is therefore RETENTION+1 dumps.
+                  echo "== prune before dump (keep ${RETENTION}) =="
+                  prune
+
+                  # 2. PREFLIGHT. `forgejo dump` reports ENOSPC only after it
+                  #    has already burned an hour, and the job controller
+                  #    deletes the pod before anyone reads the log. Fail here
+                  #    instead, loudly and in one second.
+                  echo "== preflight =="
+                  df -h /backup
+                  AVAIL_K=$(df -Pk /backup | awk 'NR==2 {print $4}')
+                  LAST=$(ls -1t /backup/forgejo-*.tar.zst 2>/dev/null | head -n1)
+                  if [ -n "${LAST}" ]; then
+                    # 1.5x the last dump. Measured 2026-08-06: with 4.2G free
+                    # and a 3.0G predecessor, a 1.3x margin passed preflight
+                    # and the dump STILL hit ENOSPC — the forge outgrows its
+                    # last archive faster than that. This is a sanity floor,
+                    # not a prediction; the ENOSPC handler below is the real
+                    # safety net, and PVC capacity is the real fix.
+                    NEED_K=$(( $(du -k "${LAST}" | awk '{print $1}') * 15 / 10 ))
+                  else
+                    # Nothing to size against: demand a flat 6G.
+                    NEED_K=$(( 6 * 1024 * 1024 ))
+                  fi
+                  if [ "${AVAIL_K}" -lt "${NEED_K}" ]; then
+                    echo "FATAL: /backup has ${AVAIL_K}K free, need ~${NEED_K}K" >&2
+                    echo "       (1.3x the last dump, or 4G if there is none)" >&2
+                    echo "       Grow PVC forgejo-backup or lower RETENTION." >&2
+                    ls -la /backup >&2
+                    exit 1
+                  fi
+                  echo "ok: ${AVAIL_K}K free, need ~${NEED_K}K"
+
+                  # 3. DUMP.
                   TS=$(date -u +%Y%m%dT%H%M%SZ)
                   OUT="/backup/forgejo-${TS}.tar.zst"
-                  echo "dumping to ${OUT}"
+                  echo "== dumping to ${OUT} =="
                   # --skip-index: bleve code index is rebuildable, don't archive it
-                  forgejo dump -c /data/gitea/conf/app.ini \
-                    --type tar.zst --tempdir /tmp --skip-index -q -f "${OUT}"
+                  if ! forgejo dump -c /data/gitea/conf/app.ini \
+                         --type tar.zst --tempdir /tmp --skip-index -q -f "${OUT}"; then
+                    # A partial archive is worse than none: offsite-cronjob.yaml
+                    # ships the NEWEST file in /backup, and would happily push
+                    # this truncated one and call it a success.
+                    echo "FATAL: forgejo dump failed, removing partial ${OUT}" >&2
+                    rm -f "${OUT}"
+                    df -h /backup >&2
+                    exit 1
+                  fi
                   echo "wrote: $(ls -la "${OUT}")"
-                  echo "retention: keep last 7"
-                  ls -1t /backup/forgejo-*.tar.zst | tail -n +8 | while read -r f; do
-                    echo "pruning ${f}"; rm -f "${f}"
-                  done
-                  echo "current archives:"; ls -1t /backup/forgejo-*.tar.zst
+
+                  # 4. PRUNE AGAIN, now that the new dump is safely on disk.
+                  echo "== prune after dump (keep ${RETENTION}) =="
+                  prune
+                  echo "== current archives =="; ls -1t /backup/forgejo-*.tar.zst
+                  df -h /backup
               volumeMounts:
                 - name: data
                   mountPath: /data
