@@ -39,6 +39,8 @@ running on the **nostromo** OpenShift cluster in namespace
 | `offsite-borg-secret.enc.yaml` | SOPS-encrypted borg credentials (ssh key, known_hosts, passphrase) |
 | `forgejo-mailer.enc.yaml` | SOPS-encrypted `b4mad-forge@b4mad-service.net` mailbox credentials → k8s Secret `forgejo-mailer`, a single `mailer` key holding the app.ini `[mailer]` block (`gitea.additionalConfigSources` in `values-nostromo.yaml`) |
 | `forgejo-mailer-creds.enc.yaml` | Same mailbox, as discrete `host`/`user`/`passwd` keys → k8s Secret `forgejo-mailer-creds`, used only by `mailer-check-cronjob.yaml`. **Deliberately a separate Secret from `forgejo-mailer`** — `additionalConfigSources` treats every key of the referenced Secret as its own app.ini section, so mixing discrete fields into that Secret crashes Forgejo's `init-app-ini` (hit this in production 2026-07-30) |
+| `anubis.yaml` | Anubis bot policy (`ConfigMap/anubis-policy`) + its `ServiceMonitor`. The container itself is a **sidecar** declared in `values-nostromo.yaml` (`extraContainers`) — the chart owns the Deployment |
+| `anubis-signing-key.enc.yaml` | SOPS-encrypted ed25519 key Anubis signs its challenge-pass JWTs with → k8s Secret `anubis-signing-key` (`ED25519_PRIVATE_KEY_HEX`). Must be stable across restarts or every visitor re-solves the proof of work |
 | `mailer-check-cronjob.yaml` | Synthetic SMTP send test standing in for the mail-delivery metric Forgejo doesn't expose — alerts in `monitoring.yaml` |
 | `bot-tokens.enc.yaml` | SOPS-only bot tokens — source of truth for the four pre-2026-07-29 bots. Not applied to the cluster from here; `renovate-token` is copied into `../b4mad-renovate/environment-forgejo.enc.yaml`, so rotating it means updating both files |
 | `forgejo-agent-<name>.enc.yaml` | SOPS-encrypted full agent credentials (token + SSH + GPG private keys) written by `create-forge-agent.py`; the only copy — the plaintext is shredded at generation |
@@ -170,6 +172,14 @@ cluster.
 - **HTTP/HTTPS** — chart `Ingress` (`className: openshift-default`) on both
   hostnames; OpenShift's ingress-to-route controller turns each into a Route,
   cert-manager (`letsencrypt` ClusterIssuer) issues per-host TLS certs.
+- **Anubis** — the HTTP path does not reach Forgejo directly. Both Ingress
+  hosts target the `anubis` **Service port (8080)**, served by a sidecar in the
+  Forgejo pod, which proxies to Forgejo on `localhost:3000`:
+  ```
+  ingress → svc/forgejo-http:8080 (anubis) → [anubis] → [forgejo] :3000
+  ```
+  See *Hardening* below. Emergency bypass: set the ingress paths' `port:` back
+  to `http` in `values-nostromo.yaml`. git-SSH never transits it.
 - **git-SSH** — no LoadBalancer on this single-node cluster, so the pod's
   built-in SSH server (`:2222`) is exposed via a fixed **NodePort 32222**.
   The erdgeschoss gateway forwards the external path:
@@ -287,6 +297,36 @@ path would. `ForgejoMailerCheckFailing` / `ForgejoMailerCheckStale` in
   tarballs by URL (Renovate `fetchzip`-style sources, Go module proxy for
   non-vanity paths, `curl …/archive/…` in builds) — none in this fleet rely on
   it today; re-check before assuming so.
+
+- **Anubis proof-of-work interstitial** (`anubis.yaml` +
+  `extraContainers` in `values-nostromo.yaml`). A `Mozilla`-bearing user agent
+  must burn a little CPU on a SHA-256 proof of work before it sees a page; the
+  result rides in a cookie for 7 days.
+
+  *Why:* the `robots.txt` added alongside it is advisory and says so. Anubis is
+  the enforcement half — it makes mass scraping cost the scraper something,
+  which is the only lever that works on clients that ignore `robots.txt`.
+
+  *What is NOT challenged:* `git` clone/fetch/push, the `/v2/` container
+  registry (skopeo/buildah/podman/crane/Renovate — the borg build's
+  `push-forgejo` pushes through the public route, so this is load-bearing),
+  `/api/`, `robots.txt`, favicon, `.well-known`, and `*.atom`/`*.rss` feeds.
+  Search engines are allowed by published IP range, not by user agent.
+  AI training/scraping agents are denied outright. git-SSH never sees Anubis.
+  The whole matrix was exercised against v1.26.2 before it shipped.
+
+  *⚠️ Privacy:* Anubis attaches `x-forwarded-for` and `x-real-ip` to **every**
+  line its request logger emits, and its default `INFO` level is one line per
+  request. `logging.level: ERROR` (policy file) + `SLOG_LEVEL=ERROR` (values)
+  are therefore not tuning — they are the technical measure behind §3 of
+  `privacy.html`. Raising either falsifies a published statement; §3/§3a and
+  the cookie table in §6 are part of any change here.
+
+  *⚠️ Client IP:* every search-engine ALLOW rule is gated on `remote_addresses`.
+  The OpenShift router sets `X-Forwarded-For` but not `X-Real-Ip`; Anubis
+  derives the latter from the former itself, so no config is needed — but if it
+  ever stops seeing the real address, every crawler gets an interstitial it
+  cannot solve and the forge quietly drops out of the search indexes.
 
 ## Deploy
 

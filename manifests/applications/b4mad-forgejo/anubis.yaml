@@ -1,0 +1,142 @@
+---
+# Anubis — proof-of-work interstitial in front of the forge web UI.
+#
+# The container itself is NOT here: it is a sidecar in the Forgejo pod, declared
+# as `extraContainers` in values-nostromo.yaml (the chart owns the Deployment,
+# so that is the only place it can live). This file holds the two pieces the
+# chart cannot express: the policy file and the scrape config.
+#
+# Topology (see values-nostromo.yaml, section "Anubis"):
+#
+#   ingress -> svc/forgejo-http :8080 (name: anubis)
+#                -> pod: [anubis :8080] --localhost--> [forgejo :3000]
+#
+# Anubis is the enforcement half of the robots.txt added in cbb0e4e, whose own
+# comment concedes that robots.txt "is advisory […] NOT a protection". A
+# `Mozilla`-bearing user agent has to burn CPU on a SHA-256 proof of work before
+# it sees a page; everything machine-shaped is allowed straight through by the
+# policy below.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: anubis-policy
+data:
+  # Mounted read-only at /etc/anubis; POLICY_FNAME points at it.
+  #
+  # `(data)/…` imports resolve against the policy snippets baked into the Anubis
+  # image (github.com/TecharoHQ/anubis, data/). Using imports rather than inline
+  # rules means an image bump picks up upstream's maintained bot lists.
+  #
+  # ⚠️ Anubis DEFAULT-ALLOWS anything no rule matches, and only challenges user
+  # agents containing "Mozilla". git, curl, skopeo and API clients would
+  # therefore pass even with an empty policy — the allow-imports below are here
+  # so that stays a contract rather than an accident.
+  botPolicies.yaml: |
+    bots:
+      # Deny outright: malformed/abusive request shapes, and the AI scraper
+      # fleet by name. "aggressive" is the strictest of upstream's three AI
+      # presets and matches the intent of our robots.txt, which lists the same
+      # union of Codeberg's and block-ai-robots' agents.
+      - import: (data)/bots/_deny-pathological.yaml
+      - import: (data)/bots/aggressive-brazilian-scrapers.yaml
+      - import: (data)/meta/ai-block-aggressive.yaml
+
+      # Allow the search engines that actually index this forge. Without this
+      # they would meet the challenge page, fail it, and drop the forge out of
+      # their index — the robots.txt already tells them which paths to skip.
+      - import: (data)/crawlers/_allow-good.yaml
+      # x.ai runs a scraper known for flattening git forges; challenge it.
+      - import: (data)/crawlers/xai.yaml
+      - import: (data)/clients/x-firefox-ai.yaml
+
+      # /.well-known (ACME, OIDC discovery), /favicon.*, /robots.txt, sitemap.
+      # ⚠️ This is what makes SERVE_ROBOTS_TXT=false meaningful: the rule ALLOWs
+      # /robots.txt through to Forgejo, which serves the curated file from
+      # home-template.configmap.yaml. Anubis' own built-in robots.txt would
+      # shadow it.
+      - import: (data)/common/keep-internet-working.yaml
+
+      # Machine clients that must never see an interstitial:
+      #   git.yaml           git / libgit2 / JGit / go-git — clone, fetch, push
+      #   docker-client.yaml /v2/ registry API — skopeo, buildah, podman, crane,
+      #                      containerd, Renovate. Load-bearing: the borg build
+      #                      in borg-pipeline.yaml skopeo-copies to
+      #                      git.b4mad.industries/b4mad-release-bot/borg through
+      #                      the PUBLIC route, so it transits Anubis.
+      #   gitea-rss-feeds    *.atom / *.rss, which feed readers fetch with
+      #                      browser-ish user agents.
+      #   allow-api-routes   write traffic to /api/.
+      - import: (data)/clients/git.yaml
+      - import: (data)/clients/docker-client.yaml
+      - import: (data)/apps/gitea-rss-feeds.yaml
+      - import: (data)/apps/allow-api-routes.yaml
+
+      # ⚠️ THIS RULE IS WHAT MAKES ANUBIS DO ANYTHING AT ALL. Delete it and the
+      # whole deployment silently degrades to a transparent proxy.
+      #
+      # Anubis does not challenge on a match; it accumulates WEIGHT and
+      # challenges once a request crosses the built-in threshold. Nothing above
+      # adds weight — the imports only DENY or ALLOW — so without this catchall
+      # every browser is proxied straight through with no proof of work.
+      # Verified against v1.26.2 locally before this shipped: with the rule
+      # absent a Firefox user agent got the target's response, with it present
+      # it gets the interstitial. It is upstream's own last rule in
+      # data/botPolicies.yaml, kept last here for the same reason — the ALLOW
+      # imports above must win first.
+      #
+      # (data)/common/acts-like-browser.yaml would subtract weight again to let
+      # well-behaved Chrome/Firefox skip the challenge. Deliberately NOT
+      # imported: upstream marks it "known to be bypassed by some of the worst
+      # automated scrapers", and one ~1s proof of work per 7 days is a fair
+      # price for a human.
+      - name: generic-browser
+        user_agent_regex: Mozilla|Opera
+        action: WEIGH
+        weight:
+          adjust: 10
+
+    # ⚠️ THIS IS A PUBLISHED PRIVACY COMMITMENT, NOT A LOG-VERBOSITY PREFERENCE.
+    # privacy.html (home-template.configmap.yaml, §3) states in a highlighted
+    # box that no access logs with IP addresses are kept.
+    #
+    # Anubis attaches BOTH `x-forwarded-for` and `x-real-ip` to every line its
+    # request logger emits — internal/log.go, GetRequestLogger() — and its
+    # default level (INFO) is described upstream as "fairly verbose", one line
+    # per request. At INFO this instance would log the IP address of every
+    # visitor and the privacy statement would be false within seconds of the
+    # pod starting.
+    #
+    # ERROR is the technical measure behind that statement. Raising it — here or
+    # via SLOG_LEVEL in values-nostromo.yaml, which is set to ERROR for the same
+    # reason — requires amending privacy.html §3 in the same commit.
+    #
+    # Residual, and disclosed in §3: an error-path line goes through the same
+    # GetRequestLogger and would still carry the address. It lives only in the
+    # pod's stdout ring and is gone on restart; nothing collects it.
+    logging:
+      sink: stdio
+      level: ERROR
+---
+# Scrape the sidecar's metrics listener (:9090, service port `anubis-metrics`).
+#
+# Hand-written rather than chart-generated: gitea.metrics.serviceMonitor only
+# knows about the chart's own `http` port. This does NOT contradict the
+# "scrape config lives with the things being scraped" note in kustomization.yaml
+# — the thing being scraped is declared in Helm values, which cannot carry a
+# ServiceMonitor. Alerts on these series live in monitoring.yaml with the rest.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: anubis
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo
+      app.kubernetes.io/instance: forgejo
+  endpoints:
+    # Yields job/service "forgejo-http" with endpoint="anubis-metrics" — the
+    # Service is shared with Forgejo, so the port name is what distinguishes
+    # these series from the Forgejo ones.
+    - port: anubis-metrics
+      path: /metrics
+      interval: 30s

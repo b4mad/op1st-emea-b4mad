@@ -335,3 +335,82 @@ spec:
               No successful forgejo-offsite run in over 30 hours (schedule is
               daily at 04:40 UTC). Whatever is on the local backup PVC is the
               only copy, and it shares a node and disk with the live data.
+
+---
+# Anubis, the proof-of-work interstitial in front of the web UI.
+#
+# Scraped by ServiceMonitor/anubis (anubis.yaml) off the forgejo-http Service's
+# `anubis-metrics` port, so these series carry job="forgejo-http" like the
+# Forgejo ones and are told apart by endpoint="anubis-metrics".
+#
+# ⚠️ Anubis is IN the request path for both hostnames. When it stops serving,
+# the forge is down for browsers even though Forgejo itself is healthy — so
+# ForgejoDown above will NOT fire for it. That is what the first rule is for.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: forgejo-anubis
+  labels:
+    openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus
+spec:
+  groups:
+    - name: forgejo-anubis
+      rules:
+        - alert: ForgejoAnubisDown
+          expr: >-
+            up{namespace="b4mad-forgejo", job="forgejo-http", endpoint="anubis-metrics"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "#B4mad Forge bot-defence proxy is unreachable"
+            description: >-
+              The Anubis sidecar in pod {{ $labels.pod }} has not been
+              scrapeable for >= 5 minutes. The Ingress for both
+              git.b4mad.industries and forgejo.b4mad.net targets the `anubis`
+              service port, so the web UI is down even if Forgejo is fine.
+              Emergency bypass: set the ingress paths' `port:` back to `http`
+              in values-nostromo.yaml. Then check
+              `oc -n b4mad-forgejo logs -c anubis deploy/forgejo` — with
+              SLOG_LEVEL=ERROR anything at all in there is a real fault.
+
+        # Same monitoring-outage-that-looks-like-health argument as
+        # ForgejoMetricsTargetMissing: `up` can only alert while a target
+        # exists. Losing the ServiceMonitor or the extraPorts entry silences
+        # the rule above permanently.
+        - alert: ForgejoAnubisMetricsTargetMissing
+          expr: >-
+            absent(up{namespace="b4mad-forgejo", job="forgejo-http", endpoint="anubis-metrics"})
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge has no Anubis Prometheus target"
+            description: >-
+              Nothing matches endpoint="anubis-metrics" in b4mad-forgejo.
+              Anubis may be fine, but ForgejoAnubisDown can no longer fire.
+              Check ServiceMonitor/anubis in anubis.yaml and
+              service.http.extraPorts in values-nostromo.yaml.
+
+        # Humans overwhelmingly pass the challenge; a sustained failure
+        # majority means the proof of work is broken for real visitors (clock
+        # skew, a bad DIFFICULTY bump, an image regression) rather than that
+        # scrapers are bouncing off it — scrapers mostly never attempt it, so
+        # they land in anubis_policy_results, not here.
+        - alert: ForgejoAnubisChallengesFailing
+          expr: >-
+            sum(rate(anubis_failed_validations{namespace="b4mad-forgejo"}[15m]))
+            /
+            clamp_min(sum(rate(anubis_challenges_issued{namespace="b4mad-forgejo"}[15m])), 0.001)
+            > 0.5
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge: most visitors are failing the bot check"
+            description: >-
+              Over half of the Anubis challenges issued in the last 15 minutes
+              failed validation, sustained for 30 minutes. Real visitors are
+              likely being locked out of git.b4mad.industries. Check whether
+              DIFFICULTY was raised or the image bumped recently, and consider
+              the ingress `port: http` bypass while investigating.
