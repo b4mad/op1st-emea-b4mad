@@ -41,6 +41,36 @@ data:
       - import: (data)/bots/aggressive-brazilian-scrapers.yaml
       - import: (data)/meta/ai-block-aggressive.yaml
 
+      # ⚠️ The imports above are NOT sufficient, because Anubis only ever
+      # CHALLENGES a user agent containing "Mozilla" and default-ALLOWs
+      # everything else. A scraper that omits "Mozilla" and is not named by an
+      # import walks straight in. CommonCrawl does exactly that — its real
+      # agent is `CCBot/2.0 (https://commoncrawl.org/faq/)` — so until this
+      # rule existed it scraped the forge unimpeded while robots.txt told it
+      # not to (op1st-emea-b4mad-las, found by scripts/anubis-smoke.sh).
+      #
+      # This rule closes the gap by restating the SAME agent list that
+      # robots.txt publishes, as enforcement rather than as a request. The two
+      # lists are a pair:
+      #
+      #   robots.txt  home-template.configmap.yaml, "AI training / scraping
+      #               agents: not welcome" — the advisory half
+      #   this rule   the enforcement half
+      #
+      # ⚠️ Change one and you must change the other, or the forge starts
+      # promising something it does not do (or blocking something it never
+      # announced). Both lists are the union of Codeberg's and
+      # block-ai-robots'.
+      #
+      # Names are collapsed to their shortest unambiguous prefix under (?i)
+      # — `Claude(-Web|Bot)` covers both, `omgili` covers omgilibot, etc. The
+      # regex must not match a crawler allowed below: Googlebot is safe
+      # because only `Google-Extended` and `GoogleOther` are listed.
+      - name: robots-txt-ai-agents
+        action: DENY
+        user_agent_regex: >-
+          (?i)(AI2Bot|Amazonbot|anthropic-ai|Applebot-Extended|Brightbot|Bytespider|CCBot|ChatGPT-User|Claude(-Web|Bot)|cohere-|Crawlspace|Diffbot|DuckAssistBot|facebook(bot|externalhit)|FriendlyCrawler|Google(-Extended|Other)|GPTBot|iaskspider|ICC-Crawler|ImagesiftBot|img2dataset|imgproxy|ISSCyberRiskCrawler|Kangaroo Bot|Meta-External(Agent|Fetcher)|NovaAct|OAI-SearchBot|omgili|Operator|PanguBot|Perplexity|PetalBot|Scrapy|SemrushBot-(OCOB|SWA)|Sidetrade indexer bot|Timpibot|VelenPublicWebCrawler|Webzio-Extended|YouBot)
+
       # Allow the search engines that actually index this forge. Without this
       # they would meet the challenge page, fail it, and drop the forge out of
       # their index — the robots.txt already tells them which paths to skip.
