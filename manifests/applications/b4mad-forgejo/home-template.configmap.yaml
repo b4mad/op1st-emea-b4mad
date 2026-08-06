@@ -455,6 +455,15 @@ data:
   # 2026-08-06) and any web analytics (none deployed).
   #
   # German, matching b4mad.industries/legal/* and the controller's jurisdiction.
+  #
+  # ⚠️ §3 and §3a are held true by TWO settings elsewhere, not by this text:
+  #   - `logging.level: ERROR` in the Anubis policy (anubis.yaml) and
+  #     SLOG_LEVEL=ERROR in values-nostromo.yaml. Anubis puts x-forwarded-for
+  #     and x-real-ip on EVERY line its request logger emits; at its default
+  #     INFO level §3 is false the moment the pod starts.
+  #   - gitea.config.log.ENABLE_ACCESS_LOG=false and the absence of
+  #     .spec.logging on ingresscontroller/default, as §3 has always required.
+  # §3 concedes the residual — an error-path line can still carry the address.
   privacy.html: |
     <!doctype html>
     <html lang="de">
@@ -579,9 +588,9 @@ data:
         <b>Es werden keine Zugriffsprotokolle mit IP-Adressen geführt.</b> Weder
         der vorgelagerte Webserver noch die Anwendung schreibt ein Access-Log.
         Ihre IP-Adresse wird ausschließlich flüchtig verarbeitet, soweit dies
-        zur Zustellung der Verbindung technisch unvermeidbar ist — sie wird
-        nicht protokolliert, nicht gespeichert und nicht ausgewertet. Das gilt
-        für den Web-Zugriff wie für Git-Zugriffe über SSH.
+        zur Zustellung der Verbindung technisch unvermeidbar ist — sie wird im
+        Regelbetrieb nicht protokolliert, nicht gespeichert und nicht
+        ausgewertet. Das gilt für den Web-Zugriff wie für Git-Zugriffe über SSH.
       </p>
     </div>
     <p>
@@ -590,6 +599,50 @@ data:
       Bearbeitungsdauer. Eine Absenderadresse taucht darin nur als
       clusterinterne Adresse der vorgelagerten Komponenten auf, nie als Ihre.
       Ein Personenbezug lässt sich daraus nicht herstellen.
+    </p>
+    <p>
+      Der Bot-Schutz (§ 3a) ist so konfiguriert, dass er ausschließlich im
+      Fehlerfall protokolliert. Eine solche Fehlermeldung kann die IP-Adresse
+      der auslösenden Anfrage enthalten. Sie entsteht nur bei einer technischen
+      Störung, nicht im Regelbetrieb, verbleibt allein in der Standardausgabe
+      des laufenden Prozesses und geht bei jedem Neustart verloren. Sie wird
+      nicht eingesammelt, nicht archiviert und nicht ausgewertet.
+    </p>
+
+    <h2>3a. Schutz vor automatisierten Zugriffen</h2>
+    <p>
+      Dem Web-Zugriff ist die freie Software
+      <a href="https://anubis.techaro.lol/">Anubis</a> vorgeschaltet. Sie stellt
+      Ihrem Browser vor dem ersten Seitenaufruf eine Rechenaufgabe, die dieser
+      automatisch löst — Sie sehen dabei kurz eine Zwischenseite und müssen
+      nichts tun. Zweck ist allein die Abwehr massenhafter automatisierter
+      Abrufe, die den Dienst überlasten oder Inhalte für das Training von
+      KI-Modellen absaugen.
+    </p>
+    <p>
+      Ausgewertet werden dafür nur Angaben, die Ihr Browser ohnehin mit jeder
+      Anfrage sendet — die Kennung des Browsers (User-Agent), die aufgerufene
+      Adresse und Ihre IP-Adresse. Letztere wird ausschließlich flüchtig damit
+      verglichen, ob die Anfrage aus den veröffentlichten Adressbereichen einer
+      Suchmaschine stammt, die ungeprüft durchgelassen wird; sie wird dabei
+      nicht protokolliert (§ 3). Es findet kein Fingerprinting statt, es werden
+      keine Daten an Dritte übermittelt, und es wird kein externer Dienst
+      eingebunden: die Software läuft auf derselben Infrastruktur wie der Rest
+      des Dienstes.
+    </p>
+    <p>
+      Das Ergebnis der Prüfung wird in einem Cookie hinterlegt (§ 6), damit die
+      Aufgabe nicht bei jedem Seitenaufruf erneut anfällt. Damit dieser Nachweis
+      nicht von Dritten weiterverwendet werden kann, ist er an Ihre IP-Adresse
+      gebunden: das Cookie enthält dafür keinen Klartext, sondern nur deren
+      Prüfsumme (SHA-256). Es wird auf Ihrem Gerät gespeichert und wird beim
+      Wechsel der IP-Adresse schlicht ungültig.
+    </p>
+    <p>
+      Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; das berechtigte Interesse
+      besteht in der Verfügbarkeit und Betriebssicherheit des Dienstes.
+      Git-Zugriffe über SSH sowie Zugriffe von Git-, API- und
+      Container-Registry-Clients werden nicht geprüft.
     </p>
     <p>
       Dieses Protokoll dient allein der Störungsanalyse; Rechtsgrundlage ist
@@ -654,6 +707,7 @@ data:
         <tr><td><code>_csrf</code></td><td>Schutz vor Cross-Site-Request-Forgery</td><td>Sitzung / kurzlebig</td></tr>
         <tr><td><code>lang</code></td><td>gewählte Oberflächensprache</td><td>dauerhaft</td></tr>
         <tr><td><code>redirect_to</code></td><td>merkt die vor der Anmeldung aufgerufene Seite</td><td>kurzlebig</td></tr>
+        <tr><td><code>anubis-cookie</code></td><td>Nachweis der bestandenen Bot-Prüfung (§ 3a)</td><td>7 Tage</td></tr>
       </table>
     </div>
 

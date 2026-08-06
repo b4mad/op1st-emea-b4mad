@@ -33,16 +33,23 @@ ingress:
     cert-manager.io/cluster-issuer: letsencrypt
     kubernetes.io/ingress.allow-http: 'false'
   hosts:
+    # ⚠️ `port: anubis`, not `port: http`. This is THE cutover into the Anubis
+    # sidecar (see the "Anubis" section at the bottom of this file) and, flipped
+    # back to `http`, THE rollback out of it — no other change needed, since the
+    # sidecar keeps running harmlessly with nothing routed to it.
+    #
+    # Both hostnames go through it. forgejo.b4mad.net only 301s to
+    # git.b4mad.industries, but a scraper hitting the old name must still pay.
     - host: forgejo.b4mad.net
       paths:
         - path: /
           pathType: Prefix
-          port: http
+          port: anubis
     - host: git.b4mad.industries
       paths:
         - path: /
           pathType: Prefix
-          port: http
+          port: anubis
   tls:
     - secretName: forgejo.b4mad.net
       hosts:
@@ -341,6 +348,24 @@ gitea:
 #     -> node bridge 192.168.0.148:32222 (nodePort)
 #     -> svc forgejo-ssh:22 -> pod :2222
 service:
+  http:
+    # Two extra ports on the existing forgejo-http Service, both served by the
+    # Anubis sidecar. `port: 3000` (Forgejo direct) is untouched and stays
+    # reachable in-cluster — that is what ServiceMonitor/forgejo scrapes, so
+    # Prometheus never transits Anubis.
+    extraPorts:
+      # What the Ingress above targets by name.
+      - name: anubis
+        port: 8080
+        targetPort: 8080
+        protocol: TCP
+      # Anubis' own metrics + /healthz listener. Scraped by
+      # ServiceMonitor/anubis in anubis.yaml. Not routed from the Ingress, so
+      # unlike Forgejo's /metrics this one is cluster-internal.
+      - name: anubis-metrics
+        port: 9090
+        targetPort: 9090
+        protocol: TCP
   ssh:
     type: NodePort
     port: 22
@@ -439,6 +464,12 @@ extraVolumes:
   - name: custom-templates
     configMap:
       name: forgejo-custom-templates
+  # Anubis bot policy. Mounted into the sidecar only (see extraContainers).
+  # Unlike custom-templates this is a plain directory mount outside /data, so
+  # none of the subPath/fresh-PVC trouble described above applies.
+  - name: anubis-policy
+    configMap:
+      name: anubis-policy
 extraInitVolumeMounts:
   - name: custom-templates
     mountPath: /custom-templates
@@ -470,3 +501,163 @@ persistence:
 # pull-rate flakiness on a throwaway install.
 test:
   enabled: false
+
+# ---------------------------------------------------------------------------
+# Anubis — proof-of-work interstitial in front of the web UI.
+#
+#   ingress -> svc/forgejo-http :8080 (name: anubis)
+#                -> anubis (this container) --localhost--> forgejo :3000
+#
+# Sidecar rather than its own Deployment, which is what upstream's Kubernetes
+# guide describes. Two consequences worth knowing:
+#
+#   * TARGET is localhost, so Forgejo still sees 127.0.0.1 as the peer and
+#     REVERSE_PROXY_TRUSTED_PROXIES needs no widening. The caveat in Anubis'
+#     gitea/forgejo doc applies only to the separate-Deployment topology.
+#   * Anubis shares the pod's lifecycle. It has no persistent state (the
+#     default in-memory store), so this costs nothing beyond a few seconds of
+#     added rollout time.
+#
+# The policy file and the ServiceMonitor live in anubis.yaml — the chart can
+# only carry the container itself.
+#
+# ⚠️ OpenShift: global.compatibility.openshift.adaptSecurityContext=force at the
+# top of this file only rewrites CHART-RENDERED containers. extraContainers is
+# passed through verbatim, so upstream's example runAsUser/runAsGroup/
+# runAsNonRoot: 1000 is deliberately absent below — under restricted-v2 those
+# values are outside the namespace's allocated UID range and the pod would be
+# rejected outright. Omitting them lets the SCC assign a UID; Anubis does not
+# care which one it runs as.
+extraContainers:
+  - name: anubis
+    # Pinned, not :latest — an image bump changes the bundled (data)/… policy
+    # snippets that anubis.yaml imports, and that deserves a commit.
+    image: ghcr.io/techarohq/anubis:v1.26.2
+    imagePullPolicy: IfNotPresent
+    env:
+      - name: BIND
+        value: ':8080'
+      - name: TARGET
+        value: http://localhost:3000
+      - name: METRICS_BIND
+        value: ':9090'
+      - name: POLICY_FNAME
+        value: /etc/anubis/botPolicies.yaml
+      # ⚠️ See the logging block in anubis.yaml before changing this. Anubis
+      # puts x-forwarded-for and x-real-ip on every request log line, and
+      # privacy.html §3 promises no access logs with IP addresses. ERROR here
+      # and `level: ERROR` in the policy file are the same commitment stated
+      # twice, because the policy file's logging block is the newer of the two
+      # mechanisms and this one is what applies before the policy is parsed.
+      - name: SLOG_LEVEL
+        value: ERROR
+      # Signs the challenge-pass JWT. Pinned in a SealedSecret so it survives a
+      # restart: without it Anubis mints a fresh key per pod start and every
+      # visitor holding a valid cookie has to solve a new challenge.
+      - name: ED25519_PRIVATE_KEY_HEX
+        valueFrom:
+          secretKeyRef:
+            name: anubis-signing-key
+            key: ED25519_PRIVATE_KEY_HEX
+      # Leading zero bits required in the proof of work. 4 is upstream's
+      # default: roughly a second of browser CPU, unnoticeable once, expensive
+      # at scraper volume. Revisit only with real traffic data.
+      - name: DIFFICULTY
+        value: '4'
+      # Let link-preview fetchers (chat clients, fediverse) read the target's
+      # Open Graph tags instead of previewing the interstitial.
+      #
+      # ⚠️ This is the one routine code path that can emit an ERROR log line —
+      # RenderIndex logs "failed to get OG tags" WITH x-forwarded-for and
+      # x-real-ip when it cannot parse the target's response. Verified against
+      # v1.26.2 that Forgejo does not trigger it: any text/html response is
+      # fine, 404s included, and Forgejo serves nothing else on the paths a
+      # browser gets challenged on. It stays silent, but this is the thing to
+      # look at first if IP addresses ever show up in the log (see §3 of
+      # privacy.html, which discloses exactly this residual).
+      - name: OG_PASSTHROUGH
+        value: 'true'
+      - name: OG_EXPIRY_TIME
+        value: 24h
+      # ⚠️ Must stay false. Anubis would otherwise serve its own robots.txt and
+      # shadow the curated one added in cbb0e4e, which is strictly broader —
+      # it also keeps crawlers off blame/commits/raw/compare.
+      - name: SERVE_ROBOTS_TXT
+        value: 'false'
+      # NOT SET, deliberately:
+      #   PUBLIC_URL   — upstream's Kubernetes doc: setting it in a sidecar
+      #                  deployment breaks redirect construction (redir=null).
+      #   COOKIE_DOMAIN — the two hostnames are different registrable domains
+      #                  (b4mad.net / b4mad.industries), so no single value is
+      #                  correct. Unset means a host-only cookie, which is what
+      #                  we want; a visitor simply solves once per hostname.
+      #   USE_REMOTE_ADDRESS — the socket peer is always the OpenShift router
+      #                  pod, so this would collapse every visitor onto one
+      #                  address and poison every per-IP rule. See the
+      #                  client-IP note below for why it is not needed.
+      #   CUSTOM_REAL_IP_HEADER — likewise not needed, see below.
+      #   WEBMASTER_EMAIL — privacy.html §1 deliberately publishes no address
+      #                  and points at the b4mad.industries Impressum instead;
+      #                  error pages should not invent one.
+      #
+      # Client IP, which Anubis genuinely needs and OpenShift does not hand it
+      # directly. The router sets X-Forwarded-For but NOT X-Real-Ip; Anubis'
+      # XForwardedForToXRealIP middleware derives the latter from the former
+      # and strips private hops (XFF_STRIP_PRIVATE defaults true), so no
+      # configuration is required. Verified against v1.26.2 before shipping:
+      # with XFF set to a published Googlebot address the googlebot ALLOW rule
+      # fires; with any other address the same user agent is challenged.
+      #
+      # ⚠️ This is load-bearing for search indexing. Every rule in
+      # (data)/crawlers/_allow-good.yaml is gated on remote_addresses — a UA
+      # string alone is spoofable and upstream refuses to trust it. If Anubis
+      # ever stops seeing the real address, every search engine gets an
+      # interstitial it cannot solve and the forge quietly falls out of the
+      # indexes. Anubis is fail-closed about this: with no XFF at all it serves
+      # "administrator has misconfigured Anubis" rather than guessing.
+      #
+      # Consequence for JWT_RESTRICTION_HEADER (default X-Real-IP): since
+      # X-Real-Ip IS populated, the challenge-pass cookie is bound to the
+      # address that solved it and cannot be replayed from elsewhere.
+    ports:
+      - name: anubis
+        containerPort: 8080
+        protocol: TCP
+      - name: anubis-metrics
+        containerPort: 9090
+        protocol: TCP
+    volumeMounts:
+      - name: anubis-policy
+        mountPath: /etc/anubis
+        readOnly: true
+    # /healthz is served by the metrics listener, not the proxy listener
+    # (cmd/anubis/main.go). Probing 9090 also catches a Forgejo-independent
+    # Anubis hang, which is the failure that would take the whole site down.
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: anubis-metrics
+      initialDelaySeconds: 5
+      periodSeconds: 20
+    readinessProbe:
+      httpGet:
+        path: /healthz
+        port: anubis-metrics
+      initialDelaySeconds: 2
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 750m
+        memory: 256Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      # In-memory store + read-only policy mount: Anubis writes nothing.
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+      seccompProfile:
+        type: RuntimeDefault

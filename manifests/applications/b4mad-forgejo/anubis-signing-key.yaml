@@ -1,0 +1,16 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: anubis-signing-key
+  namespace: b4mad-forgejo
+spec:
+  encryptedData:
+    ED25519_PRIVATE_KEY_HEX: AgCkt/P+rGn3WyIsMY7T11bFNfLrYB50jBco5PdJcBCVWFBYjIxPNBxX0VdsGPzpgOUhi8UGkWRhNGALxB1miXp7PfMpYUwaI5Dr5HnliMVSmlzxivGqKxcvckCkbWoIXShoc0+0siRUId7XSBJ+AV1yEV6w/iH8AyR/6maMXgWeGZJHzLD15zGtFCAekQWe+4xUIml3m6GvZHKZmlxlKL4du+GzQHtqRFnxB3eD49AbxR0YGD/aEtbSkQMTDzMIc4Whv0p0AFESGvjH/oW/kZ1NqdQIFDlae8rZ/Evm93lF86Smse21X0zWjRhcmWp9vBoGbialpb/npzxh+3u3sWtUv+kRuC7YArkP14z+3co/zdNyqKcI52pQPNNQpypG6sx4JezIrQeof4baxA9eODyKtdfRg0YsnOVh2+OPKdZ3O6LcBqA2b/Jqk1/lmeIn3FCrMqj5lSiuQtnVta1bzcZYinrgjpynu5++zLnQGMG3cRw+k7VH+pWh5dp/Xu75B0Ne1G5KF4UJavfpplu78KKn7xPIPcQZUaMdKIWW8JbdI92axXTZULvvBYtlrG0GCS5v9qGVaUKlf0Nyctn9ro5Ubv0anzpyUeve37UaOlTP4NbtlUFGeX3eEvlkIx6DDjkrOgOb8+fHWFu15R04gtbBXJwYo5lzM0MtpoKZqnLc7ELXkNNf+qRAZJSwAE149jlXdN4gD+qCqkm51ToBo2dbhbauIJRGLnrPZ3FhGHNOKDHxOsetIfgm7KFO1kFflID95CWNHeQHi5z+PjZrhtY7
+  template:
+    metadata:
+      creationTimestamp: null
+      name: anubis-signing-key
+      namespace: b4mad-forgejo
+    type: Opaque
+---
