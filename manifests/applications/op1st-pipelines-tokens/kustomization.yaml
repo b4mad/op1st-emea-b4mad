@@ -17,6 +17,7 @@ resources:
 
   - forgejo-pusher.yaml
   - forgejo-b4mad.yaml
+  - forgejo-agent-b4mad-release-agent.yaml
 
   - arena-forge-forgejo-read.yaml
   - arena-forge-forgejo-write.yaml
