@@ -31,11 +31,15 @@ We keep the template **in git**, not hand-edited on the PVC:
    `{{/* ---- EDIT ---- */}}`. The `{{if not .IsSigned}}` block is shown
    **only to logged-out visitors**.
 
-2. Apply the ConfigMap and restart — a **`subPath` ConfigMap mount does NOT
-   hot-reload**, so a pod restart is required to pick up the new content:
+2. Commit and push. The ConfigMap is listed in `kustomization.yaml`, and that
+   directory is the first source of the `b4mad-forgejo` Argo CD Application
+   (auto-sync, selfHeal) — so it lands in the cluster on its own.
+
+   Then **restart the pod**. Argo CD sees no change to the Deployment, and the
+   files are copied into the PVC by `initPreScript` at pod start, so nothing
+   picks up new content without a roll:
 
    ```bash
-   oc -n b4mad-forgejo apply -f home-template.configmap.yaml
    oc -n b4mad-forgejo rollout restart deploy/forgejo
    oc -n b4mad-forgejo rollout status deploy/forgejo
    ```
@@ -46,9 +50,22 @@ We keep the template **in git**, not hand-edited on the PVC:
    curl -s https://forgejo.b4mad.net/ | grep -oE '<h2>[^<]*</h2>'
    ```
 
-> A `helm upgrade` with the current values also re-applies the mount, but it
-> does **not** re-apply the ConfigMap — the ConfigMap is managed out-of-band
-> (like the SOPS secrets). Always `oc apply` the ConfigMap after editing it.
+> An earlier version of this doc said the ConfigMap was managed out-of-band and
+> had to be `oc apply`-ed by hand. That stopped being true when the instance was
+> adopted into Argo CD on 2026-07-24. `oc apply -f home-template.configmap.yaml`
+> is still a valid shortcut for testing ahead of a push — selfHeal will reconcile
+> it back to git either way.
+
+## Static files (no template involved)
+
+Anything under `/data/gitea/public/assets/` is served verbatim at `/assets/`.
+That is how `logo.svg`, `favicon.svg` and the Datenschutzerklärung
+(`privacy.html` → <https://git.b4mad.industries/assets/legal/privacy.html>,
+linked from the footer) are shipped.
+
+Prefer a static file over a custom template whenever the page needs no template
+context: **Forgejo treats a broken custom template as fatal and refuses to
+boot** — a typo in a template is an outage, a typo in a static file is a typo.
 
 ## Template variables & helpers
 

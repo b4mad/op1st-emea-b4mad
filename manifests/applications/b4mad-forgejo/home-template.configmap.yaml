@@ -380,8 +380,309 @@ data:
   # this: that hook sits after the scripts, just before </body>, and is meant
   # for injected JS, not visible links.)
   # Mounted at /data/gitea/templates/custom/extra_links_footer.tmpl.
+  # German labels on purpose: "Impressum" and "Datenschutz" are the legal terms
+  # TMG §5 / DSGVO Art. 13 expect, and the linked pages are German.
+  #
+  # Datenschutz points at OUR OWN page (privacy.html below), not at
+  # b4mad.industries/legal/datenschutzerklaerung/ — that one is a brochure-site
+  # policy ("Eine Datenweitergabe findet durch uns nicht statt", cookies for
+  # "Produktempfehlungen und Marktforschung") and describes neither user
+  # accounts, nor public repository content, nor SSO, nor the mail/backup
+  # processors. Impressum stays remote: it identifies the operator, which is
+  # the same natural person for both.
+  #
+  # The link is root-relative so it resolves on both ingress hostnames
+  # (git.b4mad.industries and forgejo.b4mad.net).
   extra_links_footer.tmpl: |
     <a href="https://b4mad.industries/">#B4mad Network</a>
+    <a href="https://b4mad.industries/legal/impressum/">Impressum</a>
+    <a href="/assets/legal/privacy.html">Datenschutz</a>
+
+  # Forge-specific Datenschutzerklärung, served as a STATIC FILE at
+  # https://git.b4mad.industries/assets/legal/privacy.html — Forgejo serves
+  # $GITEA_CUSTOM/public/assets/ under /assets/ (same mechanism as the logo).
+  #
+  # ⚠️ Deliberately NOT a custom template. Forgejo treats a broken custom
+  # template as FATAL and refuses to boot (see the signin.tmpl note above — it
+  # already cost one outage). A legal page must never be able to take the forge
+  # down, and it needs no template context, so plain HTML it is. Trade-off:
+  # no Forgejo chrome (navbar/footer), so it carries its own minimal styling,
+  # theme-aware via prefers-color-scheme.
+  #
+  # ⚠️ CONTENT IS A DRAFT DESCRIPTION OF ACTUAL PROCESSING, NOT LEGAL ADVICE.
+  # It was written from this deployment's configuration; if you change what the
+  # forge does, this file is part of the change. Things it deliberately does
+  # NOT claim: repository auto-mirroring to the #B4mad Source Vault (marketed
+  # on the landing page, not implemented — no mirror machinery exists as of
+  # 2026-08-06) and any web analytics (none deployed).
+  #
+  # German, matching b4mad.industries/legal/* and the controller's jurisdiction.
+  privacy.html: |
+    <!doctype html>
+    <html lang="de">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="robots" content="noindex">
+      <title>Datenschutzerklärung — #B4mad Forge</title>
+      <style>
+        :root {
+          --bg: #ffffff; --fg: #1f2328; --muted: #5c6672;
+          --accent: #698b69; --rule: #d8dee4; --box: #f6f8fa;
+        }
+        @media (prefers-color-scheme: dark) {
+          :root {
+            --bg: #0e1512; --fg: #dfe8e1; --muted: #9aa8a0;
+            --accent: #9bcd9b; --rule: #263229; --box: #16201d;
+          }
+        }
+        body {
+          background: var(--bg); color: var(--fg); margin: 0;
+          font-family: ui-sans-serif, "Helvetica Neue", Arial, sans-serif;
+          line-height: 1.6; font-size: 16px;
+        }
+        main { max-width: 46rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+        h1 {
+          font-weight: 300; letter-spacing: .06em; text-transform: uppercase;
+          font-size: 1.6rem; margin: 0 0 .3rem;
+        }
+        h2 {
+          font-weight: 400; font-size: 1.1rem; margin: 2.5rem 0 .6rem;
+          padding-top: 1.2rem; border-top: 1px solid var(--rule);
+        }
+        h3 { font-weight: 500; font-size: 1rem; margin: 1.4rem 0 .3rem; }
+        a { color: var(--accent); }
+        code { font-family: ui-monospace, monospace; font-size: .9em; }
+        .lede { color: var(--muted); margin: 0 0 2rem; }
+        .box {
+          background: var(--box); border-left: 3px solid var(--accent);
+          padding: .8rem 1rem; margin: 1rem 0;
+        }
+        table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .93em; }
+        th, td { text-align: left; vertical-align: top; padding: .5rem .6rem; border-bottom: 1px solid var(--rule); }
+        th { color: var(--muted); font-weight: 500; }
+        .wrap { overflow-x: auto; }
+        footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: .9em; }
+      </style>
+    </head>
+    <body>
+    <main>
+
+      <h1>Datenschutzerklärung</h1>
+      <p class="lede">
+        Für die Git-Forge <strong>#B4mad Forge</strong>, erreichbar unter
+        <code>git.b4mad.industries</code> und <code>forgejo.b4mad.net</code>.
+        Stand: 6. August 2026.
+      </p>
+
+      <p>
+        Diese Erklärung gilt ausschließlich für diesen Dienst. Für die Website
+        <a href="https://b4mad.industries/">b4mad.industries</a> gilt die dort
+        veröffentlichte Datenschutzerklärung.
+      </p>
+
+      <h2>1. Verantwortlicher</h2>
+      <p>
+        Christoph Görn, Müldorfer Anger 34, 53229 Bonn, Deutschland.<br>
+        Kontakt: siehe <a href="https://b4mad.industries/legal/impressum/">Impressum</a>.
+      </p>
+      <p>
+        Ein Datenschutzbeauftragter ist nicht bestellt; die Voraussetzungen des
+        § 38 BDSG liegen nicht vor.
+      </p>
+
+      <h2>2. Was dieser Dienst ist</h2>
+      <p>
+        #B4mad Forge ist eine selbst betriebene Instanz der freien Software
+        <a href="https://forgejo.org/">Forgejo</a>. Sie dient dem Hosten von
+        Git-Repositories und der Zusammenarbeit daran (Issues, Pull Requests,
+        Releases). Der Dienst läuft auf Infrastruktur, die der Verantwortliche
+        selbst betreibt; er ist nicht bei einem Cloud-Anbieter gehostet.
+      </p>
+
+      <h2>3. Zugriffsdaten (Server-Logs)</h2>
+      <p>
+        Bei jedem Aufruf werden technisch notwendige Zugriffsdaten verarbeitet:
+        IP-Adresse, Zeitpunkt, angeforderte Ressource, HTTP-Statuscode,
+        übertragene Datenmenge, User-Agent und Referrer. Gleichartige
+        Verbindungsdaten fallen bei Git-Zugriffen über SSH an.
+      </p>
+      <p>
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; das berechtigte
+        Interesse liegt im sicheren und störungsfreien Betrieb sowie in der
+        Abwehr von Missbrauch. Eine Zusammenführung dieser Daten mit
+        Benutzerkonten zu Auswertungszwecken findet nicht statt.
+      </p>
+
+      <h2>4. Benutzerkonto und Anmeldung</h2>
+      <p>
+        Eine Registrierung mit Benutzername und Passwort ist nicht möglich. Die
+        Anmeldung erfolgt ausschließlich über den Single-Sign-on-Dienst
+        (Keycloak) unter <code>keycloak.erdgeschoss.b4mad.net</code>, der
+        ebenfalls vom Verantwortlichen betrieben wird.
+      </p>
+      <p>
+        Bei der ersten Anmeldung wird automatisch ein Forge-Konto angelegt. Aus
+        dem SSO werden dabei übernommen: Benutzername, E-Mail-Adresse,
+        Anzeigename sowie die Gruppenzugehörigkeit (zur Vergabe von
+        Administratorrechten). Im Konto entstehen weiter: Zeitpunkt der letzten
+        Anmeldung, von Ihnen hinterlegte SSH- und GPG-Public-Keys, von Ihnen
+        erzeugte Zugriffstoken sowie Ihre Einstellungen.
+      </p>
+      <p>
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des
+        Dienstes Ihnen gegenüber) bzw. Art. 6 Abs. 1 lit. f DSGVO.
+      </p>
+
+      <h2>5. Von Ihnen eingestellte Inhalte</h2>
+      <p>
+        Repositories, Commits, Issues, Pull Requests, Kommentare, Anhänge und
+        Releases werden gespeichert, um den Dienst zu erbringen.
+      </p>
+      <div class="box">
+        <p>
+          <strong>Bitte beachten:</strong> Git-Commits enthalten den von Ihnen
+          konfigurierten Autorennamen und die Autoren-E-Mail-Adresse. Diese
+          Angaben sind untrennbarer Bestandteil der Git-Historie. Bei
+          öffentlichen Repositories sind sie — wie der gesamte Inhalt —
+          weltweit ohne Anmeldung abrufbar und können von Dritten kopiert
+          werden. Auf Kopien, die Dritte durch <code>git clone</code>
+          angefertigt haben, hat der Verantwortliche keinen Einfluss.
+        </p>
+      </div>
+      <p>
+        Wenn Sie dies vermeiden möchten, konfigurieren Sie in Git vor dem
+        ersten Commit einen Pseudonym-Namen und eine
+        Weiterleitungs-/Noreply-Adresse.
+      </p>
+
+      <h2>6. Cookies</h2>
+      <p>
+        Es werden ausschließlich technisch notwendige Cookies gesetzt — kein
+        Tracking, keine Reichweitenmessung, keine Werbung, keine Einbindung
+        von Analyse-Diensten. Eine Einwilligung ist dafür nach § 25 Abs. 2
+        TDDDG nicht erforderlich.
+      </p>
+      <div class="wrap">
+        <table>
+          <tr><th>Cookie</th><th>Zweck</th><th>Dauer</th></tr>
+          <tr><td><code>i_like_gitea</code></td><td>Sitzungskennung nach der Anmeldung</td><td>Sitzung</td></tr>
+          <tr><td><code>_csrf</code></td><td>Schutz vor Cross-Site-Request-Forgery</td><td>Sitzung / kurzlebig</td></tr>
+          <tr><td><code>lang</code></td><td>gewählte Oberflächensprache</td><td>dauerhaft</td></tr>
+          <tr><td><code>redirect_to</code></td><td>merkt die vor der Anmeldung aufgerufene Seite</td><td>kurzlebig</td></tr>
+        </table>
+      </div>
+
+      <h2>7. Empfänger und Auftragsverarbeiter</h2>
+      <p>
+        Eine Weitergabe zu Werbe- oder Analysezwecken findet nicht statt.
+        Datenverarbeitung findet gegenüber folgenden Stellen statt:
+      </p>
+      <div class="wrap">
+        <table>
+          <tr><th>Empfänger</th><th>Anlass</th></tr>
+          <tr>
+            <td>Hetzner Online GmbH, Gunzenhausen (DE)</td>
+            <td>Versand der Benachrichtigungs- und System-E-Mails der Forge über
+                den dort betriebenen Mailserver</td>
+          </tr>
+          <tr>
+            <td>Amazon Web Services (S3)</td>
+            <td>verschlüsselte Sicherungen der Datenbank (Konten, Issues,
+                Kommentare) als Auftragsverarbeitung</td>
+          </tr>
+          <tr>
+            <td>Öffentlichkeit</td>
+            <td>Inhalte öffentlicher Repositories einschließlich der
+                Commit-Metadaten (siehe Abschnitt&nbsp;5)</td>
+          </tr>
+        </table>
+      </div>
+      <p>
+        Die Sicherungen der Repository-Daten (Git-Inhalte, Anhänge) verbleiben
+        vollständig auf einem eigenen, verschlüsselten Speichersystem des
+        Verantwortlichen. Ein Repository-Spiegel zu Dritten besteht derzeit
+        nicht.
+      </p>
+
+      <h2>8. Profilbilder (Avatare)</h2>
+      <p>
+        Externe Avatar-Dienste werden nicht kontaktiert. Gravatar und
+        föderierte Avatare sind auf dieser Instanz abgeschaltet: Haben Sie kein
+        eigenes Profilbild hochgeladen, erzeugt Forgejo lokal ein Bildmuster.
+        Ihre E-Mail-Adresse — auch als Hashwert — verlässt die Instanz dafür
+        nicht.
+      </p>
+
+      <h2>9. Verschlüsselung</h2>
+      <p>
+        Die Verbindung ist per TLS verschlüsselt. Die Zertifikate werden über
+        Let&#39;s Encrypt (ISRG) ausgestellt; dabei werden lediglich die
+        Hostnamen des Dienstes verarbeitet, keine Nutzerdaten.
+      </p>
+
+      <h2>10. Speicherdauer</h2>
+      <div class="wrap">
+        <table>
+          <tr><th>Daten</th><th>Dauer</th></tr>
+          <tr><td>Server-Logs</td><td>kurzfristig, nur zur Störungs- und Missbrauchsanalyse</td></tr>
+          <tr><td>Konto- und Inhaltsdaten</td><td>bis zur Löschung des Kontos bzw. des Inhalts</td></tr>
+          <tr><td>Datenbank-Sicherungen</td><td>bis zu 30 Tage</td></tr>
+          <tr><td>Off-site-Sicherungen</td><td>7 tägliche und 4 wöchentliche Stände (max. ca. 5 Wochen)</td></tr>
+        </table>
+      </div>
+      <p>
+        Gelöschte Daten können daher bis zum Ablauf der jeweiligen
+        Sicherungsfrist noch in Backups vorhanden sein; sie werden dort nicht
+        weiterverarbeitet und laufen turnusmäßig aus.
+      </p>
+
+      <h2>11. Ihre Rechte</h2>
+      <p>
+        Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung
+        (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung
+        (Art. 18), Datenübertragbarkeit (Art. 20) sowie ein
+        <strong>Widerspruchsrecht</strong> gegen Verarbeitungen auf Grundlage
+        von Art. 6 Abs. 1 lit. f DSGVO (Art. 21).
+      </p>
+      <div class="box">
+        <p>
+          <strong>Grenzen der Löschung:</strong> Ihr Konto und Ihre
+          Profildaten können vollständig gelöscht werden. Commit-Metadaten in
+          bereits veröffentlichten Repositories lassen sich technisch nur durch
+          ein Umschreiben der Git-Historie entfernen — das betrifft alle
+          weiteren Beteiligten und wirkt nicht auf Kopien, die Dritte bereits
+          gezogen haben. Sprechen Sie uns an; wir setzen um, was technisch
+          möglich ist, und sagen offen, was es nicht ist.
+        </p>
+      </div>
+      <p>
+        Ihnen steht ferner ein Beschwerderecht bei einer Aufsichtsbehörde zu
+        (Art. 77 DSGVO), für den Verantwortlichen zuständig ist die
+        Landesbeauftragte für Datenschutz und Informationsfreiheit
+        Nordrhein-Westfalen.
+      </p>
+      <p>
+        Eine automatisierte Entscheidungsfindung einschließlich Profiling
+        findet nicht statt.
+      </p>
+
+      <h2>12. Öffentliche Metriken</h2>
+      <p>
+        Unter <code>/metrics</code> stellt die Instanz Betriebskennzahlen im
+        Prometheus-Format bereit (z.&nbsp;B. Anzahl der Repositories, Issues
+        und Konten). Es handelt sich um aggregierte Zählwerte ohne Personen-
+        oder Inhaltsbezug.
+      </p>
+
+      <footer>
+        <a href="/">&larr; Zurück zur Forge</a> &middot;
+        <a href="https://b4mad.industries/legal/impressum/">Impressum</a>
+      </footer>
+
+    </main>
+    </body>
+    </html>
   # The "forge-hash" brand mark: #B4mad's hashtag redrawn as a Forgejo git
   # graph — two branch-lines, two merge-rungs, three commit beads climbing to
   # an orange HEAD. Shape from Forgejo, colours from b4mad (phosphor green

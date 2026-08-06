@@ -176,11 +176,21 @@ gitea:
       # still switch themes from their settings.
       DEFAULT_THEME: forgejo-dark
     picture:
-      # Keep Gravatar as the fallback avatar source (not disabled)...
-      DISABLE_GRAVATAR: false
-      # ...and also let Forgejo resolve avatars via federated ActivityPub
-      # profiles, not just Gravatar/upload.
-      ENABLE_FEDERATED_AVATAR: true
+      # No external avatar lookups. Users without an uploaded picture get
+      # Forgejo's locally generated identicon; nothing leaves the instance.
+      #
+      # Changed 2026-08-06 (was: Gravatar on, federated avatars on). Both
+      # resolve an avatar by sending a hash of the user's EMAIL ADDRESS to a
+      # third party — Gravatar means Automattic Inc. in the USA, federated
+      # avatars mean whatever host the profile names. That is a disclosure of
+      # personal data (and a third-country transfer) bought for nothing but a
+      # nicer default picture. Cheaper to not do it than to paper it over in
+      # the Datenschutzerklärung.
+      #
+      # ⚠️ Keep these in sync with privacy.html in home-template.configmap.yaml
+      # — the page states that no external avatar service is contacted.
+      DISABLE_GRAVATAR: true
+      ENABLE_FEDERATED_AVATAR: false
     # Server-side commit signing. `signing.existingSecret` below imports the
     # GPG private key into gpgHome; this section tells Forgejo what to sign.
     # Identity must match the key's UID (Forgejo <forgejo@b4mad.net>).
@@ -352,13 +362,17 @@ initPreScript: |
   mkdir -p "${GNUPGHOME}"
   chmod 700 "${GNUPGHOME}"
 
-  mkdir -p /data/gitea/templates/custom /data/gitea/templates/user/auth /data/gitea/public/assets/img
+  mkdir -p /data/gitea/templates/custom /data/gitea/templates/user/auth /data/gitea/public/assets/img /data/gitea/public/assets/legal
   cp /custom-templates/home.tmpl   /data/gitea/templates/home.tmpl
   cp /custom-templates/signin.tmpl /data/gitea/templates/user/auth/signin.tmpl
   cp /custom-templates/header.tmpl /data/gitea/templates/custom/header.tmpl
   cp /custom-templates/extra_links_footer.tmpl /data/gitea/templates/custom/extra_links_footer.tmpl
   cp /custom-templates/logo.svg    /data/gitea/public/assets/img/logo.svg
   cp /custom-templates/favicon.svg /data/gitea/public/assets/img/favicon.svg
+  # Forge-specific Datenschutzerklärung, linked from the footer. A static file
+  # under public/assets/ rather than a custom template: Forgejo aborts startup
+  # on a broken template, and a legal page must not be able to do that.
+  cp /custom-templates/privacy.html /data/gitea/public/assets/legal/privacy.html
 
 signing:
   enabled: true
