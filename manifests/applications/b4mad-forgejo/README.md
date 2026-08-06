@@ -69,6 +69,7 @@ project, which keeps this repo pure GitOps.
 | `b4mad-gitops` | `gitops@b4mad.net` | — | `bot-tokens.enc.yaml` → `gitops-token` | none |
 | `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `bot-tokens.enc.yaml` → `castra-token` | none |
 | `b4mad-release-agent` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:organization,read:user` | `forgejo-agent-b4mad-release-agent.enc.yaml` | ssh+gpg |
+| `op1st-site-operator` | `site-operator@b4mad.net` | `write:repository,read:organization,read:user` | `forgejo-agent-op1st-site-operator.enc.yaml` | ssh+gpg |
 
 ⚠️ `b4mad-release-agent` was renamed from `b4mad-release-bot` on 2026-07-30 and
 backfilled with keys on 2026-07-31, so it no longer belongs to the unsigned set
@@ -97,6 +98,15 @@ so bot memberships have no declarative source and must be recorded here.
 | `b4mad-release-agent` | `toolbxs` | `DevSecOps` (added 2026-07-28 as `b4mad-release-bot`) |
 | `b4mad-release-agent` | `feeldata` | team not recorded — enumerated from the API 2026-07-31 |
 | `b4mad-release-agent` | `agentic-forges` | team not recorded — enumerated from the API 2026-07-31 |
+
+| `op1st-site-operator` | `operate-first` | team not recorded — membership confirmed via `/api/v1/user/orgs` as the agent, 2026-08-06 |
+
+⚠️ `op1st-site-operator` holds **admin** on
+`operate-first/op1st-emea-b4mad-nostromo-site-state` (verified 2026-08-06), but
+only needs `push` — it commits triage state and nothing else. Admin also lets it
+rewrite protections and delete the repo. Downgrade to write unless something
+here actually requires more. It has `pull` only on the org's other two repos,
+which is right.
 
 ⚠️ The last two were found by querying `/api/v1/user/orgs` as the agent, not from
 any record — this table had only the `toolbxs` row. Treat it as a floor, not an
