@@ -18,7 +18,7 @@ global:
 # automatically by the chart (image.rootless). ⚠️ 16.x is the non-LTS stable
 # branch (shorter support window than the 15.x LTS) — fine for this test box.
 image:
-  tag: '16.0.1'
+  tag: '16.0.2'
 
 # Ingress on both hostnames. OpenShift's ingress-to-route controller converts
 # each Ingress into a Route; cert-manager (letsencrypt ClusterIssuer) issues the

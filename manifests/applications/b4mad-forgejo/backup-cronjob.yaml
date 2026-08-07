@@ -87,7 +87,7 @@ spec:
           # PVC (group-owned) is readable and the backup PVC is writable.
           containers:
             - name: dump
-              image: code.forgejo.org/forgejo/forgejo:16.0.1-rootless
+              image: code.forgejo.org/forgejo/forgejo:16.0.2-rootless
               command: [sh, -c]
               args:
                 - |
