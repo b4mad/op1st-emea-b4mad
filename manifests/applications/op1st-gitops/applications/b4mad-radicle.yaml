@@ -9,7 +9,7 @@ spec:
     server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
   source:
     path: "."
-    repoURL: https://codeberg.org/goern/radicle-kubernetes
+    repoURL: https://git.b4mad.industries/goern/radicle-kubernetes.git
     targetRevision: HEAD
   sources: []
   project: b4mad
