@@ -461,8 +461,9 @@ data:
   #     SLOG_LEVEL=ERROR in values-nostromo.yaml. Anubis puts x-forwarded-for
   #     and x-real-ip on EVERY line its request logger emits; at its default
   #     INFO level §3 is false the moment the pod starts.
-  #   - gitea.config.log.ENABLE_ACCESS_LOG=false and the absence of
-  #     .spec.logging on ingresscontroller/default, as §3 has always required.
+  #   - gitea.config.log.LOGGER_ACCESS_MODE="" (access logger disabled) and
+  #     the absence of .spec.logging on ingresscontroller/default, as §3 has
+  #     always required.
   # §3 concedes the residual — an error-path line can still carry the address.
   privacy.html: |
     <!doctype html>
