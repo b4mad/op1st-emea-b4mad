@@ -14,6 +14,7 @@ resources:
   - deploy-keys/codeberg-goern-epaper_service.yaml
   - deploy-keys/codeberg-goern-hausmeister-deploy-key.yaml
   - deploy-keys/codeberg-machdenstaat-oparl-lite-2-deploy-key.yaml
+  - deploy-keys/site-operator-deploy-key.yaml
 
   - forgejo-pusher.yaml
   - b4mad-op1st-pusher.yaml

@@ -1,0 +1,22 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: site-operator-deploy-key
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    ssh-privatekey: AgCKGzWuMcL/0i0LFVH9MFRH6RYts4IWh3X4auX1HxrbpVaWh1AmgUQ4V8JDnun3528aijq67zglbvzlCL7qbEAtN2l2e1PamUp7PPVUC2/NIeCNrZZplqnskuXGQfHmbK5sb92ALr5r08WoWOOVClXg4YAXGJPxTnr9DHB6zA3KDRBkuDp+SfU1vsVL8NImA7QKfa7a3Forf+CBSUe+jh7AMIqa/CO0veJrObTJwahNTCjBGwsPbg6BU5WXYg82erWT4ytEuMIkZXTsi+bc962yTzSt0v7G1EwPnnDZsEQNSDaItRSJFPI2WnCBBT2oKU/fiu6RoPK55HLsGDExwb+bg663hw5g8GA1gACoOXtCKcAN1kP0WbYe07VyccKogVA7FeNFTn5PkCbPzr8tMZe13MfT8NkaTLIq70HdxdaNQaoevyiDmFZxy3RSxopTdEE6VuJZfay/m+tLlTx6On457n/9A0J38+9LFZpCqiKXpB/T/g24a741LrSO3agd7ogc1DfAAFx4LoxHde8WPtbnBb5TsIBO1XOCugDqmdsQ1HPRSYdzc/F0rQ19eqzyleYbrOCIshNvQtStrtRlC/BBEmuVU0bzX+e6hEVxrusYRwZ9fVng14AIE9tJ4LqUSBjUHdoi6bJmvKmQhl/nHjmcoc28qzJBrzebXa379wYZNvCb9ejDsiQ5h88IBYWTzuGWzrRLe1FoLssElLTrErErLUsIZwqCOMxO1dxCuK7xo6xOIZkkTaAujdP9b3aFTktSUj3KdlB9TKw38FQZK33ZTavUfCpX+3LYvCWK7Fi1DrBvuO/iC6Vf5//XuTfD//14Cg1fpt/Z6gBIUd7QFHg82/Vpl0GGAfXkD82MKyYwxHZs8CqADVogcOZhS7rOE7Ehn/eK7w0g/0HsuVwq6NuZ/sByN79IWbmfCQMWu1aAK2RA3OOnALUbulGlC68xEDxcvnsZm/whegJIQp4TelS1WVzNaPz7XVn5tlKhBvw65AP00auxwCpuDTv/bA+sUDwVgcfRNCXCMmKbyzCdJlIShJWBVZ50IiQgN5CM5lZb+dqYr7XUkLizkdonnAOOJTIUMwBVUg3tjIT4tOZR3/GkNWGfGfHkoFGnFODl9I2Rtm4uNm/sKi/JePgRkxTNun6HlkUt5OhCIcY4S3Te6uwpS30TUR4hpsUE6Qyh3z+zW+VMF7S2n95SgQQ2ZVYIOuvoj2S1NAUWNtJOF8D8QULztt60bJ9b5oz/I8CISOyqvI/OOA==
+    ssh-publickey: AgAlenMyjvvdMcQUvelCGY0NxBNaxvfjSzG6jQMvu3wWcRbSrH5lHNOMkMvjuJm9KuIWO5eaOBP3TZeryNC9OzITb0py9AtQYXtjotOgnJLECDhi9os/WrLdISRyOezt68zCn+45z/jBgHCH82PXaOSNuU9ibhlMFksHIzUJiDXLYcp9BuxktwJJ0SOadv5mexebsS8HfeBp0foSeXRJP2gVNSWaTMazSgf5MBAs+9lnAC1le0TsDkA57s+rWQJDoq9GEk3AXhJRQ8IOGRfnTyTdC8ADLRNMXQuBTVFCjHuYpbXW3fUiKKFWbGdN83MSrwlb0MCa/8TECs2T/OkGR0oZC+ibhxXMGbgdeucbRZ30qohFxycEDPl/d3fz0ELDqQWt9Efpc3i2/1gkQMviVG2dNzXAPC77R2zUJREP6KkGmsajknFf+R7gxUpRa0/zwJGpoME2ptBFChTkefL2K5sDoboir7wUNC3QM4vIoTbqdqbsZX0KtEAeSPYa5+NSxnEv58CDj9NOD3owg0xPHg17xhzosf7jkDOLR/2ulZP3YTyWteoKQ5VFie/2UVUPK5e+8ifSrWi2Kuyql78A+7Niu7IuAC2sBipnmzYjZOgO4Pb3K3dvv1TVLU3k+/23HprP44NCg1RPb6xYwuWB4D0qtjelZ6Jp3bgTl1GtymjCXMD/T4q0c3vhocWblMjcqO7xm0M/bXhh2RG4jjRgr4qY4klvLS2KPj2eERkBdlsrRNwygsLBwuZyNK+L975LzYAOJMsMeFQm2YDDgJbN3Z5Kg/2hIUjBh8t+H7BInp/vnion+I38iDzJsd1CEQyodxOW6hmMWSkCZR/9
+  template:
+    metadata:
+      annotations:
+        "b4mad.net/href": "https://git.b4mad.industries/operate-first/site-operator"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces": "op1st-pipelines"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-enabled": "true"
+        "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces": "op1st-pipelines"
+      creationTimestamp: null
+      name: site-operator-deploy-key
+      namespace: op1st-gitops
+    type: kubernetes.io/ssh-auth

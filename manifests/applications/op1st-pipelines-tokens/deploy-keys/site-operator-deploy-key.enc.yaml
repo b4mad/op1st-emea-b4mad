@@ -1,0 +1,62 @@
+apiVersion: v1
+data:
+    ssh-privatekey: ENC[AES256_GCM,data:QmCs+iuo2QsVQ/DlPPX+aJNznGEZ3wxw0GKl/MMa+yRoQ+qHi3ouY5f+6eK7RMv9unFHtLqNjNw6Iy5HPENezq/M70CWgnuIgovfRBQx9iNMK4UG1poGF/ykz38f6NE3PnjL6TbKhyPwigPU/CaffHko6F2OyqEBFY62SVKhQkjMlm9ZTBz/JftVhfJ1auO7MMwV5TZ6xfUz5WIPz1gAE3JHP/f1vzEQHr91kUKACZs03rSDnpN04X12NyGdeIKJeAjxpF1bNxjv7ummUy9ClAJu7XpN3SRcBGPac26raB9OHy17vlqPb9SVDL4dSPjgAXkuTypgogek3VzdqVaqBuz8qs1c5AiC8Zr0zXmtcEy5mTD1T5J5hgBfxmR3WX+B2I4n/y6Hg601M+fkVwQ6SbieyUecuMf8o4hsCEnQJNOgwJ1Njk1PsQcIugqjaVFL/ouz7Bh+C1FeAZbAS2s7ZqN8Wm//AbL8Tjf7F1Qs61Qo1KxQQJOeS/4SQvcwTcAMP3xV7afnUZ1PWq4gN02jS6+rGsHhq8Ecuwl6+Wm8+zGWxIWADZOfohIrdsisfJgyNykzacJQd2SKAq+VDO9mvssaOn88ZXJbFCWTz9n9zFMDXNepoh/6BqlErEVWUbCcFRyR3DLFbyhL50cOs5sPXhEQVVwCglzQ9ikVUn99EtzEif32wVeW+50Le56fsRaOW1/lmb2K9uQzmmfLt7BgeJrz5dXIJ53iXMzH/zcJGsQ=,iv:J0gjpOWAXaXOb+DJ14H/Dn/WqjwDTPDqHzjodbUlmSQ=,tag:L6pm3Z9i/sOOs06UFuFXEQ==,type:str]
+    ssh-publickey: ENC[AES256_GCM,data:A59cbqR1iO//uZubkTeqXHuSqEg/IYWHIEH0g0VaDSZCdbUocmSnSuwDzrS9yunM37ZQibgKHNrR3XHhxVB6sUX7cfS4hFYgumbdHAlNMUyxKNzLnUvHAV53cW4pxfVa5SLbc33nCG0CRdjz7J503ulv0/0OcfUE2yl8OjwvvurGYCaaKpamYIE/MPjDfSQX,iv:/kiuTqyavSQWwAdOazlokY1WN9ridz0m60If4ajGZEc=,tag:kpIoD9BDlZuJDu9mgGWJ3g==,type:str]
+kind: Secret
+metadata:
+    creationTimestamp: null
+    name: site-operator-deploy-key
+    namespace: op1st-gitops
+    annotations:
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: op1st-pipelines
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: op1st-pipelines
+        b4mad.net/href: https://git.b4mad.industries/operate-first/site-operator
+type: kubernetes.io/ssh-auth
+sops:
+    lastmodified: "2026-08-09T20:04:41Z"
+    mac: ENC[AES256_GCM,data:5a52MoQQ81+420zebApwQ898vJqOJhZ0qoGTD1vQwQAOnliWZ+sff6iiWCwkxlCBGs/NUQBoJh5Jdqfuicz+K/klygAmL0JveGgi8LoglIOq8rXM91n4SQMYXCU6FuqP5rrSIzAEMCd0iibGrKUIh7O74XbY3jCOPPFyJzjcd9E=,iv:AMVdqdrd3rkB6vIkSjdoNZ/J4sJsjC9KPDlYRDaOjiU=,tag:5ezfGLWWaEQXaLQeH1QdaQ==,type:str]
+    pgp:
+        - created_at: "2026-08-09T20:04:41Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA9AgVmznaOk7AQ/8CbUbtnemNZc0FFWZbqWvx+x/WjT2H8jDfsIXWZq/1RsS
+            XH/x+TC9iAeg2U8nEU98DxTy9Rq5CrzPgldyw4BiX/43VU9kX3buG6juU0Q1e+kz
+            lX9lL1KqIpAIAQtzOa7qr+QDC2jmu/W7oel6xcELJ+yaq2YjjsHRn8hmH80P0A5B
+            TnqEiXsYvZ/mAQ33FfIaUCC+8gBIYTNNwem6R70X52sm3dS/4KUg9zWGn8pm3N3n
+            lDPgiTqIV/kGCi4kXqBNsAKDIPeHoBEgfbaQi1C/dhDfRO3nWWJs4UVpnBVs0htB
+            Pc2PrwxGktXem9FNRqykIBLfTubpA30xNUmFL7RFT7ONzk59lvb6n49Pxg+KKpoU
+            82Ja5QnG9iqH4jctnJqBErY2oBVTtO3h5wJ3EDmcMhdSPP5Zo0kjm7r5fIEw4bSf
+            EjMyLAoM1Y4e+DvOjGMecjARXGzdcPYvYOGnLa+H+mvjo2YMcYxrQkzVWKz+f431
+            rMQuYWGWpYE/LalLJM3UkGLRFR8hlCUvPp+3fYXrptmbk6ZhOP2mDk2u9yX3TCPu
+            lhgo5F6uwxuynDQZf79PJo+1wmuiy6XpA06eVA9TP3jBrIhXJWbboTp2gJEo9ys0
+            QLNMNpdrzAS9kRL3C9MOrF3m7ITgJljgrZlEy2iJwQll7FZ5pXwD6ll30ovzTN3S
+            XgFo7POWpw9FGC7Kwnj7WgI4ID11OCdIDlvm/e6Bhw3/IqysGh3L2wayBxyuzbN6
+            jHbJ/ZTKC1+xLj8LeCqiH8WqMJuE06N02SmCN2ThAWx3LulAqOeZtxTpi949k20=
+            =RX16
+            -----END PGP MESSAGE-----
+          fp: 04DAFCD9470A962A2F272984E5EB0DA32F3372AC
+        - created_at: "2026-08-09T20:04:41Z"
+          enc: |-
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMAwSHi8yuDIZWAQ//R5WS1a0r0UglNjHI3KqI/Uqn4bHgNoQ+4ZmGAgVQ1Z4z
+            oaYHA7QYyyg0Rds9mMBni+5nJldC2jrMRDVrDFpO/ODm+5kRDPeub0M9pwQMZQdm
+            +ePE78u5BBhCo2mSpy6nTnVe3fx+aDuyvPYykFqtLfPMH4oGHgMGAg92GdHJEO5j
+            TS9JuJ5Nbilj70tS/W44vtDLeJ/EF1EfRDIlFJtWAw4ScLDjiSZT46ABsRFGOw8x
+            r6c/vtTM8k0H/VuYM6eSEPxSOwljwxbGoyfY7SOAIsM+bVhqZFxNsSPrX+Ad4UYC
+            u338mgQ7IH5KP21LlBBr6LrUAs9u035eQkchKGoo7c9jhzj5xfX2YvbwP6tCXxFw
+            TH+AWnCqb8TXMc66FEWn0zfDRuboViw0g2jPNh2fu1WFq3fjENY45bD20R2txmHt
+            Z14DxjkQWos2QxjifXO/rdtOBkY5bnpyFvBbJhk0vOaBytjuWkRiWZ1T0VLd6HnM
+            IM6FEu4h1rhW7YEVSs9dPtDVkbbhVnPGb+fT8NAV+nfd1CtCbFgZpiSO8ulH3VgO
+            vBxon+iR9sZxoc8q5aZhIC1IosVGRaA1vSzq9Mms6J5l5+v1+1tz7W/YONONlipd
+            XAias7gW0Kq3YeUZ5U91H+mK5qzdlczBvmH1qJrUbrKNQS9FIxVcoLyIMChTvvXS
+            XgGeNS5b1J9QGD7xlTQkZNGQX3+GDiZ1hsEjOmOZ5GvWlA0lCf1Eh+RumxcQ4zj4
+            j0xLP4fD6jtEZy1AoeRQw8l2liBw2j7BTPNTldJwn7mHNs63e79gHgJyZ2aStVE=
+            =X2ce
+            -----END PGP MESSAGE-----
+          fp: 8A07D816280A983BBC35E85C280DB66A3E8C012E
+    encrypted_regex: ^(data|stringData|tls)$
+    version: 3.12.1
