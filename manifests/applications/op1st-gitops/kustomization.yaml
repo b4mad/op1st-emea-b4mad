@@ -29,6 +29,7 @@ resources:
   - applications/b4mad-racing.yaml
   - applications/b4mad-radicle.yaml
   - applications/b4mad-renovate.yaml
+  - applications/b4mad-site-operator.yaml
   - applications/hausmeister.yaml
   # feeldata migrated off codeberg.org 2026-07-28; the b4mad forge is now
   # primary. Kustomize fetches these at build time, so a bad URL here breaks

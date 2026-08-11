@@ -10,6 +10,15 @@ spec:
     - name: nostromo
       namespace: "b4mad-*"
       server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
+    # b4mad-site-operator's overlay renders a namespaced Role and RoleBinding
+    # into openshift-monitoring, granting its ServiceAccount `get` on
+    # alertmanagers/api. Argo validates every rendered resource's namespace
+    # against this list, not just spec.destination, so without this entry the
+    # entire b4mad-site-operator sync is refused. Deliberately narrow: one
+    # namespace on one cluster, no wildcard.
+    - name: nostromo-monitoring
+      namespace: openshift-monitoring
+      server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
   sourceRepos:
     - "*"
   roles:
