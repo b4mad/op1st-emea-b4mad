@@ -312,6 +312,14 @@ gitea:
       # button remains. NOTE: this also disables web login for the local
       # 'gitea_admin' account — break-glass is `oc exec … gitea admin …`.
       ENABLE_INTERNAL_SIGNIN: false
+      # Send notification mail for repo/issue activity (mentions, watched
+      # repos, review requests). Defaults to false, which is why NOTHING
+      # user-facing was ever mailed even though [mailer] was healthy: the
+      # forgejo-mailer-check CronJob exercises SMTP directly, so it stayed
+      # green while every mention mail was silently never queued. Confirmed
+      # 2026-08-14 — mentioning a probe user whose address is the instance's
+      # own mailbox produced a notification row but no mail, and no bounce.
+      ENABLE_NOTIFY_MAIL: true
     webhook:
       # Allow webhook delivery to the in-cluster Pipelines-as-Code controller.
       #
