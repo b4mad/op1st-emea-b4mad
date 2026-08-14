@@ -1,0 +1,16 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: forgejo-mail-probe
+  namespace: b4mad-forgejo
+spec:
+  encryptedData:
+    token: AgA5ohcJiG0txeBlqoW4gMXcKFLsW+2EWFhfoWGQaXyzSRpE9+t60W1cY/KqyFPOhSXrwP2bMwew/UyOz894ofhhtOkR2fxs7sLj1rv4CeZf1i+NXTzoNNXQJ4QicjjO9P4gBT9GNii8tAaMArkJFEOOQLQlJ4ChyPteaArmgSM0ybfclwMQUgi5/ZUqQhyiJa5in1kjCvwFxTBDkCeR406yr4d6MqnPl1rnpQj0GCY6GqPcztBKqtGTY0CnfseIU3ubJ4hpcNZ7mBpwOsUMqCniA28cFcifTT7s4UDlEw99zg8CRAHfUhZ3nNJVPHAjLqGwkQhwLZA3WP1bvDTqKD8oUwiDV5cr10Kr1gEStvGGJsm9xuCfXHt3LbCslb8moEq0skpKD/kJqAwCW70l5ZHEzI4Q2j0wFQCTQE+1FE72DXOzJn81U/2f6yAq1dKTKxt3h1hFxKWWEWiu20E8P/WH8WfE7w6JCTOQkz33qTjW4ZBpx6A76PFAFeqCE3z3hvmNvW/AuoAGVdjew3BTC2LxTX6+MxGtVIbL3pQCGj7LYrE1tGk9rnWlcy6ouPinDn69mW5R+hZQtBjv3xPvy62vX1lUB0zFARh9RNXtlNpF8iTTvMU0kiHVD04pHb9DQ2c8f4DM0J6UDTv/JwtKp83799YALRMEGH0hrfoXgh/C3zJi4Xaku2U8yqA40vfDLmzjmdmtR01xqn4WLbvrXoMuW7fw8jNQSTBQKFWhFhfT2f6z0k1SOuDj
+  template:
+    metadata:
+      creationTimestamp: null
+      name: forgejo-mail-probe
+      namespace: b4mad-forgejo
+    type: Opaque
+---

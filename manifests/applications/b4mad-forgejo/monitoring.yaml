@@ -192,6 +192,53 @@ spec:
               `oc -n b4mad-forgejo get cronjob forgejo-mailer-check` — the
               check itself may be broken rather than the mail path it tests.
 
+        # The pair above only ever proves the RELAY works: the check speaks
+        # SMTP itself and never enters Forgejo. That blind spot let
+        # ENABLE_NOTIFY_MAIL=false hide in production until a user reported it
+        # on 2026-08-14 — every mention mail silently unsent, both alerts
+        # green. The two below watch the product path instead
+        # (mail-probe-cronjob.yaml); read them together with the pair above:
+        #   probe red + SMTP green  -> Forgejo stopped originating mail
+        #   probe red + SMTP red    -> relay/mailbox problem, start there
+        - alert: ForgejoMailProbeFailing
+          expr: >-
+            kube_job_status_failed{namespace="b4mad-forgejo", job_name=~"forgejo-mail-probe-.*"} > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge is not delivering notification mail"
+            description: >-
+              The forgejo-mail-probe CronJob mentioned @mailer-probe on the
+              probe issue and no resulting mail reached the mailbox. Users are
+              not receiving mention, watch, or review-request mail right now.
+              Check `oc -n b4mad-forgejo logs job/<job-name>`; if
+              ForgejoMailerCheckFailing is silent the relay is fine and the
+              fault is inside Forgejo — start with `[service]
+              ENABLE_NOTIFY_MAIL` and `[mailer]` in the live app.ini.
+
+        # Same reasoning as ForgejoMailerCheckStale: a check that stops running
+        # reports nothing, which is indistinguishable from health unless
+        # something watches for the silence. Schedule is every 4h; 10h gives
+        # one missed run plus slack.
+        - alert: ForgejoMailProbeStale
+          expr: >-
+            time() - kube_cronjob_status_last_successful_time{namespace="b4mad-forgejo", cronjob="forgejo-mail-probe"}
+            > 10 * 3600
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge mail probe has not succeeded recently"
+            description: >-
+              No successful run of the forgejo-mail-probe CronJob in over 10
+              hours (schedule is every 4h). Until it runs again, nothing is
+              watching whether Forgejo actually delivers user-facing mail.
+              Check `oc -n b4mad-forgejo get cronjob forgejo-mail-probe` and
+              the one-time Forgejo-side setup in docs/mail-probe.md (probe
+              user, probe repo, API token) — a deleted probe user or repo
+              fails the job just like a broken mail path.
+
 ---
 # PVC fill alerts, split into their own object ON PURPOSE.
 #
