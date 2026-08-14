@@ -47,3 +47,9 @@ bd close <id>         # Complete work
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 <!-- END BEADS INTEGRATION -->
+
+## Beads: local-only Dolt
+
+**NEVER run `bd dolt push` (or otherwise push Dolt data to a remote).** Issue state travels
+through the `.beads/issues.jsonl` export committed by the pre-commit hook and pushed with
+normal `git push` — that is the only sync path in this repo. `bd dolt commit` (local) is fine.
