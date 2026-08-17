@@ -1,0 +1,242 @@
+---
+# End-to-end mail probe: does FORGEJO originate notification mail?
+#
+# mailer-check-cronjob.yaml opens its OWN SMTP session to the relay, so it
+# proves only that the relay accepts our credentials. It cannot see failures
+# inside Forgejo's send path — and on 2026-08-14 that gap bit us: Forgejo had
+# shipped with `[service] ENABLE_NOTIFY_MAIL` unset (it defaults to false), so
+# no mention/watch mail had EVER been delivered to anyone, while
+# forgejo-mailer-check stayed green the whole time. A user had to report it.
+# See op1st-emea-b4mad-168 and PR operate-first/op1st-emea-b4mad#21.
+#
+# This probe closes that loop by driving the real product path:
+#
+#   1. POST a comment on the probe issue, as gitea_admin, mentioning
+#      @mailer-probe and carrying a unique marker.
+#   2. Poll the mailbox over IMAP for a message whose body contains the marker.
+#   3. Delete the comment and the probe mail, so nothing accumulates.
+#
+# Failure here means real users are not getting mail, whatever the SMTP check
+# says. The two checks are complements, not duplicates: this one goes THROUGH
+# Forgejo, that one goes AROUND it and isolates the relay when both are red.
+#
+# ONE-TIME SETUP (not expressible in this manifest — it lives in Forgejo's DB;
+# see docs/mail-probe.md for the full commands):
+#   - user `mailer-probe`, email b4mad-forge@b4mad-service.net (the instance's
+#     own mailbox — the same one forgejo-mailer-creds authenticates to), active
+#     and restricted.
+#   - private repo gitea_admin/mail-probe with mailer-probe as a read
+#     collaborator, and issue #1 as the comment target. The mention only
+#     produces mail if the mentioned user can actually see the repo.
+#   - a gitea_admin API token scoped write:issue + read:repository, stored in
+#     the forgejo-mail-probe SealedSecret.
+#
+# ⚠️ The commenter and the mentioned user MUST be different accounts: Forgejo
+# never mails the actor their own action, so a self-mention silently passes
+# nothing through the mail path.
+#
+# Alerting: ForgejoMailProbeFailing / ForgejoMailProbeStale in monitoring.yaml.
+#
+# Run once now:
+#   oc -n b4mad-forgejo create job --from=cronjob/forgejo-mail-probe forgejo-mail-probe-manual
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: forgejo-mail-probe
+spec:
+  # Every 4h at :37 — offset from forgejo-mailer-check (:17) so the two mail
+  # checks don't hit the relay in the same minute.
+  schedule: "37 */4 * * *"
+  # ⚠️ Must be UTC (or omitted), never a named zone: OpenShift's
+  # kube-state-metrics image ships without tzdata, so a named .spec.timeZone
+  # makes KSM panic/CrashLoopBackOff cluster-wide — see backup-cronjob.yaml.
+  timeZone: UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      # ⚠️ No retry ON PURPOSE. activeDeadlineSeconds below is JOB-scoped, not
+      # per-pod, so a retry shares one budget with the first attempt: with
+      # backoffLimit: 1 the second pod gets killed mid-poll and never reaches
+      # its cleanup, leaving a probe comment behind (observed 2026-08-14,
+      # comment 6009). A failing probe should report, not retry — the alert
+      # only fires after 5m anyway, and the next run is 4h out.
+      backoffLimit: 0
+      # Comfortably above WAIT_SECONDS below, so the deadline never races the
+      # poll loop and turns a slow-but-working mail path into a false alarm.
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: mail-probe
+              image: docker.io/library/python:3-alpine
+              env:
+                - name: FORGEJO_URL
+                  value: https://git.b4mad.industries
+                - name: PROBE_REPO
+                  value: gitea_admin/mail-probe
+                - name: PROBE_ISSUE
+                  value: "1"
+                - name: PROBE_MENTION
+                  value: mailer-probe
+                # How long Forgejo gets to deliver. The queue hands off to the
+                # relay in seconds; this is slack for a busy queue or a slow
+                # relay, not an expected wait.
+                - name: WAIT_SECONDS
+                  value: "300"
+                - name: FORGEJO_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: forgejo-mail-probe
+                      key: token
+                # Same mailbox Forgejo sends AS and the SMTP check sends TO.
+                # Reusing forgejo-mailer-creds keeps one set of mailbox
+                # credentials in one place; IMAP runs on the same host.
+                - name: IMAP_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: forgejo-mailer-creds
+                      key: host
+                - name: IMAP_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: forgejo-mailer-creds
+                      key: user
+                - name: IMAP_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: forgejo-mailer-creds
+                      key: passwd
+              command: ["python3", "-c"]
+              args:
+                - |
+                  import imaplib
+                  import json
+                  import os
+                  import ssl
+                  import sys
+                  import time
+                  import urllib.error
+                  import urllib.request
+                  import uuid
+
+                  base = os.environ["FORGEJO_URL"].rstrip("/")
+                  token = os.environ["FORGEJO_TOKEN"]
+                  repo = os.environ["PROBE_REPO"]
+                  issue = os.environ["PROBE_ISSUE"]
+                  mention = os.environ["PROBE_MENTION"]
+                  wait = int(os.environ["WAIT_SECONDS"])
+
+                  # ASCII-only and unique per run: it has to survive a round
+                  # trip through Forgejo's mail template and an IMAP SEARCH.
+                  marker = "mailprobe-" + uuid.uuid4().hex[:12]
+
+                  def api(method, path, payload=None):
+                      req = urllib.request.Request(
+                          base + "/api/v1" + path,
+                          method=method,
+                          data=json.dumps(payload).encode() if payload else None,
+                          headers={
+                              "Authorization": "token " + token,
+                              "Content-Type": "application/json",
+                          },
+                      )
+                      with urllib.request.urlopen(req, timeout=30) as resp:
+                          body = resp.read()
+                          return json.loads(body) if body else None
+
+                  def imap_connect():
+                      m = imaplib.IMAP4_SSL(
+                          os.environ["IMAP_HOST"], 993,
+                          ssl_context=ssl.create_default_context(), timeout=30,
+                      )
+                      m.login(os.environ["IMAP_USER"], os.environ["IMAP_PASS"])
+                      return m
+
+                  def purge(m, query):
+                      """Delete every message matching an IMAP SEARCH term."""
+                      typ, data = m.search(None, "BODY", '"%s"' % query)
+                      ids = data[0].split() if data and data[0] else []
+                      for i in ids:
+                          m.store(i, "+FLAGS", "\\Deleted")
+                      if ids:
+                          m.expunge()
+                      return len(ids)
+
+                  comment_id = None
+                  try:
+                      # Sweep first: a previous run that died between sending
+                      # and cleanup would otherwise leave probe mail behind,
+                      # and the mailbox is not ours alone to fill.
+                      m = imap_connect()
+                      m.select("INBOX")
+                      stale = purge(m, "mailprobe-")
+                      if stale:
+                          print("swept %d stale probe mail(s)" % stale)
+
+                      # Same for comments: a pod killed by the job deadline
+                      # never runs its own cleanup, so sweep anything a
+                      # previous run left on the issue before adding one more.
+                      for old in api("GET", "/repos/%s/issues/%s/comments" % (repo, issue)) or []:
+                          if "mailprobe-" in old.get("body", ""):
+                              api("DELETE", "/repos/%s/issues/comments/%s" % (repo, old["id"]))
+                              print("swept stale comment %s" % old["id"])
+
+                      comment = api(
+                          "POST",
+                          "/repos/%s/issues/%s/comments" % (repo, issue),
+                          {"body": "@%s %s" % (mention, marker)},
+                      )
+                      comment_id = comment["id"]
+                      print("posted comment %s with marker %s" % (comment_id, marker))
+
+                      deadline = time.time() + wait
+                      found = False
+                      while time.time() < deadline:
+                          time.sleep(10)
+                          # Re-SELECT so the server reports newly arrived mail.
+                          m.select("INBOX")
+                          typ, data = m.search(None, "BODY", '"%s"' % marker)
+                          if data and data[0]:
+                              found = True
+                              break
+
+                      if found:
+                          purge(m, marker)
+                          print("OK: Forgejo-originated mail arrived and was cleaned up")
+                      else:
+                          print(
+                              "FAIL: no mail carrying %s reached %s within %ds — "
+                              "Forgejo is not originating notification mail "
+                              "(check [service] ENABLE_NOTIFY_MAIL and [mailer])"
+                              % (marker, os.environ["IMAP_USER"], wait),
+                              file=sys.stderr,
+                          )
+                  except Exception as exc:
+                      print("FAIL: %s" % exc, file=sys.stderr)
+                      found = False
+                  finally:
+                      # The comment is litter either way — remove it even when
+                      # the probe failed, so a broken mail path doesn't also
+                      # grow an unbounded issue thread.
+                      if comment_id is not None:
+                          try:
+                              api("DELETE", "/repos/%s/issues/comments/%s" % (repo, comment_id))
+                              print("deleted comment %s" % comment_id)
+                          except Exception as exc:
+                              print("WARN: could not delete comment: %s" % exc, file=sys.stderr)
+                      try:
+                          m.logout()
+                      except Exception:
+                          pass
+
+                  sys.exit(0 if found else 1)
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 64Mi

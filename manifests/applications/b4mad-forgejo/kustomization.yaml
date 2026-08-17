@@ -34,6 +34,11 @@ resources:
   # Synthetic SMTP send test standing in for a mail-delivery metric Forgejo
   # doesn't expose. Alerts for it live in monitoring.yaml above.
   - mailer-check-cronjob.yaml
+  # The same question asked THROUGH Forgejo: mention a probe user via the API,
+  # then wait for the notification mail to land in the mailbox over IMAP. The
+  # SMTP check above cannot see failures inside Forgejo's own send path — see
+  # the header of this file for the outage that proved it.
+  - mail-probe-cronjob.yaml
 
   # In-cluster borg image: ImageStream + Tekton build pipeline.
   # borg-pipelinerun.yaml is deliberately NOT listed (generateName —
@@ -54,6 +59,9 @@ resources:
   - offsite-borg-secret.yaml
   - forgejo-mailer.yaml
   - forgejo-mailer-creds.yaml
+  # gitea_admin API token (write:issue + read:repository) for the mail probe.
+  # The probe's IMAP side reuses forgejo-mailer-creds above.
+  - forgejo-mail-probe.yaml
   # ed25519 key Anubis signs its challenge-pass JWTs with. Must be stable
   # across restarts or every visitor re-solves the proof of work; see the
   # extraContainers block in values-nostromo.yaml.

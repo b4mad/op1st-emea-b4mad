@@ -15,6 +15,19 @@ repos:
         language: script
         files: '\.enc\.ya?ml$'
 
+# Anubis reads its policy once at startup, and initPreScript copies the custom
+# templates in at pod start — so an Argo CD sync of either ConfigMap changes
+# the mount and nothing else. Hashing them into a pod annotation turns the
+# edit into a pod roll (op1st-emea-b4mad-aid).
+-   repo: local
+    hooks:
+    -   id: pod-restart-hash
+        name: Forgejo start-time ConfigMaps roll the pod
+        entry: scripts/update-pod-restart-hash.sh
+        language: script
+        pass_filenames: false
+        files: '^manifests/applications/b4mad-forgejo/(anubis\.yaml|home-template\.configmap\.yaml|values-nostromo\.yaml)$'
+
 # keycloak-config-cli substitutes over raw file text before parsing YAML, so a
 # substitution reference written in a comment is resolved like a real one and
 # aborts the import. Valid YAML, passes kustomize build, fails only against the

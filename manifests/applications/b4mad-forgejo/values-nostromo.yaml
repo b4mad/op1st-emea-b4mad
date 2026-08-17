@@ -351,6 +351,23 @@ gitea:
       # the route, and never consult this setting.
       ALLOWED_HOST_LIST: "external, 172.30.0.0/16"
 
+  # ⚠️ Machine-managed — do not edit by hand.
+  #
+  # Hash of the ConfigMaps this pod reads exactly ONCE, at start: the Anubis
+  # bot policy (anubis.yaml, read by the sidecar via POLICY_FNAME) and the
+  # custom templates + robots.txt (home-template.configmap.yaml, copied into
+  # /data by initPreScript). Without it an Argo CD sync updates the mounted
+  # file while the running pod keeps serving the OLD content — repo, Argo CD
+  # and `oc get cm` all agreeing on a policy the forge is not enforcing
+  # (op1st-emea-b4mad-aid, found the hard way in c08e758).
+  #
+  # Helm's own checksum/config cannot cover these: the chart does not own
+  # them. scripts/update-pod-restart-hash.sh recomputes this value and the
+  # pre-commit hook of the same name fails the commit if it is stale, so a
+  # policy edit and the pod roll that makes it real land in one commit.
+  podAnnotations:
+    op1st.b4mad.net/restart-hash: 52e61f4204d3
+
 # Expose Forgejo's built-in git-SSH via a fixed NodePort so the erdgeschoss
 # gateway can forward external :2222 to it (no LoadBalancer/MetalLB on this
 # single-node cluster). Chain:

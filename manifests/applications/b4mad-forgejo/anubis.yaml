@@ -23,6 +23,13 @@ metadata:
 data:
   # Mounted read-only at /etc/anubis; POLICY_FNAME points at it.
   #
+  # ⚠️ Anubis reads this file ONCE, at startup — updating the ConfigMap alone
+  # changes nothing in the running forge. The pod is rolled by the
+  # gitea.podAnnotations restart-hash in values-nostromo.yaml, which
+  # scripts/update-pod-restart-hash.sh recomputes from this file; the
+  # pre-commit hook of the same name fails the commit if you skip it. After
+  # the sync lands, verify with scripts/anubis-smoke.sh.
+  #
   # `(data)/…` imports resolve against the policy snippets baked into the Anubis
   # image (github.com/TecharoHQ/anubis, data/). Using imports rather than inline
   # rules means an image bump picks up upstream's maintained bot lists.
