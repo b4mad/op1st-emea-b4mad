@@ -1,0 +1,27 @@
+# PaC for forge-agents. forge-agents gained .tekton/on-pull-request.yaml
+# (currently on branch ci/pull-request-checks, not yet merged to main) but no
+# pipeline will ever run for it without a Repository CR binding the repo to
+# this namespace -- same gap castra had before op1st-emea-b4mad-0i4.
+#
+# The webhook already exists at the ORG level on agentic-forges (hook id 6 →
+# pipelines-as-code-controller.openshift-pipelines.svc), so every repo in that
+# org already reaches PaC -- verified 2026-08-17: both
+# agentic-forges/forge-agents and agentic-forges/castra have zero per-repo
+# hooks (`GET /repos/agentic-forges/{repo}/hooks` → []), confirming they ride
+# the single org hook. Only this CR is missing.
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: forgejo-agentic-forges-forge-agents
+spec:
+  url: https://git.b4mad.industries/agentic-forges/forge-agents
+  git_provider:
+    # Explicit — PaC defaults to `github` when type is unset.
+    type: forgejo
+    url: https://git.b4mad.industries
+    secret:
+      name: forgejo-b4mad
+      key: provider.token
+    webhook_secret:
+      name: forgejo-b4mad
+      key: webhook.secret
