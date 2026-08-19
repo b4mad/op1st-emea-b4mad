@@ -366,7 +366,7 @@ gitea:
   # pre-commit hook of the same name fails the commit if it is stale, so a
   # policy edit and the pod roll that makes it real land in one commit.
   podAnnotations:
-    op1st.b4mad.net/restart-hash: 52e61f4204d3
+    op1st.b4mad.net/restart-hash: 020bd01f2a21
 
 # Expose Forgejo's built-in git-SSH via a fixed NodePort so the erdgeschoss
 # gateway can forward external :2222 to it (no LoadBalancer/MetalLB on this

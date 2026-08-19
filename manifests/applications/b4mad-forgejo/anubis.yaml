@@ -78,6 +78,35 @@ data:
         user_agent_regex: >-
           (?i)(AI2Bot|Amazonbot|anthropic-ai|Applebot-Extended|Brightbot|Bytespider|CCBot|ChatGPT-User|Claude(-Web|Bot)|cohere-|Crawlspace|Diffbot|DuckAssistBot|facebook(bot|externalhit)|FriendlyCrawler|Google(-Extended|Other)|GPTBot|iaskspider|ICC-Crawler|ImagesiftBot|img2dataset|imgproxy|ISSCyberRiskCrawler|Kangaroo Bot|Meta-External(Agent|Fetcher)|NovaAct|OAI-SearchBot|omgili|Operator|PanguBot|Perplexity|PetalBot|Scrapy|SemrushBot-(OCOB|SWA)|Sidetrade indexer bot|Timpibot|VelenPublicWebCrawler|Webzio-Extended|YouBot)
 
+      # A client stuck in a pagination loop. On 2026-08-19 something on the
+      # home LAN walked /api/v1/repos/agentic-forges/castra/pulls/29/files at
+      # ~22 req/s for hours, reaching page 2,211,449 and burning 0.8 cores in
+      # the Forgejo container continuously. The endpoint answers 200 with `[]`
+      # well before that, so the server is behaving and the client simply never
+      # checks — nothing server-side fixes it except refusing the request.
+      #
+      # ⚠️ This rule MUST stay above `(data)/apps/allow-api-routes.yaml`: that
+      # import ALLOWs everything under /api/, first match wins, and below it
+      # this rule would never be reached.
+      #
+      # Deliberately NOT a rate limit on the Route. Under the hairpin NAT here
+      # every LAN client — laptop, `git push`, and the borg pipeline's skopeo
+      # copy through the public route — shares one source IP, so a per-IP
+      # bucket would let the runaway starve all of them.
+      #
+      # The threshold is expressed as digit count rather than int(query["page"])
+      # because a non-numeric `page` would fail the conversion and take the
+      # whole expression down with it. >4 digits means page >= 10000, i.e. more
+      # than 500k files into a pull request: unreachable by any real client,
+      # and the loop is five orders of magnitude past it.
+      - name: runaway-pull-files-pagination
+        action: DENY
+        expression:
+          all:
+            - path.matches("^/api/v1/repos/[^/]+/[^/]+/pulls/[0-9]+/files$")
+            - '"page" in query'
+            - size(query["page"]) > 4
+
       # Allow the search engines that actually index this forge. Without this
       # they would meet the challenge page, fail it, and drop the forge out of
       # their index — the robots.txt already tells them which paths to skip.
