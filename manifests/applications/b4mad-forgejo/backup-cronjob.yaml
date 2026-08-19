@@ -47,12 +47,21 @@ spec:
   storageClassName: lvms-vg1
   resources:
     requests:
-      # Sized for RETENTION+1 = 2 dumps. Measured 2026-08-06: a dump is 8.4G
-      # (it was 3.0G on 07-31 — see the RETENTION note above), so the peak is
-      # ~17G and the steady state ~8.4G. 32Gi leaves room for the dump to
-      # roughly double again before this needs revisiting.
-      # lvms-vg1 has allowVolumeExpansion: true, so this can grow in place.
-      storage: 32Gi
+      # Sized for RETENTION+1 = 2 dumps, plus the 1.5x preflight margin the
+      # script demands before it will start writing. The binding constraint
+      # is therefore 2.5x a single dump, not 2x.
+      #
+      # The dump did "roughly double again" exactly as the previous 32Gi note
+      # predicted, and that broke the 08-19 run: 8.39G (08-06) -> 6.5G (08-17) ->
+      # 13.93G (08-18). Preflight wanted 20.9G free, had 17.7G, failed all
+      # three attempts. 32Gi could not have held it — peak need was ~34.8G.
+      #
+      # At 64Gi the ceiling is a single dump of ~25G. Growth is driven by
+      # /data/packages (8.3G of 10.6G in the live data PVC, fed by CI package
+      # publishes), so expect to revisit; watch the trend rather than waiting
+      # for the alert. lvms-vg1 has allowVolumeExpansion: true and node bridge
+      # has ~7.8TiB free in vg1, so this can grow in place again.
+      storage: 64Gi
 ---
 apiVersion: batch/v1
 kind: CronJob
