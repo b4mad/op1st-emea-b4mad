@@ -1,0 +1,36 @@
+# Nightly encrypted, off-site etcd snapshot for nostromo.
+#
+# ⚠️ This is the cluster's only disaster-recovery path. nostromo has a
+# SingleReplica control plane — one master, no quorum to re-form, and no
+# rollback from a failed minor upgrade. If this Application stops syncing, the
+# backup silently stops happening.
+#
+# The manifests are authored in openshift/etcd-backup/ of the
+# b4mad-erdgeschoss-systems repo and copied into
+# manifests/applications/op1st-etcd-backup/ here; see that directory's
+# kustomization.yaml. Operational documentation lives with the source:
+# docs/cmdb/nostromo-etcd-backup.md and
+# docs/runbooks/2026-08-20-nostromo-etcd-backup.md.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: op1st-etcd-backup
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: op1st-etcd-backup
+    server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
+  project: b4mad
+  source:
+    path: manifests/applications/op1st-etcd-backup
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      # The namespace was applied by hand during validation on 2026-08-20 and
+      # is adopted rather than recreated. Everything else in the directory is
+      # new to the cluster.
+      - ServerSideApply=true

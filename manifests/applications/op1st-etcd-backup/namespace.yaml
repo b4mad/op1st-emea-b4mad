@@ -1,0 +1,20 @@
+# Deliberately NOT an openshift-* namespace and deliberately NOT annotated
+# openshift.io/cluster-monitoring. Both matter:
+#
+#   * a user namespace means the PrometheusRule in prometheusrule.yaml is
+#     evaluated by thanos-ruler-user-workload, which queries Thanos Querier and
+#     can therefore see the platform kube-state-metrics series the alerts need.
+#     See docs/runbooks/2026-07-29-forgejo-pvc-alerts.md — this is the trap this
+#     site has already fallen into once.
+#   * an openshift-* namespace would put the workload under the cluster's own
+#     lifecycle and make it look like something Red Hat ships. It is not.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: op1st-etcd-backup
+  annotations:
+    openshift.io/display-name: Operate First etcd Backup
+    openshift.io/description: >-
+      Nightly etcd snapshot of nostromo, encrypted on the node and shipped to
+      off-site object storage. This is the cluster's only disaster-recovery
+      path — nostromo has a SingleReplica control plane.
