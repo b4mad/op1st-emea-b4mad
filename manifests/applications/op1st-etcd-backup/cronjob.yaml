@@ -1,0 +1,183 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-backup
+spec:
+  # 02:00 UTC daily. CNPG's Forgejo backup runs at 05:00, so this does not
+  # contend with it for the same disk and uplink. DECISION TO CONFIRM: daily is
+  # a judgement call — it bounds worst-case data loss at 24h. etcd on nostromo
+  # is ~750 MiB and the snapshot takes ~20s, so hourly would be affordable if
+  # 24h of lost cluster state is judged too much.
+  schedule: "0 2 * * *"
+  timeZone: Etc/UTC
+  # Never run two of these at once: two concurrent cluster-backup.sh runs would
+  # race on the same directory and could interleave a prune with a write.
+  concurrencyPolicy: Forbid
+  # If the controller was down at 02:00, still run when it comes back — but
+  # only within the hour, so a cluster that was off for a week does not wake up
+  # and immediately fire a backup during the recovery.
+  startingDeadlineSeconds: 3600
+  successfulJobsHistoryLimit: 3
+  # Keep more failures than successes. A failed backup is the thing anyone will
+  # actually want the logs of, and this is the only place they exist.
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      # Two attempts, not six. If the snapshot failed because the disk is full
+      # or etcd is unhealthy, retrying hard makes both worse.
+      backoffLimit: 2
+      # Ceiling on the whole job. The snapshot is ~20s and the upload ~2min on
+      # this uplink; an hour means something is genuinely stuck, and a wedged
+      # privileged pod holding the host mount should not live forever.
+      activeDeadlineSeconds: 3600
+      template:
+        spec:
+          serviceAccountName: etcd-backup
+          restartPolicy: Never
+          # The snapshot must be taken on a control-plane node — that is where
+          # the etcd certificates and cluster-backup.sh live. bridge is the only
+          # one (SingleReplica), but select by role rather than hostname so this
+          # keeps working if a second master is ever added.
+          # node-role.kubernetes.io/control-plane, not .../master: the API
+          # server warns that master is deprecated. bridge carries both labels.
+          nodeSelector:
+            node-role.kubernetes.io/control-plane: ""
+          # bridge carries no NoSchedule taint today (it is control-plane AND
+          # worker), but a normal 3-master cluster would, and a toleration that
+          # matches nothing is free. Both spellings, because which one is used
+          # as the taint key depends on how the cluster was installed.
+          tolerations:
+            - key: node-role.kubernetes.io/control-plane
+              operator: Exists
+              effect: NoSchedule
+            - key: node-role.kubernetes.io/master
+              operator: Exists
+              effect: NoSchedule
+          # hostNetwork so the chroot'd cluster-backup.sh reaches etcd on the
+          # node's own loopback/host address exactly as it does under
+          # `oc debug node`, and so DNS resolution matches the host's.
+          hostNetwork: true
+          dnsPolicy: Default
+          # Do not mount a kubeconfig the job has no use for. See rbac.yaml:
+          # this pod deliberately has no reason to talk to the Kubernetes API.
+          automountServiceAccountToken: false
+          priorityClassName: system-node-critical
+          containers:
+            - name: backup
+              # Purpose-built for this job: ubi9-minimal + python3.14 +
+              # boto3 + the openssl CLI, and nothing else. Built in-cluster by
+              # the Tekton pipeline in
+              # git.b4mad.industries/operate-first/op1st-etcd-backup-image and
+              # published to quay.io, which is off-site — the recovery path
+              # must not depend on a registry hosted on the cluster being
+              # recovered.
+              #
+              # It replaced ghcr.io/cloudnative-pg/postgresql, which had been
+              # chosen only because it happened to carry python3 + boto3 +
+              # openssl. That was several hundred megabytes of Postgres server,
+              # extensions and locales this workload never executes — inside
+              # the one pod on this cluster that is `privileged: true`,
+              # `runAsUser: 0`, `spc_t`, with the node's root filesystem at
+              # /host and a plaintext copy of every cluster Secret passing
+              # through it.
+              #
+              # ⚠️ Pinned by digest, never by tag. To change the image, run
+              # that repo's pipelinerun.yaml and paste the digest its last step
+              # prints — it is read back off quay.io after the push, so it is
+              # proven to resolve at this URL.
+              #
+              # The scripts are NOT baked in. They stay in the
+              # etcd-backup-scripts ConfigMap, so a script fix needs no
+              # rebuild — and, conversely, adding a command to backup.sh or
+              # upload.py may need one. The image's package list was derived
+              # from what those two files invoke; nothing enforces that
+              # coupling now that they live in different repos.
+              image: quay.io/goern/op1st-etcd-backup@sha256:8efd26829722aa5797ad7056eccc93e24263d2aac2c28f8038d9649eccc03c5d
+              # Deliberately not Always. Combined with a digest pin this is
+              # unambiguous — the digest already names exactly one image — and
+              # it means only the first run needs quay.io to be reachable.
+              # Every run after that uses the node's cached copy, so a registry
+              # outage at 02:00 does not cost a night's backup. The image is
+              # off-cluster on purpose: the internal registry is node-local
+              # LVMS pinned to bridge and has already sat Degraded for ~6h once
+              # (Systems-nsen), and a backup must not depend on a registry that
+              # lives on the disk it is backing up.
+              imagePullPolicy: IfNotPresent
+              command: ["/bin/bash", "/opt/etcd-backup/backup.sh"]
+              env:
+                # Hetzner Object Storage, Nuremberg. Genuinely off-site, which
+                # is the point — and the reason everything is encrypted before
+                # it leaves the node.
+                - name: S3_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: etcd-backup
+                      key: host
+                - name: S3_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: etcd-backup
+                      key: name
+                - name: S3_PREFIX
+                  value: etcd/nostromo
+                # Hetzner ignores the region; botocore requires one.
+                - name: S3_REGION
+                  value: us-east-1
+                # Note the key names: this secret uses access-key/secret-key,
+                # not the CNPG ACCESS_KEY_ID/ACCESS_SECRET_KEY convention.
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: etcd-backup
+                      key: access-key
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: etcd-backup
+                      key: secret-key
+                # ⚠️ Held in a SEPARATE secret from the bucket credentials, on
+                # purpose. Whoever holds the bucket credential must not thereby
+                # hold the means to decrypt what is in the bucket.
+                - name: ETCD_BACKUP_ENC_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: etcd-backup-encryption-key
+                      key: key
+                # Keep today plus two days on the node. DECISION TO CONFIRM.
+                - name: KEEP_LOCAL
+                  value: "3"
+                # 16 GiB. bridge's root disk sits around 83% used with ~80 GiB
+                # free, so this is a floor, not a routine constraint.
+                - name: MIN_FREE_KIB
+                  value: "16777216"
+              securityContext:
+                # All three are required to chroot into the host and read
+                # etcd's certificates. There is no smaller version of this.
+                privileged: true
+                runAsUser: 0
+                seLinuxOptions:
+                  type: spc_t
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  # boto3 streams the file in 8 MiB parts and hashing is
+                  # chunked, so peak RSS is small and flat regardless of how
+                  # large etcd grows. 1Gi is headroom, not a working set.
+                  memory: 1Gi
+              volumeMounts:
+                - name: host
+                  mountPath: /host
+                - name: scripts
+                  mountPath: /opt/etcd-backup
+                  readOnly: true
+          volumes:
+            - name: host
+              hostPath:
+                path: /
+                type: Directory
+            - name: scripts
+              configMap:
+                name: etcd-backup-scripts
+                defaultMode: 0555

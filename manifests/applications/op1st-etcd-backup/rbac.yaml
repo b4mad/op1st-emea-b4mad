@@ -1,0 +1,36 @@
+# The one genuinely dangerous thing in this directory.
+#
+# Taking an etcd snapshot means running the node's own cluster-backup.sh, which
+# reads the etcd client certificates out of /etc/kubernetes/static-pod-resources
+# and talks to etcd as a full member. There is no lesser privilege that does
+# this: mounting the host root and running privileged IS the capability, and
+# anything holding it can read every secret in the cluster.
+#
+# So the containment is not "less privilege" but "less reach":
+#
+#   * a RoleBinding, not a ClusterRoleBinding — the `use` verb on the
+#     privileged SCC is granted only inside op1st-etcd-backup;
+#   * bound to one named ServiceAccount, not to a group and not to
+#     system:serviceaccounts in the namespace, so creating another SA here does
+#     not silently inherit it;
+#   * no Kubernetes API permissions at all beyond the default — the job never
+#     calls the API. It talks to etcd through the host filesystem and to S3.
+#     There is deliberately no Role granting get/list on secrets or anything
+#     else; if this pod is ever compromised, the API is not the way out.
+#
+# Anyone reviewing this should be asking "why does a pod get to read etcd" and
+# the honest answer is: because that is what a backup is.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: etcd-backup-privileged
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  # Cluster-scoped role, namespace-scoped binding. This ClusterRole is created
+  # by OpenShift for every SCC; it is not something this repo defines.
+  name: system:openshift:scc:privileged
+subjects:
+  - kind: ServiceAccount
+    name: etcd-backup
+    namespace: op1st-etcd-backup

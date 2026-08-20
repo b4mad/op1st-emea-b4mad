@@ -1,0 +1,24 @@
+{
+  "Rules": [
+    {
+      "ID": "expire-etcd-snapshots",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "etcd/nostromo/"
+      },
+      "Expiration": {
+        "Days": 30
+      }
+    },
+    {
+      "ID": "abort-incomplete-multipart",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": ""
+      },
+      "AbortIncompleteMultipartUpload": {
+        "DaysAfterInitiation": 1
+      }
+    }
+  ]
+}

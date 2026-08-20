@@ -1,0 +1,163 @@
+# Alerts for the etcd backup job.
+#
+# ⚠️ NOTE THE ABSENT LABEL. There is deliberately no
+# `openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus` here.
+# Without it this rule is evaluated by thanos-ruler-user-workload, which
+# queries Thanos Querier and can therefore see platform metrics.
+# WITH it, it would be evaluated by prometheus-user-workload, which scrapes
+# only user workloads — and every expression below reads either
+# kube-state-metrics or etcd, both of which are platform metrics. Adding that
+# label would leave every alert here permanently inactive and completely
+# silent. See docs/runbooks/2026-07-29-forgejo-pvc-alerts.md.
+#
+# Every expression below was executed against
+# thanos-querier.openshift-monitoring.svc:9091 on 2026-08-20 before being
+# committed, substituting the existing b4mad-forgejo/forgejo-backup CronJob
+# where op1st-etcd-backup does not exist yet. None of these are guesses.
+#
+# What is NOT here, on purpose:
+#   * generic "cronjob is lagging / never succeeded" alerting — the cluster
+#     already has openshift-monitoring/cronjob-last-success-lag covering every
+#     CronJob in every namespace. Duplicating it here would just double the
+#     Matrix traffic.
+#   * disk-full alerting for bridge — openshift-monitoring/sno-bridge-disk
+#     already alerts on /dev/sda4 and rates it critical.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: etcd-backup
+spec:
+  groups:
+    - name: etcd-backup
+      rules:
+        # One missed run. 26h rather than 24h so a slow run or a slightly late
+        # scheduler does not page; anything past 26h means a run was skipped.
+        - alert: EtcdBackupStale
+          expr: |
+            time() - max by (namespace, cronjob) (
+              kube_cronjob_status_last_successful_time{namespace="op1st-etcd-backup", cronjob="etcd-backup"}
+            ) > 26 * 3600
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: >-
+              nostromo etcd backup has not succeeded for
+              {{ $value | humanizeDuration }}
+            description: >-
+              The last successful etcd snapshot was
+              {{ $value | humanizeDuration }} ago. bridge is the only
+              control-plane node, so for as long as this is firing the recovery
+              point is drifting. Read the job logs before assuming it is
+              transient.
+            runbook_url: https://git.b4mad.industries/b4mad/Systems/src/branch/main/docs/runbooks/2026-08-20-nostromo-etcd-backup.md
+
+        # Two missed runs. Distinct from the above because at this point it is
+        # not a blip and the 4.22 upgrade should not proceed.
+        - alert: EtcdBackupCriticallyStale
+          expr: |
+            time() - max by (namespace, cronjob) (
+              kube_cronjob_status_last_successful_time{namespace="op1st-etcd-backup", cronjob="etcd-backup"}
+            ) > 50 * 3600
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: >-
+              nostromo has had no etcd backup for
+              {{ $value | humanizeDuration }} — there is no recovery point
+            description: >-
+              Two or more scheduled runs have failed. With a SingleReplica
+              control plane and no backup, a failure of bridge means rebuilding
+              the cluster from scratch. Fix this before any upgrade or
+              maintenance on bridge.
+            runbook_url: https://git.b4mad.industries/b4mad/Systems/src/branch/main/docs/runbooks/2026-08-20-nostromo-etcd-backup.md
+
+        # Catches the specific run that failed, faster than the staleness
+        # window and with the job name needed to pull logs. Note
+        # kube_job_status_failed, not kube_job_failed — this matches the
+        # existing b4mad-forgejo/forgejo-backup rule.
+        - alert: EtcdBackupJobFailed
+          expr: |
+            sum by (namespace, job_name) (
+              kube_job_status_failed{namespace="op1st-etcd-backup", job_name=~"etcd-backup-.*"}
+            ) > 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: >-
+              etcd backup job {{ $labels.namespace }}/{{ $labels.job_name }}
+              failed
+            description: >-
+              The job ran and exited non-zero. backup.sh fails loudly and
+              early — a full disk, a snapshot that did not appear, or a failed
+              upload each produce a distinct FATAL line. The local snapshot, if
+              one was taken, is still on bridge.
+            runbook_url: https://git.b4mad.industries/b4mad/Systems/src/branch/main/docs/runbooks/2026-08-20-nostromo-etcd-backup.md
+
+        # GitOps drift, or someone deleting the CronJob. Neither staleness
+        # alert can fire in this state, because with no CronJob there is no
+        # kube_cronjob_status_last_successful_time series to be stale — the
+        # expressions return an empty vector and look exactly like health.
+        # This alert exists solely to close that hole.
+        - alert: EtcdBackupCronJobMissing
+          expr: |
+            absent(kube_cronjob_info{namespace="op1st-etcd-backup", cronjob="etcd-backup"})
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: nostromo has no etcd-backup CronJob at all
+            description: >-
+              The CronJob object is gone from the cluster. Most likely an Argo
+              sync removed it or it was never applied. Nothing is taking etcd
+              backups and no other alert here can tell you that.
+            runbook_url: https://git.b4mad.industries/b4mad/Systems/src/branch/main/docs/runbooks/2026-08-20-nostromo-etcd-backup.md
+
+        # Suspending a CronJob is a legitimate thing to do during maintenance
+        # and an easy thing to forget to undo. Suspended is also invisible to
+        # the staleness alerts for the same reason as above.
+        - alert: EtcdBackupSuspended
+          expr: |
+            max by (namespace, cronjob) (
+              kube_cronjob_spec_suspend{namespace="op1st-etcd-backup", cronjob="etcd-backup"}
+            ) == 1
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: nostromo etcd-backup CronJob is suspended
+            description: >-
+              Someone set .spec.suspend. If this was for maintenance, unsuspend
+              it; if it was Argo, the manifest in op1st-emea-b4mad disagrees
+              with what was intended.
+            runbook_url: https://git.b4mad.industries/b4mad/Systems/src/branch/main/docs/runbooks/2026-08-20-nostromo-etcd-backup.md
+
+        # The closest available proxy for "the snapshot we just took is
+        # suspiciously small". There is no metric for snapshot size — nothing
+        # in this design publishes one, and adding a Pushgateway for one gauge
+        # was not judged worth it. But the snapshot is a byte-for-byte copy of
+        # the etcd backend, and on 2026-08-20 the two matched almost exactly:
+        # etcd_mvcc_db_total_size_in_bytes was 788164608 and the snapshot on
+        # disk was 788164640 (the extra 32 bytes are the trailing integrity
+        # hash). So a collapse in this metric is a collapse in tomorrow's
+        # snapshot size, one run ahead of it happening.
+        - alert: EtcdDatabaseSizeDropped
+          expr: |
+            etcd_mvcc_db_total_size_in_bytes{job="etcd"}
+              / max_over_time(etcd_mvcc_db_total_size_in_bytes{job="etcd"}[24h]) < 0.5
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: >-
+              etcd on {{ $labels.pod }} shrank to
+              {{ $value | humanizePercentage }} of its 24h peak
+            description: >-
+              A defrag does exactly this and is benign — if someone just ran
+              one, silence this. If nobody did, etcd lost data, and the next
+              snapshot will faithfully back up the smaller database. Check
+              before the next scheduled run overwrites nothing but does add a
+              small snapshot to the bucket.
+            runbook_url: https://git.b4mad.industries/b4mad/Systems/src/branch/main/docs/runbooks/2026-08-20-nostromo-etcd-backup.md

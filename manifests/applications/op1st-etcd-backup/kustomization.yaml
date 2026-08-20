@@ -1,0 +1,76 @@
+# Recurring etcd backups for nostromo — the site's ONLY disaster-recovery path.
+# nostromo has a SingleReplica control plane: one master, no quorum to re-form,
+# no rollback from a failed minor upgrade. Treat changes here accordingly.
+#
+# ⚠️ THIS IS A DEPLOYMENT COPY, NOT THE SOURCE OF TRUTH. Everything in this
+# directory except the two SealedSecrets is copied verbatim from
+# openshift/etcd-backup/ in the b4mad-erdgeschoss-systems repo, which is where
+# it is authored, reviewed and documented (docs/cmdb/nostromo-etcd-backup.md
+# and docs/runbooks/2026-08-20-nostromo-etcd-backup.md). Fix things there and
+# re-copy; a fix made only here will be silently overwritten on the next copy.
+#
+# The two SealedSecrets exist only here. Their SOPS sources stay in the Systems
+# repo and are deliberately not in that repo's `resources:`. Regenerate with
+# the command in each file's header.
+#
+# ⚠️ The two secrets are separate objects on purpose. Holding the bucket
+# credential must not also mean holding the means to decrypt what is in the
+# bucket — an etcd snapshot is a plaintext copy of every Secret in the cluster,
+# including the sealed-secrets controller's own master key.
+#
+# The build machinery for the container image is a SEPARATE kustomization, in
+# git.b4mad.industries/operate-first/op1st-etcd-backup-image. Keeping it apart
+# is deliberate: this must stay applyable on a cluster with no Tekton at all.
+#
+# backup.sh, upload.py and lifecycle.json are mounted from a generated
+# ConfigMap rather than embedded in YAML, so there is no second copy to drift.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: op1st-etcd-backup
+
+# Identity and ownership for every resource in this directory, applied here so
+# there is exactly one place to change them. Conventions taken from the
+# existing namespaces on nostromo: `b4mad.operate-first.cloud/owner` is on
+# op1st-gitops and seven b4mad-* namespaces; `app.kubernetes.io/managed-by:
+# op1st-emea-b4mad` names the GitOps repo, as on b4mad-forgejo,
+# b4mad-meshtastic-gateway and b4mad-renovate.
+#
+# `includeSelectors: false` is load-bearing: these are descriptive labels, and
+# baking them into a selector would make them immutable in-place. Nothing here
+# has a selector today, but a future Deployment or ServiceMonitor would, and
+# the failure mode is a resource that can only be fixed by deleting it.
+# `includeTemplates: true` still puts them on the Job's pod template, which is
+# where they are actually useful for `oc get pods -l`.
+labels:
+  - includeSelectors: false
+    includeTemplates: true
+    pairs:
+      app.kubernetes.io/name: etcd-backup
+      app.kubernetes.io/part-of: op1st-etcd-backup
+      app.kubernetes.io/managed-by: op1st-emea-b4mad
+      b4mad.operate-first.cloud/owner: goern.b4mad.net
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - rbac.yaml
+  - cronjob.yaml
+  - prometheusrule.yaml
+  - sealedsecret.yaml
+  - sealedsecret-encryption-key.yaml
+configMapGenerator:
+  - name: etcd-backup-scripts
+    files:
+      - backup.sh
+      - upload.py
+      # Bucket retention policy. Object-store config, not Kubernetes config,
+      # but it is versioned and reviewed here and re-asserted on every run —
+      # see "Retention" in upload.py. Shipping it in this ConfigMap is what
+      # makes it declarative: there is no console click to remember.
+      - lifecycle.json
+generatorOptions:
+  # The CronJob references the ConfigMap by a fixed name. A hash suffix would
+  # be the safer default (it forces a rollout on change), but a CronJob picks
+  # up the new ConfigMap on its next scheduled run regardless, and a stable
+  # name keeps the Argo diff readable.
+  disableNameSuffixHash: true
