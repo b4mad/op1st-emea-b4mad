@@ -4,6 +4,12 @@ metadata:
   name: cluster
 spec:
   managementState: Managed
+  # The registry PVC is node-local LVMS (RWO), pinned by PV node affinity to a
+  # single node. A RollingUpdate would need a surge pod, but the operator's own
+  # hostname topology spread constraint (maxSkew 1, DoNotSchedule) forbids a
+  # second registry pod on that node — and no other node can bind the volume.
+  # That deadlocked the 4.21.29 rollout. Recreate drops the old pod first.
+  rolloutStrategy: Recreate
   storage:
     pvc:
       claim:
