@@ -10,6 +10,15 @@ spec:
   # 24h of lost cluster state is judged too much.
   schedule: "0 2 * * *"
   timeZone: Etc/UTC
+  # Stated explicitly, though false is the default. ⚠️ Omitting it is a trap:
+  # under ServerSideApply, a field absent from the desired manifest is left
+  # alone if another manager owns it, so a hand-run `oc patch suspend=true`
+  # sticks permanently AND Argo keeps reporting Synced — a backup that never
+  # fires while the dashboard is green. This happened for real on 2026-08-20,
+  # when the first sync was expected to un-suspend the job and silently did
+  # not. Naming the field here makes Argo its owner, so it is re-asserted on
+  # every sync and any manual suspend shows up as drift.
+  suspend: false
   # Never run two of these at once: two concurrent cluster-backup.sh runs would
   # race on the same directory and could interleave a prune with a write.
   concurrencyPolicy: Forbid
