@@ -20,10 +20,17 @@ spec:
   destination:
     namespace: op1st-etcd-backup
     server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
-  project: b4mad
+  # op1st, not b4mad. The b4mad AppProject permits any source repo but only
+  # `b4mad-*` destination namespaces, so it rejects this Application outright
+  # with InvalidSpecError and never syncs at all. op1st is the project scoped
+  # to `op1st-*` on nostromo, and its clusterResourceWhitelist covers
+  # Namespace — the only cluster-scoped object in this directory.
+  project: op1st
   source:
     path: manifests/applications/op1st-etcd-backup
-    repoURL: https://github.com/b4mad/op1st-emea-b4mad
+    # ⚠️ The `.git` suffix is deliberate: unlike b4mad, the op1st project
+    # constrains sourceRepos, and this is the exact string it lists.
+    repoURL: https://github.com/b4mad/op1st-emea-b4mad.git
     targetRevision: main
   syncPolicy:
     automated:
