@@ -1,0 +1,13 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: dolt-sql-server
+spec:
+  host: dolt.b4mad.industries
+  to:
+    kind: Service
+    name: dolt-sql-server
+  port:
+    targetPort: mysql
+  tls:
+    termination: passthrough

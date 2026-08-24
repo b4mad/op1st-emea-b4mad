@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dolt-sql-server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    spec:
+      containers:
+        - name: dolt-sql-server
+          image: dolt-sql-server
+          env:
+            - name: DOLT_ROOT_HOST
+              value: "%"
+            - name: DOLT_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dolt-root
+                  key: DOLT_ROOT_PASSWORD
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/dolt
+            - name: servercfg
+              mountPath: /etc/dolt/servercfg.d
+            - name: dolt-tls
+              mountPath: /etc/dolt-tls
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: mysql
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: mysql
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 512Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dolt-data
+        - name: servercfg
+          configMap:
+            name: dolt-servercfg
+        - name: dolt-tls
+          secret:
+            secretName: dolt-tls
