@@ -517,13 +517,13 @@ resources:
     memory: 768Mi
 
 # Raised 5Gi -> 10Gi -> 20Gi on 2026-07-28, 20Gi -> 32Gi on 2026-08-04 (at 54%,
-# 10.7G of 19.9G): the bleve code indexer grows this volume without anyone
-# pushing anything, so we headroom ahead of demand rather than react to the
-# ForgejoVolumeFillingUp alert. lvms-vg1 has allowVolumeExpansion and
-# resizeInUseVolumes, so this is an in-place expansion — no reschedule, no
-# downtime. Note PVCs cannot be shrunk again.
+# 10.7G of 19.9G), 32Gi -> 64Gi on 2026-08-24: the bleve code indexer grows
+# this volume without anyone pushing anything, so we headroom ahead of demand
+# rather than react to the ForgejoVolumeFillingUp alert. lvms-vg1 has
+# allowVolumeExpansion and resizeInUseVolumes, so this is an in-place
+# expansion — no reschedule, no downtime. Note PVCs cannot be shrunk again.
 persistence:
-  size: 32Gi
+  size: 64Gi
 
 # test-connection Pod uses busybox:latest from Docker Hub — skip to avoid
 # pull-rate flakiness on a throwaway install.
