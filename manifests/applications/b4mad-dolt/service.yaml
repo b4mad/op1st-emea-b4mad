@@ -10,7 +10,17 @@ spec:
     - port: 9102
       targetPort: metrics
       name: metrics
+    # ⚠️ appProtocol: h2c is LOAD-BEARING, not decoration. remotesapi is
+    # gRPC, and dolt can only serve it as cleartext HTTP/2 — the remotesapi
+    # config section has no TLS keys at all (only port and read_only), which
+    # rules out passthrough and reencrypt Routes. That leaves an edge Route,
+    # and an edge Route talks HTTP/1.1 to its backend by default, which dolt
+    # answers with "400 Bad Request" and the gRPC client reports as
+    # "malformed header: missing HTTP content-type". This field is what tells
+    # the router to speak h2c to the pod instead. Remove it and every clone
+    # and push through hub.dolt.b4mad.industries breaks.
     - port: 22222
       targetPort: remotesapi
       name: remotesapi
+      appProtocol: h2c
   type: ClusterIP
