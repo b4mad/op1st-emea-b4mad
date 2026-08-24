@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: b4mad-dolt
+
+commonLabels:
+  app.kubernetes.io/name: dolt
+  app.kubernetes.io/component: sql-server
+
+resources:
+  - namespace.yaml
+  - pvc.yaml
+  - dolt-tls-certificate.yaml
+  - servercfg.yaml
+  - root-password-secret.yaml
+  - deployment.yaml
+  - service.yaml
+  - route.yaml
+
+images:
+  - name: dolt-sql-server
+    newName: dolthub/dolt-sql-server
+    digest: sha256:dbd13efe2e19e02c079efd2152bca5032071a3cd6f79a9b2a7b404d19ff3ee3f
