@@ -30,6 +30,8 @@ spec:
               name: mysql
             - containerPort: 9102
               name: metrics
+            - containerPort: 22222
+              name: remotesapi
           volumeMounts:
             - name: data
               mountPath: /var/lib/dolt

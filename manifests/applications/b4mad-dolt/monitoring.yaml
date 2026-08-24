@@ -1,3 +1,9 @@
+---
+# dolt emits Prometheus-format metrics once the config's metrics host AND
+# port are both set (servercfg.yaml). Everything it exports is a dss_*
+# gauge/counter/histogram plus the usual go_*/process_* runtime series —
+# there is no error or failure counter, so availability, storage and the
+# certificate are what there is to alert on.
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -11,3 +17,157 @@ spec:
     matchLabels:
       app.kubernetes.io/component: sql-server
       app.kubernetes.io/name: dolt
+
+---
+# `openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus` routes a
+# rule to the UWM Prometheus instead of Thanos Ruler. The leaf only sees
+# user-workload metrics — fine here, since up/dss_* both come from the
+# ServiceMonitor above. The two objects further down deliberately OMIT the
+# label; see their comments.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: dolt
+  labels:
+    openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus
+spec:
+  groups:
+    - name: dolt
+      rules:
+        - alert: DoltDown
+          expr: up{namespace="b4mad-dolt", job="dolt-sql-server"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "dolt sql-server is unreachable"
+            description: >-
+              Prometheus has failed to scrape the dolt pod {{ $labels.pod }}
+              for >= 5 minutes. Every database served at
+              dolt.b4mad.industries is down with it, and so is the
+              remotesapi endpoint clients clone and push through.
+
+        # The `up` alert above can only fire while a target exists. If the
+        # ServiceMonitor is deleted, the metrics section is dropped from
+        # servercfg.yaml, or the Service labels drift, the target disappears
+        # and DoltDown goes silent forever — a monitoring outage that looks
+        # like health.
+        - alert: DoltMetricsTargetMissing
+          expr: absent(up{namespace="b4mad-dolt", job="dolt-sql-server"})
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "dolt sql-server has no Prometheus target"
+            description: >-
+              No scrape target matches job="dolt-sql-server" in b4mad-dolt.
+              dolt may be fine, but DoltDown can no longer fire. Check
+              ServiceMonitor/dolt-sql-server and the metrics section of
+              ConfigMap/dolt-servercfg.
+
+---
+# PVC fill alerts, split into their own object ON PURPOSE.
+#
+# kubelet_volume_stats_* is a PLATFORM metric (kubelet -> platform
+# Prometheus), not a user-workload one. A leaf-prometheus-scoped rule is
+# evaluated by the UWM Prometheus, which never sees it, so the rule object
+# above cannot carry these. Without the label the rule goes to Thanos Ruler,
+# which queries Thanos Querier and therefore spans both tenants; namespace
+# enforcement still pins it to b4mad-dolt.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: dolt-storage
+spec:
+  groups:
+    - name: dolt-storage
+      rules:
+        # PVC dolt-data is mounted continuously by the Deployment, so unlike
+        # a CronJob-only volume it does report kubelet_volume_stats_* series.
+        - alert: DoltVolumeFillingUp
+          expr: >-
+            kubelet_volume_stats_available_bytes{namespace="b4mad-dolt"}
+            / kubelet_volume_stats_capacity_bytes{namespace="b4mad-dolt"} < 0.15
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "dolt PVC {{ $labels.persistentvolumeclaim }} is {{ $value | humanizePercentage }} free"
+            description: >-
+              Less than 15% free on {{ $labels.persistentvolumeclaim }}. It
+              is on lvms-vg1 with resizeInUseVolumes, so growing it is an
+              edit to pvc.yaml away. Note dolt keeps full version history —
+              storage grows with every commit, not just with live row count.
+
+        - alert: DoltVolumeAlmostFull
+          expr: >-
+            kubelet_volume_stats_available_bytes{namespace="b4mad-dolt"}
+            / kubelet_volume_stats_capacity_bytes{namespace="b4mad-dolt"} < 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "dolt PVC {{ $labels.persistentvolumeclaim }} is nearly full ({{ $value | humanizePercentage }} free)"
+            description: >-
+              Less than 5% free on {{ $labels.persistentvolumeclaim }}.
+              Expand it now — dolt starts failing writes when the volume
+              fills, and a wedged server takes the remotesapi with it.
+
+---
+# Certificate alerting, split out for the same tenancy reason: certmanager_*
+# comes from cert-manager in the cert-manager namespace, scraped by the
+# PLATFORM Prometheus. Its own namespace label is "cert-manager", and the
+# Certificate's namespace lands in `exported_namespace` — select on that.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: dolt-certificate
+spec:
+  groups:
+    - name: dolt-certificate
+      rules:
+        - alert: DoltCertificateNotReady
+          expr: >-
+            certmanager_certificate_ready_status{exported_namespace="b4mad-dolt", name="dolt-tls", condition="True"} == 0
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "dolt TLS certificate is not Ready"
+            description: >-
+              Certificate/dolt-tls has not been Ready for an hour. Renewal
+              via the letsencrypt ClusterIssuer (DNS01 through the
+              cloudflare-b4mad-net-dns01-solver token) is failing. The
+              currently-served cert keeps working until it expires, so this
+              is a warning — but it becomes an outage on expiry.
+
+        # ⚠️ THE ONE THAT MATTERS. dolt reads tls_cert/tls_key ONCE at
+        # startup. cert-manager rotates the secret in place ~30 days before
+        # expiry and nothing restarts the pod, so the running server goes on
+        # serving the OLD certificate until someone rolls it — and then
+        # serves an EXPIRED one. No reloader controller is deployed on this
+        # cluster to do it automatically.
+        #
+        # A renewed cert whose notBefore is newer than the process start time
+        # is exactly that state. Fix is a one-liner:
+        #   oc rollout restart deployment/dolt-sql-server -n b4mad-dolt
+        #
+        # Both sides are wrapped in max() so the comparison comes out as a
+        # label-free instant vector on each side; without that the platform
+        # and user-workload series share no labels to join on.
+        - alert: DoltServingStaleCertificate
+          expr: >-
+            max(certmanager_certificate_not_before_timestamp_seconds{exported_namespace="b4mad-dolt", name="dolt-tls"})
+            >
+            max(process_start_time_seconds{namespace="b4mad-dolt", job="dolt-sql-server"})
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "dolt is serving a superseded TLS certificate"
+            description: >-
+              Certificate/dolt-tls has been renewed since the dolt process
+              started, and dolt only reads the cert at startup. Clients
+              connecting to dolt.b4mad.industries are being handed the old
+              certificate, which will eventually expire. Restart the
+              deployment to pick up the new one.

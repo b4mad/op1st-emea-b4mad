@@ -10,4 +10,7 @@ spec:
     - port: 9102
       targetPort: metrics
       name: metrics
+    - port: 22222
+      targetPort: remotesapi
+      name: remotesapi
   type: ClusterIP

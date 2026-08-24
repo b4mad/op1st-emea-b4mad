@@ -15,3 +15,13 @@ data:
       port: 9102
       labels:
         process: dolt-sql-server
+    # Lets clients clone/push/pull/fetch databases from this server, the way
+    # they would from DoltHub. Plain HTTP/gRPC — TLS is terminated at the
+    # Route, not here (the listener's tls_* keys cover the MySQL port only).
+    # Auth reuses the SQL users: `dolt clone --user root http://<host>/<db>`
+    # with DOLT_REMOTE_PASSWORD set.
+    #
+    # Left read-write on purpose. Set `read_only: true` to accept clone/pull/
+    # fetch but reject push.
+    remotesapi:
+      port: 22222
