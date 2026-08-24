@@ -1,8 +1,9 @@
 ---
 # MySQL wire protocol. HAProxy only routes HTTP/HTTPS or passes TLS through
-# by SNI, and raw MySQL is neither — so dolt terminates its own cert
-# (listener.tls_* in servercfg.yaml, mounted from Certificate/dolt-tls) and
-# the router just moves bytes. Clients therefore connect on 443, not 3306:
+# by SNI, and raw MySQL is neither — so this has to be a passthrough Route,
+# not an Ingress. dolt terminates its own cert (listener.tls_* in
+# servercfg.yaml, mounted from Certificate/dolt-tls) and the router just
+# moves bytes. Clients therefore connect on 443, not 3306:
 #   mysql --ssl-mode=REQUIRED -h dolt.b4mad.industries -P 443 -u root -p
 apiVersion: route.openshift.io/v1
 kind: Route
@@ -20,30 +21,43 @@ spec:
 
 ---
 # The remotesapi endpoint (clone/push/pull/fetch) speaks gRPC over plain
-# HTTP, so unlike the MySQL Route above this one can terminate TLS at the
-# router — no passthrough, no cert mounted in the pod.
+# HTTP, so unlike the MySQL Route above it can terminate TLS at the router —
+# which means a plain Ingress works and OpenShift's ingress-to-route
+# controller renders the edge-terminated Route for us.
 #
-# ⚠️ The hostname deliberately sits on the *.apps wildcard domain rather than
-# b4mad.industries: an edge Route serves the router's default certificate,
-# which only covers *.apps.nostromo.…. A custom hostname would need its own
-# cert plumbed into the Route (spec.tls.externalCertificate + router RBAC),
-# which is not set up on this cluster. Moving it to
-# doltremote.b4mad.industries later is a cert problem, not a routing one.
+# cert-manager watches the cluster-issuer annotation and issues the cert for
+# `tls.secretName` on its own, so there is no hand-written Certificate here
+# and no router RBAC to grant. Renewals need no pod restart either — the
+# router serves this cert, not dolt. Same pattern as the perses Ingress in
+# b4mad-meshtastic-gateway.
 #
 # gRPC needs HTTP/2, which is on cluster-wide via the
 # ingress.operator.openshift.io/default-enable-http2 annotation on
 # ingresses.config/cluster.
-apiVersion: route.openshift.io/v1
-kind: Route
+#
+# Clone from it with:
+#   DOLT_REMOTE_PASSWORD=… dolt clone --user root \
+#     https://hub.dolt.b4mad.industries/<database>
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: dolt-remotesapi
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.allow-http: "false"
 spec:
-  host: dolt-remotesapi.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
-  to:
-    kind: Service
-    name: dolt-sql-server
-  port:
-    targetPort: remotesapi
+  rules:
+    - host: hub.dolt.b4mad.industries
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dolt-sql-server
+                port:
+                  number: 22222
   tls:
-    termination: edge
-    insecureEdgeTerminationPolicy: Redirect
+    - hosts:
+        - hub.dolt.b4mad.industries
+      secretName: dolt-remotesapi-tls
