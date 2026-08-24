@@ -7,4 +7,7 @@ spec:
     - port: 3306
       targetPort: mysql
       name: mysql
+    - port: 9102
+      targetPort: metrics
+      name: metrics
   type: ClusterIP

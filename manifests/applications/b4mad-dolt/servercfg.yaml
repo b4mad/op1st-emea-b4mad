@@ -10,3 +10,8 @@ data:
       tls_key: /etc/dolt-tls/tls.key
       tls_cert: /etc/dolt-tls/tls.crt
       require_secure_transport: true
+    metrics:
+      host: 0.0.0.0
+      port: 9102
+      labels:
+        process: dolt-sql-server

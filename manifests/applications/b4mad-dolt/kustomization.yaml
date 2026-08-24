@@ -16,6 +16,7 @@ resources:
   - deployment.yaml
   - service.yaml
   - route.yaml
+  - monitoring.yaml
 
 images:
   - name: dolt-sql-server

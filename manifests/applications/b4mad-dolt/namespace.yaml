@@ -3,7 +3,9 @@ kind: Namespace
 metadata:
   annotations:
     openshift.io/display-name: "dolt sql-server"
-  creationTimestamp: null
+    openshift.io/description: "General-purpose dolt sql-server hosting for the #B4mad Network, reachable externally at dolt.b4mad.industries."
+    openshift.io/cluster-monitoring: "true"
   labels:
-    argocd.argoproj.io/managed-by: openshift-gitops
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
+    argocd.argoproj.io/managed-by: op1st-gitops
   name: b4mad-dolt

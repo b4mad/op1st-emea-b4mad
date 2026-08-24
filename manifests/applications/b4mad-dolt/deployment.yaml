@@ -28,6 +28,8 @@ spec:
           ports:
             - containerPort: 3306
               name: mysql
+            - containerPort: 9102
+              name: metrics
           volumeMounts:
             - name: data
               mountPath: /var/lib/dolt
