@@ -12,6 +12,12 @@ spec:
         - name: dolt-sql-server
           image: dolt-sql-server
           env:
+            # OpenShift runs the container as an arbitrary non-root UID with
+            # no /etc/passwd entry, so $HOME defaults to "/" and dolt can't
+            # create ~/.dolt/config_global.json. Point it at the PVC, which
+            # is writable via the pod's fsGroup.
+            - name: HOME
+              value: /var/lib/dolt
             - name: DOLT_ROOT_HOST
               value: "%"
             - name: DOLT_ROOT_PASSWORD
