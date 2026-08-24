@@ -1,0 +1,50 @@
+# The remotesapi endpoint is this server's ONE external surface: clients
+# clone, push, pull and fetch databases through it over HTTPS.
+#
+# The MySQL port is deliberately NOT exposed. Raw MySQL cannot be routed by
+# HAProxy at all — its wire protocol is server-speaks-first with a
+# STARTTLS-style upgrade, so a client never opens with a TLS ClientHello and
+# a passthrough Route has no SNI to select a backend on. A passthrough Route
+# was tried and verified broken ("unexpected EOF" from a real client); an
+# Ingress cannot do it either, since the ingress-to-route controller ignores
+# route.openshift.io/termination and an edge Route would hand MySQL bytes to
+# an HTTP proxy. Reach 3306 from inside the cluster, or with:
+#   oc port-forward -n b4mad-dolt svc/dolt-sql-server 3306:3306
+#
+# remotesapi is plain HTTP/gRPC, so it converts cleanly: OpenShift's
+# ingress-to-route controller renders the edge-terminated Route, and
+# cert-manager issues the cert for tls.secretName straight off the
+# cluster-issuer annotation — no hand-written Certificate, no router RBAC.
+# Renewals need no pod restart, because the router serves this cert rather
+# than dolt. Same pattern as the perses Ingress in b4mad-meshtastic-gateway.
+#
+# gRPC needs HTTP/2, which is on cluster-wide via the
+# ingress.operator.openshift.io/default-enable-http2 annotation on
+# ingresses.config/cluster.
+#
+# Clone from it with:
+#   DOLT_REMOTE_PASSWORD=… dolt clone --user root \
+#     https://hub.dolt.b4mad.industries/<database>
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dolt-remotesapi
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.allow-http: "false"
+spec:
+  rules:
+    - host: hub.dolt.b4mad.industries
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dolt-sql-server
+                port:
+                  number: 22222
+  tls:
+    - hosts:
+        - hub.dolt.b4mad.industries
+      secretName: dolt-remotesapi-tls

@@ -126,48 +126,28 @@ spec:
   groups:
     - name: dolt-certificate
       rules:
-        - alert: DoltCertificateNotReady
+        # dolt-remotesapi-tls is created by cert-manager's ingress-shim from
+        # the cluster-issuer annotation on Ingress/dolt-remotesapi, not by a
+        # Certificate manifest in git — so a failure here is invisible in the
+        # repo and only shows up on the cluster.
+        #
+        # No stale-certificate alert is needed alongside this one: the ROUTER
+        # serves this cert, and it picks renewals up from the secret on its
+        # own. That is a real advantage over the passthrough design this
+        # replaced, where dolt read its cert once at startup and a rotation
+        # silently left it serving the old one until the pod was rolled.
+        - alert: DoltRemotesapiCertificateNotReady
           expr: >-
-            certmanager_certificate_ready_status{exported_namespace="b4mad-dolt", name="dolt-tls", condition="True"} == 0
+            certmanager_certificate_ready_status{exported_namespace="b4mad-dolt", name="dolt-remotesapi-tls", condition="True"} == 0
           for: 1h
           labels:
             severity: warning
           annotations:
-            summary: "dolt TLS certificate is not Ready"
+            summary: "dolt remotesapi TLS certificate is not Ready"
             description: >-
-              Certificate/dolt-tls has not been Ready for an hour. Renewal
-              via the letsencrypt ClusterIssuer (DNS01 through the
-              cloudflare-b4mad-net-dns01-solver token) is failing. The
-              currently-served cert keeps working until it expires, so this
-              is a warning — but it becomes an outage on expiry.
-
-        # ⚠️ THE ONE THAT MATTERS. dolt reads tls_cert/tls_key ONCE at
-        # startup. cert-manager rotates the secret in place ~30 days before
-        # expiry and nothing restarts the pod, so the running server goes on
-        # serving the OLD certificate until someone rolls it — and then
-        # serves an EXPIRED one. No reloader controller is deployed on this
-        # cluster to do it automatically.
-        #
-        # A renewed cert whose notBefore is newer than the process start time
-        # is exactly that state. Fix is a one-liner:
-        #   oc rollout restart deployment/dolt-sql-server -n b4mad-dolt
-        #
-        # Both sides are wrapped in max() so the comparison comes out as a
-        # label-free instant vector on each side; without that the platform
-        # and user-workload series share no labels to join on.
-        - alert: DoltServingStaleCertificate
-          expr: >-
-            max(certmanager_certificate_not_before_timestamp_seconds{exported_namespace="b4mad-dolt", name="dolt-tls"})
-            >
-            max(process_start_time_seconds{namespace="b4mad-dolt", job="dolt-sql-server"})
-          for: 30m
-          labels:
-            severity: warning
-          annotations:
-            summary: "dolt is serving a superseded TLS certificate"
-            description: >-
-              Certificate/dolt-tls has been renewed since the dolt process
-              started, and dolt only reads the cert at startup. Clients
-              connecting to dolt.b4mad.industries are being handed the old
-              certificate, which will eventually expire. Restart the
-              deployment to pick up the new one.
+              Certificate/dolt-remotesapi-tls has not been Ready for an hour.
+              Renewal via the letsencrypt ClusterIssuer (DNS01 through the
+              cloudflare-b4mad-net-dns01-solver token, which covers
+              b4mad.industries) is failing. hub.dolt.b4mad.industries keeps
+              serving the current cert until it expires, so this is a warning
+              — but clone/push/pull breaks on expiry.

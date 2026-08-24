@@ -10,12 +10,11 @@ commonLabels:
 resources:
   - namespace.yaml
   - pvc.yaml
-  - dolt-tls-certificate.yaml
   - servercfg.yaml
   - root-password-secret.yaml
   - deployment.yaml
   - service.yaml
-  - routes.yaml
+  - ingress.yaml
   - monitoring.yaml
 
 images:

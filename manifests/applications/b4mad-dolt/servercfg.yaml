@@ -4,12 +4,19 @@ metadata:
   name: dolt-servercfg
 data:
   config.yaml: |
+    # No TLS on the MySQL port on purpose. It has no external route (see
+    # ingress.yaml — HAProxy cannot carry the MySQL protocol), so the only
+    # clients are in-cluster workloads and `oc port-forward`. A public CA
+    # cert would actively get in the way there: Let's Encrypt will not issue
+    # for 127.0.0.1, so every port-forwarded client would fail verification
+    # with "cannot validate certificate for 127.0.0.1 ... no IP SANs".
+    #
+    # ⚠️ Trade-off: MySQL traffic is plaintext on the pod network. Acceptable
+    # for a single-tenant cluster; revisit if this server ever gains
+    # consumers outside it.
     listener:
       host: 0.0.0.0
       port: 3306
-      tls_key: /etc/dolt-tls/tls.key
-      tls_cert: /etc/dolt-tls/tls.crt
-      require_secure_transport: true
     metrics:
       host: 0.0.0.0
       port: 9102

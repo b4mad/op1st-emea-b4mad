@@ -37,9 +37,6 @@ spec:
               mountPath: /var/lib/dolt
             - name: servercfg
               mountPath: /etc/dolt/servercfg.d
-            - name: dolt-tls
-              mountPath: /etc/dolt-tls
-              readOnly: true
           readinessProbe:
             tcpSocket:
               port: mysql
@@ -64,6 +61,3 @@ spec:
         - name: servercfg
           configMap:
             name: dolt-servercfg
-        - name: dolt-tls
-          secret:
-            secretName: dolt-tls
