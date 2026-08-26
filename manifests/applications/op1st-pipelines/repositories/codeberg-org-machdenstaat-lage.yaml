@@ -1,0 +1,24 @@
+# Adopted into GitOps on 2026-08-26. This Repository was created by a hand
+# `oc apply` and carried no ArgoCD tracking id, so its concurrency was
+# unbounded and invisible to review. It is the repository whose four
+# simultaneous `lage-on-pr-*` PipelineRuns preceded the 09:47Z river wedge.
+#
+# The spec below is byte-for-byte what was live, plus concurrency_limit.
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: codeberg-org-machdenstaat-lage
+spec:
+  url: https://codeberg.org/machdenstaat/lage
+  git_provider:
+    type: gitea
+    url: https://codeberg.org
+    secret:
+      name: codeberg-runner-openshift-pac
+      key: provider.token
+    webhook_secret:
+      name: codeberg-pac-token
+      key: webhook.secret
+  # Bounded so one busy repo cannot fill river with build pods; see the
+  # rationale in ../kustomization.yaml. PaC queues the excess, it does not fail it.
+  concurrency_limit: 2
