@@ -13,3 +13,24 @@ spec:
   syncPolicy:
     syncOptions:
       - ServerSideApply=true
+  # The MCO KubeletConfig controller rewrites metadata.annotations when it
+  # stamps machineconfiguration.openshift.io/mc-name-suffix onto the object,
+  # and in doing so it drops the argocd.argoproj.io/tracking-id that Argo CD
+  # applied. Argo then sees an annotation it wrote go missing on every refresh
+  # and reports the resource OutOfSync forever, against a diff that can never
+  # converge -- specs and labels are byte-identical, verified via the
+  # managed-resources API on 2026-08-26.
+  #
+  # sno-config escapes this only by accident: its suffix stamp predates Argo's
+  # most recent apply, so its tracking-id survived. A future re-apply would put
+  # it in the same state, so widen this to the whole kind rather than adding a
+  # second entry if that happens.
+  #
+  # Annotations on these objects are exclusively MCO-generated, so ignoring
+  # them wholesale for this one resource silences nothing we author.
+  ignoreDifferences:
+    - group: machineconfiguration.openshift.io
+      kind: KubeletConfig
+      name: worker-config
+      jsonPointers:
+        - /metadata/annotations
