@@ -4,9 +4,6 @@ metadata:
   name: op1st
 spec:
   destinations:
-    - name: phobos
-      namespace: op1st-*
-      server: https://api.phobos.op1st.emea.operate-first.cloud:6443
     - name: nostromo
       namespace: op1st-*
       server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443

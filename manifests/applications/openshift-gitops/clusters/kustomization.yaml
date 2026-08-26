@@ -4,4 +4,3 @@ namespace: openshift-gitops
 
 resources:
   - nostromo.yaml
-  - phobos.yaml

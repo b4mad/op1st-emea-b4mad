@@ -4,9 +4,6 @@ metadata:
   name: op1st
 spec:
   destinations:
-    - name: phobos-op1st-all
-      namespace: op1st-*
-      server: https://api.phobos.op1st.emea.operate-first.cloud:6443
     - name: in-cluster-op1st-all
       namespace: op1st-*
       server: https://kubernetes.default.svc
