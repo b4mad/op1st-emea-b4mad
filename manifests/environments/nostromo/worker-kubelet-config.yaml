@@ -1,0 +1,37 @@
+# river (the only node in the `worker` pool) is a 16 GB box whose root
+# filesystem and LVMS vg1 share one SATA SSD. Without this KubeletConfig it
+# runs MCO defaults: no explicit reservation and evictionHard
+# memory.available=100Mi.
+#
+# That default never protects the node. `memory.available` counts reclaimable
+# page cache, so under memory pressure the kernel evicts cache instead of
+# letting the figure fall to 100Mi -- the threshold is never crossed, kubelet
+# never evicts, and the node instead thrashes: major page faults climb to
+# ~700/s, sda saturates at ~3400 read IOPS with an average queue depth above
+# 50, and every userspace process blocks on I/O. Kubelet stops posting
+# NodeStatus and the node goes Ready=Unknown while the kernel still answers
+# ICMP. Observed 8 times between 2026-08-21 and 2026-08-26; the last episode
+# did not self-recover and needed a power cycle (there is no BMC).
+#
+# A 1Gi hard threshold trips while there is still enough free memory to run
+# the eviction itself, so kubelet sheds pods instead of wedging.
+apiVersion: machineconfiguration.openshift.io/v1
+kind: KubeletConfig
+metadata:
+  name: worker-config
+spec:
+  machineConfigPoolSelector:
+    matchLabels:
+      pools.operator.machineconfiguration.openshift.io/worker: ""
+  kubeletConfig:
+    systemReserved:
+      memory: 1Gi
+    kubeReserved:
+      memory: 1Gi
+    # All four keys are restated because MCO replaces the evictionHard map
+    # wholesale rather than merging it with the kubelet defaults.
+    evictionHard:
+      memory.available: 1Gi
+      nodefs.available: 10%
+      nodefs.inodesFree: 5%
+      imagefs.available: 15%

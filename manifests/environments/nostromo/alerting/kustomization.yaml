@@ -6,4 +6,5 @@ resources:
   - cronjob-last-success-lag.yaml
   - sno-bridge-disk.yaml
   - sno-bridge-thermal.yaml
+  - node-memory-thrash.yaml
   - drop-cnpg-primary-pdb-at-limit.yaml

@@ -14,6 +14,9 @@ kind: Repository
 metadata:
   name: forgejo-agentic-forges-forge-agents
 spec:
+  # Bounded so one busy repo cannot fill river with build pods; see the
+  # rationale in ../kustomization.yaml. PaC queues the excess, it does not fail it.
+  concurrency_limit: 2
   url: https://git.b4mad.industries/agentic-forges/forge-agents
   git_provider:
     # Explicit — PaC defaults to `github` when type is unset.

@@ -35,6 +35,7 @@ resources:
   - secrets/oauth-clients/github-oauth-app.yaml
   - secrets/oauth-clients/keycloak-erdgeschoss-b4mad-net-secret.yaml
   - sno-kubelet-config.yaml
+  - worker-kubelet-config.yaml
 
   - keycloak/
 

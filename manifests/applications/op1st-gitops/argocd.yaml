@@ -147,10 +147,14 @@ spec:
   usersAnonymousEnabled: true
   controller:
     processors: {}
+    # The 2Gi request matches the observed ~1.9 GiB working set. The limit is
+    # 3Gi rather than 4Gi so that this controller and the openshift-gitops one
+    # cannot together burst to 8Gi on river, a 16 GB node with ~13 GiB
+    # allocatable.
     resources:
       limits:
         cpu: 875m
-        memory: 4Gi
+        memory: 3Gi
       requests:
         cpu: 350m
         memory: 2Gi

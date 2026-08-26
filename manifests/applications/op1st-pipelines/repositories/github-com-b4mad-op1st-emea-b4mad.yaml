@@ -4,4 +4,7 @@ metadata:
   creationTimestamp: null
   name: github-com-b4mad-op1st-emea-b4mad
 spec:
+  # Bounded so one busy repo cannot fill river with build pods; see the
+  # rationale in ../kustomization.yaml. PaC queues the excess, it does not fail it.
+  concurrency_limit: 2
   url: https://github.com/b4mad/op1st-emea-b4mad

@@ -116,13 +116,18 @@ patches:
               cpu: 50m
               memory: 128Mi
         controller:
+          # The controller's steady-state working set on this cluster is
+          # ~1.6 GiB, so a 1Gi request under-books it by 60 % and the
+          # scheduler happily fills the rest of the node. Requesting 2Gi makes
+          # the booking honest; the 3Gi limit bounds the burst on river, whose
+          # allocatable memory is ~13 GiB.
           resources:
             limits:
               cpu: "1"
-              memory: 4Gi
+              memory: 3Gi
             requests:
               cpu: 250m
-              memory: 1Gi
+              memory: 2Gi
         sso:
           provider: dex
           dex:
