@@ -1,0 +1,91 @@
+# Early warning for the failure mode that took river down eight times between
+# 2026-08-21 and 2026-08-26: memory pressure evicts the page cache, the node's
+# own working set faults back in off disk, the disk saturates, and every
+# userspace process -- kubelet included -- blocks on I/O. The node then reports
+# Ready=Unknown ("Kubelet stopped posting node status") while the kernel is
+# still answering ICMP. There is no BMC on this hardware, so recovery is a
+# physical power cycle.
+#
+# Thresholds are backtested against 7 days of history, not guessed:
+#
+#   * A bare major-fault threshold is useless here. bridge peaks at 1416
+#     faults/sec with a p99.9 of 180-770/sec and never comes close to going
+#     NotReady -- it has 64 GB and an NVMe. What distinguishes river's death is
+#     faulting *while genuinely out of free memory*, so the alert is a
+#     conjunction. Over 7 days that conjunction is true in 70 two-minute
+#     buckets on river (its eight episodes) and 4 on bridge, and bridge's are
+#     always isolated single buckets -- `for: 2m` drops them.
+#
+#   * Likewise the disk-queue threshold is 30, not 10: at 10 bridge's NVMe
+#     trips it 149 times a week. At 30 only river's SATA SSD trips it.
+#
+# Lead time is honest but limited. The 2026-08-25 episode built over roughly
+# seven minutes and would have alerted about five minutes before NodeNotReady.
+# The 2026-08-26 episode went from 2.5 GiB free to wedged in under two minutes;
+# no `for:` clause beats that. The real fix is the eviction threshold in
+# ../worker-kubelet-config.yaml -- this rule is the backstop, not the cure.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  creationTimestamp: null
+  name: node-memory-thrash
+  namespace: openshift-monitoring
+spec:
+  groups:
+    - name: NodeMemoryThrash
+      rules:
+        - alert: NodeMemoryThrashing
+          expr: >-
+            rate(node_vmstat_pgmajfault{job="node-exporter"}[2m]) > 100
+            and on(instance)
+            (
+              node_memory_MemFree_bytes{job="node-exporter"}
+              /
+              node_memory_MemTotal_bytes{job="node-exporter"}
+            ) < 0.05
+          labels:
+            severity: warning
+          for: 2m
+          annotations:
+            message: >-
+              {{ $labels.instance }} is servicing over 100 major page
+              faults/sec with under 5% of its memory actually free. The page
+              cache is being evicted faster than it can be refilled and the
+              node is reading its own working set back off disk. Left alone
+              this saturates the disk and wedges kubelet within minutes. Shed
+              load now.
+
+        - alert: NodeMemoryThrashingCritical
+          expr: >-
+            rate(node_vmstat_pgmajfault{job="node-exporter"}[2m]) > 400
+            and on(instance)
+            (
+              node_memory_MemFree_bytes{job="node-exporter"}
+              /
+              node_memory_MemTotal_bytes{job="node-exporter"}
+            ) < 0.05
+          labels:
+            severity: critical
+          for: 2m
+          annotations:
+            message: >-
+              {{ $labels.instance }} is servicing over 400 major page
+              faults/sec with under 5% of its memory actually free. This is the
+              rate that preceded every river NotReady episode in August 2026.
+              The node is minutes away from becoming unreachable, and it has no
+              BMC to recover it with.
+
+        - alert: NodeDiskQueueSaturated
+          expr: >-
+            rate(node_disk_io_time_weighted_seconds_total{job="node-exporter", device=~"sd[a-z]|nvme[0-9]n[0-9]"}[2m]) > 30
+          labels:
+            severity: warning
+          for: 5m
+          annotations:
+            message: >-
+              Average I/O queue depth on {{ $labels.instance }} device
+              {{ $labels.device }} has exceeded 30 for 5 minutes. Anything
+              touching this disk -- sshd, kubelet, CRI-O -- is now waiting on
+              it. On river the root filesystem and the LVMS vg1 volume group
+              share this one device, so there is no isolation between a build
+              pod's I/O and the node's ability to stay in the cluster.
