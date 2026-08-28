@@ -21,4 +21,11 @@ spec:
       key: webhook.secret
   # Bounded so one busy repo cannot fill river with build pods; see the
   # rationale in ../kustomization.yaml. PaC queues the excess, it does not fail it.
-  concurrency_limit: 2
+  #
+  # Raised 2 -> 4 on 2026-08-28. At 2 this repo could not clear its own
+  # backlog: a queue of ~20 runs took hours to drain while peers without a
+  # limit (machdenstaat/oparl-lite-2) ran six build pods at once. Build pods
+  # are not pinned to river -- most schedule on bridge (63 GB, ~56% used) --
+  # so the 16 GB river ceiling that motivated the original 2 is a worst-case
+  # placement, not the normal one. Revert to 2 if river wedges again.
+  concurrency_limit: 4
