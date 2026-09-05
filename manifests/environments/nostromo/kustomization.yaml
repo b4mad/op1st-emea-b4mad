@@ -28,6 +28,7 @@ resources:
   - local-storage/
   - lvm-storage/
   - network-management/
+  - oauth-provider-selection.yaml
   - openshift-gitops-integration.yaml
   - openshift-gitops/
   - openshift-pipelines/

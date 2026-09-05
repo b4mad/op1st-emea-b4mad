@@ -1,0 +1,142 @@
+# Custom OAuth provider-selection page for the console login screen.
+#
+# Purpose: hide the `kube:admin` button from
+# https://console-openshift-console.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/
+# so the only offered login path is the Keycloak OIDC provider defined in
+# identity-providers.yaml.
+#
+# ⚠️ This HIDES the button; it does NOT disable the kubeadmin account.
+# `oc login -u kubeadmin` and the provider's direct URL both keep working.
+# Treat it as UX tidying, not as a security control. The account-removal
+# route is `oc delete secret kubeadmin -n kube-system`, which is
+# IRREVERSIBLE and deliberately not done here.
+#
+# Base template generated with `oc adm create-provider-selection-template`,
+# then styled and given the `kube:admin` filter. The Go template context
+# exposes `.Providers`, each with `.Name` and `.URL` — do not remove those
+# parameters.
+#
+# Plain Secret, not a SealedSecret: the payload is public markup with no
+# credential in it, so the sops/kubeseal pair used under secrets/ would add
+# ceremony without protecting anything.
+#
+# Docs: OpenShift 4.21 "Customizing the web console" §6.6 "Customizing the
+# login page" —
+# https://docs.redhat.com/en/documentation/openshift_container_platform/4.21/html/web_console/customizing-web-console
+#
+# To revert (restore the kube:admin button), drop `spec.templates` from
+# identity-providers.yaml and this file from kustomization.yaml, then delete
+# the leftover Secret, which Argo CD does not prune on its own:
+#   oc delete secret oauth-provider-selection-template -n openshift-config
+# The authentication operator rolls out new oauth-openshift pods either way.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oauth-provider-selection-template
+  namespace: openshift-config
+type: Opaque
+stringData:
+  providers.html: |
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Log in</title>
+        <style type="text/css">
+          :root {
+            --pf-blue: #0066cc;
+            --pf-blue-hover: #004080;
+            --pf-text: #151515;
+            --pf-muted: #6a6e73;
+            --pf-border: #d2d2d2;
+            --pf-bg: #f0f0f0;
+            --pf-surface: #ffffff;
+          }
+          * { box-sizing: border-box; }
+          body {
+            font-family: "Red Hat Text", "Open Sans", Helvetica, Arial, sans-serif;
+            background: var(--pf-bg);
+            color: var(--pf-text);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+          }
+          .login-card {
+            background: var(--pf-surface);
+            border: 1px solid var(--pf-border);
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(3, 3, 3, 0.15);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+          }
+          h1 {
+            font-family: "Red Hat Display", "Open Sans", Helvetica, Arial, sans-serif;
+            font-size: 24px;
+            font-weight: 500;
+            margin: 0 0 8px;
+          }
+          p.subtitle {
+            color: var(--pf-muted);
+            font-size: 14px;
+            margin: 0 0 24px;
+          }
+          ul.idp-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+          }
+          ul.idp-list li { margin-bottom: 12px; }
+          ul.idp-list li:last-child { margin-bottom: 0; }
+          a.idp-button {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            background: var(--pf-blue);
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 16px;
+            transition: background-color 0.1s ease-in-out;
+          }
+          a.idp-button:hover,
+          a.idp-button:focus {
+            background: var(--pf-blue-hover);
+          }
+          p.empty {
+            color: var(--pf-muted);
+            font-size: 14px;
+            margin: 0;
+          }
+          @media (prefers-color-scheme: dark) {
+            :root {
+              --pf-text: #e0e0e0;
+              --pf-muted: #b8bbbe;
+              --pf-border: #444548;
+              --pf-bg: #1b1d21;
+              --pf-surface: #26292d;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <main class="login-card">
+          <h1>Log in to nostromo</h1>
+          <p class="subtitle">#B4mad Network &middot; erd/G/eschoss</p>
+          <ul class="idp-list">
+            {{ range $provider := .Providers }}
+              {{ if ne $provider.Name "kube:admin" }}
+                <li>
+                  <a class="idp-button" href="{{ $provider.URL }}">{{ $provider.Name }}</a>
+                </li>
+              {{ end }}
+            {{ end }}
+          </ul>
+        </main>
+      </body>
+    </html>
