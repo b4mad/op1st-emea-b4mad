@@ -21,3 +21,9 @@ spec:
         extraScopes: []
         issuer: "https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss"
       type: OpenID
+  # Replaces the stock provider-selection page so the console login screen
+  # offers only the Keycloak provider above; see
+  # oauth-provider-selection.yaml for the template and its caveats.
+  templates:
+    providerSelection:
+      name: oauth-provider-selection-template
