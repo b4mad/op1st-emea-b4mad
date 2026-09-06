@@ -1,0 +1,45 @@
+# SPDX-FileCopyrightText: 2026 Christoph Görn <goern@b4mad.net>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Pipelines-as-Code wiring for goern/transactions: this Application reconciles
+# that repo's Repository CR into op1st-pipelines, which is what makes its
+# .tekton/ templates fire at all.
+#
+# Defined here rather than pulled as a raw URL — the way lage, oparl-lite-2 and
+# feeldata are pulled in ../kustomization.yaml — because goern/transactions is
+# PRIVATE. Kustomize fetches those remote resources anonymously at build time,
+# so a raw URL to a private repo would 404 and break the whole op1st-gitops
+# build, not just this Application. Same reason b4mad-epaper-service-tekton-secrets
+# is defined here.
+#
+# ⚠️ Requires the repository credential `forgejo-b4mad-goern` in op1st-gitops
+# (repositories/). Without it Argo cannot clone the source and this Application
+# sits in ComparisonError. Add the credential first.
+#
+# project is op1st, not b4mad: Argo validates every rendered resource's
+# namespace against the project's destinations and refuses the whole sync on a
+# miss. AppProject b4mad admits only b4mad-* (plus openshift-monitoring);
+# op1st-pipelines needs AppProject op1st.
+#
+# No CreateNamespace: op1st-pipelines is owned by the op1st-pipelines
+# Application in manifests/applications/. This one adds a single CR to it.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-transactions-tekton
+  namespace: op1st-gitops
+spec:
+  project: op1st
+  source:
+    repoURL: https://git.b4mad.industries/goern/transactions
+    targetRevision: HEAD
+    path: manifests/dev
+  destination:
+    server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
+    namespace: op1st-pipelines
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
