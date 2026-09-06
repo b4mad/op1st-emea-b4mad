@@ -30,6 +30,7 @@ resources:
   - applications/b4mad-radicle.yaml
   - applications/b4mad-renovate.yaml
   - applications/b4mad-site-operator.yaml
+  - applications/b4mad-transactions-tekton.yaml
   - applications/hausmeister.yaml
   - applications/op1st-etcd-backup.yaml
   # feeldata migrated off codeberg.org 2026-07-28; the b4mad forge is now

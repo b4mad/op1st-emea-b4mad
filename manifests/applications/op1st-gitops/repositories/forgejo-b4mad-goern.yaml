@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 Christoph Görn <goern@b4mad.net>
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Argo CD repository credential for goern/transactions, identity b4mad-gitops.
+# Needed because that repo is PRIVATE — Argo cannot clone it anonymously, and
+# op1st-gitops had no credential for git.b4mad.industries at all, every source
+# from that forge registered here so far being public.
+#
+# Consumed by applications/b4mad-transactions-tekton.yaml, which reconciles that
+# repo's Pipelines-as-Code Repository CR into op1st-pipelines.
+#
+# ⚠️ b4mad-gitops must also be a collaborator on goern/transactions with WRITE.
+# Read is enough for Argo, but the same identity backs the `forgejo-b4mad` PaC
+# token, and PaC commit-status updates fail silently with 404 without write.
+#
+# ⚠️ There is deliberately NO forgejo-b4mad-goern.enc.yaml beside this file, so
+# `manage-secrets.sh reseal` will not regenerate it. The token's one durable copy
+# stays b4mad-forgejo/bot-tokens.enc.yaml -> gitops-token; a second SOPS copy here
+# would rotate in one place and go stale in the other. After a rotation, re-derive
+# with the script that produced this file (see the commit that added it).
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: forgejo-b4mad-goern
+  namespace: op1st-gitops
+spec:
+  encryptedData:
+    password: AgAUO7NpWlo8UBYbYSuTCFZR47y/FO7Z/EyebNnx/qWLZHE+ZIyC3aR907DIQjr7faxDhyUzdaWadoXLHEiQFwFd07mpuoPFNf23Sv3nrCT69+ZaRDEXKU5rdibHH5JDHuHTc/TmhR+HXYWi4LehqDqZbaHx+WU96bwdQCkP+iKAOcQfpjwvGv1eiLeqKWh6DsT8GBAHGn6XV/yRcmysAJMITkyhXux2nbsU7QjdQ9zmyObAe13whjSU2DCUhIksi4PULNddZ7BIT7doZ5bxMNnV6d1lYDjCuQjVTPv39Tz3O414T5gZoW2JCtW6VFFTgQ/t7HLcg/csdOq0FDP2h6rZQgI95jzTGAC2hyBxEMIiBEtqfXfP1jkianpl/hbWlYd/KdlMgjIEv9+++v+uH4yFpq3MH7700KvSx2kOm2ldzHIbTZR1V80+4pJ3gLpwNPZwe/1Sh4UGp+ee2JWkLUIRwkXsION+W3IW9mDbF7nJHFbds0SY9D2G2jLmvMnHJoSeKCfcuTbKBh9QjM4TDM3GcJNpU5/ygAC7wTJ35QE5+9Iwb+E/ISms+uTMsxxr8/1eTEzeihjR6v2WWBFH8N9WHybkpRaV+P9rps+NuS7PqbMkmgRV85/1Ico/X588ek5gby9nm+3qElkjL3NRcSXNkEv3dvGhnaRtyPYmErnluRBo+yYQa0+kvo92A9uQFKsUgnWvk4rXo5zeuy45xiqM7C/Cy/+2nRnc/aKxyJ2KJKiygOc4jQER
+    type: AgBwc1tG9b5vpBbY+e0kNSkvfBh6zvpsvfk6NsSEBnhht+KiFMuvvsMbydHXm4ptckakk8DHBnetr9jQlMOh7RQelg42XcCLUUP9jtnOGKhz+t6aBwNQHZ6B7OSpqpagil/HxEfKwYoQj1Z2sKMuafIiSsZyn91tcdC4t5Cxj2U53O9FwXerKF5+oxvAvoIpjfGGnQMgMi7TixvWpjGgouKVdYWj2UbxxupRSNjVGv8zWhHiSMPNHpBjKZEqYNum1TXIPSNO8VSRmwyjumbwmca5CofT8Md/W31DznQT58AP9yb5rmZL3RFSglaClVEpc8HSR9Qs5xDG1qUax1qhz8S4XvJNOpVtrTgGem0MNM5byqKL7N4LZWMRXVqL/8oSdu+XS+fHs0U89XbNa094vBhUpYZfqjnblKjf0+13E+02pcqffmjJf0vupPRSGpmh0m9ETiLI3T5zfz4i8FmaqpDY2GnPNw9JBuyQK2lxknybI2u/Ag2oQsWCS0JkpU2BZqap9lNLyg3/Vj8Pm749pNoWRkdoqjPPwg3fSNq2yATTJpqQ6hdqphZhxkeJtcYwyk7vz3/OyNasGtrdGR5d6RJ204+BjcIesgWr/y1AcIvhSfjYmfEhl3tCsqaGfQ4vbsgOPxc/RCcZdNL0r0bDR4MK//CJLz1m3e0DCzyM3dvIGtLEw2xdrcPmqxepoYs051L2l9k=
+    url: AgAhLtYhujQfkHizNyUhiXJaqCV9yBTDdaVMaQv7AXzyIUOOsmrgke5qH1VwQqqc+/AjpDq0oGus9uL0/f/UUWf3LXlTEThy8yozSrW9jwHGKjNGaCZ5tiF2bseyrR1zooQ19yuDPdIOwmMH8IUD4pEqyfJGeRDZceWsqpHZW7IyQaHwqtMcM0+sKdeiA76N3reCRq1Dq9Bn9aMRgr7sEuaDxnkkaXsUxg2XS8LpVawL9ZHtED1PVr0X3YkUGL8zBNPSwsmhoYgPgNBairR8AIhE15hTw+j0TvWpi23L5IMzL1uXXwdaPMztsGbe0BTjsbqKwbM46UK72RdylDtusWCfw5PGoCyrT7m4FGHWs6rEaqZQfkjSuAnE6VAidPdTMl0jMVjVax2xhEt+qEirr0XieaRMK7f15l94K7cFrpLmNb8idU2X0rU5npBgOSYa/exn7Uc20gFjzjZCpIhu9fln3mpYbykVW1Nj1JvaDiMyZytvupA8Tz+xNTq6cHAoBHv2CvPToPno5w80qQCFd8hNIUVLcE3UmM8EaHze0yEpeYhuFL3AwJMpXyYXHjy8C1U0oLFq6ZbJ0upkM8XoswjkmcudoQmat4Pz/UPLXHzK8fBSBa4GOLSLwqYU7OljkYVwF73/ItICC3OYEMiwlXiDgZYXk0Dw0dYhbxOyAiHS2WEnF+CHJLrRdVq9/kTZS7te3v0sYfSPlg8xwLoSU2Dq5DkZyj7e3YXTDR1RRKBFBzlU8I3f86BFBtg9tskH8A==
+    username: AgBHxh3bfwp8UItksfD7XbPZxvnsWhk7q7TyZWkxKBhq2gQI96f3rsJt5q6oTW8PPS26vWHS+HewXgN7vDM6EHT5WgRHN7DubaKf7E+k6H91e9oMpsWb4rOtyl4DssRmtmocupRqsjoXYL/YRM/tMCEMAjbK2S0F54J7b3SScl+78xxIYjEqjUwnTa4OL4RE4MzFnnXcqZJn326TzU5nj5O7s3LDOHE7ICCdx2OMPw5Eh11wbPUxz3Dc5dqMOTDvkWK4rgE7jz7QeamLNE8Y1X4v03yS6OjnSjyRl+Bptg86n2douEEk4IqC1z/D++0FzaXwQEHkq/h+8eTOuGajwR+XFk0DzlwkGFjMpQfg5AWuwxmoY9ANjSgeyn54JYtX1T3PF/nvWchQ72Y8/q5+5mgS+vt3TdwKlv0wCLjE7E7kSj+AROdRxurLY2Ey0r5rCFd6+mXK8MjLDde1QtQyPRSuPpoHt5aI7wMY0XiLCXG2yaw0chPGm/r5Snu8EK5EQiQSGO1/2lX+mP3eyZYzTUJUKoFdNw1sWngAtlOwLCHZxW3jOrFdt5M5GLdm7+k2VPgx5HXiEFrQSie3Izu10ZQjDxpQC5veFqUpWqSWm4hha+jnwuqU1a5RtIT38wo2VCB3yFZ7l8vHmKup+v/OB7NVI30j3MRYFLeYb8Q7QdGXBvUbiByBWe/Khr5HcXPEhNZoxo9lRQh9N8IHUxs=
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        argocd.argoproj.io/secret-type: repository
+      name: forgejo-b4mad-goern
+      namespace: op1st-gitops
