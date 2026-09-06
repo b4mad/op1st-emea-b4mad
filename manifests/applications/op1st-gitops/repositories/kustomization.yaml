@@ -4,3 +4,7 @@ kind: Kustomization
 resources:
   - forgejo-helm.yaml
   - github-b4mad-op1st-emea-b4mad.yaml
+  # Read access to the PRIVATE goern/transactions, identity b4mad-gitops.
+  # No .enc.yaml beside it on purpose — the token's one durable copy stays
+  # b4mad-forgejo/bot-tokens.enc.yaml, so `manage-secrets.sh reseal` skips it.
+  - forgejo-b4mad-goern.yaml
