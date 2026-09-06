@@ -10,6 +10,11 @@ spec:
   sourceRepos:
     - https://github.com/b4mad/op1st-emea-b4mad.git
     - https://codeberg.org/goern/epaper-service
+    # b4mad-transactions-tekton reconciles this repo's Pipelines-as-Code
+    # Repository CR into op1st-pipelines. The list is an explicit allowlist, not
+    # a wildcard like AppProject b4mad's, so an Application whose source is
+    # missing here fails with InvalidSpecError before it ever syncs.
+    - https://git.b4mad.industries/goern/transactions
   roles:
     - name: project-admin
       description: Read/Write access to this project only
