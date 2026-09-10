@@ -98,7 +98,14 @@ spec:
                 -s "redirectUris=[\"$APP/oauth2/callback\"]"
                 -s "webOrigins=[\"$APP\"]"
                 # Sign-out from AgentsView should end the Keycloak session too.
-                -s "attributes.post.logout.redirect.uris=$APP/*"
+                # ⚠️ The inner quotes are mandatory. kcadm reads an unquoted
+                # dot as a nested JSON path, so `attributes.post.logout...`
+                # is parsed as attributes -> post -> logout -> ... and the
+                # whole call dies with "Cannot parse the JSON
+                # [unknown_error]" — which is exactly how this Job failed on
+                # its first run. Same escaping as `config."claim.name"` in
+                # setup-erdgeschoss-broker-job.yaml.
+                -s "attributes.\"post.logout.redirect.uris\"=$APP/*"
               )
 
               CID=$($KCADM get clients --config "$CFG" -r "$REALM" \
