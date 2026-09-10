@@ -19,6 +19,7 @@ resources:
   - projects/
   - repositories/
 
+  - applications/b4mad-agentsview.yaml
   - applications/b4mad-castra.yaml
   - applications/b4mad-dolt.yaml
   - applications/b4mad-epaper-service-tekton-secrets.yaml

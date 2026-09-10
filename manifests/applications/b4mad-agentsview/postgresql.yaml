@@ -1,0 +1,51 @@
+---
+# CloudNativePG cluster backing AgentsView. Single instance: nostromo is a
+# single-node cluster, so there is no second node for an HA standby to land on.
+#
+# ⚠️ Deliberately NO barmanObjectStore backup and no ScheduledBackup, unlike
+# b4mad-forgejo and b4mad-keycloak. This database is a *derived* store: every
+# row is pushed here by `agentsview pg push` from a machine that keeps the
+# authoritative SQLite archive under ~/.agentsview/sessions.db. Losing this
+# cluster costs one `agentsview pg push --full` per machine, not data. Paying
+# for S3 storage, an aws-creds SealedSecret and a nightly backup slot to
+# protect a cache would be ceremony, not durability.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: prod
+spec:
+  instances: 1
+  bootstrap:
+    initdb:
+      database: agentsview
+      owner: agentsview
+  storage:
+    resizeInUseVolumes: true
+    size: 10Gi
+    storageClass: lvms-vg1
+  monitoring:
+    customQueriesConfigMap:
+      - key: queries
+        name: cnpg-default-monitoring
+    disableDefaultQueries: false
+    # enablePodMonitor is deprecated; the PodMonitor is managed manually below.
+    enablePodMonitor: false
+  postgresql:
+    parameters:
+      pgaudit.log: "none, -misc"
+---
+# Manually managed PodMonitor, replacing the deprecated
+# spec.monitoring.enablePodMonitor. Selector/port match what the CNPG operator
+# generates for a Cluster's instance pods.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: prod
+spec:
+  namespaceSelector: {}
+  selector:
+    matchLabels:
+      cnpg.io/cluster: prod
+      cnpg.io/podRole: instance
+  podMetricsEndpoints:
+    - port: metrics

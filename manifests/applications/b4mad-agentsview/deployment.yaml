@@ -1,0 +1,151 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentsview
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agentsview
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: agentsview
+    spec:
+      containers:
+        # --- the dashboard, loopback-only ------------------------------------
+        - name: agentsview
+          image: agentsview
+          # The image's entrypoint runs `agentsview serve` unless PG_SERVE is
+          # truthy, in which case it runs `agentsview pg serve` and appends
+          # these args. `pg serve` is read-only: no local sync, no session
+          # uploads, no file watching — it only reads what the machines pushed.
+          #
+          # ⚠️ --host 127.0.0.1 is load-bearing. It is what makes oauth2-proxy
+          # the ONLY way in: both containers share the pod network namespace,
+          # so the sidecar reaches 127.0.0.1:8080 while nothing outside the pod
+          # can. Change this to 0.0.0.0 and the Service would expose the whole
+          # session archive — every prompt, every tool result, every secret
+          # finding — with no authentication at all.
+          #
+          # The image's default CMD carries --no-browser, which `serve` accepts
+          # and `pg serve` does not; overriding args drops it, which is correct.
+          args:
+            - --host
+            - 127.0.0.1
+            - --port
+            - "8080"
+            - --public-url
+            - https://agentsview.b4mad.industries
+          env:
+            - name: PG_SERVE
+              value: "1"
+            # Generated and rotated by the CNPG operator for the `agentsview`
+            # owner role; nothing about this connection lives in git.
+            - name: AGENTSVIEW_PG_URL
+              valueFrom:
+                secretKeyRef:
+                  name: prod-app
+                  key: uri
+          volumeMounts:
+            # AGENTSVIEW_DATA_DIR=/data is baked into the image and /data is
+            # created root-owned, which an OpenShift random UID cannot write.
+            # An emptyDir picks up the pod's fsGroup and is writable. Nothing
+            # durable lives here in pg serve mode — the archive is PostgreSQL.
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+        # --- the authentication gate -----------------------------------------
+        - name: oauth2-proxy
+          image: oauth2-proxy
+          # Realm erdgeschoss, not b4mad-forgejo: that realm brokers GitHub and
+          # Codeberg and auto-provisions from them, so anyone with a GitHub
+          # account could reach a login there. erdgeschoss has no public
+          # identity provider, so this gate fails closed.
+          args:
+            - --provider=oidc
+            - --oidc-issuer-url=https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss
+            - --client-id=agentsview
+            - --redirect-url=https://agentsview.b4mad.industries/oauth2/callback
+            - --upstream=http://127.0.0.1:8080
+            - --http-address=0.0.0.0:4180
+            - --scope=openid email profile
+            - --email-domain=*
+            - --skip-provider-button=true
+            # Behind the OpenShift router: trust X-Forwarded-* so the proxy
+            # builds https:// callbacks rather than http:// ones.
+            - --reverse-proxy=true
+            - --cookie-secure=true
+            - --cookie-samesite=lax
+            - --cookie-expire=12h
+          env:
+            # ⚠️ agentsview-oidc is NOT sealed into this namespace. It is
+            # sealed into b4mad-keycloak, where the PostSync Job sets the very
+            # same value on the Keycloak client, and reflector mirrors it here
+            # — one value, one place to rotate, no chance of the two halves
+            # drifting apart. The pod stays Pending-on-secret until reflector
+            # has copied it.
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: agentsview-oidc
+                  key: OAUTH2_PROXY_CLIENT_SECRET
+            # Cookie signing only; Keycloak never sees this one.
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: agentsview-cookie
+                  key: OAUTH2_PROXY_COOKIE_SECRET
+          ports:
+            - containerPort: 4180
+              name: oauth2-proxy
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 4180
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+      volumes:
+        - name: data
+          emptyDir: {}

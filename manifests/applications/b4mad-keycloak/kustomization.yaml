@@ -28,6 +28,12 @@ resources:
   - codeberg-oauth2-app.yaml
   - b4mad-forgejo-realm-secrets.yaml
 
+  # OIDC client secret for AgentsView. Lives here rather than in
+  # b4mad-agentsview because the Job below writes the very same value onto the
+  # Keycloak client; reflector mirrors the Secret into b4mad-agentsview for
+  # oauth2-proxy, so there is only ever one value to rotate.
+  - agentsview-oidc.yaml
+
   # ⚠️ Create-only: the operator imports with `kc.sh import --override=false`,
   # so this CR applied once, years ago, and edits to it no longer reach the
   # live realm. Realm b4mad-forgejo was migrated to keycloak-config-cli
@@ -47,6 +53,10 @@ resources:
   # PostSync hook: provisions the broker client and its groups mapper in realm
   # erdgeschoss, which config-cli deliberately does not manage.
   - setup-erdgeschoss-broker-job.yaml
+
+  # PostSync hook: provisions the AgentsView OIDC client, also in realm
+  # erdgeschoss and for the same reason.
+  - setup-agentsview-client-job.yaml
 
 configMapGenerator:
   # Mounted at /config in the keycloak-config-cli Job. The generated name

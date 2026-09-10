@@ -1,0 +1,38 @@
+# External reach for `agentsview pg push`.
+#
+# AgentsView's cluster-side half (`pg serve`) is READ-ONLY — it never creates a
+# session. Every row is pushed from a machine that holds the authoritative
+# SQLite archive, so PostgreSQL has to be reachable from those machines or the
+# dashboard stays empty forever.
+#
+# There is no LoadBalancer/MetalLB on this single-node cluster (same constraint
+# as Forgejo's git-SSH, see b4mad-forgejo/README.md), so this is a fixed
+# NodePort on the node bridge:
+#
+#   agentsview pg push
+#     -> 192.168.0.148:32432 (nodePort)
+#     -> this Service -> CNPG primary pod :5432
+#
+# ⚠️ The erdgeschoss gateway deliberately does NOT forward this port. It is
+# LAN-only. A PostgreSQL owner role on the open internet is not a trade this
+# repo makes; reach it over the LAN or over Tailscale to the node, not from
+# anywhere else.
+#
+# Own Service rather than patching `prod-rw`: that one is generated and
+# reconciled by the CNPG operator, so a type/nodePort added to it is reverted.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-ext
+spec:
+  type: NodePort
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+      nodePort: 32432
+      protocol: TCP
+  selector:
+    cnpg.io/cluster: prod
+    # `role: primary` is the deprecated spelling; CNPG >= 1.22 sets this one.
+    cnpg.io/instanceRole: primary
