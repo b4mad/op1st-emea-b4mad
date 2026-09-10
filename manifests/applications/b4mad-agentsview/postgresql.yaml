@@ -23,6 +23,21 @@ spec:
     resizeInUseVolumes: true
     size: 10Gi
     storageClass: lvms-vg1
+  # Dedicated PVC for pg_wal (prod-1-wal), keeping WAL off the PGDATA volume so
+  # a write burst — the first `agentsview pg push` moves a ~670MB archive —
+  # cannot fill PGDATA and wedge the instance. Same pattern and size as
+  # machdenstaat-oparl-lite-stage/stage-1-wal; vg1 has terabytes free.
+  #
+  # ⚠️ One-way. Upstream: "Removing walStorage isn't supported. Once added, a
+  # separate volume for WALs can't be removed from an existing Postgres
+  # cluster." Adding it to a live cluster restarts the single instance, so the
+  # dashboard and any in-flight push drop briefly. If the WAL migration goes
+  # wrong, the recovery here is cheap and boring: this database is derived, so
+  # delete the cluster and re-run `agentsview pg push --full` per machine.
+  walStorage:
+    resizeInUseVolumes: true
+    size: 12Gi
+    storageClass: lvms-vg1
   monitoring:
     customQueriesConfigMap:
       - key: queries

@@ -44,7 +44,13 @@ agentsview pg push
 agentsview pg push --watch      # or: agentsview pg service install
 ```
 
-## Storage: deliberately unbacked
+## Storage
+
+`pg_wal` lives on its own 12Gi PVC (`prod-1-wal`), so a write burst cannot fill
+PGDATA — the first push moves a ~670MB archive. ⚠️ `walStorage` is one-way:
+once added it cannot be removed from an existing cluster.
+
+### Deliberately unbacked
 
 Unlike `b4mad-forgejo` and `b4mad-keycloak`, the CNPG cluster here has **no**
 `barmanObjectStore` and no `ScheduledBackup`. Every row is derived from a
