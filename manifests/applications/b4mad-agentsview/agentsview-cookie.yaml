@@ -1,0 +1,16 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: agentsview-cookie
+  namespace: b4mad-agentsview
+spec:
+  encryptedData:
+    OAUTH2_PROXY_COOKIE_SECRET: AgCL4CpKW7eIsfFXMh5XYmJjW68zYP3Lc2KnbB1cBGR7o4lzK1KtInXfMtFWkCWnyGZHa6dfUs3HRS7LjM84o1GwAsz/LAbtYa76mvGF91iaqGGM2maVJzalDsWTsdCPboTLNEaIhzRJLaMM3QhnVXayv+knOYVF7t3EZlqvZdhczonlBgMHFz4rgdomFgTF6JgEQ4sqRjqeiWpsFKV4rcBbWYzeIZ6X0tnAqZVxZ6CKVAnA5xitLOTEiToNpiTSrZ//pKfKFfR37rvLKUnk5ENl1a/Q0J+tGwK7M1Ir3hTgMwdddKYxdkJJCgLL/KI7aa+/or1xWHm85JTYuDCjjma1p+x2+Q1uLoULC/vbgitRqcgjPA57dWB5Xp7w9EI4M06aeEbdXV10pTWzzVT70g7phn97mdiIMtoQ0L+cueY4PmXUG4fiH2P5+SQKW4cC5mvjDu5htU51ix2W37bNWrwDY9Bodcrqpo67TbLrPKO5G4OmzdXARDkSzvh2IHDKqsFzRr6WQ7rC+43mvzLgrkpZVh+cDTD75ALveNLabWunAUHEGHqnTUtinvJDAnC+mTX4G0ROss8tQWIrL/8hb1cyMk57v/GfMALD3PhJkce2lmZGjIBxG3/EVjyYbkl1NYoOJMmpa0tkGF3LjDSIM5CIVb8/HIm8KtsUXcx+QB9WN8oIpA/LSwSQA8R8mKW2TaOtlOZ1LVdH2wbvNHUiJSDokm6JLlPj7lYYoEMDB47mpHSQfp4uV3F3+Mue4w==
+  template:
+    metadata:
+      creationTimestamp: null
+      name: agentsview-cookie
+      namespace: b4mad-agentsview
+    type: Opaque
+---

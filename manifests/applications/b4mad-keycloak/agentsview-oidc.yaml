@@ -1,0 +1,22 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: agentsview-oidc
+  namespace: b4mad-keycloak
+spec:
+  encryptedData:
+    OAUTH2_PROXY_CLIENT_SECRET: AgCXnHA/vRFv+NqjXn0BunBgSz8l5Yu1LDIwPci099kC2YOc/Aee1uV985X/RrcOhwtdTzmoGL28br51x0JVrXgofk8iZeSl7KtYxg/y9vAzvXxdy9VYi2a+etIQsrjzrg30dRkcZjJ/+SyNeGDPDgiDm2N6EpzRBjLeBj26dJHkBGcpCkg0zBfMZ/C79wFw3kHvOztu6SfLBYGSZcYOJOpBj2GnzjNN4OC37tSBHHrEamu41tgsc/go/QBWiM/cdl2ZdnfNOpJTZ4hZ4ZD4PNNXa9OUPNyXAH+CDuRbBi5gGTZZ6m9If2mlYhStMaZWnBuOrKnfdZeUXIXJL6GNy4AdydrJ2D5bikMweccrlUAi+QnW0V5k81gIwYuRpmv40FZRfFG9JYnSAlEyQdwmMlGjqQFlcZPGg/nhIx9pravpjP2vOh5Nu0ZsCLG/PcQhUTQ6YY6LKKeI/6ZL75A5PRpg28p0/TU6S/dYLHO/6zNaOz2RND6+RVOXCtYM5kD/YUcPWuKVf2wTJACKZJTgQg23x2OcZTEeOmh/P6Mmh9FJjHfNLrKJ9KfRURaEUojNfDTi5Hj192M0OqptHzzdRtrJtAje1GEuzrElUGE35SXErqMI+8ZY1GL9sAbrMj1BaIjvMTqvkwFAbJyn8+d1TDfZssFb5hNfviJqMNKKr3/iQvHkxwC/sc3cvrmSd3eFSK98oB4HOnEmCNQRbmYn4dqiihwVHBdn68SRlF34TQvjTs8FNC+xv6RMMnWf
+  template:
+    metadata:
+      annotations:
+        b4mad.net/href: https://agentsview.b4mad.industries
+        reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
+        reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: b4mad-agentsview
+        reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
+        reflector.v1.k8s.emberstack.com/reflection-auto-namespaces: b4mad-agentsview
+      creationTimestamp: null
+      name: agentsview-oidc
+      namespace: b4mad-keycloak
+    type: Opaque
+---
