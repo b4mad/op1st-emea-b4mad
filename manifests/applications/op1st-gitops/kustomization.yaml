@@ -27,6 +27,7 @@ resources:
   - applications/b4mad-forgejo.yaml
   - applications/b4mad-keycloak.yaml
   - applications/b4mad-matrix.yaml
+  - applications/b4mad-matrixa.yaml
   - applications/b4mad-meshtastic-gateway.yaml
   - applications/b4mad-radicle.yaml
   - applications/b4mad-renovate.yaml

@@ -1,0 +1,37 @@
+# matrixa: a Matrix bot that sits in #forgejo-mcp:b4mad.net and answers
+# @-mentions. Source: https://git.b4mad.industries/goern/matrixa
+#
+# ⚠️ DESTINATION NAMESPACE IS b4mad-forgejo, NOT b4mad-matrixa. This breaks the
+# name==namespace convention every other b4mad-* Application here follows, and
+# it is deliberate: matrixa is forge tooling and shares the namespace with
+# b4mad-forgejo rather than earning one of its own.
+#
+# The consequence to keep in mind is that TWO Applications now sync into
+# b4mad-forgejo with prune: true. Argo prunes only what carries its own
+# tracking-id, so this is safe as long as neither side starts managing the
+# other's objects — but a resource moved between the two repos without being
+# removed from the first will be pruned by whichever app loses it.
+#
+# ⚠️ The bot's credential is NOT in git. It is the Secret matrixa-credentials
+# in b4mad-forgejo, created by hand from a matrix-authentication-service
+# compatibility token; see docs/matrix-account.md in the matrixa repo.
+# manifests/secret.example.yaml there is an example and is deliberately left
+# out of the kustomization so it can never overwrite the real one.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-matrixa
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: b4mad-forgejo
+    server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
+  project: b4mad
+  source:
+    path: manifests
+    repoURL: https://git.b4mad.industries/goern/matrixa
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
