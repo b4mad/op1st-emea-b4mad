@@ -1,0 +1,15 @@
+# The Ingress targets oauth2-proxy (4180), never agentsview directly.
+# agentsview itself binds 127.0.0.1 inside the pod, so nothing but its sidecar
+# can reach port 8080 — see deployment.yaml.
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentsview
+spec:
+  ports:
+    - name: http
+      port: 4180
+      targetPort: oauth2-proxy
+  selector:
+    app.kubernetes.io/name: agentsview
+  type: ClusterIP

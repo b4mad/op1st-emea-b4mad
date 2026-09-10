@@ -1,0 +1,27 @@
+# OpenShift's ingress-to-route controller renders this as an edge-terminated
+# Route, and cert-manager issues the certificate straight off the
+# cluster-issuer annotation — no hand-written Certificate, no router RBAC.
+# Same pattern as the dolt remotesapi Ingress in b4mad-dolt.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agentsview
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.allow-http: "false"
+spec:
+  rules:
+    - host: agentsview.b4mad.industries
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: agentsview
+                port:
+                  number: 4180
+  tls:
+    - hosts:
+        - agentsview.b4mad.industries
+      secretName: agentsview-tls
