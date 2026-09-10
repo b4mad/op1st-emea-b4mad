@@ -12,4 +12,7 @@ spec:
       targetPort: oauth2-proxy
   selector:
     app.kubernetes.io/name: agentsview
+    # See deployment.yaml: without this, the selector also matches CNPG's
+    # prod-1 pod, which inherits the Cluster's labels.
+    app.kubernetes.io/component: dashboard
   type: ClusterIP

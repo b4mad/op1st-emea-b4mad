@@ -13,6 +13,15 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: agentsview
+        # ⚠️ Not decoration. CNPG copies the Cluster's labels onto its instance
+        # pods, so prod-1 also carries app.kubernetes.io/name=agentsview and is
+        # matched by any Service selecting on that label alone. The Service
+        # selects this component label instead, so the dashboard's endpoints
+        # can never pick up the Postgres pod. (spec.selector deliberately does
+        # NOT include it — a Deployment's selector is immutable, and the
+        # ReplicaSet cannot adopt CNPG's pods anyway: they already have a
+        # controller owner reference.)
+        app.kubernetes.io/component: dashboard
     spec:
       containers:
         # --- the dashboard, loopback-only ------------------------------------
@@ -44,11 +53,23 @@ spec:
               value: "1"
             # Generated and rotated by the CNPG operator for the `agentsview`
             # owner role; nothing about this connection lives in git.
-            - name: AGENTSVIEW_PG_URL
+            - name: AGENTSVIEW_PG_URI
               valueFrom:
                 secretKeyRef:
                   name: prod-app
                   key: uri
+            # ⚠️ The operator's `uri` key carries no query string, and
+            # AgentsView refuses a non-local host that permits plaintext:
+            #   "pg connection to prod-rw.b4mad-agentsview permits plaintext;
+            #    set sslmode=require (or verify-full) for non-local hosts"
+            # Appending the parameter through Kubernetes' dependent env-var
+            # expansion keeps the password out of this manifest entirely — a
+            # CNPG rotation that produced URL-special characters would break a
+            # hand-assembled URL, but cannot break this one. `require` rather
+            # than `verify-full`: CNPG signs its serving certificate with its
+            # own per-cluster CA, which the image's trust store does not carry.
+            - name: AGENTSVIEW_PG_URL
+              value: $(AGENTSVIEW_PG_URI)?sslmode=require
           volumeMounts:
             # AGENTSVIEW_DATA_DIR=/data is baked into the image and /data is
             # created root-owned, which an OpenShift random UID cannot write.
