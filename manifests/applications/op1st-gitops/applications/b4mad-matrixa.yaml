@@ -1,5 +1,16 @@
 # matrixa: a Matrix bot that sits in #forgejo-mcp:b4mad.net and answers
-# @-mentions. Source: https://git.b4mad.industries/goern/matrixa
+# @-mentions. Source: https://git.b4mad.industries/agentic-forges/matrixa
+#
+# ⚠️ The repo moved from goern/matrixa on 2026-09-10. Forgejo left a redirect,
+# so the old URL still resolves and Argo did not break — which is exactly why
+# this needs to be the real path rather than the redirect. b4mad-castra in this
+# same directory records what happens when an Application is left pointing at a
+# repo URL that later stops resolving: kustomize renders zero manifests and
+# prune removes what the app owns.
+#
+# The org matters beyond tidiness: Forgejo scopes package namespaces to the
+# owning user, so under goern/ the release pipeline could not have pushed the
+# container image with the shared credential.
 #
 # ⚠️ DESTINATION NAMESPACE IS b4mad-forgejo, NOT b4mad-matrixa. This breaks the
 # name==namespace convention every other b4mad-* Application here follows, and
@@ -29,7 +40,7 @@ spec:
   project: b4mad
   source:
     path: manifests
-    repoURL: https://git.b4mad.industries/goern/matrixa
+    repoURL: https://git.b4mad.industries/agentic-forges/matrixa
     targetRevision: HEAD
   syncPolicy:
     automated:
