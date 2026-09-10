@@ -82,6 +82,18 @@ scripts/sops2sealedsecret --context <ctx> --namespace b4mad-keycloak \
   manifests/applications/b4mad-keycloak/agentsview-oidc.yaml --force
 ```
 
+## Two things that look wrong and are not
+
+- **The pod reports `1/2` only while starting.** The `agentsview` container
+  carries no probes: kubelet dials the pod IP, the process binds `127.0.0.1`,
+  so no probe can reach it without giving up the loopback bind that makes
+  oauth2-proxy the only way in. Readiness is oauth2-proxy's.
+- **`could not write daemon runtime record: /data is not owned by current
+  user`** on startup. `/data` is an emptyDir owned `root:<fsGroup>` and
+  group-writable, and OpenShift runs the container as a random UID. The
+  message only means the CLI cannot discover this daemon — irrelevant to
+  `pg serve`, which reads PostgreSQL.
+
 ## Networking summary
 
 ```

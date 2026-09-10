@@ -77,18 +77,17 @@ spec:
             # durable lives here in pg serve mode — the archive is PostgreSQL.
             - name: data
               mountPath: /data
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 20
+          # ⚠️ No probes on this container, and that is not an oversight.
+          # kubelet dials the POD IP, while this process deliberately binds
+          # 127.0.0.1 (see the args above) — so an httpGet or tcpSocket probe
+          # can never reach it and would hold the pod at 1/2 forever. The
+          # loopback bind is the security property here, so the probe is what
+          # gives way. The image ships no curl or wget for an exec probe
+          # either (debian-slim), and oauth2-proxy's /ping answers for itself
+          # rather than the upstream, so there is no honest end-to-end check
+          # to substitute. AgentsView exits on a fatal error — a bad database
+          # URL crashlooped the pod visibly — so process exit is the health
+          # signal, and oauth2-proxy's own readiness gates the endpoint.
           resources:
             requests:
               cpu: 50m
