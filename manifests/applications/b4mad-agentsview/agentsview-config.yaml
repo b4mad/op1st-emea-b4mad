@@ -1,0 +1,43 @@
+---
+# AgentsView reads its config from $AGENTSVIEW_DATA_DIR/config.toml, which in
+# this pod is /data — an emptyDir. The file is therefore seeded by an init
+# container that copies it out of this ConfigMap, rather than mounted directly:
+# AgentsView auto-creates and rewrites config.toml (it also takes a
+# config.toml.lock beside it), so a read-only projected file is the wrong
+# shape. Nothing durable is lost when the pod restarts — the copy runs again.
+#
+# ⚠️ [vector.embeddings] below is a FINGERPRINT, not a preference. A generation
+# in PostgreSQL is keyed by model + dimension + chunking + prompt affixes, and
+# this pod can only serve a generation whose fingerprint it matches exactly. If
+# this block and the one in ~/.agentsview/config.toml on a pushing machine ever
+# drift, `--semantic` starts returning 501 "not available" with a mismatch
+# reason and no amount of re-pushing fixes it. Change it in both places or
+# neither. `endpoint` is deliberately NOT part of the fingerprint, which is
+# exactly why this pod may point at the in-namespace Ollama while the
+# workstations point at gamer-0.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agentsview-config
+data:
+  config.toml: |
+    [vector]
+    enabled = true
+
+    [vector.embeddings]
+    model = "nomic-embed-text"
+    dimension = 768
+    # Every field below is pinned rather than left to its default, because a
+    # default that changes in a future AgentsView release would silently
+    # change the fingerprint and orphan the pushed generation.
+    max_input_chars = 6000
+    # nomic-embed-text has a 2048-token context and Ollama truncates silently
+    # past it — a clipped chunk still returns a perfectly valid-looking vector.
+    model_context_tokens = 2048
+    query_prefix = "search_query: "
+    document_prefix = "search_document: "
+    default_server = "in-cluster"
+
+    [vector.embeddings.servers.in-cluster]
+    endpoint = "http://ollama:11434/v1"
+    timeout = "30s"

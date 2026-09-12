@@ -1,0 +1,19 @@
+---
+# Model store for the in-namespace Ollama. Only nomic-embed-text lives here
+# (274MB, F16), but Ollama writes its blob store and manifests under this same
+# root, so the claim also serves as $HOME for an OpenShift-assigned UID that
+# has no /etc/passwd entry — same trick as b4mad-dolt's dolt-data.
+#
+# Losing this PVC costs one init-container pull, nothing more: the model is
+# re-fetched from registry.ollama.ai on the next pod start.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-models
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: lvms-vg1
+  resources:
+    requests:
+      storage: 5Gi

@@ -1,0 +1,142 @@
+---
+# Ollama serving exactly one model, nomic-embed-text, as the query encoder for
+# AgentsView's semantic search.
+#
+# Why a second Ollama at all, when gamer-0 already runs one: `pg serve` embeds
+# the *query* at search time, in this pod, with the same encoder the index was
+# built with. gamer-0 (10.144.28.67) is on a segment the pod network has no
+# route to — a curl from this namespace times out — and it is a workstation
+# that gets powered off. The heavy half (building the index) still happens on
+# the machines that own the sessions, against gamer-0; this pod only ever
+# encodes single short query strings, which is CPU work measured in tens of
+# milliseconds.
+#
+# The two do not have to agree on an endpoint, only on a model: a generation is
+# keyed by a fingerprint over model, dimension, chunking and prompt affixes —
+# the URL is not part of it. Hence the identical [vector.embeddings] block in
+# agentsview-config.yaml and on every pushing machine, and hence the image
+# pinned to the same Ollama version gamer-0 runs (0.34.0).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+spec:
+  replicas: 1
+  strategy:
+    # RWO PVC: a second pod could not mount the model store anyway.
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agentsview
+      app.kubernetes.io/component: embeddings
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: agentsview
+        app.kubernetes.io/component: embeddings
+    spec:
+      initContainers:
+        # Pull the model once, into the PVC. Ollama has no "download without
+        # serving" mode, so the pull needs a server to talk to: start one on
+        # loopback, pull, stop. It binds 127.0.0.1 rather than 0.0.0.0 so that
+        # a half-initialised instance can never answer the Service.
+        - name: pull-model
+          image: ollama
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              if [ -d /models/manifests/registry.ollama.ai/library/nomic-embed-text ]; then
+                echo "nomic-embed-text already present, skipping pull"
+                exit 0
+              fi
+              ollama serve &
+              server=$!
+              for _ in $(seq 1 60); do
+                ollama list >/dev/null 2>&1 && break
+                sleep 1
+              done
+              ollama pull nomic-embed-text
+              kill "$server"
+              wait "$server" || true
+          env:
+            - name: OLLAMA_HOST
+              value: 127.0.0.1:11434
+            # Both point at the PVC: OLLAMA_MODELS is the blob store, and HOME
+            # is where Ollama writes its keypair on first start. OpenShift runs
+            # this as an arbitrary UID whose $HOME defaults to "/".
+            - name: OLLAMA_MODELS
+              value: /models
+            - name: HOME
+              value: /models
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+      containers:
+        - name: ollama
+          image: ollama
+          env:
+            - name: OLLAMA_HOST
+              value: 0.0.0.0:11434
+            - name: OLLAMA_MODELS
+              value: /models
+            - name: HOME
+              value: /models
+            # Keep the 274MB model resident. A cold load costs ~5s on the
+            # first query after an eviction, which is the difference between a
+            # search that feels instant and one that feels broken; the memory
+            # it holds is already inside the request below.
+            - name: OLLAMA_KEEP_ALIVE
+              value: 24h
+            - name: OLLAMA_MAX_LOADED_MODELS
+              value: "1"
+          ports:
+            - containerPort: 11434
+              name: http
+          volumeMounts:
+            - name: models
+              mountPath: /models
+          readinessProbe:
+            httpGet:
+              path: /api/version
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/version
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 200m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 3Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: ollama-models

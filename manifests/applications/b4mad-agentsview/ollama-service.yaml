@@ -1,0 +1,18 @@
+---
+# ⚠️ The selector names app.kubernetes.io/component explicitly, for the same
+# reason the dashboard Service does: kustomization.yaml stamps
+# app.kubernetes.io/name=agentsview onto every object in this overlay, so that
+# label alone selects the dashboard pod, the CNPG instance pod and this one
+# indiscriminately. The component label is what keeps the three apart.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+spec:
+  selector:
+    app.kubernetes.io/name: agentsview
+    app.kubernetes.io/component: embeddings
+  ports:
+    - name: http
+      port: 11434
+      targetPort: http

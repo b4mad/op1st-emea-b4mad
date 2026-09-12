@@ -17,6 +17,10 @@ resources:
   - postgresql.yaml
   - postgres-nodeport.yaml
   - agentsview-cookie.yaml
+  - agentsview-config.yaml
+  - ollama-pvc.yaml
+  - ollama-deployment.yaml
+  - ollama-service.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
@@ -27,6 +31,11 @@ images:
     # 0.42.0. newTag and digest are mutually exclusive in kustomize, and the
     # digest is the one that actually pins; Renovate keeps both in step.
     digest: sha256:e5aa05298c584f17cdbe21ab5352c31fb94aaebd92fa7c898c3a466372a46622
+  - name: ollama
+    newName: docker.io/ollama/ollama
+    # 0.34.0 — deliberately the same version gamer-0 runs, so both ends of a
+    # shared generation embed with an identical runtime.
+    digest: sha256:684d8674b4315fa18f4f0e973a118ec2652ed96f67563277839985175858e0ba
   - name: oauth2-proxy
     newName: quay.io/oauth2-proxy/oauth2-proxy
     # v7.15.4
