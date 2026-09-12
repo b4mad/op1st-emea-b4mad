@@ -15,6 +15,23 @@ metadata:
   name: prod
 spec:
   instances: 1
+  # Pinned deliberately. AgentsView stores embeddings as pgvector `halfvec`,
+  # which needs pgvector >= 0.7.0; this image ships 0.8.6. Without an explicit
+  # imageName the CNPG operator picks its own default, so an operator upgrade
+  # could move the Postgres image — and the pgvector version with it — without
+  # a single line changing in this repo.
+  #
+  # ⚠️ The failure mode is silent, which is why it is pinned rather than
+  # trusted: `agentsview pg push` best-effort runs CREATE EXTENSION IF NOT
+  # EXISTS vector and, on an older installed version, ALTER EXTENSION vector
+  # UPDATE. When neither works it logs one line, SKIPS the vector phase and
+  # carries on syncing sessions and messages. Semantic search then just returns
+  # nothing; the push still reports success.
+  #
+  # When bumping this tag, check the new image still carries pgvector >= 0.7.0:
+  #   podman run --rm --entrypoint sh <image> \
+  #     -c 'cat /usr/share/postgresql/*/extension/vector.control'
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
   bootstrap:
     initdb:
       database: agentsview
