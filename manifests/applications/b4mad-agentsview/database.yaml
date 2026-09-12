@@ -1,0 +1,44 @@
+---
+# Declares the `vector` extension inside the agentsview database.
+#
+# Why this exists at all: pgvector is NOT a trusted extension — its
+# vector.control carries no `trusted = true` — so CREATE EXTENSION vector
+# requires superuser. `agentsview pg push` connects as the application role
+# `agentsview`, which CNPG creates as the database owner but not as a
+# superuser, so its best-effort CREATE EXTENSION IF NOT EXISTS vector was
+# always going to fail. Confirmed on 2026-09-12 against cluster prod:
+# pg_available_extensions reported vector|0.8.6|<null> — the image ships 0.8.6
+# and the database had it installed nowhere (op1st-emea-b4mad-3u4).
+#
+# ⚠️ The symptom was never an error. `pg push` logs one line, SKIPS the vector
+# phase and carries on syncing sessions and messages, reporting success;
+# `--semantic` then just returns nothing. Anyone debugging empty semantic
+# search should check `\dx` in this database before touching config.toml or
+# the Ollama endpoint.
+#
+# The CNPG operator reconciles this resource over its own superuser
+# connection, which is the whole point — it can do what the app role cannot,
+# on a cluster that is already bootstrapped. bootstrap.initdb.postInitApplicationSQL
+# would have been the other way to spell this, but it only ever runs at
+# bootstrap and this cluster has been up since 2026-09-10.
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: agentsview
+spec:
+  cluster:
+    name: prod
+  # Matches bootstrap.initdb in postgresql.yaml. The database already exists;
+  # the operator adopts it rather than creating a second one.
+  name: agentsview
+  owner: agentsview
+  ensure: present
+  # ⚠️ retain, explicitly. With `delete`, removing this Database resource — an
+  # Argo CD prune during a botched sync, a stray kubectl delete — would DROP
+  # the agentsview database with every session and message in it. The recovery
+  # is only one `agentsview pg push --full` per machine, but there is no reason
+  # to leave a drop wired to a resource deletion.
+  databaseReclaimPolicy: retain
+  extensions:
+    - name: vector
+      ensure: present
