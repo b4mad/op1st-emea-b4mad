@@ -15,6 +15,7 @@ labels:
 resources:
   - namespace.yaml
   - postgresql.yaml
+  - database.yaml
   - postgres-nodeport.yaml
   - agentsview-cookie.yaml
   - agentsview-config.yaml
