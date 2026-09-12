@@ -44,6 +44,74 @@ agentsview pg push
 agentsview pg push --watch      # or: agentsview pg service install
 ```
 
+## Semantic search
+
+Opt-in, and opted into here. `pg serve` answers `--semantic` / `--hybrid` only
+when three things hold at once, which is why this needs manifests at all:
+
+1. `[vector]` is enabled in the **serving host's** `config.toml` — seeded into
+   `/data` from the `agentsview-config` ConfigMap by the `seed-config` init
+   container, because `/data` is an emptyDir and AgentsView rewrites that file.
+2. The serving host's embedding fingerprint — model, dimension, chunking,
+   prompt affixes — matches a generation already pushed to PostgreSQL.
+3. The configured embeddings endpoint is reachable **from this pod**, because
+   the query text is embedded at search time with the encoder that built the
+   index.
+
+Condition 3 is the reason for the `ollama` Deployment. gamer-0
+(`10.144.28.67:11434`) serves the workstations, but it sits on a segment the
+pod network cannot route to — a `curl` from this namespace times out, not
+refuses — and it is a workstation that gets switched off. So the pod runs its
+own `nomic-embed-text` and encodes queries locally.
+
+⚠️ The endpoint is **not** part of the fingerprint; the model config is. That
+is what lets the two ends disagree about the URL and still share one
+generation — and it is also the trap: change `[vector.embeddings]` on one side
+only and `--semantic` starts returning `501 not available` with a mismatch
+reason, permanently, until the two agree again. Change it in both places or in
+neither.
+
+### On each pushing machine
+
+```toml
+# ~/.agentsview/config.toml — must match agentsview-config.yaml field for field
+[vector]
+enabled = true
+
+[vector.embeddings]
+model = "nomic-embed-text"
+dimension = 768
+max_input_chars = 6000
+model_context_tokens = 2048
+query_prefix = "search_query: "
+document_prefix = "search_document: "
+default_server = "gamer-0"
+
+[vector.embeddings.servers.gamer-0]
+endpoint = "http://10.144.28.67:11434/v1"
+```
+
+`endpoint` is an OpenAI-compatible **base URL** — AgentsView appends
+`/embeddings`. Ollama's native `/api/` surface is the wrong one and 404s.
+
+`agentsview pg push` then runs a vector phase automatically (`[pg]
+push_vectors` defaults to true) and reports
+`Vectors: N session(s) pushed, ... docs, ... chunks`. A machine without
+`[vector]` enabled has no generation and skips the phase silently.
+
+### Verifying
+
+```bash
+agentsview pg vectors list      # generations, models, contributing machines
+```
+
+⚠️ Embeddings are stored as pgvector `halfvec`, which needs **pgvector 0.7.0
+or newer** in the CNPG image. `pg push` best-effort runs
+`CREATE EXTENSION IF NOT EXISTS vector` and, if an older version is already
+installed, `ALTER EXTENSION vector UPDATE`; when neither works it logs one line
+and skips the vector phase while session and message sync carry on unaffected.
+So a silent `Vectors: skipped` is the symptom to look for, not a failed push.
+
 ## Storage
 
 `pg_wal` lives on its own 12Gi PVC (`prod-1-wal`), so a write burst cannot fill
@@ -111,4 +179,8 @@ browser
                                             svc/prod-rw:5432 (CNPG)
                                                   ^
 laptop `agentsview pg push` -> 192.168.0.148:32432 (svc/postgres-ext)
+
+query encoding (semantic search), two disjoint paths to the same model:
+  [agentsview] -> svc/ollama:11434          (in-namespace, nomic-embed-text)
+  laptop       -> 10.144.28.67:11434        (gamer-0; NOT routable from a pod)
 ```
