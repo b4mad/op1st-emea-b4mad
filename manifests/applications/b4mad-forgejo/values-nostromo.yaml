@@ -562,6 +562,43 @@ extraContainers:
     # snippets that anubis.yaml imports, and that deserves a commit.
     image: ghcr.io/techarohq/anubis:v1.26.2
     imagePullPolicy: IfNotPresent
+    # ⚠️ MUST be an argument, NOT an env var. Anubis binds env to flags with
+    # facebookgo/flagenv, whose ParseSet skips any variable whose value is the
+    # empty string — `JWT_RESTRICTION_HEADER: ''` in the env block below would
+    # parse cleanly, log nothing, and leave the flag at its "X-Real-IP"
+    # default. The argument is applied by flag.Parse() after flagenv.Parse()
+    # (cmd/anubis/main.go:217-218) and wins outright. Verified both halves
+    # against v1.26.2 before this shipped.
+    #
+    # What it turns off: cmd/anubis/main.go:92 defaults the flag to X-Real-IP,
+    # which makes lib/anubis.go:339 discard the challenge-pass cookie whenever
+    # the client's current address differs from the one that solved the proof
+    # of work — then clear it and re-render the interstitial.
+    #
+    # Why that is wrong here: iCloud Private Relay does not pin a client to one
+    # egress address, so an iPhone gets re-challenged on essentially every
+    # navigation. On 2026-09-15 one visitor produced four "double spend
+    # prevented" lines in 21 minutes across 104.28.131.34 and 104.28.130.29 —
+    # both in Cloudflare's 104.28.128.0/17 Private Relay range — three of them
+    # inside 12 seconds. The replay is the visible half: lib/anubis.go:567
+    # answers a re-submitted challenge id with respondWithError, an error page
+    # rather than a fresh challenge, so the visitor is simply stuck. The
+    # re-challenge churn driving it logs at Debug and is invisible under
+    # SLOG_LEVEL=ERROR above, which is why only the replays surfaced.
+    #
+    # ⚠️ Binding to a coarser network is NOT an option: the flag names a header
+    # whose value is hashed verbatim (lib/anubis.go:629), there is no netmask,
+    # and the two observed addresses differ in the third octet anyway.
+    #
+    # What it costs: a challenge-pass cookie lifted from a browser can now be
+    # replayed from another address for its remaining validity. That is a real
+    # loss, and it is the reason upstream defaults the flag on. It is bounded —
+    # the cookie proves only that someone burned ~1s of CPU, it carries no
+    # Forgejo identity, and Forgejo's own session auth is untouched — so the
+    # worst case is one solved proof of work shared across a scraper fleet.
+    # Locking out every iOS visitor on Private Relay is the larger harm.
+    args:
+      - --jwt-restriction-header=
     env:
       - name: BIND
         value: ':8080'
@@ -644,9 +681,12 @@ extraContainers:
       # indexes. Anubis is fail-closed about this: with no XFF at all it serves
       # "administrator has misconfigured Anubis" rather than guessing.
       #
-      # Consequence for JWT_RESTRICTION_HEADER (default X-Real-IP): since
-      # X-Real-Ip IS populated, the challenge-pass cookie is bound to the
-      # address that solved it and cannot be replayed from elsewhere.
+      # ⚠️ The client address is still needed by the remote_addresses rules
+      # above, but it deliberately no longer gates the challenge-pass cookie.
+      # Upstream's default would bind that cookie to the address that solved
+      # the proof of work; the `args:` block at the top of this container turns
+      # that off, because it locks out every visitor whose egress address moves
+      # under them. See there for the full reasoning and what it costs.
     ports:
       - name: anubis
         containerPort: 8080
