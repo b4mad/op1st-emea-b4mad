@@ -23,6 +23,7 @@ resources:
   # and LVMS volume group vg1 share a single SATA SSD. Runs above the limit
   # are queued by PaC, not failed.
   - repositories/forgejo-agentic-forges-castra.yaml
+  - repositories/forgejo-goern-rs-cms.yaml
   - repositories/codeberg-org-machdenstaat-lage.yaml
   - repositories/forgejo-agentic-forges-forge-agents.yaml
   - repositories/github-com-b4mad-op1st-emea-b4mad.yaml
