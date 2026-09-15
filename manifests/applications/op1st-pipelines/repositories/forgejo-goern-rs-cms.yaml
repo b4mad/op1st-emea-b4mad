@@ -1,0 +1,37 @@
+# PaC for rs.cms, the headless CMS. Added 2026-09-15: the repository had no CI
+# of any kind across its whole history — no .tekton/, no Repository CR — so
+# nothing gated a pull request. Tracked as cms-3is.
+#
+# ⚠️ UNLIKE EVERY SIBLING HERE, THIS ONE NEEDED A WEBHOOK OF ITS OWN.
+# castra is reached by an ORG-level webhook on agentic-forges (hook id 6 →
+# pipelines-as-code-controller.openshift-pipelines.svc), so every repository in
+# that org already reaches PaC and only the CR was missing. `goern` is a USER,
+# not an organization — verified via the Forgejo API — so no org webhook covers
+# goern/rs.cms. A repo-level PaC webhook was added alongside the repository's
+# existing castra hook. Two webhooks on one repository is expected and correct;
+# they serve different controllers.
+#
+# The in-repo half is goern/rs.cms .tekton/, whose AGENTS.md carries the
+# rationale for the two pipelines and the hazards of editing them.
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: forgejo-goern-rs-cms
+spec:
+  # 1 rather than the 2 the container-building siblings use. A run here is a
+  # Rust workspace build, and the integration pipeline additionally brings up a
+  # PostgreSQL pod and a cms-server pod alongside it — so a single run is
+  # already several pods on river. See the rationale in ../kustomization.yaml.
+  # PaC queues the excess, it does not fail it.
+  concurrency_limit: 1
+  url: https://git.b4mad.industries/goern/rs.cms
+  git_provider:
+    # Explicit — PaC defaults to `github` when type is unset.
+    type: forgejo
+    url: https://git.b4mad.industries
+    secret:
+      name: forgejo-b4mad
+      key: provider.token
+    webhook_secret:
+      name: forgejo-b4mad
+      key: webhook.secret
