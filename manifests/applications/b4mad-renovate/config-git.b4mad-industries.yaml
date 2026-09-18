@@ -85,7 +85,28 @@ data:
           // feeldata2.app-oooooold is archived, and manifests was never
           // usefully onboarded (its Codeberg onboarding PR sat unmerged from
           // 2025-01-05 until it was closed). Widen only on purpose.
-          "feeldata/feeldata2.app"
+          "feeldata/feeldata2.app",
+          // Added 2026-09-18 on request. Native to this forge — it has never
+          // been on codeberg.org, so nothing to remove from `config.yaml` and
+          // no duplicate-PR risk from the pairing described at the top.
+          // Verified live, non-empty (2.1 MB), unarchived and pushed to the
+          // same day before enrolling, per the two ⚠️ notes above; it also
+          // already carries a .tekton/ directory from its Pipelines-as-Code
+          // onboarding in #55.
+          //
+          // ⚠️ Deliberately ONE repo, not `goern/*`. goern/hausmeister exists
+          // on this forge with real content but is renovated from codeberg.org
+          // via `config.yaml` — see the hausmeister note at the top of this
+          // file and Systems-dhk7. A `goern/*` glob here would silently enrol
+          // it on BOTH fleets and open duplicate PRs against the two forges,
+          // which is exactly the failure the top-of-file warning is about.
+          // Widen only on purpose.
+          //
+          // Expect an onboarding PR on the first run (`onboardingConfigFileName`
+          // is renovate.json5 — the repo has no such file yet). It carries
+          // Cargo.toml/Cargo.lock, bun.lock and three Containerfiles, so the
+          // initial backlog will not be small.
+          "goern/rs.cms"
         ],
         "packageRules": [
           {
