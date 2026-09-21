@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "deliver": {
+      "source": "goern/bead-workflow-skills",
+      "sourceType": "github",
+      "skillPath": "skills/deliver/SKILL.md",
+      "computedHash": "a6fa088641ad524775002f954b0d779d6e62dce2fefaddbc22744c62e77d719f"
+    },
+    "done-with": {
+      "source": "goern/bead-workflow-skills",
+      "sourceType": "github",
+      "skillPath": "skills/done-with/SKILL.md",
+      "computedHash": "b137fe7e5ecfb18aa12365f77ec521de13c6024f2f2f38952423e968fc33ae88"
+    },
+    "work-on": {
+      "source": "goern/bead-workflow-skills",
+      "sourceType": "github",
+      "skillPath": "skills/work-on/SKILL.md",
+      "computedHash": "8f5370802d73c4c4a802fb974e9df569d5973b1eb968b523db6b56bd8282d5ca"
+    },
+    "worktrunk": {
+      "source": "max-sixty/worktrunk",
+      "sourceType": "github",
+      "skillPath": "skills/worktrunk/SKILL.md",
+      "computedHash": "fef1bfee4de9d7120b41c31a190ba1145662da4abb195ba5b0c127f4760e50ae"
+    },
+    "wt-switch-create": {
+      "source": "max-sixty/worktrunk",
+      "sourceType": "github",
+      "skillPath": "skills/wt-switch-create/SKILL.md",
+      "computedHash": "796db886726df2330e896ca8939789a1fc52143ecc4d4be660974bf1a78581f6"
+    }
+  }
+}

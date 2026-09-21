@@ -42,3 +42,8 @@ ansible/
 # Produced by manifests/applications/b4mad-forgejo/forge-org-sync.sh; kept
 # untracked in b4mad-erdgeschoss-systems/forgejo/. NEVER commit.
 codeberg-orgs.jsonl
+
+# Local-only beads JSONL backup (beads already ignores .beads/backup/;
+# this stray root-level copy is the same local-only artifact and carries
+# bd memories, which bd export deliberately excludes)
+beads-backup.jsonl
