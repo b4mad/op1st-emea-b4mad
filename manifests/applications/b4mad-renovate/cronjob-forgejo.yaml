@@ -9,6 +9,16 @@ spec:
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
+      # Same bound as the Codeberg job: a healthy Forgejo pass is 4-8m, and
+      # anything past 90m is wedged rather than slow. With `Forbid` above, a
+      # wedged run also eats the next hourly slot.
+      activeDeadlineSeconds: 5400
+      # Default is 6. Renovate has no fleet-level resume: every retry re-runs
+      # the repository list from the top, so a repo that reliably OOMs can
+      # never be passed and six retries just buy six truncated passes. Observed
+      # 2026-09-11 to 2026-09-21: 234 failed jobs produced 1404 failed pods
+      # (op1st-emea-b4mad-k27). Failures here are systemic, not flaky.
+      backoffLimit: 1
       template:
         spec:
           containers:
@@ -26,11 +36,19 @@ spec:
                   mountPath: "/home/ubuntu/.cache"
               resources:
                 limits:
+                  # 2048Mi OOMKilled every pass on agentic-forges/forgejo-mcp
+                  # (gomod 47 deps + dockerfile + npm + regex in one
+                  # extraction); peak working set reached 1.84Gi against the
+                  # 2Gi cap and the fleet ran at a 4.5% success rate from
+                  # 2026-09-11 (op1st-emea-b4mad-8zj). The namespace
+                  # ResourceQuota affords this: hard 6Gi limits / 4Gi
+                  # requests, and the Codeberg job is schedule-offset above so
+                  # the two never run together.
                   cpu: 500m
-                  memory: 2048Mi
+                  memory: 4096Mi
                 requests:
                   cpu: 250m
-                  memory: 1024Mi
+                  memory: 2048Mi
           restartPolicy: Never
           volumes:
             - name: config-volume
