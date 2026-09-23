@@ -1,6 +1,18 @@
 {
   "version": 1,
   "skills": {
+    "beads": {
+      "source": "gastownhall/beads",
+      "sourceType": "github",
+      "skillPath": "plugins/beads/skills/beads/SKILL.md",
+      "computedHash": "1296469c6ddbcce20c6038abea1363504fff6f765e68555901b7be9f644a703d"
+    },
+    "beads-docs": {
+      "source": "gastownhall/beads",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/beads-docs/SKILL.md",
+      "computedHash": "15826054a0450acb2133ae7b711db60906a46e47db78fe031384b6f498a713af"
+    },
     "deliver": {
       "source": "goern/bead-workflow-skills",
       "sourceType": "github",
