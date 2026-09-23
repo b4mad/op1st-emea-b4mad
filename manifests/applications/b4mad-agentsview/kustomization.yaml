@@ -18,12 +18,15 @@ resources:
   - database.yaml
   - postgres-nodeport.yaml
   - agentsview-cookie.yaml
+  - agentsview-mcp-token.yaml
   - agentsview-config.yaml
   - ollama-pvc.yaml
   - ollama-deployment.yaml
   - ollama-service.yaml
   - deployment.yaml
   - service.yaml
+  - mcp-deployment.yaml
+  - mcp-service.yaml
   - ingress.yaml
 
 images:

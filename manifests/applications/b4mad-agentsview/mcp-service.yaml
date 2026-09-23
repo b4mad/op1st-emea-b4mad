@@ -1,0 +1,18 @@
+# Unlike svc/agentsview, this one targets the AgentsView process directly:
+# there is no oauth2-proxy in front of the MCP listener, because an MCP client
+# cannot complete an OIDC redirect. AgentsView's own bearer token is the gate.
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentsview-mcp
+spec:
+  ports:
+    - name: http
+      port: 8085
+      targetPort: mcp
+  selector:
+    app.kubernetes.io/name: agentsview
+    # Without the component label this would also match CNPG's prod-1 pod,
+    # which inherits the Cluster's labels — and the dashboard pod besides.
+    app.kubernetes.io/component: mcp
+  type: ClusterIP

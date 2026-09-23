@@ -112,6 +112,89 @@ installed, `ALTER EXTENSION vector UPDATE`; when neither works it logs one line
 and skips the vector phase while session and message sync carry on unaffected.
 So a silent `Vectors: skipped` is the symptom to look for, not a failed push.
 
+## MCP endpoint
+
+`https://agentsview.b4mad.industries/mcp` serves the same archive to
+MCP-capable assistant clients — `agentsview mcp --http --pg` in its own
+Deployment (`mcp-deployment.yaml`), reading `prod-rw` exactly as the dashboard
+does. Seven read-only tools: `search_sessions`, `list_sessions`,
+`get_session_overview`, `get_messages`, `search_content`, `get_usage_summary`,
+`query_recall`.
+
+⚠️ **This path bypasses oauth2-proxy, and that is the point.** An MCP client
+cannot complete an interactive OIDC redirect, and the PostgreSQL NodePort is
+LAN-only, so neither existing surface can serve a remote assistant. What guards
+it instead is AgentsView's own bearer token (`AGENTSVIEW_AUTH_TOKEN`, from the
+`agentsview-mcp-token` SealedSecret): one static credential, no expiry, no
+revocation list, in front of every prompt, tool result and `secret_findings`
+row in the archive. That is a weaker gate than the dashboard's Keycloak flow.
+It is deliberate and it should be rotated like a password, not forgotten like a
+config value. Requests without the header get `401 Unauthorized`.
+
+Client config — no local container needed, connect to the URL directly:
+
+```json
+{
+  "mcpServers": {
+    "agentsview": {
+      "type": "http",
+      "url": "https://agentsview.b4mad.industries/mcp",
+      "headers": { "Authorization": "Bearer ${AGENTSVIEW_MCP_TOKEN}" }
+    }
+  }
+}
+```
+
+### Four behaviours worth knowing before you change this
+
+Each was verified against the pinned image (0.42.0), not inferred:
+
+1. **`agentsview mcp --http` answers on every request path.** `/`, `/mcp`,
+   `/sse` — all return the same JSON-RPC result. That is why a `/mcp` Ingress
+   prefix works with no rewrite, which matters because OpenShift Routes cannot
+   rewrite a path at all.
+2. **The token comes from the environment, not `config.toml`.** The documented
+   alternative is `auth_token`/`require_auth` in `config.toml` — but that file
+   is seeded from the **shared** `agentsview-config` ConfigMap, so
+   `require_auth` there would arm the dashboard container too, and oauth2-proxy
+   sends no bearer token upstream. The dashboard would 401 on every page.
+3. **`--pg` reads `AGENTSVIEW_PG_URL`**, the same variable the dashboard uses,
+   and a bad URL is fatal at startup (`fatal: opening pg store: pg ping …`), so
+   a crashloop is the health signal here as well.
+4. **The readiness probe is `tcpSocket`, not `httpGet`.** Every HTTP request to
+   this listener needs the bearer token, so an `httpGet` probe gets a 401 and
+   kubelet calls that a failure — and putting the token in a probe header would
+   write it into the pod spec in plaintext.
+
+### Creating and rotating the token
+
+Same SOPS → SealedSecret path as the oauth2-proxy cookie:
+
+```bash
+# generate, then edit the value into agentsview-mcp-token.enc.yaml
+openssl rand -base64 32
+
+scripts/sops2sealedsecret --context <ctx> --namespace b4mad-agentsview \
+  manifests/applications/b4mad-agentsview/agentsview-mcp-token.enc.yaml \
+  manifests/applications/b4mad-agentsview/agentsview-mcp-token.yaml --force
+```
+
+Without a GPG secret key for `.sops.yaml` at hand (`sops -d` fails), seal the
+same value straight from a local token file instead — kubeseal only needs the
+controller's public cert:
+
+```bash
+oc create secret generic agentsview-mcp-token -n b4mad-agentsview \
+  --dry-run=client -o yaml \
+  --from-file=AGENTSVIEW_AUTH_TOKEN=$HOME/.config/agentsview/mcp-token \
+| kubeseal --context <ctx> --namespace b4mad-agentsview \
+  --controller-namespace sealed-secrets --format yaml \
+  > manifests/applications/b4mad-agentsview/agentsview-mcp-token.yaml
+```
+
+Rotating invalidates every client immediately — there is no overlap window, so
+update the clients in the same sitting.
+
 ## Storage
 
 `pg_wal` lives on its own 12Gi PVC (`prod-1-wal`), so a write burst cannot fill
@@ -173,9 +256,13 @@ scripts/sops2sealedsecret --context <ctx> --namespace b4mad-keycloak \
 ```
 browser
   -> agentsview.b4mad.industries (edge Route, Let's Encrypt)
-  -> svc/agentsview:4180 -> [oauth2-proxy] -> [agentsview] 127.0.0.1:8080
-                                                  |
-                                                  v
+  -> /    -> svc/agentsview:4180 -> [oauth2-proxy] -> [agentsview] 127.0.0.1:8080
+                                                           |
+MCP client                                                 |
+  -> agentsview.b4mad.industries/mcp   (SAME host+cert)    |
+  -> svc/agentsview-mcp:8085 -> [agentsview mcp] 0.0.0.0:8085
+         no oauth2-proxy; bearer token only                |
+                                                           v
                                             svc/prod-rw:5432 (CNPG)
                                                   ^
 laptop `agentsview pg push` -> 192.168.0.148:32432 (svc/postgres-ext)
