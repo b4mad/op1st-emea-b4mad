@@ -1,0 +1,152 @@
+# The MCP half of AgentsView: `agentsview mcp --http`, serving the same
+# PostgreSQL archive the dashboard renders, to MCP-capable assistant clients.
+#
+# ⚠️ This Deployment deliberately does NOT sit behind oauth2-proxy. That is the
+# whole reason it exists: a headless MCP client cannot complete an interactive
+# OIDC redirect, and the PostgreSQL NodePort is LAN-only, so neither existing
+# surface can serve a remote assistant. The gate here is AgentsView's own
+# bearer token instead — see the security note in README.md, because this is a
+# different trade than the dashboard makes, not an oversight.
+#
+# A separate Deployment rather than a third container in the dashboard pod:
+# independent lifecycle (an MCP restart must not bounce the dashboard) and its
+# own component label, which the Services select on.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentsview-mcp
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agentsview
+      app.kubernetes.io/component: mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: agentsview
+        # Same CNPG hazard as the dashboard: the operator copies the Cluster's
+        # labels onto prod-1, so app.kubernetes.io/name=agentsview alone also
+        # matches the Postgres pod. Every Service here selects the component
+        # label too. (Unlike the dashboard's, this selector CAN carry it — the
+        # Deployment is new, so there is no immutable selector to preserve.)
+        app.kubernetes.io/component: mcp
+    spec:
+      initContainers:
+        # Same seed as the dashboard, and for the same reason: AgentsView
+        # rewrites config.toml in place, which a projected ConfigMap file does
+        # not allow. What this container needs from it is the [vector] block —
+        # semantic and hybrid search embed the QUERY at search time, so the MCP
+        # server must carry the identical fingerprint and a reachable
+        # embeddings endpoint or a semantic search returns 501.
+        # Sharing one ConfigMap with the dashboard is what keeps the two from
+        # drifting apart.
+        - name: seed-config
+          image: agentsview
+          command: ["cp", "/config/config.toml", "/data/config.toml"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+      containers:
+        - name: agentsview-mcp
+          image: agentsview
+          # The image entrypoint runs `serve`/`pg serve` depending on PG_SERVE
+          # and neither is wanted here, so `command` is overridden outright —
+          # setting `args` alone would still land in the wrong subcommand.
+          command: ["agentsview"]
+          args:
+            - mcp
+            # Bare ports and 127.0.0.1 forms bind loopback; any other host is
+            # an explicit opt-in that AgentsView refuses unless a token is
+            # configured. It has to be non-loopback here: unlike the dashboard,
+            # this process is reached from another pod (the router), not from a
+            # sidecar sharing its network namespace. AgentsView then enforces
+            # Authorization: Bearer on every request to this listener.
+            - --http
+            - 0.0.0.0:8085
+            - --http-allow-insecure
+            # Read PostgreSQL directly rather than through a daemon. There is
+            # no local SQLite archive in this pod and nothing to sync.
+            - --pg
+          env:
+            # The bearer token AgentsView enforces on every request. Supplying
+            # it by env rather than by config.toml is load-bearing, not taste:
+            # the alternative is `require_auth = true` in agentsview-config,
+            # which is SHARED with the dashboard container — and oauth2-proxy
+            # sends no bearer token upstream, so the dashboard would 401 on
+            # every page. Env keeps the requirement on this process alone.
+            - name: AGENTSVIEW_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: agentsview-mcp-token
+                  key: AGENTSVIEW_AUTH_TOKEN
+            # Same CNPG-owned credentials and the same sslmode dance as the
+            # dashboard — see deployment.yaml for why the query parameter is
+            # appended through dependent env-var expansion rather than written
+            # into a URL by hand.
+            - name: AGENTSVIEW_PG_URI
+              valueFrom:
+                secretKeyRef:
+                  name: prod-app
+                  key: uri
+            - name: AGENTSVIEW_PG_URL
+              value: $(AGENTSVIEW_PG_URI)?sslmode=require
+          ports:
+            - containerPort: 8085
+              name: mcp
+          volumeMounts:
+            # AGENTSVIEW_DATA_DIR=/data is baked into the image and /data is
+            # created root-owned, which an OpenShift random UID cannot write.
+            # Nothing durable lives here — the archive is PostgreSQL.
+            - name: data
+              mountPath: /data
+          # ⚠️ tcpSocket, not httpGet, and that is not laziness. This listener
+          # enforces a bearer token on EVERY request, so an httpGet probe gets
+          # a 401 and kubelet reads that as failure — the pod would never go
+          # ready. Putting the token in a probe header would write it into the
+          # pod spec in plaintext. A bad database URL makes the process exit(1)
+          # (verified: `fatal: opening pg store: pg ping ...`), so a crashloop
+          # remains the visible failure signal, exactly as for the dashboard.
+          readinessProbe:
+            tcpSocket:
+              port: mcp
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: agentsview-config

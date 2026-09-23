@@ -14,6 +14,27 @@ spec:
     - host: agentsview.b4mad.industries
       http:
         paths:
+          # ⚠️ This rule BYPASSES oauth2-proxy by design — see
+          # mcp-deployment.yaml. It reaches the MCP listener directly, which
+          # gates itself on its own bearer token because an MCP client cannot
+          # complete an OIDC redirect. Anything that weakens or removes that
+          # token leaves the whole session archive open on the public internet.
+          #
+          # A path rather than a second host: one DNS name, one certificate.
+          # And no rewrite is needed — `agentsview mcp --http` answers the MCP
+          # JSON-RPC on every request path, so the upstream simply ignores the
+          # `/mcp` prefix the router forwards verbatim. That matters because
+          # OpenShift Routes cannot rewrite a path at all.
+          #
+          # Longest-prefix wins in HAProxy, so this rule takes precedence over
+          # `/` below without depending on their order here.
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: agentsview-mcp
+                port:
+                  number: 8085
           - path: /
             pathType: Prefix
             backend:

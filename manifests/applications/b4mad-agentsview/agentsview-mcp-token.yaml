@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: agentsview-mcp-token
+  namespace: b4mad-agentsview
+spec:
+  encryptedData:
+    AGENTSVIEW_AUTH_TOKEN: AgBE7Clw7BfbuS34hMCatuFroDxDReIZOG0feiz2/hheYh2ENBpbc2lS5BJ87SHnP8qUQtUem6DzYZ1F9gBLZFUy5DNOlTJdTb4rEso+g6NFzsicii6bNQ1lDnSnjMxu8u0WxQl2gbZ27SrpYGYG0uZh49bHIDGlOKeiFVvzDPpB7PnlBPBvFqbf8cqz+eAB8ryAtRxYJfJMYt/q5FU728u8BqJ35vvclCvg6GTgBEokLmpbWwKjfMgDNi+OtAhzXGd4eI44Lk1C1lrxAplNPxAn+/QuL7oKkCUSvh5DlM4yXm6YOb5g4HEmYQ2qloBjsCuUkjnkWZCvcKF1GOmqxigx1uDMtxasRjPR0HdulVYNrmpoorLMBgLhxCD9sXt9WhY6BVRxgstBUHGGtIAPPOzOnYfqXF9Nq/Rrr5Km6LTDshVyyf5ChvS3fkM9W/VSWeYGZH7WkJTubDND3Yv1PzsHTH82DPfQdl5UzqEoxV1SL9nMEiXWMiPNNGzPKVEd1QrpG49ARSeBqi2AFNkqmhm9emXFdtrYISHilRjT4WdSGhipDnsTEMJ7syMWvkPITlbXLG/SVRJ7H40G+Qb96gfwaJ9DFFmTsNmCUuYH+TieJvoDlLMwU8yB3fbQ70qRZZn2jiBmz1djvz+AKkdr4r0Q2fxD+oe8+NrfJQDGIxmcU3kkSen1VxJPDHPLNrsJiWx/0YiajRVNVCNpGe3HtHosnXUMKOSTwONISjLsQ98W+gjWkkR21EAVPi9hpA==
+  template:
+    metadata:
+      name: agentsview-mcp-token
+      namespace: b4mad-agentsview
