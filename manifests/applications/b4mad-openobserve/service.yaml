@@ -1,0 +1,18 @@
+# Headless: the StatefulSet's governing Service. OTLP ingest stays in-cluster at
+# openobserve.b4mad-openobserve.svc; only the UI/API port is published by the
+# Ingress.
+apiVersion: v1
+kind: Service
+metadata:
+  name: openobserve
+spec:
+  clusterIP: None
+  selector:
+    app: openobserve
+  ports:
+    - name: http
+      port: 5080
+      targetPort: http
+    - name: grpc-otlp
+      port: 5081
+      targetPort: grpc-otlp

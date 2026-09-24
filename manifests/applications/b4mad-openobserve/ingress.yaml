@@ -1,0 +1,28 @@
+# Rendered by OpenShift's ingress-to-route controller as an edge-terminated
+# Route; cert-manager issues the certificate off the cluster-issuer annotation.
+#
+# ⚠️ No oauth2-proxy in front: the UI (and the HTTP ingest API on the same
+# port) is public, guarded only by OpenObserve's own login.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openobserve
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.allow-http: "false"
+spec:
+  rules:
+    - host: openobserve.b4mad.industries
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: openobserve
+                port:
+                  number: 5080
+  tls:
+    - hosts:
+        - openobserve.b4mad.industries
+      secretName: openobserve-tls
