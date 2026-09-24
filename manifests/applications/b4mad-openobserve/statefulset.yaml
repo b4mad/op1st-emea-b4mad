@@ -1,0 +1,109 @@
+# OpenObserve OSS, single binary, single replica.
+#
+# Cloned from castra's in-cluster OpenObserve (agentic-forges/castra,
+# manifests/telemetry/openobserve.yaml), with these deltas:
+#   - prefers the `river` node: plenty of CPU headroom, little memory headroom;
+#   - memory is bounded explicitly, CPU is not (see resources below);
+#   - 25Gi PVC instead of 10Gi.
+#
+# OTLP ingest: OpenObserve takes the organization as a path segment, e.g.
+#   OTEL_EXPORTER_OTLP_ENDPOINT: http://openobserve.b4mad-openobserve.svc:5080/api/<org>
+#   OTEL_EXPORTER_OTLP_HEADERS:  Authorization=Basic <base64 user:password>
+# gRPC :5081 carries the org as a metadata header instead.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: openobserve
+spec:
+  serviceName: openobserve
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openobserve
+  template:
+    metadata:
+      labels:
+        app: openobserve
+    spec:
+      # Preferred, not required: river is the better fit, but the pod should
+      # still come up on bridge if river is unavailable at first scheduling.
+      # ⚠️ Only the FIRST scheduling matters in practice. The PVC is LVMS
+      # (node-local, WaitForFirstConsumer), so once it binds the volume pins
+      # the pod to that node for good.
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - river
+      # No pinned UID/GID/fsGroup: OpenShift's restricted-v2 SCC rejects
+      # out-of-range ids and injects ones from the namespace's allocated range.
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: openobserve
+          image: openobserve
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: ZO_ROOT_USER_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: openobserve-credentials
+                  key: ZO_ROOT_USER_EMAIL
+            - name: ZO_ROOT_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: openobserve-credentials
+                  key: ZO_ROOT_USER_PASSWORD
+            - name: ZO_DATA_DIR
+              value: /data
+            - name: ZO_TELEMETRY
+              value: "false"
+            # ⚠️ OpenObserve sizes its memtable and caches as a percentage of
+            # *total* memory, and I don't know whether it reads the cgroup limit
+            # or the host's. On river the host has ~15Gi, far above the 1Gi limit
+            # below, so pin the in-memory budgets (MB) to fit inside it.
+            - name: ZO_MEM_TABLE_MAX_SIZE
+              value: "256"
+            - name: ZO_MEMORY_CACHE_MAX_SIZE
+              value: "256"
+          ports:
+            - name: http
+              containerPort: 5080
+            - name: grpc-otlp
+              containerPort: 5081
+          # Memory request == limit: river's memory limits are overcommitted,
+          # and under node pressure pods using beyond their request go first.
+          # CPU is cheap on river, so a low request with a high limit lets
+          # queries and compaction burst.
+          resources:
+            requests:
+              cpu: 250m
+              memory: 1Gi
+            limits:
+              cpu: "4"
+              memory: 1Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: lvms-vg1
+        resources:
+          requests:
+            storage: 25Gi
