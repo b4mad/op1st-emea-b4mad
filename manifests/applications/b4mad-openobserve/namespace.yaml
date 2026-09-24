@@ -3,7 +3,7 @@ kind: Namespace
 metadata:
   annotations:
     openshift.io/display-name: "OpenObserve"
-    openshift.io/description: "Standalone OpenObserve (logs, metrics, traces) for the #B4mad Network. Reachable at openobserve.b4mad.industries."
+    openshift.io/description: "Standalone OpenObserve (logs, metrics, traces) for the #B4mad Network. Reachable at observe.b4mad.industries."
     openshift.io/cluster-monitoring: "true"
   labels:
     b4mad.operate-first.cloud/owner: goern.b4mad.net

@@ -1,7 +1,7 @@
 # b4mad-openobserve
 
 Standalone [OpenObserve](https://openobserve.ai) (OSS, single binary) for the
-#B4mad Network, at <https://openobserve.b4mad.industries>.
+#B4mad Network, at <https://observe.b4mad.industries>.
 
 Cloned from castra's in-cluster instance
 (`agentic-forges/castra`, `manifests/telemetry/`), which keeps running
