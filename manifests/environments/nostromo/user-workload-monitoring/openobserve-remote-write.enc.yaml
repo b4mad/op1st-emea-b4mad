@@ -6,10 +6,10 @@ metadata:
 type: Opaque
 stringData:
     username: ENC[AES256_GCM,data:/4sFMsg864tlFzCXYq6E,iv:+Jso+p0bsiTAAL0hjG+BrtU+DHpNTgU1beEvLO0Qar0=,tag:5/pRiwbcjqckY/rvjCUn/w==,type:str]
-    password: ENC[AES256_GCM,data:oCUj/TOCsdnR0x7+zxg7P7XCnkPz6SSVtTGMx2BLcD5ByYlUwg==,iv:Fy7B+C6q9o+cMhST2o9ZywwqxUwLVnPYj70PKac5EB8=,tag:NWwhwAcWjW6J4OFoAWhA7A==,type:str]
+    password: ENC[AES256_GCM,data:H4hoAYQO14chNoE5oICM+Kv/zt20yRMGtTqUHpeDr6Q=,iv:5u0joEWmPWxHCQM902muIysr2A0Fc2V+kjwbbsYIolk=,tag:MTuFQVj/rbEEkYTRMitSDg==,type:str]
 sops:
-    lastmodified: "2026-09-27T11:30:46Z"
-    mac: ENC[AES256_GCM,data:qyHA44JkJ61ggXljA4ympcCb+YWgaRYj0Ndbc4UWSIlqHDvpnd2rOH6qF+8Z4w47OvSZ5AZAtcnYSX6BrP6OdxM/FDGPPMgX7e9oAQ0IogYxcxpavXHYO5QhntC6l8/ydz+0uSQJJPxhHaI8I9rQzDIzjYoJID47QyyURPvHIWw=,iv:YnHP+Rz0szZt9G7QgiFG2TxgtKqjJKBEaQuAd9qhFR0=,tag:2tbaYt2+hZFsqN0YjkI8OA==,type:str]
+    lastmodified: "2026-09-27T13:00:32Z"
+    mac: ENC[AES256_GCM,data:PBq53VetB2asXr+nqll4AgIDQmzuGEXbmdcmN8e0EWoulMMqQxwsEFcmPzDB7IayfxjQ1uVnviK17Z4OHuGPEVGoc59cMgnccAJrwgtBqQqhxf7YCoPbJgALliGZdTpfNzli7yKL0+AsVTy9vb/zDeH54stk/2ADTYF3qLPO55k=,iv:ybbPIALXyArjV40fbSsVY96kyUwEb08jRQe8OHDNa40=,tag:jz0nctI0s4ayW9ipKM9Hkw==,type:str]
     pgp:
         - created_at: "2026-09-27T11:30:46Z"
           enc: |-
