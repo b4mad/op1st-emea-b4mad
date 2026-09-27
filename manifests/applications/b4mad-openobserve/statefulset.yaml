@@ -78,6 +78,16 @@ spec:
               value: "256"
             - name: ZO_MEMORY_CACHE_MAX_SIZE
               value: "256"
+            # ZO_MEM_TABLE_MAX_SIZE caps the *sum* of all memtables (one per
+            # org and stream type); reaching it rejects ingestion with
+            # MemoryTableOverflowError. A memtable is only flushed at 256 MB or
+            # after 600 s by default, so with several orgs ingesting (UWM
+            # remote-write) the sum hit the cap first. Flush earlier instead:
+            # more, smaller files for the compactor, which river's CPU affords.
+            - name: ZO_MAX_FILE_SIZE_IN_MEMORY
+              value: "64"
+            - name: ZO_MAX_FILE_RETENTION_TIME
+              value: "60"
           ports:
             - name: http
               containerPort: 5080

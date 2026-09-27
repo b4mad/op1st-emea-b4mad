@@ -25,6 +25,11 @@ its data.
 memory. `ZO_MEM_TABLE_MAX_SIZE` and `ZO_MEMORY_CACHE_MAX_SIZE` are pinned to
 256 MB so they fit inside the 1Gi limit, whatever memory figure it reads.
 
+⚠️ `ZO_MEM_TABLE_MAX_SIZE` is a cap on the *sum* of all memtables (one per org
+and stream type); hitting it rejects ingestion with `MemoryTableOverflowError`
+(400 for Prometheus remote-write, 503 for OTLP). Memtables are therefore
+flushed early: `ZO_MAX_FILE_SIZE_IN_MEMORY=64` MB, `ZO_MAX_FILE_RETENTION_TIME=60` s.
+
 Retention is OpenObserve's default (`ZO_COMPACT_DATA_RETENTION_DAYS`, 3650
 days). Nothing expires data before the 25Gi volume fills.
 
