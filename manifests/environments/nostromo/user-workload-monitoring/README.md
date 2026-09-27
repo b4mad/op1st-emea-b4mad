@@ -4,11 +4,14 @@ UWM Prometheus remote-writes a copy of user-project metrics to the in-cluster
 OpenObserve (`manifests/applications/b4mad-openobserve`). Local UWM storage,
 console metrics and alerting are unchanged.
 
-| Namespaces | OpenObserve org |
-| --- | --- |
-| `b4mad-.*` | `b4mad` |
-| `machdenstaat-.*` | `machdenstaat` |
-| `feeldata-.*` | `feeldata` |
+| Namespaces | OpenObserve org | Org identifier (URL path) |
+| --- | --- | --- |
+| `b4mad-.*` | `b4mad` | `3JuQB0RU7PKv25fZyeABptKiT0P` |
+| `machdenstaat-.*` | `machdenstaat` | `3JuQBpCQmQvsOfEfQyGDBJLZlG5` |
+| `feeldata-.*` | `feeldata` | `3JuQDFXwWgZc5FDJxmwVyFkutll` |
+
+⚠️ The API path takes the org **identifier**, not its name (only `default`
+has both equal). Using the name gets `401 Unauthorized`.
 
 Everything else stays local only. Series carry the external labels
 `region=emea, org=b4mad, environment=nostromo`.
