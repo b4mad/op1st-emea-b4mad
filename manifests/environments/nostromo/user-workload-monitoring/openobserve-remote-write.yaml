@@ -1,0 +1,17 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: openobserve-remote-write
+  namespace: openshift-user-workload-monitoring
+spec:
+  encryptedData:
+    password: AgBnuzsDsdl1Aa4rkU5cOd/dJsFoqRs5kBajQBt662c5V2d/kmJNmhltk5fPL9pRYkt+AfqzVLqIGaYI7+XkgUJnvP/D13Y77W9knIyOzFisoXU0/AkYwbGo20JoVcZLRRwHzRO5NdWLw4q14LXjkp7VOzyLSMchhTjWVEVHzCe5IEg+6fcu6kcsS7opBkezZuHS880Fuu+oFsnk3bKbBUlRrMCZQFKsxCpYtgBPzIwXme0kXEanEORsKZUAERCHNwDGlGO7+FYSJ4z+Dr/rmWCMUTwWOR/VkRYrG9tuEY4RkquwlCEmCJh4y5Q8EKyqPFJUCBr3rhrORTWa7Qc0xHguZGHKGw/0NLfXtk1keb8LWSgi4zshGGBF839WOb9mcZM3DWwXq3RY/rhEF2uOAU6AeqgQuuSL504TvZQbmEnluZGc/tHsZ6oNTUwsYG/BlvD4Eto7pJYwOA1pmpvnmW9qO+gmdFDDGfMBfFN0rfaJ6/bfTMblHEU2sTRm/KFwT+0jjkONdxaxZrBvN7eXRzKEXpUNIEC1MN/OskWudCThuWMmL5mO0TF0VS9QNuCNtFH2JYSZCmY+uLbX5g0N39saXu1elH9jKHa2K/H/fEtWSo9SUaT+ea3RU0yQTYBUo77weIduFWdlrxwhGSVtUptB1D9dm+N0SAXPY5+aaWHC4Adp6eH7Ea+2PvrVDSkkFDL2llkNYF/B/8gdKwoQbxs0sjhregpdQU5+vb27gI9GOagup//j
+    username: AgB+FXaZnUW/Y1BrZo53a77r3SL1n20S5VyRFwGq8www3bLIJv+E8n8NdKRNu07ZuUH0hQRzlsvreX44ADmNsvYsAC4v2pMqrCi/aCnqFFaUMFNF0FTahCfTUSIJ7F5MnrQgOXAq2CCU/c5tK2/++1RuEM+f2qJmx236rA5aL4ufLhAMXQBtCPG6jOR2JgplmBRGPzMXfhfVy5Fvq71dEFG7WnBiwVRgrnJZL1+4DYpgkf3ED2rOE9zhLRle7q/j++5w74l9qzGQVmeqVU46m6Pi7ERVNEubxQRzGtguDCb/OxhQmpDCk21KVHqYcNspg5ePMP3pB1R6F//59UJswh7VGOj5BufK5rzbl/Oo30P16ZQfkNwCC5WrXkKYSZtLIylle2Ync+BJbhIhMN6GkMs83Z0KTyHnXQuUkOS6LYt0kEETGGr5xz+mN8VjhQ1EjCIvOsOZKHdgLlfciUjOfV3Av6eo4UKbf1sJyfCn10BaSZxJMuqHcQXANZXTy+gopUDVD45dBAbbbm+yxFldPksVd94vYNAcueGErYTSSVUMGr5jpoFqXycPgDA2PftLaaAZplm77ROnKXK/4/6/KWr9+v5EFtNoJ6/90z32eNkYxCHRovFe2y8Lx+CCLsf1v2qR+HRJR9IoIiEOmwqD0OgiOpOcMQu9c62VU7XJneUM0JD4rXSE1A2Jye/YO7zjKB5T/YmBcxIWb0SKXeivJ2E=
+  template:
+    metadata:
+      creationTimestamp: null
+      name: openobserve-remote-write
+      namespace: openshift-user-workload-monitoring
+    type: Opaque
+---
