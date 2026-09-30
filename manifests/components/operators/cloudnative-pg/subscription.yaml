@@ -12,3 +12,16 @@ spec:
   source: certified-operators
   sourceNamespace: openshift-marketplace
   startingCSV: cloudnative-pg.v1.25.0
+  # The CSV ships the operator without requests, i.e. BestEffort QoS: under CPU
+  # contention its /readyz liveness probe (1s timeout) failed and kubelet
+  # restarted it (exit 137, 25 restarts by 2026-09-30), disrupting every CNPG
+  # cluster at once. OLM owns the Deployment and reverts direct edits, so
+  # resources go here. Sized from observed usage (~65m CPU, ~385Mi memory).
+  # No limits on purpose: a memory limit would trade probe kills for OOM kills.
+  # priorityClassName is not settable via Subscription config, and would not
+  # help anyway: priority governs preemption/eviction, not liveness restarts.
+  config:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
