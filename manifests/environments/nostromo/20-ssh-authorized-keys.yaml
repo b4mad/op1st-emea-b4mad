@@ -1,0 +1,38 @@
+# Additional SSH keys for the core user on every node (bridge: master, river: worker).
+# The installer keys live in 99-{master,worker}-ssh (not managed here). The sshAuthorizedKeys
+# of all MachineConfigs of a pool are merged, so this adds to them and does not replace them.
+# Hand-edited files under ~core/.ssh/authorized_keys.d/ are not owned by the MCO and can be
+# lost, which is why the keys are kept here.
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 20-masters-ssh-authorized-keys
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    passwd:
+      users:
+        - name: core
+          sshAuthorizedKeys:
+            - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFliOtSPgx6imLJGVHP6XAGL7XL4sFjSJhIBF2myA5vB goern@redhat.com
+            - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC50ONPwILcA4lqhMCaHaAhMPH9BBqRxcaPxCYe+ag0iLuH+mFubDK5i2EmBkmiIeIyJ7ubGo4SuLfk+QThMmskDHcOoICrC2ztz8F6UquabmI1r/xATG/O0I47fGMGV7yuFxVxX0/FGQ90yCs/EWvrUZvM7lOepRJuHjTP1C/XPqNZi7eBejLxkEXDrOakyrtJ0xL94s3wN5ncAbSwnNuKeDWKYaXyVUJscXBa+G9S9DSif18b89j8aIt94gXWD4smgXMFFavGNBl+xE4w8UtDk2wIheY05QqRV017PuGBlItKd54fvh9D1HJmsPlL2wfozy9m/m/oSGsCsjcXxQY0EEpxuomM050EM/iqMucvYYqUQaJPYXbT9Zb9Cvb6Yho9L0xKF8EjZGpZW8llJlDLMrrUiAu+/jBv1xBxkT2gdMrx2l3xEQL6FIqarixCwm3/3YcPCFr7FWnZ79/MgYMZorGNJb9DsDkl+aj6tn6Diw64qblDmVwyPltI38MHZW8= goern@x1-erdgeschoss-b4mad-net
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 20-workers-ssh-authorized-keys
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    passwd:
+      users:
+        - name: core
+          sshAuthorizedKeys:
+            - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFliOtSPgx6imLJGVHP6XAGL7XL4sFjSJhIBF2myA5vB goern@redhat.com
+            - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC50ONPwILcA4lqhMCaHaAhMPH9BBqRxcaPxCYe+ag0iLuH+mFubDK5i2EmBkmiIeIyJ7ubGo4SuLfk+QThMmskDHcOoICrC2ztz8F6UquabmI1r/xATG/O0I47fGMGV7yuFxVxX0/FGQ90yCs/EWvrUZvM7lOepRJuHjTP1C/XPqNZi7eBejLxkEXDrOakyrtJ0xL94s3wN5ncAbSwnNuKeDWKYaXyVUJscXBa+G9S9DSif18b89j8aIt94gXWD4smgXMFFavGNBl+xE4w8UtDk2wIheY05QqRV017PuGBlItKd54fvh9D1HJmsPlL2wfozy9m/m/oSGsCsjcXxQY0EEpxuomM050EM/iqMucvYYqUQaJPYXbT9Zb9Cvb6Yho9L0xKF8EjZGpZW8llJlDLMrrUiAu+/jBv1xBxkT2gdMrx2l3xEQL6FIqarixCwm3/3YcPCFr7FWnZ79/MgYMZorGNJb9DsDkl+aj6tn6Diw64qblDmVwyPltI38MHZW8= goern@x1-erdgeschoss-b4mad-net
