@@ -1,6 +1,16 @@
 [extend]
 useDefault = true
 
+# A kubeconfig holds cluster credentials, and base64-encoded key material is
+# easy to miss by content. Flag the file by name instead; only sops-encrypted
+# *.enc.yaml copies may be committed.
+[[rules]]
+id = "kubeconfig-file"
+description = "Kubeconfig file; commit only as sops-encrypted *.enc.yaml"
+path = '''(?i)kubeconfig'''
+[[rules.allowlists]]
+paths = ['''(?i)\.enc\.ya?ml$''']
+
 [[rules]]
 id = "generic-api-key"
 [[rules.allowlists]]

@@ -1,0 +1,19 @@
+# Prefer the router's stable ULA prefix (fd99:aec1:8678::/64) for the IPv6 node IP.
+# Without it kubelet picks the ISP-delegated global address, which changes with the
+# prefix and breaks the OVN service route (172.30.0.0/16 via 169.254.169.4).
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 10-workers-node-ip-hint
+spec:
+  config:
+    ignition:
+      version: 3.1.0
+    storage:
+      files:
+        - contents:
+            source: data:text/plain;charset=utf-8;base64,S1VCRUxFVF9OT0RFSVBfSElOVD1mZDk5OmFlYzE6ODY3ODo6
+          mode: 420
+          path: /etc/default/nodeip-configuration
