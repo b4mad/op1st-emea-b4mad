@@ -11,6 +11,7 @@ labels:
 resources:
   - ../../organizational-unit-scope/
 
+  - 20-ssh-authorized-keys.yaml
   - stubs/cluster-version.yaml
   - stubs/configs-samples.yaml
   - stubs/node-cluster.yaml
