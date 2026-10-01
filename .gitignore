@@ -24,8 +24,9 @@ __pycache__/
 
 .claude/settings.local.json
 .claude/skills/skill-creator/
-admin.kubeconfig
-bootstrap.kubeconfig
+# kubeconfigs carry cluster credentials: only sops-encrypted *.enc.yaml may be committed
+*kubeconfig*
+!*kubeconfig*.enc.yaml
 bound-sa.pub
 clusterrole-rbac.txt
 ansible/
