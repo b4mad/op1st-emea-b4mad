@@ -51,6 +51,20 @@ shred -u "$T/new.yaml" && rmdir "$T"
 
 ### History
 
-The installer admin kubeconfig was committed in plaintext on 2024-10-03 (commit `2f309f3`) and is still in git history on `origin` and the Radicle remote. Its client key is valid until 2034, so treat it as exposed. Removing the file from the tree does not revoke it, and Kubernetes cannot revoke a client certificate without rotating its signer (`admin-kubeconfig-signer`). No supported rotation procedure has been confirmed yet; the Red Hat article found covers only the 2023 FIPS case. Tracked in bead `op1st-emea-b4mad-wy1`.
+The installer admin kubeconfig was committed in plaintext on 2024-10-03 (commit `2f309f3`) and is still in git history on `origin` and the Radicle remote. Its client certificate was issued by `admin.kubeconfig-signer@1726699878` and was valid until 2034, so the key must be treated as exposed. Removing the file from the tree does not revoke it, and Kubernetes cannot revoke a client certificate without removing its signer from the trusted CA bundle.
 
-The credential documented here uses a different private key and a different signer (`node-system-admin-signer`), so the leaked key does not apply to it.
+On 2026-10-01 that signer was removed from the bundle (see below). The leaked kubeconfig now fails with `Unauthorized`. Two older signers are still trusted: `admin-kubeconfig-signer` (until 2033-04-25) and `admin.kubeconfig-signer@1726648210` (until 2034-09-16). No certificate issued by them is known to exist. Tracked in bead `op1st-emea-b4mad-wy1`.
+
+The credential documented here uses a different private key and a different signer (`node-system-admin-signer`), so the leaked key never applied to it. All node-local kubeconfigs (`lb-ext`, `lb-int`, `localhost`, `localhost-recovery` in `openshift-kube-apiserver/node-kubeconfigs`) are issued by `node-system-admin-signer` too.
+
+### Revoking an admin signer
+
+Trusted admin signers live in the ConfigMap `openshift-config/admin-kubeconfig-client-ca`. It is not owned by an operator (field managers: `cluster-bootstrap`, `oc`). The kube-apiserver operator merges it into `openshift-kube-apiserver/client-ca`, which the API server reloads live. Removing a signer needed no kube-apiserver rollout, and the operator did not restore it. This was done once, on nostromo running OpenShift 4.21.35.
+
+1. Take the break-glass kubeconfig as described above and keep it until the end. Check `oc whoami` returns `system:admin`.
+2. Save the ConfigMap: `oc get cm -n openshift-config admin-kubeconfig-client-ca -o yaml`, and strip `resourceVersion`, `uid`, `creationTimestamp` and `managedFields`. The certificates are public, but the file is the rollback.
+3. Find the signer to drop by listing the subjects in `data."ca-bundle.crt"` with `openssl x509 -noout -subject`. Match it against the issuer of the certificate you want to revoke. Never drop `node-system-admin-signer`: it is not in this ConfigMap, the operator adds it to `client-ca`.
+4. Rebuild the bundle without that certificate and apply it with `oc patch cm -n openshift-config admin-kubeconfig-client-ca --type merge -p ...`. Remove one signer at a time.
+5. Verify: the old kubeconfig returns `Unauthorized`, the break-glass kubeconfig still returns `system:admin`, and `oc get co kube-apiserver authentication` stays Available and not Degraded.
+
+Rollback is re-applying the saved ConfigMap. That trusts the removed signer again, so a leaked credential becomes valid again. If the API is down, use `localhost-recovery.kubeconfig` on a control-plane node. It is issued by `node-system-admin-signer` and does not depend on this ConfigMap.
