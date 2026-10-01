@@ -1,7 +1,7 @@
 # ArgoCD Application: b4mad-matrix (ESS — Element Server Suite).
 #
 # Replaces b4mad-matrix-dendrite. The workload manifests live in
-# https://codeberg.org/b4mad/b4mad-matrix; the Helm chart comes from the
+# https://git.b4mad.industries/b4mad/b4mad-matrix; the Helm chart comes from the
 # upstream OCI registry.
 #
 # Multi-source layout:
@@ -110,10 +110,10 @@ spec:
         releaseName: prod
         valueFiles:
           - $values/values.yaml
-    - repoURL: https://codeberg.org/b4mad/b4mad-matrix.git
+    - repoURL: https://git.b4mad.industries/b4mad/b4mad-matrix.git
       targetRevision: HEAD
       ref: values
-    - repoURL: https://codeberg.org/b4mad/b4mad-matrix.git
+    - repoURL: https://git.b4mad.industries/b4mad/b4mad-matrix.git
       targetRevision: HEAD
       path: .
   syncPolicy:
