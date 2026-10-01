@@ -53,7 +53,7 @@ shred -u "$T/new.yaml" && rmdir "$T"
 
 The installer admin kubeconfig was committed in plaintext on 2024-10-03 (commit `2f309f3`) and is still in git history on `origin` and the Radicle remote. Its client certificate was issued by `admin.kubeconfig-signer@1726699878` and was valid until 2034, so the key must be treated as exposed. Removing the file from the tree does not revoke it, and Kubernetes cannot revoke a client certificate without removing its signer from the trusted CA bundle.
 
-On 2026-10-01 that signer was removed from the bundle (see below). The leaked kubeconfig now fails with `Unauthorized`. Two older signers are still trusted: `admin-kubeconfig-signer` (until 2033-04-25) and `admin.kubeconfig-signer@1726648210` (until 2034-09-16). No certificate issued by them is known to exist. Tracked in bead `op1st-emea-b4mad-wy1`.
+On 2026-10-01 that signer was removed from the bundle (see below). The leaked kubeconfig now fails with `Unauthorized`. The same day `admin.kubeconfig-signer@1726648210` was removed too, because no certificate issued by it is known to exist. One older signer is still trusted: `admin-kubeconfig-signer` (until 2033-04-25), also with no known certificate. Removing it would leave the bundle empty, and it is not known how the kube-apiserver operator handles that, so it was left in place. Tracked in bead `op1st-emea-b4mad-wy1`.
 
 The credential documented here uses a different private key and a different signer (`node-system-admin-signer`), so the leaked key never applied to it. All node-local kubeconfigs (`lb-ext`, `lb-int`, `localhost`, `localhost-recovery` in `openshift-kube-apiserver/node-kubeconfigs`) are issued by `node-system-admin-signer` too.
 
