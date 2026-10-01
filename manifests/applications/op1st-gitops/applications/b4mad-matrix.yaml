@@ -70,12 +70,34 @@ spec:
         - /spec/minSyncReplicas
         - /spec/postgresGID
         - /spec/postgresUID
-        - /spec/postgresql
+        # Narrowed from /spec/postgresql so git owns tuned parameters
+        # (wal_*_timeout) and spec.resources; only operator defaults are ignored.
+        - /spec/postgresql/syncReplicaElectionConstraint
+        - /spec/postgresql/parameters/archive_mode
+        - /spec/postgresql/parameters/archive_timeout
+        - /spec/postgresql/parameters/dynamic_shared_memory_type
+        - /spec/postgresql/parameters/full_page_writes
+        - /spec/postgresql/parameters/log_destination
+        - /spec/postgresql/parameters/log_directory
+        - /spec/postgresql/parameters/log_filename
+        - /spec/postgresql/parameters/log_rotation_age
+        - /spec/postgresql/parameters/log_rotation_size
+        - /spec/postgresql/parameters/log_truncate_on_rotation
+        - /spec/postgresql/parameters/logging_collector
+        - /spec/postgresql/parameters/max_parallel_workers
+        - /spec/postgresql/parameters/max_replication_slots
+        - /spec/postgresql/parameters/max_worker_processes
+        - /spec/postgresql/parameters/shared_memory_type
+        - /spec/postgresql/parameters/shared_preload_libraries
+        - /spec/postgresql/parameters/ssl_max_protocol_version
+        - /spec/postgresql/parameters/ssl_min_protocol_version
+        - /spec/postgresql/parameters/wal_keep_size
+        - /spec/postgresql/parameters/wal_level
+        - /spec/postgresql/parameters/wal_log_hints
         - /spec/primaryUpdateMethod
         - /spec/primaryUpdateStrategy
         - /spec/probes
         - /spec/replicationSlots
-        - /spec/resources
         - /spec/smartShutdownTimeout
         - /spec/startDelay
         - /spec/stopDelay
