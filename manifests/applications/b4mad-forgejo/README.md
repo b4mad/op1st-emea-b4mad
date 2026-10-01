@@ -72,6 +72,7 @@ project, which keeps this repo pure GitOps.
 | `b4mad-castra` | `castra@b4mad.net` | `write:repository,write:issue,read:user` | `bot-tokens.enc.yaml` → `castra-token` | none |
 | `b4mad-release-agent` | `release-bot@b4mad.net` | `write:repository,write:package,write:issue,read:organization,read:user` | `forgejo-agent-b4mad-release-agent.enc.yaml` | ssh+gpg |
 | `op1st-site-operator` | `site-operator@b4mad.net` | `write:repository,read:organization,read:user` | `forgejo-agent-op1st-site-operator.enc.yaml` | ssh+gpg |
+| `hermes` | `hermes@b4mad.net` | `write:repository,write:issue,read:organization,read:user` | `forgejo-agent-hermes.enc.yaml` | ssh+gpg |
 
 ⚠️ `b4mad-release-agent` was renamed from `b4mad-release-bot` on 2026-07-30 and
 backfilled with keys on 2026-07-31, so it no longer belongs to the unsigned set
