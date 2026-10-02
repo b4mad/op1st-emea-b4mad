@@ -32,9 +32,9 @@ resources:
 images:
   - name: agentsview
     newName: ghcr.io/kenn-io/agentsview
-    # 0.42.0. newTag and digest are mutually exclusive in kustomize, and the
+    # 0.44.0. newTag and digest are mutually exclusive in kustomize, and the
     # digest is the one that actually pins; Renovate keeps both in step.
-    digest: sha256:e5aa05298c584f17cdbe21ab5352c31fb94aaebd92fa7c898c3a466372a46622
+    digest: sha256:dd88809a5b64272f248c588e33691625eda463e3a15bb5257a91153c9947c4db
   - name: ollama
     newName: docker.io/ollama/ollama
     # 0.34.0 — deliberately the same version gamer-0 runs, so both ends of a
