@@ -256,7 +256,7 @@ spec:
   groups:
     - name: forgejo-storage
       rules:
-        # Covers the two CONTINUOUSLY-MOUNTED PVCs: gitea-shared-storage (32Gi —
+        # Covers the two CONTINUOUSLY-MOUNTED PVCs: gitea-shared-storage (96Gi —
         # repos, bleve code index, GPG home) and prod-1 (8Gi — PostgreSQL data
         # + WAL). The code indexer is the usual reason the Forgejo volume grows
         # without anyone pushing anything.
