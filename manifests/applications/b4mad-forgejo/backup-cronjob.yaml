@@ -61,7 +61,12 @@ spec:
       # publishes), so expect to revisit; watch the trend rather than waiting
       # for the alert. lvms-vg1 has allowVolumeExpansion: true and node bridge
       # has ~7.8TiB free in vg1, so this can grow in place again.
-      storage: 64Gi
+      #
+      # 64Gi -> 96Gi on 2026-10-03: the dump reached 31G (09-22) and preflight
+      # wanted 43.3G free with only 34.6G available, so every run since 09-22
+      # failed (and the offsite job refused stale data). Peak need is now ~72Gi;
+      # 96Gi tolerates a single dump of ~38Gi.
+      storage: 96Gi
 ---
 apiVersion: batch/v1
 kind: CronJob
