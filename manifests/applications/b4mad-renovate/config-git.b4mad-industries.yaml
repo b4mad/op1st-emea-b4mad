@@ -106,7 +106,13 @@ data:
           // is renovate.json5 — the repo has no such file yet). It carries
           // Cargo.toml/Cargo.lock, bun.lock and three Containerfiles, so the
           // initial backlog will not be small.
-          "goern/rs.cms"
+          "goern/rs.cms",
+          // Added 2026-10-05, moved from the Codeberg fleet (`config.yaml`) in
+          // the same change: git.b4mad.industries is now primary for it.
+          // Deliberately ONE repo, not `machdenstaat/*` — oparl-lite-2 and
+          // stadt-bonn-oparl are still renovated from codeberg.org and are
+          // empty shells here, so a glob would double-enrol them.
+          "machdenstaat/lage"
         ],
         "packageRules": [
           {
