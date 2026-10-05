@@ -28,4 +28,9 @@ spec:
   # are not pinned to river -- most schedule on bridge (63 GB, ~56% used) --
   # so the 16 GB river ceiling that motivated the original 2 is a worst-case
   # placement, not the normal one. Revert to 2 if river wedges again.
-  concurrency_limit: 4
+  #
+  # Raised 4 -> 6 on 2026-10-05 on operator request. ⚠️ bridge was 97%
+  # cpu-requested that day (70% used) and four runs already left pods Pending
+  # with `Insufficient cpu`; a higher limit queues more pods against the same
+  # node, it does not add capacity. Revert to 4 if the backlog does not drain.
+  concurrency_limit: 6
