@@ -35,6 +35,12 @@ spec:
         app.kubernetes.io/name: agentsview
         app.kubernetes.io/component: embeddings
     spec:
+      # Pinned to bridge: river (12 GiB) was 92% requested and the Tekton build
+      # pods pinned to it by their node-local LVMS volumes could not schedule.
+      # bridge has 63 GiB. The model store is a node-local lvms-vg1 volume, so
+      # moving the pod means a fresh PVC on bridge; pull-model refills it.
+      nodeSelector:
+        kubernetes.io/hostname: bridge
       initContainers:
         # Pull the model once, into the PVC. Ollama has no "download without
         # serving" mode, so the pull needs a server to talk to: start one on
@@ -128,7 +134,7 @@ spec:
               memory: 1Gi
             limits:
               cpu: "2"
-              memory: 3Gi
+              memory: 2Gi
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
