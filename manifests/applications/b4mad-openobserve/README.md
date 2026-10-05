@@ -11,15 +11,15 @@ unchanged in `b4mad-castra`. The two instances share nothing.
 
 | | Value | Why |
 | --- | --- | --- |
-| Node | prefers `river` | Lots of free CPU, little free memory. |
-| CPU | 250m request, 4 limit | CPU is cheap on river; queries and compaction burst. |
-| Memory | 1Gi request = limit | River's memory limits are overcommitted; staying within the request keeps the pod off the OOM-kill shortlist. |
+| Node | pinned to `bridge` | `river` is memory-saturated; `bridge` has 63 GiB. |
+| CPU | 250m request, 4 limit | Queries and compaction burst. |
+| Memory | 1Gi request = limit | Staying within the request keeps the pod off the OOM-kill shortlist under node pressure. |
 | Storage | 25Gi, `lvms-vg1` | Node-local LVMS. |
 
 ⚠️ The volume is node-local. Wherever the pod is **first** scheduled, the PVC
-binds there and pins the pod to that node for good. If it lands on `bridge`
-(river unavailable at first sync), moving it later means deleting the PVC and
-its data.
+binds there and pins the pod to that node for good. A PVC bound on `river`
+(the previous placement) must be deleted once after the sync so it re-binds on
+`bridge`; its data is lost.
 
 ⚠️ OpenObserve sizes its memtable and memory cache as a percentage of total
 memory. `ZO_MEM_TABLE_MAX_SIZE` and `ZO_MEMORY_CACHE_MAX_SIZE` are pinned to
