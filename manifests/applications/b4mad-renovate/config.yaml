@@ -58,10 +58,12 @@ data:
           // updates since 2026-07-28, twelve Renovate PRs were closed then,
           // and the three Dependency Dashboard issues were closed too, so
           // Renovate will re-open dashboards and re-raise the backlog.
-          "machdenstaat/lage",
           "machdenstaat/oparl-lite-2",
           "machdenstaat/stadt-bonn-oparl"
           // ── history of removals, newest first ────────────────────────────
+          // machdenstaat/lage removed 2026-10-05: git.b4mad.industries is now
+          // primary for it. Enrolled on the Forgejo fleet in the same change —
+          // see config-git.b4mad-industries.yaml.
           // b4mad/hash-B4mad-op1st, b4mad/hugo.containerimage,
           // goern/epaper-service, goern/hausmeister and goern/sops2sealedsecret
           // removed 2026-08-02 — see the note above this array.
