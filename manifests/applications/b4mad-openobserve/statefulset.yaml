@@ -2,7 +2,7 @@
 #
 # Cloned from castra's in-cluster OpenObserve (agentic-forges/castra,
 # manifests/telemetry/openobserve.yaml), with these deltas:
-#   - prefers the `river` node: plenty of CPU headroom, little memory headroom;
+#   - pinned to the `bridge` node: river is 92% memory-requested, bridge has 63 GiB;
 #   - memory is bounded explicitly, CPU is not (see resources below);
 #   - 25Gi PVC instead of 10Gi.
 #
@@ -25,21 +25,12 @@ spec:
       labels:
         app: openobserve
     spec:
-      # Preferred, not required: river is the better fit, but the pod should
-      # still come up on bridge if river is unavailable at first scheduling.
-      # ⚠️ Only the FIRST scheduling matters in practice. The PVC is LVMS
-      # (node-local, WaitForFirstConsumer), so once it binds the volume pins
-      # the pod to that node for good.
-      affinity:
-        nodeAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              preference:
-                matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - river
+      # Pinned to bridge: river is memory-saturated (see b4mad-agentsview's
+      # ollama move). ⚠️ The PVC is LVMS (node-local), so a volume already
+      # bound on river must be deleted once after the sync; the data on it
+      # is lost.
+      nodeSelector:
+        kubernetes.io/hostname: bridge
       # No pinned UID/GID/fsGroup: OpenShift's restricted-v2 SCC rejects
       # out-of-range ids and injects ones from the namespace's allocated range.
       securityContext:
@@ -93,9 +84,8 @@ spec:
               containerPort: 5080
             - name: grpc-otlp
               containerPort: 5081
-          # Memory request == limit: river's memory limits are overcommitted,
-          # and under node pressure pods using beyond their request go first.
-          # CPU is cheap on river, so a low request with a high limit lets
+          # Memory request == limit: under node pressure pods using beyond
+          # their request go first. A low CPU request with a high limit lets
           # queries and compaction burst.
           resources:
             requests:
