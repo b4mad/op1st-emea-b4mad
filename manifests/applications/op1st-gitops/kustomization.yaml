@@ -47,6 +47,11 @@ resources:
   - https://git.b4mad.industries/feeldata/manifests/raw/branch/main/applications/prod.yaml
   - https://codeberg.org/machdenstaat/oparl-lite-2/raw/branch/main/manifests/environment/stage/argocd-application.yaml
   - https://codeberg.org/machdenstaat/lage/raw/branch/main/manifest/environment/nostromo/argocd-app.yaml
+  # belegstelle: two Applications into machdenstaat-bonn-belegstelle --
+  # belegstelle (owns the namespace) and belegstelle-db (prune off). There is
+  # no sync ordering between them; belegstelle's migration hook retries until
+  # belegstelle-db's app secret exists. Same build-time remote-ref caveat.
+  - https://git.b4mad.industries/machdenstaat/belegstelle/raw/branch/main/deploy/argocd-app.yaml
   # beads-tv: the CRT-phosphor beads dashboard, syncing into b4mad-forgejo
   # alongside forgejo and matrixa. Same remote-ref pattern as lage above —
   # kustomize fetches this at BUILD time, so if git.b4mad.industries is down
