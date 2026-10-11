@@ -1,15 +1,16 @@
 ---
 # CloudNativePG cluster backing Forgejo (graduating off throwaway SQLite —
-# Systems-07w). Single instance: nostromo is a single-node cluster, so there
-# is no second node for an HA standby to land on. WAL + base backups go to the
-# nostromo-cnpg S3 bucket via the aws-creds SealedSecret.
+# Systems-07w). Two instances: primary + one streaming standby. nostromo is a
+# single-node cluster, so the standby guards against pod/PVC failure (and takes
+# the backups via target: prefer-standby), not against losing the node. WAL +
+# base backups go to the nostromo-cnpg S3 bucket via the aws-creds SealedSecret.
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   creationTimestamp: null
   name: prod
 spec:
-  instances: 1
+  instances: 2
   bootstrap:
     initdb:
       database: forgejo
