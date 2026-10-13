@@ -112,7 +112,14 @@ data:
           // Deliberately ONE repo, not `machdenstaat/*` — oparl-lite-2 and
           // stadt-bonn-oparl are still renovated from codeberg.org and are
           // empty shells here, so a glob would double-enrol them.
-          "machdenstaat/lage"
+          "machdenstaat/lage",
+          // Added 2026-10-13 on request. Native to this forge — 404 on
+          // codeberg.org, so nothing to remove from `config.yaml`. Verified
+          // live, non-empty (14 MB), unarchived and pushed to 2026-10-12
+          // before enrolling. Listed one-by-one for the same reason as lage
+          // above. Expect an onboarding PR and a sizeable first backlog
+          // (Cargo, web/, three Containerfiles, mise.toml).
+          "machdenstaat/belegstelle"
         ],
         "packageRules": [
           {
