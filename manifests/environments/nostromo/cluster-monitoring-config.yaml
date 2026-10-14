@@ -16,7 +16,20 @@ data:
               storage: 12Gi
     enableUserWorkload: true 
     prometheusK8s:
-      collectionProfile: full
+      # 2026-10-14: was `full`. prometheus-k8s-0 held 643k head series (895k
+      # at the 7-day peak) and 3.7 GiB working set, mostly apiserver, etcd and
+      # kubelet histogram buckets. `minimal` drops default-scraped metrics that
+      # nothing here uses. Check dashboards and alerts after rollout; revert to
+      # `full` if one goes blank.
+      collectionProfile: minimal
+      # Measured working set 3.7 GiB (p95 over 7d); the pod had only the
+      # operator default of 1Gi, so the scheduler under-counted it by ~2.7 GiB.
+      # Re-measure about a day after the profile change and lower this to
+      # ~1.5x the new 7-day peak. No limit on purpose: a limit below the real
+      # peak OOM-loops Prometheus, and the WAL replay then needs even more.
+      resources:
+        requests:
+          memory: 4Gi
       externalLabels:
         region: emea
         org: b4mad
