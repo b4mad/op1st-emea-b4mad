@@ -1,0 +1,30 @@
+# Adopted into GitOps on 2026-10-14. This Repository was created by a hand
+# `oc apply` and carried no ArgoCD tracking id and no concurrency limit, so a
+# burst of push/PR events could start any number of PipelineRuns at once. On
+# 2026-10-14 four `typescript-test` pods were Pending with `Insufficient cpu`
+# on bridge while another one ran, and the lage runs they compete with were
+# stuck behind them.
+#
+# The spec below is byte-for-byte what was live, plus concurrency_limit.
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: machdenstaat-oparl-lite-2
+  labels:
+    app.kubernetes.io/part-of: oparl-lite
+spec:
+  url: https://codeberg.org/machdenstaat/oparl-lite-2
+  git_provider:
+    type: gitea
+    url: https://codeberg.org
+    secret:
+      name: codeberg-runner-openshift-pac
+      key: provider.token
+    webhook_secret:
+      name: codeberg-pac-token
+      key: webhook.secret
+  # Bounded so this repo cannot pile `typescript-test` pods (550m cpu / 2176Mi
+  # requested, nodeSelector bridge) onto bridge, which is the cpu bottleneck.
+  # PaC queues the excess, it does not fail it. Raise to 3 if the backlog does
+  # not drain; see the lage entry for the trade-off.
+  concurrency_limit: 2
