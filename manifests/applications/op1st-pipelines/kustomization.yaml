@@ -24,6 +24,7 @@ resources:
   # are queued by PaC, not failed.
   - repositories/forgejo-agentic-forges-castra.yaml
   - repositories/forgejo-goern-rs-cms.yaml
+  - repositories/forgejo-b4mad-semantic-zoom-markdown.yaml
   - repositories/codeberg-org-machdenstaat-lage.yaml
   - repositories/machdenstaat-oparl-lite-2.yaml
   - repositories/forgejo-agentic-forges-forge-agents.yaml

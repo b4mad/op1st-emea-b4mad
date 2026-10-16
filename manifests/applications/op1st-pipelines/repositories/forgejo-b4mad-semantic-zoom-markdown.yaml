@@ -1,0 +1,28 @@
+# PaC for b4mad/semantic-zoom-markdown. A tag push runs .tekton/release.yaml,
+# which publishes @b4mad/semantic-zoom-markdown to the Forgejo npm registry
+# (https://git.b4mad.industries/api/packages/b4mad/npm/).
+#
+# Webhook: needs a repo-level PaC webhook on the repository (as for
+# goern/rs.cms); the Repository CR alone does not receive events.
+#
+# The publish task reads secret `forgejo-npm-token` (key: token) from
+# op1st-pipelines. That Secret is applied by hand, not from this repo, like
+# the other forgejo-* secrets.
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: forgejo-b4mad-semantic-zoom-markdown
+spec:
+  # Small bun check + build; same bound as the other siblings.
+  concurrency_limit: 2
+  url: https://git.b4mad.industries/b4mad/semantic-zoom-markdown
+  git_provider:
+    # Explicit — PaC defaults to `github` when type is unset.
+    type: forgejo
+    url: https://git.b4mad.industries
+    secret:
+      name: forgejo-b4mad
+      key: provider.token
+    webhook_secret:
+      name: forgejo-b4mad
+      key: webhook.secret
