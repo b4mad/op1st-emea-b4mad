@@ -20,4 +20,4 @@ resources:
 images:
   - name: dolt-sql-server
     newName: dolthub/dolt-sql-server
-    digest: sha256:dbd13efe2e19e02c079efd2152bca5032071a3cd6f79a9b2a7b404d19ff3ee3f
+    digest: sha256:30c7e4fa8d3dd46be9728d7a5c341ceb2ffce7e42b484ef91c999c4c707525e9  # 2.4.2
