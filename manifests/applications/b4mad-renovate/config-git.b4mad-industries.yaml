@@ -107,6 +107,13 @@ data:
           // Cargo.toml/Cargo.lock, bun.lock and three Containerfiles, so the
           // initial backlog will not be small.
           "goern/rs.cms",
+          // Added 2026-10-25 on request. Both native to this forge — 404 on
+          // codeberg.org, so nothing to remove from `config.yaml`. Verified
+          // live, non-empty (5 MB / 13 MB), unarchived and pushed to the same
+          // day before enrolling. Listed one-by-one, NOT `goern/*`, for the
+          // hausmeister reason above. Expect onboarding PRs on the first run.
+          "goern/socializer",
+          "goern/ikigai",
           // Added 2026-10-05, moved from the Codeberg fleet (`config.yaml`) in
           // the same change: git.b4mad.industries is now primary for it.
           // Deliberately ONE repo, not `machdenstaat/*` — oparl-lite-2 and
