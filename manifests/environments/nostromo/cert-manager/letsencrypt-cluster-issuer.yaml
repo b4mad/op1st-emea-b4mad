@@ -45,6 +45,7 @@ spec:
         selector:
           dnsZones:
             - machdenstaat.de
+            - partitur.social
       - dns01:
           cloudflare:
             apiTokenSecretRef:
