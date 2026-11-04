@@ -16,4 +16,5 @@ resources:
   - namespace.yaml
   - service.yaml
   - monitoring.yaml
+  - rpi5-node-exporter.yaml
   - perses/

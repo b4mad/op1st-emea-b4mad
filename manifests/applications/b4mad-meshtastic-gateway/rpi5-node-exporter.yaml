@@ -1,0 +1,88 @@
+---
+# node_exporter on rpi5 (Erdgeschoss), scraped via selectorless Service +
+# manually-managed Endpoints, same idiom as service.yaml. Exposes host
+# systemd state for tor@ units and the Tor signing-cert expiry textfile
+# metric. Host side: b4mad.systems.node_exporter (Systems-dvr).
+apiVersion: v1
+kind: Service
+metadata:
+  name: rpi5-node-exporter
+  labels:
+    app.kubernetes.io/name: rpi5-node-exporter
+spec:
+  ports:
+    - name: metrics
+      port: 9100
+      targetPort: 9100
+      protocol: TCP
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: rpi5-node-exporter
+  labels:
+    app.kubernetes.io/name: rpi5-node-exporter
+subsets:
+  - addresses:
+      - ip: 192.168.0.75
+    ports:
+      - name: metrics
+        port: 9100
+        protocol: TCP
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rpi5-node-exporter
+spec:
+  endpoints:
+    - path: /metrics
+      port: metrics
+      interval: 60s
+      scheme: http
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rpi5-node-exporter
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: rpi5-tor-relay
+  labels:
+    openshift.io/prometheus-rule-evaluation-scope: leaf-prometheus
+spec:
+  groups:
+    - name: rpi5-tor-relay
+      rules:
+        - alert: Rpi5NodeExporterDown
+          for: 10m
+          expr: up{service="rpi5-node-exporter"} == 0
+          labels:
+            severity: warning
+          annotations:
+            summary: rpi5 node_exporter is not being scraped
+            description: Prometheus could not scrape rpi5 (Tor relay B4maderdGeschoss host) at {{ $labels.instance }} for >= 10 minutes. Host down, network or exporter failure; Tor alerts are blind meanwhile.
+        - alert: TorRelayUnitDown
+          for: 5m
+          expr: node_systemd_unit_state{name=~"tor@.*", state="active"} == 0
+          labels:
+            severity: critical
+          annotations:
+            summary: Tor relay unit {{ $labels.name }} is not active on rpi5
+            description: The systemd unit {{ $labels.name }} (relay B4maderdGeschoss) has been inactive for >= 5 minutes.
+        - alert: TorSigningCertExpiresSoon
+          for: 1h
+          expr: tor_signing_cert_expiry_timestamp_seconds - time() < 10 * 86400
+          labels:
+            severity: critical
+          annotations:
+            summary: Tor signing cert expires in under 10 days
+            description: The ed25519 signing cert of the B4maderdGeschoss relay expires in {{ $value | humanizeDuration }}. Re-run b4mad.systems.tor_relay from the control node (offline master key). An expired cert silently takes the relay offline.
+        - alert: TorSigningCertMetricMissing
+          for: 1h
+          expr: absent(tor_signing_cert_expiry_timestamp_seconds)
+          labels:
+            severity: warning
+          annotations:
+            summary: Tor signing cert expiry metric is missing
+            description: No tor_signing_cert_expiry_timestamp_seconds series for >= 1 hour; the cert expiry alert is blind.
