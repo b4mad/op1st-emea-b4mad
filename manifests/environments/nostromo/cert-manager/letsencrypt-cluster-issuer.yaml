@@ -46,6 +46,7 @@ spec:
           dnsZones:
             - machdenstaat.de
             - partitur.social
+            - bonn.biz
       - dns01:
           cloudflare:
             apiTokenSecretRef:
