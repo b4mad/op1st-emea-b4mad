@@ -32,7 +32,6 @@ resources:
   - applications/b4mad-openobserve.yaml
   - applications/b4mad-radicle.yaml
   - applications/b4mad-renovate.yaml
-  - applications/b4mad-site-operator.yaml
   - applications/b4mad-transactions-tekton.yaml
   - applications/b4mad-umami.yaml
   - applications/hausmeister.yaml
