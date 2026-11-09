@@ -14,9 +14,11 @@ resources:
   - namespace.yaml
   - postgresql.yaml
   - umami-secrets.yaml
+  - umami-admin.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - bootstrap-admin-job.yaml
 
 images:
   - name: umami

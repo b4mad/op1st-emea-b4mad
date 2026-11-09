@@ -1,0 +1,72 @@
+# One-shot bootstrap of the Umami admin password.
+#
+# Umami has no env var for it: migration 01_init seeds user `admin` with the
+# well-known default password `umami`, and the login page is public. This Job
+# replaces that bcrypt hash with the one from the umami-admin SealedSecret.
+#
+# ⚠️ It only touches a row that STILL carries the seeded default hash. Once the
+# password has been changed (here or in the Umami UI) the Job is a no-op, so a
+# password rotated in the UI is never clobbered by a re-sync. To rotate through
+# git you must reset the row to the default hash first.
+#
+# The default hash below is copied from umami v3.4.1
+# prisma/migrations/01_init/migration.sql (AddSystemUser).
+#
+# PostSync: waits for the Deployment (which runs the migrations on start) and
+# then polls until the "user" table and admin row exist.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bootstrap-admin
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: psql
+          # Same image as the CNPG Cluster; ships psql.
+          image: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
+          command: ["/bin/bash", "-euo", "pipefail", "-c"]
+          args:
+            - |
+              DEFAULT_HASH='$2b$10$BUli0c.muyCW1ErNJc3jL.vFRFtFJWrT8/GcR4A.sUdCznaXiqFXa'
+              for i in $(seq 1 60); do
+                if [ "$(psql "$DATABASE_URL" -Atc "select to_regclass('public.\"user\"') is not null and exists (select 1 from \"user\" where username='admin')")" = "t" ]; then
+                  break
+                fi
+                echo "waiting for umami schema ($i/60)"; sleep 5
+              done
+              psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
+                -v new="$ADMIN_PASSWORD_HASH" -v old="$DEFAULT_HASH" <<'SQL'
+              UPDATE "user" SET password = :'new' WHERE username = 'admin' AND password = :'old';
+              SQL
+              echo "admin password bootstrap done"
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: prod-app
+                  key: uri
+            - name: ADMIN_PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: umami-admin
+                  key: ADMIN_PASSWORD_HASH
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
