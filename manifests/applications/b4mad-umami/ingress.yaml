@@ -1,0 +1,25 @@
+# Rendered by OpenShift as an edge-terminated Route; cert-manager issues the
+# certificate from the cluster-issuer annotation. Same pattern as b4mad-agentsview.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: umami
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    kubernetes.io/ingress.allow-http: "false"
+spec:
+  rules:
+    - host: umami.b4mad.industries
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: umami
+                port:
+                  number: 3000
+  tls:
+    - hosts:
+        - umami.b4mad.industries
+      secretName: umami-tls

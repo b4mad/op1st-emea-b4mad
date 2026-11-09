@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: b4mad-umami
+
+labels:
+  # includeSelectors=false: keep app labels out of CNPG's own selectors.
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/name: umami
+      app.kubernetes.io/managed-by: op1st-emea-b4mad
+
+resources:
+  - namespace.yaml
+  - postgresql.yaml
+  - umami-secrets.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+images:
+  - name: umami
+    newName: ghcr.io/umami-software/umami
+    newTag: 3.4.1

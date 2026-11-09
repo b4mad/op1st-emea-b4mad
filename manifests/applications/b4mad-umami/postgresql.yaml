@@ -1,0 +1,42 @@
+---
+# CloudNativePG cluster backing Umami (replaces the postgres:15-alpine
+# service of upstream's docker-compose.yml). Single instance: nostromo is a
+# single-node cluster. No S3 backup yet; add barmanObjectStore like
+# b4mad-forgejo once the analytics data is worth protecting.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: prod
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie
+  bootstrap:
+    initdb:
+      database: umami
+      owner: umami
+  storage:
+    resizeInUseVolumes: true
+    size: 10Gi
+    storageClass: lvms-vg1
+  monitoring:
+    customQueriesConfigMap:
+      - key: queries
+        name: cnpg-default-monitoring
+    disableDefaultQueries: false
+    enablePodMonitor: false
+  postgresql:
+    parameters:
+      pgaudit.log: "none, -misc"
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: prod
+spec:
+  namespaceSelector: {}
+  selector:
+    matchLabels:
+      cnpg.io/cluster: prod
+      cnpg.io/podRole: instance
+  podMetricsEndpoints:
+    - port: metrics
