@@ -12,8 +12,8 @@
 # The default hash below is copied from umami v3.4.1
 # prisma/migrations/01_init/migration.sql (AddSystemUser).
 #
-# The same Job also creates user `goern` (role admin) from the umami-user-goern
-# SealedSecret. INSERT ... ON CONFLICT DO NOTHING: created once, never
+# The same Job also creates user `goern` (role admin) and user `karine`
+# (role user) from the umami-user-<name> SealedSecrets. INSERT ... ON CONFLICT DO NOTHING: created once, never
 # overwritten, so a password changed in the UI sticks. Delete the row in Umami
 # first if you want git to re-create it.
 #
@@ -47,10 +47,13 @@ spec:
               done
               psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
                 -v new="$ADMIN_PASSWORD_HASH" -v old="$DEFAULT_HASH" \
-                -v goern="$GOERN_PASSWORD_HASH" <<'SQL'
+                -v goern="$GOERN_PASSWORD_HASH" -v karine="$KARINE_PASSWORD_HASH" <<'SQL'
               UPDATE "user" SET password = :'new' WHERE username = 'admin' AND password = :'old';
               INSERT INTO "user" (user_id, username, password, role)
                 VALUES (gen_random_uuid(), 'goern', :'goern', 'admin')
+                ON CONFLICT (username) DO NOTHING;
+              INSERT INTO "user" (user_id, username, password, role)
+                VALUES (gen_random_uuid(), 'karine', :'karine', 'user')
                 ON CONFLICT (username) DO NOTHING;
               SQL
               echo "umami user bootstrap done"
@@ -69,6 +72,11 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: umami-user-goern
+                  key: PASSWORD_HASH
+            - name: KARINE_PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: umami-user-karine
                   key: PASSWORD_HASH
           resources:
             requests:

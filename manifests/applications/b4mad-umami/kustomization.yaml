@@ -16,6 +16,7 @@ resources:
   - umami-secrets.yaml
   - umami-admin.yaml
   - umami-user-goern.yaml
+  - umami-user-karine.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
