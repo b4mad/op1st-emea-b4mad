@@ -12,6 +12,11 @@
 # The default hash below is copied from umami v3.4.1
 # prisma/migrations/01_init/migration.sql (AddSystemUser).
 #
+# The same Job also creates user `goern` (role admin) from the umami-user-goern
+# SealedSecret. INSERT ... ON CONFLICT DO NOTHING: created once, never
+# overwritten, so a password changed in the UI sticks. Delete the row in Umami
+# first if you want git to re-create it.
+#
 # PostSync: waits for the Deployment (which runs the migrations on start) and
 # then polls until the "user" table and admin row exist.
 apiVersion: batch/v1
@@ -41,10 +46,14 @@ spec:
                 echo "waiting for umami schema ($i/60)"; sleep 5
               done
               psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \
-                -v new="$ADMIN_PASSWORD_HASH" -v old="$DEFAULT_HASH" <<'SQL'
+                -v new="$ADMIN_PASSWORD_HASH" -v old="$DEFAULT_HASH" \
+                -v goern="$GOERN_PASSWORD_HASH" <<'SQL'
               UPDATE "user" SET password = :'new' WHERE username = 'admin' AND password = :'old';
+              INSERT INTO "user" (user_id, username, password, role)
+                VALUES (gen_random_uuid(), 'goern', :'goern', 'admin')
+                ON CONFLICT (username) DO NOTHING;
               SQL
-              echo "admin password bootstrap done"
+              echo "umami user bootstrap done"
           env:
             - name: DATABASE_URL
               valueFrom:
@@ -56,6 +65,11 @@ spec:
                 secretKeyRef:
                   name: umami-admin
                   key: ADMIN_PASSWORD_HASH
+            - name: GOERN_PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: umami-user-goern
+                  key: PASSWORD_HASH
           resources:
             requests:
               cpu: 10m

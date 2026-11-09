@@ -15,6 +15,7 @@ resources:
   - postgresql.yaml
   - umami-secrets.yaml
   - umami-admin.yaml
+  - umami-user-goern.yaml
   - deployment.yaml
   - service.yaml
   - ingress.yaml
