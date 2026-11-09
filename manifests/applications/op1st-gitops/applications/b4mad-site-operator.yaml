@@ -19,6 +19,10 @@ kind: Application
 metadata:
   name: b4mad-site-operator
   namespace: op1st-gitops
+  # Cascade-delete the deployed resources when this Application is removed, so
+  # tearing it down does not orphan the namespace, database and PVCs.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: b4mad-site-operator
