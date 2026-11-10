@@ -101,7 +101,8 @@ so bot memberships have no declarative source and must be recorded here.
 | `b4mad-release-agent` | `toolbxs` | `DevSecOps` (added 2026-07-28 as `b4mad-release-bot`) |
 | `b4mad-release-agent` | `feeldata` | team not recorded — enumerated from the API 2026-07-31 |
 | `b4mad-release-agent` | `agentic-forges` | team not recorded — enumerated from the API 2026-07-31 |
-
+| `b4mad-release-agent` | `operate-first` | team not recorded — enumerated from the API 2026-11-06 |
+| `b4mad-release-agent` | `b4mad` | `cyborgs` (added 2026-11-06 to push `b4mad/wechsler-*` container packages; the team has package write and no repos attached, so any repo added to it later also gives this agent code write) |
 | `op1st-site-operator` | `operate-first` | team not recorded — membership confirmed via `/api/v1/user/orgs` as the agent, 2026-08-06 |
 
 ⚠️ `op1st-site-operator` holds **admin** on
@@ -111,7 +112,7 @@ rewrite protections and delete the repo. Downgrade to write unless something
 here actually requires more. It has `pull` only on the org's other two repos,
 which is right.
 
-⚠️ The last two were found by querying `/api/v1/user/orgs` as the agent, not from
+⚠️ The `feeldata` and `agentic-forges` rows were found by querying `/api/v1/user/orgs` as the agent, not from
 any record — this table had only the `toolbxs` row. Treat it as a floor, not an
 inventory, until someone reconciles it against the forge.
 
