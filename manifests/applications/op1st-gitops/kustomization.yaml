@@ -57,6 +57,10 @@ resources:
   # no sync ordering between them; belegstelle's migration hook retries until
   # belegstelle-db's app secret exists. Same build-time remote-ref caveat.
   - https://git.b4mad.industries/machdenstaat/belegstelle/raw/branch/main/manifest/environment/nostromo/argocd-app.yaml
+  # bonn-biz: Application into machdenstaat-* (AppProject machdenstaat). Same
+  # build-time remote-ref caveat: an unreachable or unparseable file here breaks
+  # the whole op1st-gitops build.
+  - https://git.b4mad.industries/machdenstaat/bonn.biz/raw/branch/main/manifest/environment/nostromo/argocd-app.yaml
   # beads-tv: the CRT-phosphor beads dashboard, syncing into b4mad-forgejo
   # alongside forgejo and matrixa. Same remote-ref pattern as lage above —
   # kustomize fetches this at BUILD time, so if git.b4mad.industries is down
