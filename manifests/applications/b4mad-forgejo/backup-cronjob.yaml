@@ -66,7 +66,13 @@ spec:
       # wanted 43.3G free with only 34.6G available, so every run since 09-22
       # failed (and the offsite job refused stale data). Peak need is now ~72Gi;
       # 96Gi tolerates a single dump of ~38Gi.
-      storage: 96Gi
+      #
+      # 96Gi -> 160Gi on 2026-11-16 (op1st-emea-b4mad-d1h): the 10-04 dump was
+      # 43.85G, so preflight wanted 64.2G free with only 54.4G available and
+      # every run since 10-05 failed (offsite refused stale data in turn). Live
+      # /data is 42.4G, 35.8G of it /data/packages. Peak need is now ~110G;
+      # 160Gi tolerates a single dump of ~64G.
+      storage: 160Gi
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -143,7 +149,7 @@ spec:
                   fi
                   if [ "${AVAIL_K}" -lt "${NEED_K}" ]; then
                     echo "FATAL: /backup has ${AVAIL_K}K free, need ~${NEED_K}K" >&2
-                    echo "       (1.3x the last dump, or 4G if there is none)" >&2
+                    echo "       (1.5x the last dump, or 6G if there is none)" >&2
                     echo "       Grow PVC forgejo-backup or lower RETENTION." >&2
                     ls -la /backup >&2
                     exit 1
