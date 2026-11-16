@@ -48,3 +48,7 @@ codeberg-orgs.jsonl
 # this stray root-level copy is the same local-only artifact and carries
 # bd memories, which bd export deliberately excludes)
 beads-backup.jsonl
+
+# Beads / Dolt files (added by bd init)
+.beads/proxieddb/
+*.gate.lock*
