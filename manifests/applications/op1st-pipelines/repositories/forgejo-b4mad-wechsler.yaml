@@ -19,9 +19,12 @@ metadata:
 spec:
   # One PR run is three heavy pods (a cold Rust build with a Postgres
   # sidecar, the web checks, the small checks), all pinned to bridge; the
-  # optional browser run adds one. 2 keeps a busy day from filling bridge;
-  # PaC queues the excess, it does not fail it.
-  concurrency_limit: 2
+  # optional browser run adds one. PaC queues the excess, it does not fail it.
+  #
+  # Lowered 2 -> 1 on 2026-11-18 (bead wechsler-5p0h): two runs at once held
+  # bridge at 96-99% CPU requests, and production wechsler-enrich (pinned to
+  # bridge by its PV) stayed Pending after a deploy until a run was cancelled.
+  concurrency_limit: 1
   url: https://git.b4mad.industries/b4mad/wechsler
   git_provider:
     # Explicit: PaC defaults to `github` when type is unset.
