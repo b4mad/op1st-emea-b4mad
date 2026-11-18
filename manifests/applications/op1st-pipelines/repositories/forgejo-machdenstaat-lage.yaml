@@ -3,21 +3,26 @@
 # unbounded and invisible to review. It is the repository whose four
 # simultaneous `lage-on-pr-*` PipelineRuns preceded the 09:47Z river wedge.
 #
-# The spec below is byte-for-byte what was live, plus concurrency_limit.
+# Moved from codeberg.org to git.b4mad.industries on 2026-11-18 (lage-lwkmj);
+# the file was codeberg-org-machdenstaat-lage.yaml. Same pattern as the other
+# forgejo-* Repositories here: Secret forgejo-b4mad for token and webhook.
+# PaC checks the sender's permission with that token, so its account
+# (b4mad-gitops) needs Admin on machdenstaat/lage; with Write, every event
+# failed "unable to verify event authorization" (measured 2026-11-18).
 apiVersion: pipelinesascode.tekton.dev/v1alpha1
 kind: Repository
 metadata:
-  name: codeberg-org-machdenstaat-lage
+  name: forgejo-machdenstaat-lage
 spec:
-  url: https://codeberg.org/machdenstaat/lage
+  url: https://git.b4mad.industries/machdenstaat/lage
   git_provider:
-    type: gitea
-    url: https://codeberg.org
+    type: forgejo
+    url: https://git.b4mad.industries
     secret:
-      name: codeberg-runner-openshift-pac
+      name: forgejo-b4mad
       key: provider.token
     webhook_secret:
-      name: codeberg-pac-token
+      name: forgejo-b4mad
       key: webhook.secret
   # Bounded so one busy repo cannot fill river with build pods; see the
   # rationale in ../kustomization.yaml. PaC queues the excess, it does not fail it.
