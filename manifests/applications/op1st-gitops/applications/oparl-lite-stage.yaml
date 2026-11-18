@@ -1,0 +1,30 @@
+# Vendored copy of codeberg.org/machdenstaat/oparl-lite-2
+# manifests/environment/stage/argocd-application.yaml, taken on 2026-11-18 from
+# the live Application's last-applied-configuration (lage-lwkmj). The remote
+# ref broke the whole op1st-gitops kustomize build while codeberg.org had no
+# DNS. Switch back to the remote ref (or to git.b4mad.industries, if
+# oparl-lite-2 moves there) once codeberg.org resolves again.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app.kubernetes.io/environment: stage
+    app.kubernetes.io/name: oparl-lite
+  name: oparl-lite-stage
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: machdenstaat-oparl-lite-stage
+    server: https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443
+  project: machdenstaat
+  source:
+    path: manifests/environment/stage
+    repoURL: https://codeberg.org/machdenstaat/oparl-lite-2.git
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
