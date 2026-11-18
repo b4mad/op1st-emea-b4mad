@@ -1,0 +1,35 @@
+# PaC for b4mad/wechsler (bead wechsler-ck0f in that repo): PR checks only,
+# .tekton/on-pr.yaml (required check `wechsler-on-pr`) and
+# .tekton/on-pr-web-browser.yaml (optional). Release and deploy on a tag come
+# later.
+#
+# Webhook: b4mad/wechsler is in org b4mad, not machdenstaat, so the
+# machdenstaat org webhook does not reach it; it needs its own webhook to the
+# PaC controller route, signed with forgejo-b4mad/webhook.secret (as for
+# b4mad/semantic-zoom-markdown and goern/rs.cms).
+#
+# PaC checks the sender's permission with the provider token, so its account
+# (b4mad-gitops) needs Admin on b4mad/wechsler; with Write every event fails
+# "unable to verify event authorization" (measured on machdenstaat/lage,
+# 2026-11-18).
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: forgejo-b4mad-wechsler
+spec:
+  # One PR run is three heavy pods (a cold Rust build with a Postgres
+  # sidecar, the web checks, the small checks), all pinned to bridge; the
+  # optional browser run adds one. 2 keeps a busy day from filling bridge;
+  # PaC queues the excess, it does not fail it.
+  concurrency_limit: 2
+  url: https://git.b4mad.industries/b4mad/wechsler
+  git_provider:
+    # Explicit: PaC defaults to `github` when type is unset.
+    type: forgejo
+    url: https://git.b4mad.industries
+    secret:
+      name: forgejo-b4mad
+      key: provider.token
+    webhook_secret:
+      name: forgejo-b4mad
+      key: webhook.secret
