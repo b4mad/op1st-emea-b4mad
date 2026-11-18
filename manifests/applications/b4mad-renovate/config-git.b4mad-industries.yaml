@@ -116,9 +116,9 @@ data:
           "goern/ikigai",
           // Added 2026-10-05, moved from the Codeberg fleet (`config.yaml`) in
           // the same change: git.b4mad.industries is now primary for it.
-          // Deliberately ONE repo, not `machdenstaat/*` — oparl-lite-2 and
-          // stadt-bonn-oparl are still renovated from codeberg.org and are
-          // empty shells here, so a glob would double-enrol them.
+          // Deliberately ONE repo, not `machdenstaat/*` — stadt-bonn-oparl
+          // is still renovated from codeberg.org and is an empty shell here,
+          // so a glob would double-enrol it.
           "machdenstaat/lage",
           // Added 2026-10-13 on request. Native to this forge — 404 on
           // codeberg.org, so nothing to remove from `config.yaml`. Verified
@@ -126,7 +126,11 @@ data:
           // before enrolling. Listed one-by-one for the same reason as lage
           // above. Expect an onboarding PR and a sizeable first backlog
           // (Cargo, web/, three Containerfiles, mise.toml).
-          "machdenstaat/belegstelle"
+          "machdenstaat/belegstelle",
+          // Added 2026-11-18, moved from the Codeberg fleet (`config.yaml`) in
+          // the same change: git.b4mad.industries is now primary for it
+          // (oparl-lite-2-jbf2). Pushed there the same day with full history.
+          "machdenstaat/oparl-lite-2"
         ],
         "packageRules": [
           {

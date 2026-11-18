@@ -6,22 +6,28 @@
 # stuck behind them.
 #
 # The spec below is byte-for-byte what was live, plus concurrency_limit.
+#
+# Moved from codeberg.org to git.b4mad.industries on 2026-11-18
+# (oparl-lite-2-jbf2); the file was machdenstaat-oparl-lite-2.yaml. Same
+# pattern as forgejo-machdenstaat-lage: Secret forgejo-b4mad for token and
+# webhook. PaC checks the sender's permission with that token, so its account
+# (b4mad-gitops) needs Admin on machdenstaat/oparl-lite-2 (granted 2026-11-18).
 apiVersion: pipelinesascode.tekton.dev/v1alpha1
 kind: Repository
 metadata:
-  name: machdenstaat-oparl-lite-2
+  name: forgejo-machdenstaat-oparl-lite-2
   labels:
     app.kubernetes.io/part-of: oparl-lite
 spec:
-  url: https://codeberg.org/machdenstaat/oparl-lite-2
+  url: https://git.b4mad.industries/machdenstaat/oparl-lite-2
   git_provider:
-    type: gitea
-    url: https://codeberg.org
+    type: forgejo
+    url: https://git.b4mad.industries
     secret:
-      name: codeberg-runner-openshift-pac
+      name: forgejo-b4mad
       key: provider.token
     webhook_secret:
-      name: codeberg-pac-token
+      name: forgejo-b4mad
       key: webhook.secret
   # Bounded so this repo cannot pile `typescript-test` pods (550m cpu / 2176Mi
   # requested, nodeSelector bridge) onto bridge, which is the cpu bottleneck.
