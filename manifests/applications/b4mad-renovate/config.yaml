@@ -58,9 +58,11 @@ data:
           // updates since 2026-07-28, twelve Renovate PRs were closed then,
           // and the three Dependency Dashboard issues were closed too, so
           // Renovate will re-open dashboards and re-raise the backlog.
-          "machdenstaat/oparl-lite-2",
           "machdenstaat/stadt-bonn-oparl"
           // ── history of removals, newest first ────────────────────────────
+          // machdenstaat/oparl-lite-2 removed 2026-11-18: moved to
+          // git.b4mad.industries (oparl-lite-2-jbf2; codeberg.org had no DNS).
+          // Enrolled on the Forgejo fleet in the same change.
           // machdenstaat/lage removed 2026-10-05: git.b4mad.industries is now
           // primary for it. Enrolled on the Forgejo fleet in the same change —
           // see config-git.b4mad-industries.yaml.
