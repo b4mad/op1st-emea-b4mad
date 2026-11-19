@@ -25,9 +25,13 @@ spec:
         releaseName: zitadel
         valueFiles:
           - $values/manifests/applications/b4mad-zitadel/values-nostromo.yaml
-  # ⚠️ No automated sync yet: the first sync is reviewed and run by hand
-  # (bead op1st-emea-b4mad-b1b.1). Enable automated/prune/selfHeal after it.
+  # First sync was run and watched by hand on 2026-11-19 (bead
+  # op1st-emea-b4mad-b1b.1; it needed the restricted-v2 SCC fix); automated
+  # since.
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
     retry:
       backoff:
         duration: 5s

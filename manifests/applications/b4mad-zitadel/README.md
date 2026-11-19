@@ -66,13 +66,9 @@ Human administrators are created by config-as-code using `iam-admin`.
 
 ## First sync
 
-Automated sync is off until the first sync has been watched by hand:
-
-```zsh
-argocd app sync b4mad-zitadel   # or the Argo CD UI
-oc -n b4mad-zitadel get cluster,job,pod
-```
-
-Expected order: CNPG `prod` healthy → `zitadel-init` → `zitadel-setup`
-(creates Secret `iam-admin`) → Deployments `zitadel` and `zitadel-login`
-ready. Then turn on `automated: {prune: true, selfHeal: true}`.
+Run and watched by hand on 2026-11-19, then automated sync was turned on.
+Order observed: CNPG `prod` healthy → `zitadel-init` (6s) → `zitadel-setup`
+(27s, created Secret `iam-admin`) → Deployments ready. The one failure on
+the way was the chart's fixed UID/fsGroup 1000, which the restricted-v2 SCC
+rejects; `podSecurityContext`/`securityContext` in values-nostromo.yaml null
+them out.
