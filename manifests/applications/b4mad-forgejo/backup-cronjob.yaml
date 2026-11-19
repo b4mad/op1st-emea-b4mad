@@ -157,11 +157,32 @@ spec:
                   echo "ok: ${AVAIL_K}K free, need ~${NEED_K}K"
 
                   # 3. DUMP.
+                  # ⚠️ The dump talks to the CNPG rw service (prod-rw)
+                  #    DIRECTLY, not via pooler-prod (op1st-emea-b4mad-5zv).
+                  #    pooler-prod is session mode with default_pool_size 4
+                  #    and query_wait_timeout 120s; the running forgejo app
+                  #    pins those server connections, so the dump's first
+                  #    query (dbfs_meta) queued 120s and died with
+                  #    "FATAL: query_wait_timeout (SQLSTATE 08P01)" (run of
+                  #    2026-11-18 03:00, all 3 attempts). Intermittent: it
+                  #    depends on whether the app is holding the pool at 03:00.
+                  #    GITEA__database__HOST is NOT honoured by `forgejo dump`
+                  #    (verified: a bogus host still connected), so we write a
+                  #    patched copy of app.ini with only [database] HOST changed.
+                  #    The copy holds the DB password: it lives in the emptyDir
+                  #    /tmp and is removed on exit. Credentials stay in app.ini.
+                  CONF=/tmp/app-dump.ini
+                  trap 'rm -f "${CONF}"' EXIT
+                  awk '/^\[/{s=$0} s=="[database]" && /^HOST *=/{print "HOST = prod-rw:5432"; next} {print}' \
+                    /data/gitea/conf/app.ini > "${CONF}"
+                  grep -q '^HOST = prod-rw:5432$' "${CONF}" \
+                    || { echo "FATAL: could not point [database] HOST at prod-rw" >&2; exit 1; }
+
                   TS=$(date -u +%Y%m%dT%H%M%SZ)
                   OUT="/backup/forgejo-${TS}.tar.zst"
-                  echo "== dumping to ${OUT} =="
+                  echo "== dumping to ${OUT} (db: prod-rw) =="
                   # --skip-index: bleve code index is rebuildable, don't archive it
-                  if ! forgejo dump -c /data/gitea/conf/app.ini \
+                  if ! forgejo dump -c "${CONF}" \
                          --type tar.zst --tempdir /tmp --skip-index -q -f "${OUT}"; then
                     # A partial archive is worse than none: offsite-cronjob.yaml
                     # ships the NEWEST file in /backup, and would happily push
