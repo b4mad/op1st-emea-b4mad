@@ -1,6 +1,13 @@
 ---
-# CloudNativePG cluster backing Zitadel. Single instance: nostromo is a
-# single-node cluster, so there is no second node for an HA standby to land on.
+# CloudNativePG cluster backing Zitadel: one primary and two streaming
+# standbys (user decision 2026-11-19). nostromo has two nodes (bridge,
+# river), both with LVMS vg1, so the anti-affinity below spreads
+# them 2+1 and a single node failure leaves a standby to promote. Zitadel
+# connects to prod-rw, which follows the primary on failover.
+#
+# No PgBouncer Pooler, deliberately: Zitadel holds only a handful of
+# connections and pools them itself (pgx); a pooler would have to run in
+# session mode and would add a hop without saving connections.
 #
 # Unlike b4mad-agentsview this database is AUTHORITATIVE — every user, org,
 # client and the event store Zitadel derives all state from. It therefore
@@ -17,7 +24,13 @@ kind: Cluster
 metadata:
   name: prod
 spec:
-  instances: 1
+  instances: 3
+  # Spread instances over the nodes. "preferred", not "required": with three
+  # instances on two nodes, "required" would leave the third Pending.
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: preferred
+    topologyKey: kubernetes.io/hostname
   bootstrap:
     # Database and owner are created here, so the chart's init Job only runs
     # `zitadel init zitadel` (schema) and never needs Postgres superuser
