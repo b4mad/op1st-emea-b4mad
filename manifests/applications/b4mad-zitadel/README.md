@@ -39,32 +39,18 @@ All three must exist before the first sync.
 | `zitadel-masterkey` | `masterkey` | 32 chars. ⚠️ **Never changes.** Lose it and every encrypted value in the DB is gone; a DB backup is useless without it |
 | `zitadel-login` | `tls.crt`, `tls.key`, `ZITADEL_SESSION_COOKIE_SECRET` | RSA keypair: Zitadel trusts `tls.crt` as system user `login-client`, Login v2 signs with `tls.key`. Cookie secret ≥ 32 chars, `new,old` to rotate |
 
-Create them (zsh; needs `sops`, `kubeseal`, `openssl`, `yq`, and an `oc`
-login to nostromo):
+Create them with `generate-secrets.sh` on a host that holds one of the PGP
+keys in `.sops.yaml`. It never regenerates an existing `.enc.yaml` (the
+masterkey must not change), only re-seals it, and never prints a value:
 
 ```zsh
-cd manifests/applications/b4mad-zitadel
-seal() { sops -d "$1.enc.yaml" | kubeseal --controller-namespace sealed-secrets --format yaml > "$1.yaml" }
+# where you have an oc login: the controller's PUBLIC cert, newest key
+oc -n sealed-secrets get secret -l sealedsecrets.bitnami.com/sealed-secrets-key=active \
+  --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1:].data.tls\.crt}' \
+  | base64 -d > sealed-secrets.pem
 
-# aws-creds: same values as b4mad-keycloak, re-namespaced
-sops -d ../b4mad-keycloak/aws-creds.enc.yaml \
-  | yq '.metadata.namespace = "b4mad-zitadel" | del(.metadata.creationTimestamp)' > aws-creds.enc.yaml
-sops -e -i aws-creds.enc.yaml && seal aws-creds
-
-# zitadel-masterkey
-kubectl create secret generic zitadel-masterkey -n b4mad-zitadel --dry-run=client -o yaml \
-  --from-literal=masterkey="$(openssl rand -hex 16)" > zitadel-masterkey.enc.yaml
-sops -e -i zitadel-masterkey.enc.yaml && seal zitadel-masterkey
-
-# zitadel-login
-tmp=$(mktemp -d)
-openssl req -x509 -newkey rsa:2048 -nodes -days 3650 -subj /CN=login-service \
-  -keyout $tmp/tls.key -out $tmp/tls.crt
-kubectl create secret generic zitadel-login -n b4mad-zitadel --dry-run=client -o yaml \
-  --from-file=tls.crt=$tmp/tls.crt --from-file=tls.key=$tmp/tls.key \
-  --from-literal=ZITADEL_SESSION_COOKIE_SECRET="$(openssl rand -hex 32)" > zitadel-login.enc.yaml
-rm -rf $tmp
-sops -e -i zitadel-login.enc.yaml && seal zitadel-login
+# where the PGP key is (sops, kubeseal, openssl)
+manifests/applications/b4mad-zitadel/generate-secrets.sh --cert sealed-secrets.pem
 ```
 
 The `sops-encrypted` pre-commit hook refuses an `.enc.yaml` without a `sops:`
