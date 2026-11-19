@@ -410,3 +410,118 @@ resource "zitadel_default_label_policy" "b4mad" {
 
   set_active = true
 }
+
+# --- Login policy (instance default) ----------------------------------------
+#
+# Mirrors the Zitadel defaults read from projections.login_policies5 on
+# 2026-11-19, with ONE change: no self-registration. With allow_register the
+# public login offered "Register new user" and anyone could create an
+# account in org b4mad.
+resource "zitadel_default_login_policy" "default" {
+  user_login                    = true
+  allow_register                = false
+  allow_external_idp            = true
+  force_mfa                     = false
+  force_mfa_local_only          = false
+  passwordless_type             = "PASSWORDLESS_TYPE_ALLOWED"
+  hide_password_reset           = false
+  ignore_unknown_usernames      = false
+  allow_domain_discovery        = true
+  disable_login_with_email      = false
+  disable_login_with_phone      = false
+  default_redirect_uri          = ""
+  password_check_lifetime       = "240h0m0s"
+  external_login_check_lifetime = "240h0m0s"
+  mfa_init_skip_lifetime        = "720h0m0s"
+  second_factor_check_lifetime  = "18h0m0s"
+  multi_factor_check_lifetime   = "12h0m0s"
+  second_factors                = ["SECOND_FACTOR_TYPE_OTP", "SECOND_FACTOR_TYPE_U2F"]
+  multi_factors                 = ["MULTI_FACTOR_TYPE_U2F_WITH_VERIFICATION"]
+}
+
+# --- OpenShift nostromo (cluster login, not yet wired into the OAuth CR) ----
+#
+# Project `openshift`, app `nostromo` (user request 2026-11-19). The cluster
+# would add an OpenID identity provider named `b4mad-id` pointing here; that
+# switch is a separate change in environments/nostromo/identity-providers.yaml
+# and needs the client secret copied to openshift-config.
+#
+# project_role_check: only users with role cluster-user may log in to the
+# cluster at all — without it every Zitadel user (partitur, feeldata, …)
+# would get an OpenShift user on first login.
+#
+# ⚠️ OpenShift takes the user name from preferred_username. goern's single
+# identity is goern@b4mad.industries, while today's cluster user is `goern`
+# (bead b1b.6 notes): settle that before the switch.
+
+variable "openshift_oauth_host" {
+  type        = string
+  description = "Host of the cluster's oauth-openshift route."
+}
+
+resource "zitadel_project" "openshift" {
+  org_id                 = local.org_id
+  name                   = "openshift"
+  project_role_assertion = true
+  project_role_check     = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_project_role" "openshift_cluster_user" {
+  project_id   = zitadel_project.openshift.id
+  org_id       = local.org_id
+  role_key     = "cluster-user"
+  display_name = "Cluster user (may log in to OpenShift)"
+}
+
+resource "zitadel_application_oidc" "openshift_nostromo" {
+  project_id = zitadel_project.openshift.id
+  org_id     = local.org_id
+  name       = "nostromo"
+
+  # Confidential client: the OpenShift OAuth server holds a client secret
+  # (OAuth CR clientSecret -> Secret in openshift-config).
+  app_type         = "OIDC_APP_TYPE_WEB"
+  auth_method_type = "OIDC_AUTH_METHOD_TYPE_BASIC"
+  response_types   = ["OIDC_RESPONSE_TYPE_CODE"]
+  grant_types      = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
+
+  redirect_uris = ["https://${var.openshift_oauth_host}/oauth2callback/b4mad-id"]
+
+  # OpenShift reads email, name and preferred_username; put them in the ID
+  # token so no userinfo round trip is needed.
+  id_token_userinfo_assertion = true
+  id_token_role_assertion     = true
+  access_token_role_assertion = false
+  access_token_type           = "OIDC_TOKEN_TYPE_BEARER"
+  version                     = "OIDC_VERSION_1_0"
+  dev_mode                    = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_user_grant" "admin_openshift" {
+  org_id     = local.org_id
+  project_id = zitadel_project.openshift.id
+  user_id    = zitadel_human_user.admin.id
+  role_keys  = [zitadel_project_role.openshift_cluster_user.role_key]
+}
+
+# Client id + secret for the cluster's OAuth CR. Zitadel returns the secret
+# only at creation, so it lives in tofu state (Secret
+# tfstate-default-zitadel-config, same namespace) and here.
+resource "kubernetes_secret_v1" "openshift_nostromo" {
+  metadata {
+    name      = "zitadel-openshift-nostromo"
+    namespace = var.namespace
+  }
+  data = {
+    clientID     = zitadel_application_oidc.openshift_nostromo.client_id
+    clientSecret = zitadel_application_oidc.openshift_nostromo.client_secret
+  }
+}
