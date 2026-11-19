@@ -1,0 +1,72 @@
+# Admin access to Zitadel — Console and the gRPC/Connect/REST APIs — through
+# the OpenShift router, NOT Cloudflare (user decision, bead
+# op1st-emea-b4mad-b1b). The router has HTTP/2 enabled, and reencrypt keeps
+# HTTP/2 end to end, which gRPC needs.
+#
+# Zitadel picks its instance by the Host header, and id-admin.… is not an
+# instance domain. The router therefore sets:
+#   X-Zitadel-Instance-Host — which instance (id.b4mad.industries)
+#   X-Zitadel-Public-Host   — which host to put in URLs it returns, so the
+#                             Console stays on id-admin.…
+# ⚠️ The public host must also be a *trusted domain* of the instance, or
+# Zitadel rejects it; that is set by config-as-code (bead -b1b.3).
+# ⚠️ The router's wildcard is reachable from the internet: "not via
+# Cloudflare" is not "not public". Zitadel's own login protects it.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: zitadel-admin
+spec:
+  host: id-admin.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
+  to:
+    kind: Service
+    name: zitadel
+  port:
+    targetPort: http2-server
+  tls:
+    # The router trusts the service CA for reencrypt automatically.
+    termination: reencrypt
+    insecureEdgeTerminationPolicy: Redirect
+  httpHeaders:
+    actions:
+      request:
+        - name: X-Zitadel-Instance-Host
+          action:
+            type: Set
+            set:
+              value: id.b4mad.industries
+        - name: X-Zitadel-Public-Host
+          action:
+            type: Set
+            set:
+              value: id-admin.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
+---
+# The Console's login redirects to Login v2 on the same host.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: zitadel-admin-login
+spec:
+  host: id-admin.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
+  path: /ui/v2/login
+  to:
+    kind: Service
+    name: zitadel-login
+  port:
+    targetPort: http-server
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  httpHeaders:
+    actions:
+      request:
+        - name: X-Zitadel-Instance-Host
+          action:
+            type: Set
+            set:
+              value: id.b4mad.industries
+        - name: X-Zitadel-Public-Host
+          action:
+            type: Set
+            set:
+              value: id-admin.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud

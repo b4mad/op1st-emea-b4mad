@@ -1,0 +1,63 @@
+# cloudflared for id.b4mad.industries, locally managed: this file is the
+# tunnel's whole routing. Pattern taken from uac:wechsler
+# (b4mad/wechsler docs/cloudflare-tunnel.md). The configMapGenerator puts its
+# hash in the ConfigMap name, so a change here rolls the pods.
+#
+# ⚠️ Deliberately NOT exposed through Cloudflare (user decision, bead
+# op1st-emea-b4mad-b1b): Zitadel's gRPC / Connect / REST APIs and the admin
+# Console (/ui/console, which drives those APIs from the browser). They are
+# reachable only through the OpenShift Route in admin-route.yaml. What is
+# listed here is what an end user's browser and an OIDC client need.
+#
+# Path rules are regexes: anchored, first match wins, 404 catch-all.
+
+tunnel: a398aa90-8839-42c3-8bc4-f58ae122c897
+credentials-file: /etc/cloudflared/credentials/credentials.json
+
+metrics: 0.0.0.0:2000
+no-autoupdate: true
+# HTTP/2 on TCP 7844, not QUIC — QUIC logs full URLs of failed requests at
+# error level (wechsler's finding). Fixed, so there is no fallback: without
+# TCP 7844 the tunnel is down.
+protocol: http2
+# The egress policy lists IPv4 ranges only.
+edge-ip-version: "4"
+# Not debug: debug logs every request with its URL and headers — here that
+# would include authorization codes and tokens.
+loglevel: info
+
+# Zitadel serves TLS from the OpenShift service CA (zitadel-serving-cert) and
+# speaks HTTP/2; cloudflared verifies it against the injected service-ca
+# bundle. Host is passed through unchanged (id.b4mad.industries), which is
+# what Zitadel resolves its instance by.
+originRequest:
+  originServerName: zitadel.b4mad-zitadel.svc
+  caPool: /etc/cloudflared/ca/service-ca.crt
+  http2Origin: true
+
+ingress:
+  # OIDC discovery and JWKS location.
+  - hostname: id.b4mad.industries
+    path: ^/\.well-known/
+    service: https://zitadel:8080
+  # authorize, token, keys, introspect, revoke, device authorization.
+  - hostname: id.b4mad.industries
+    path: ^/oauth/v2/
+    service: https://zitadel:8080
+  # userinfo, end_session.
+  - hostname: id.b4mad.industries
+    path: ^/oidc/v1/
+    service: https://zitadel:8080
+  # Callbacks from external identity providers (Codeberg, GitHub, …).
+  - hostname: id.b4mad.industries
+    path: ^/idps/
+    service: https://zitadel:8080
+  # Branding assets (logo, icon, font) the login pages load.
+  - hostname: id.b4mad.industries
+    path: ^/assets/v1/
+    service: https://zitadel:8080
+  # Login v2 UI.
+  - hostname: id.b4mad.industries
+    path: ^/ui/v2/login(/|$)
+    service: http://zitadel-login:3000
+  - service: http_status:404

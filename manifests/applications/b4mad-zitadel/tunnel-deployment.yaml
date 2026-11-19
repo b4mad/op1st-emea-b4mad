@@ -1,0 +1,147 @@
+# cloudflared for id.b4mad.industries. Outbound connections to the Cloudflare
+# edge; requests come back over them and go to zitadel and zitadel-login.
+# No RBAC, no API token, no ServiceAccount token: it does not talk to the
+# cluster API. Shape copied from uac:wechsler's wechsler-cloudflared.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zitadel-cloudflared
+  labels:
+    app.kubernetes.io/name: zitadel-cloudflared
+    app.kubernetes.io/component: cloudflared
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: zitadel-cloudflared
+      app.kubernetes.io/component: cloudflared
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: zitadel-cloudflared
+        app.kubernetes.io/component: cloudflared
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      # No runAsUser: OpenShift's restricted-v2 SCC assigns one.
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      # Longer than cloudflared's own 30 s drain.
+      terminationGracePeriodSeconds: 45
+      containers:
+        - name: cloudflared
+          # Release 2026.10.7, by digest (same as wechsler). Updates are manual.
+          image: docker.io/cloudflare/cloudflared:2026.10.7@sha256:4955524aeaa379e154023d5a027c250f7b35041a2e7e950cf13f144bc9b9c5ba
+          imagePullPolicy: IfNotPresent
+          args: ["tunnel", "--config", "/etc/cloudflared/config/config.yaml", "run"]
+          ports:
+            - name: metrics
+              containerPort: 2000
+          # /ready is 200 only with a live connection to the edge.
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: metrics
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 4
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/cloudflared/config
+              readOnly: true
+            - name: credentials
+              mountPath: /etc/cloudflared/credentials
+              readOnly: true
+            - name: service-ca
+              mountPath: /etc/cloudflared/ca
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: zitadel-cloudflared-config
+        - name: credentials
+          secret:
+            secretName: zitadel-cloudflared
+            defaultMode: 0440
+        - name: service-ca
+          configMap:
+            name: service-ca
+---
+# In-cluster only: /metrics for the ServiceMonitor.
+apiVersion: v1
+kind: Service
+metadata:
+  name: zitadel-cloudflared
+  labels:
+    app.kubernetes.io/name: zitadel-cloudflared
+    app.kubernetes.io/component: cloudflared
+spec:
+  selector:
+    app.kubernetes.io/name: zitadel-cloudflared
+    app.kubernetes.io/component: cloudflared
+  ports:
+    - name: metrics
+      port: 2000
+      targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: zitadel-cloudflared
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: zitadel-cloudflared
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
+      scheme: http
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: zitadel-tunnel
+  labels:
+    openshift.io/cluster-monitoring: "true"
+spec:
+  groups:
+    - name: zitadel.tunnel
+      interval: 1m
+      rules:
+        - alert: ZitadelTunnelDown
+          # Also what a changed Cloudflare edge range looks like: the egress
+          # policy fails closed.
+          expr: >
+            absent(cloudflared_tunnel_ha_connections{job="zitadel-cloudflared"})
+            or sum(cloudflared_tunnel_ha_connections{job="zitadel-cloudflared"}) == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: The Cloudflare tunnel of id.b4mad.industries has no connection
+            description: >
+              No cloudflared pod in b4mad-zitadel has held a connection to the
+              Cloudflare edge for 5 minutes, so logins via id.b4mad.industries
+              fail. Check the egress ranges in tunnel-networkpolicy.yaml
+              against region1/region2.v2.argotunnel.com.

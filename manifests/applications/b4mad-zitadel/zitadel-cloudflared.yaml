@@ -1,0 +1,16 @@
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  creationTimestamp: null
+  name: zitadel-cloudflared
+  namespace: b4mad-zitadel
+spec:
+  encryptedData:
+    credentials.json: AgBGP+bhCUOe6E1tzdQiHbzV7Ej/aXZyaE4RM1giF8GBVqnoI6YivoyzLc+7U6P6I66BwpcCsPSxa5ldvt3IyqugYX3F2epXGbCL585C7bDPgS6BtLkaEXZZF4Qhr9nEMFqZM7l2HdBCoF46TF06z/UkGOQEhpSExfMCZQ25igkZpPEZDahdBi02CM8j4sYFECZ+L6hOSMg3ZqrOPKi6d257TSYRDeVrwOpjyUZhrJ9D1kflZd2AvymBwsDEsHb6KDG8JVTVE/R+sUmL25mQet1G+yIdPpAk58ZOyUihEYod7SHI5Y7ojNc7VBdD8UWs5/BCu6bA8NApJdw06z4dT7yKXj8xm1qyf37aVopmhC+57w4ZFq6xfoNrBsxOLOoULA4GqIB5gIS1rP1+DZ92vfP/7egYQpM6RZQwhNTFnqmY84C0RdhypwpquCI56aJqkAjA0h6nK6cbX3LiRajMGtaiEhJpINi2XxHeZ1XWWHrunNl0e6eZowSVqCEf1/k46KZbSKsSd5Ug0O80PS5xwUEDdpctuij2xAetsjSUKWaO1e6Oa8Drnyem7JBuRzl3F4CfqzO+rSpl9+APAORII8se8x/jN9SUg8oACREasEdbvejROn1s6/2yvWJpCcDWp80xIln8jzogkSZQ7qoyXucLc3YtTqucel84zt6JFQ7yeDeYWXynCIhvFbwy6IoDDj+1xAsGR9gnfgaym/JRkJ3zVQjf5tzQeunk4XuWp3RhYK9dB1pmt61h4aU5yHI4vZnKy8FuU83ou1LzmMARNL3EqablKbWVEcVi3s7MZtSKB4c1pVoyLhhy5nRsm5KYriaC/P4qf7L/bUe77YqCxgSBQjaukzie6sL9sa1juJ3UwWjnmb3nqWOhuIVUfYN48NpyWn4wFG2fpwMAJ73ZMlMN3lg/rv/0AVtDeY5sXkl0
+  template:
+    metadata:
+      creationTimestamp: null
+      name: zitadel-cloudflared
+      namespace: b4mad-zitadel
+    type: Opaque
+---

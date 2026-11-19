@@ -4,7 +4,8 @@
 #
 # Usage (from anywhere; needs sops + a PGP key from .sops.yaml, kubeseal,
 # openssl):
-#   manifests/applications/b4mad-zitadel/generate-secrets.sh [--cert sealed-secrets.pem]
+#   manifests/applications/b4mad-zitadel/generate-secrets.sh [--cert sealed-secrets.pem] \
+#     [--tunnel-credentials <tunnel-id>.json]
 #
 # --cert seals offline against the controller's public certificate, for hosts
 # that hold the PGP key but have no cluster login. Fetch it where you do have
@@ -12,6 +13,10 @@
 #   oc -n sealed-secrets get secret <newest sealed-secrets-key…> \
 #     -o jsonpath='{.data.tls\.crt}' | base64 -d > sealed-secrets.pem
 # Without --cert, kubeseal asks the controller in namespace sealed-secrets.
+#
+# --tunnel-credentials takes the credentials file `cloudflared tunnel create`
+# wrote and turns it into zitadel-cloudflared (key credentials.json). It is
+# only read when zitadel-cloudflared.enc.yaml does not exist yet.
 #
 # ⚠️ Idempotent by refusal: an existing *.enc.yaml is NEVER regenerated, only
 # re-sealed. zitadel-masterkey must never change — Zitadel encrypts its
@@ -27,11 +32,20 @@ here=$(cd "$(dirname "$0")" && pwd)
 repo=$(git -C "$here" rev-parse --show-toplevel)
 ns=b4mad-zitadel
 
+abspath() { echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
 cert_args=(--controller-namespace sealed-secrets)
-if [[ ${1:-} == --cert ]]; then
-  [[ -r ${2:-} ]] || { echo "cannot read cert '${2:-}'" >&2; exit 2; }
-  cert_args=(--cert "$(cd "$(dirname "$2")" && pwd)/$(basename "$2")")
-fi
+tunnel_creds=
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --cert)
+      [[ -r ${2:-} ]] || { echo "cannot read cert '${2:-}'" >&2; exit 2; }
+      cert_args=(--cert "$(abspath "$2")"); shift 2 ;;
+    --tunnel-credentials)
+      [[ -r ${2:-} ]] || { echo "cannot read tunnel credentials '${2:-}'" >&2; exit 2; }
+      tunnel_creds=$(abspath "$2"); shift 2 ;;
+    *) echo "unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
 
 for t in sops kubeseal openssl base64; do
   command -v "$t" >/dev/null || { echo "missing tool: $t" >&2; exit 2; }
@@ -103,7 +117,20 @@ fi
   fi
 } | encrypt zitadel-login
 
-for s in aws-creds zitadel-masterkey zitadel-login; do
+# zitadel-cloudflared — the tunnel's credentials.json, as written by
+# `cloudflared tunnel create`.
+secrets=(aws-creds zitadel-masterkey zitadel-login)
+if [[ -e $here/zitadel-cloudflared.enc.yaml || -n $tunnel_creds ]]; then
+  {
+    secret_header zitadel-cloudflared
+    if [[ -n $tunnel_creds ]]; then
+      printf '  credentials.json: %s\n' "$(b64 <"$tunnel_creds")"
+    fi
+  } | encrypt zitadel-cloudflared
+  secrets+=(zitadel-cloudflared)
+fi
+
+for s in "${secrets[@]}"; do
   # metadata stays unencrypted under the repo's encrypted_regex, so the
   # namespace can be checked without decrypting.
   grep -Eq "^ +namespace: $ns\$" "$here/$s.enc.yaml" \

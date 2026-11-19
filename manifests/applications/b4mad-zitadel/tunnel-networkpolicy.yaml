@@ -1,0 +1,69 @@
+# Containment of the cloudflared pods: they may reach only the two Zitadel
+# origins, cluster DNS and the Cloudflare edge. Cluster network is
+# OVNKubernetes, which enforces egress and ipBlock.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: zitadel-cloudflared-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: zitadel-cloudflared
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: zitadel
+              app.kubernetes.io/component: start
+      ports:
+        - {protocol: TCP, port: 8080}
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: zitadel-login
+      ports:
+        - {protocol: TCP, port: 3000}
+    # Cluster DNS: Service port 53, pods listen on 5353.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-dns
+      ports:
+        - {protocol: UDP, port: 53}
+        - {protocol: TCP, port: 53}
+        - {protocol: UDP, port: 5353}
+        - {protocol: TCP, port: 5353}
+    # Cloudflare edge (region1/region2.v2.argotunnel.com), port 7844.
+    - to:
+        - ipBlock:
+            cidr: 198.41.192.0/24
+        - ipBlock:
+            cidr: 198.41.200.0/24
+      ports:
+        - {protocol: UDP, port: 7844}
+        - {protocol: TCP, port: 7844}
+---
+# Nothing may connect to cloudflared but Prometheus, on the metrics port.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: zitadel-cloudflared-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: zitadel-cloudflared
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchExpressions:
+              - key: kubernetes.io/metadata.name
+                operator: In
+                values:
+                  - openshift-monitoring
+                  - openshift-user-workload-monitoring
+      ports:
+        - {protocol: TCP, port: 2000}

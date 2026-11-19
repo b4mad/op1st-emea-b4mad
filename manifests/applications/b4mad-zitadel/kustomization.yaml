@@ -26,3 +26,19 @@ resources:
   - aws-creds.yaml
   - zitadel-masterkey.yaml
   - zitadel-login.yaml
+  # credentials.json of the cloudflared tunnel (generate-secrets.sh
+  # --tunnel-credentials).
+  - zitadel-cloudflared.yaml
+
+  # Public access: cloudflared tunnel for id.b4mad.industries — login + OIDC
+  # only, no APIs, no Console (see tunnel-config.yaml).
+  - tunnel-deployment.yaml
+  - tunnel-networkpolicy.yaml
+
+  # Admin access (Console, gRPC/REST APIs) via the OpenShift router.
+  - admin-route.yaml
+
+configMapGenerator:
+  - name: zitadel-cloudflared-config
+    files:
+      - config.yaml=tunnel-config.yaml
