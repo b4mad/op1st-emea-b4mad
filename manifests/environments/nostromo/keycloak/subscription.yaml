@@ -9,3 +9,8 @@ spec:
   name: keycloak-operator
   source: community-operators
   sourceNamespace: openshift-marketplace
+  config:
+    env:
+      # CVE-2026-114938 (Java4Shell): operator runs java directly, so JDK_JAVA_OPTIONS, not JAVA_OPTS_APPEND.
+      - name: JDK_JAVA_OPTIONS
+        value: "-XX:-UseBASE64Intrinsics"

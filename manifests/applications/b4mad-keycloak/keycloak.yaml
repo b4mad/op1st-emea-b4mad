@@ -5,6 +5,11 @@ metadata:
 spec:
   image: keycloak
   instances: 1
+  env:
+    # CVE-2026-114938 (Java4Shell) interim mitigation; remove once a fixed JDK is verified.
+    # https://www.keycloak.org/2026/11/java4shell-vulnerability-cve-2026-114938
+    - name: JAVA_OPTS_APPEND
+      value: "-XX:-UseBASE64Intrinsics"
   db:
     vendor: postgres
     host: postgresql-rw.b4mad-keycloak.svc.cluster.local
