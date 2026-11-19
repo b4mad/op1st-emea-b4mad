@@ -239,3 +239,67 @@ resource "kubernetes_config_map_v1" "clients" {
     partitur-webui-client-id = zitadel_application_oidc.partitur_webui.client_id
   }
 }
+
+# --- UAT accounts for socializer's Playwright login test (bead b1b.8) ------
+#
+# Two human users with FINAL generated passwords (no forced change: the test
+# cannot answer one), so the UAT in goern/socializer (`mise run uat`,
+# UAT_USER/UAT_PASSWORD) can sign in unattended:
+#   uat-staff   — has partitur/staff: the sign-in must succeed.
+#   uat-nostaff — no partitur role: with project_role_check Zitadel itself
+#                 refuses the sign-in to partitur.
+# Usernames/addresses use the reserved .invalid TLD: no real mailbox, and
+# there is no SMTP anyway. Credentials: Secret zitadel-uat-initial.
+locals {
+  uat_users = {
+    staff   = { user_name = "uat-staff@partitur.invalid", first_name = "UAT", last_name = "Staff" }
+    nostaff = { user_name = "uat-nostaff@partitur.invalid", first_name = "UAT", last_name = "No-Staff" }
+  }
+}
+
+resource "random_password" "uat" {
+  for_each         = local.uat_users
+  length           = 24
+  min_upper        = 2
+  min_lower        = 2
+  min_numeric      = 2
+  min_special      = 2
+  override_special = "!#$%*-_+"
+}
+
+resource "zitadel_human_user" "uat" {
+  for_each   = local.uat_users
+  org_id     = local.org_id
+  user_name  = each.value.user_name
+  email      = each.value.user_name
+  first_name = each.value.first_name
+  last_name  = each.value.last_name
+
+  is_email_verified            = true
+  initial_password             = random_password.uat[each.key].result
+  initial_skip_password_change = true
+}
+
+resource "zitadel_user_grant" "uat_staff" {
+  org_id     = local.org_id
+  project_id = zitadel_project.partitur.id
+  user_id    = zitadel_human_user.uat["staff"].id
+  role_keys  = [zitadel_project_role.partitur_staff.role_key]
+}
+
+resource "kubernetes_secret_v1" "uat" {
+  metadata {
+    name      = "zitadel-uat-initial"
+    namespace = var.namespace
+  }
+  data = {
+    staff_user       = local.uat_users.staff.user_name
+    staff_password   = random_password.uat["staff"].result
+    nostaff_user     = local.uat_users.nostaff.user_name
+    nostaff_password = random_password.uat["nostaff"].result
+  }
+
+  lifecycle {
+    ignore_changes = [data]
+  }
+}
