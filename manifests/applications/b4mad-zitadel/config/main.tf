@@ -291,6 +291,8 @@ resource "kubernetes_config_map_v1" "clients" {
   data = {
     issuer                   = "https://${var.zitadel_domain}"
     partitur-webui-client-id = zitadel_application_oidc.partitur_webui.client_id
+    # New client in org erdgeschoss; the webui switches to it (bead b1b.4).
+    partitur-webui-client-id-erdgeschoss = zitadel_application_oidc.partitur_eg_webui.client_id
     org-id-b4mad             = local.org_id
     org-id-feeldata          = zitadel_org.migrated["feeldata"].id
     org-id-git               = zitadel_org.migrated["git"].id
@@ -443,28 +445,101 @@ resource "zitadel_default_login_policy" "default" {
   multi_factors                 = ["MULTI_FACTOR_TYPE_U2F_WITH_VERIFICATION"]
 }
 
-# --- OpenShift nostromo (cluster login, not yet wired into the OAuth CR) ----
+# --- Projects owned by org erdgeschoss (user decision 2026-11-19) -----------
 #
-# Project `openshift`, app `nostromo` (user request 2026-11-19). The cluster
-# would add an OpenID identity provider named `b4mad-id` pointing here; that
-# switch is a separate change in environments/nostromo/identity-providers.yaml
-# and needs the client secret copied to openshift-config.
+# partitur and openshift belong to org erdgeschoss. Users of other orgs (goern
+# is in b4mad) get roles through a project grant to their org plus a user
+# grant on that project grant. Zitadel cannot move projects between orgs, so
+# partitur was recreated here; the old project in org b4mad stays until the
+# webui is switched to the new client id (then removed, bead b1b.4 notes).
+
+locals {
+  erdgeschoss_org_id = zitadel_org.migrated["erdgeschoss"].id
+}
+
+# partitur.social ------------------------------------------------------------
+
+resource "zitadel_project" "partitur_eg" {
+  org_id                 = local.erdgeschoss_org_id
+  name                   = "partitur"
+  project_role_assertion = true
+  project_role_check     = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_project_role" "partitur_eg_staff" {
+  project_id   = zitadel_project.partitur_eg.id
+  org_id       = local.erdgeschoss_org_id
+  role_key     = "staff"
+  display_name = "Staff"
+}
+
+resource "zitadel_application_oidc" "partitur_eg_webui" {
+  project_id = zitadel_project.partitur_eg.id
+  org_id     = local.erdgeschoss_org_id
+  name       = "socializer-webui"
+
+  # Public PKCE client, same shape as before (goern/socializer
+  # webui/src/lib/server/auth.ts).
+  app_type                    = "OIDC_APP_TYPE_WEB"
+  auth_method_type            = "OIDC_AUTH_METHOD_TYPE_NONE"
+  response_types              = ["OIDC_RESPONSE_TYPE_CODE"]
+  grant_types                 = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
+  redirect_uris               = ["${var.partitur_public_url}/auth/callback"]
+  post_logout_redirect_uris   = ["${var.partitur_public_url}/auth/signed-out"]
+  id_token_role_assertion     = true
+  access_token_role_assertion = false
+  id_token_userinfo_assertion = false
+  access_token_type           = "OIDC_TOKEN_TYPE_BEARER"
+  version                     = "OIDC_VERSION_1_0"
+  dev_mode                    = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_project_grant" "partitur_eg_to_b4mad" {
+  org_id         = local.erdgeschoss_org_id
+  project_id     = zitadel_project.partitur_eg.id
+  granted_org_id = local.org_id
+  role_keys      = [zitadel_project_role.partitur_eg_staff.role_key]
+}
+
+resource "zitadel_user_grant" "admin_partitur_eg_staff" {
+  org_id           = local.org_id
+  project_id       = zitadel_project.partitur_eg.id
+  project_grant_id = zitadel_project_grant.partitur_eg_to_b4mad.id
+  user_id          = zitadel_human_user.admin.id
+  role_keys        = [zitadel_project_role.partitur_eg_staff.role_key]
+}
+
+resource "zitadel_user_grant" "uat_partitur_eg_staff" {
+  org_id           = local.org_id
+  project_id       = zitadel_project.partitur_eg.id
+  project_grant_id = zitadel_project_grant.partitur_eg_to_b4mad.id
+  user_id          = zitadel_human_user.uat["staff"].id
+  role_keys        = [zitadel_project_role.partitur_eg_staff.role_key]
+}
+
+# OpenShift nostromo (cluster login, not yet wired into the OAuth CR) --------
 #
-# project_role_check: only users with role cluster-user may log in to the
-# cluster at all — without it every Zitadel user (partitur, feeldata, …)
-# would get an OpenShift user on first login.
-#
-# ⚠️ OpenShift takes the user name from preferred_username. goern's single
-# identity is goern@b4mad.industries, while today's cluster user is `goern`
-# (bead b1b.6 notes): settle that before the switch.
+# The cluster would add an OpenID identity provider named `b4mad-id` pointing
+# here; that switch is a separate change in
+# environments/nostromo/identity-providers.yaml and needs the client secret
+# copied to openshift-config. project_role_check: only users with
+# cluster-user may log in to the cluster at all.
 
 variable "openshift_oauth_host" {
   type        = string
   description = "Host of the cluster's oauth-openshift route."
 }
 
-resource "zitadel_project" "openshift" {
-  org_id                 = local.org_id
+resource "zitadel_project" "openshift_eg" {
+  org_id                 = local.erdgeschoss_org_id
   name                   = "openshift"
   project_role_assertion = true
   project_role_check     = true
@@ -474,29 +549,24 @@ resource "zitadel_project" "openshift" {
   }
 }
 
-resource "zitadel_project_role" "openshift_cluster_user" {
-  project_id   = zitadel_project.openshift.id
-  org_id       = local.org_id
+resource "zitadel_project_role" "openshift_eg_cluster_user" {
+  project_id   = zitadel_project.openshift_eg.id
+  org_id       = local.erdgeschoss_org_id
   role_key     = "cluster-user"
   display_name = "Cluster user (may log in to OpenShift)"
 }
 
-resource "zitadel_application_oidc" "openshift_nostromo" {
-  project_id = zitadel_project.openshift.id
-  org_id     = local.org_id
+resource "zitadel_application_oidc" "openshift_eg_nostromo" {
+  project_id = zitadel_project.openshift_eg.id
+  org_id     = local.erdgeschoss_org_id
   name       = "nostromo"
 
-  # Confidential client: the OpenShift OAuth server holds a client secret
-  # (OAuth CR clientSecret -> Secret in openshift-config).
-  app_type         = "OIDC_APP_TYPE_WEB"
-  auth_method_type = "OIDC_AUTH_METHOD_TYPE_BASIC"
-  response_types   = ["OIDC_RESPONSE_TYPE_CODE"]
-  grant_types      = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
-
-  redirect_uris = ["https://${var.openshift_oauth_host}/oauth2callback/b4mad-id"]
-
-  # OpenShift reads email, name and preferred_username; put them in the ID
-  # token so no userinfo round trip is needed.
+  # Confidential client: the OpenShift OAuth server holds a client secret.
+  app_type                    = "OIDC_APP_TYPE_WEB"
+  auth_method_type            = "OIDC_AUTH_METHOD_TYPE_BASIC"
+  response_types              = ["OIDC_RESPONSE_TYPE_CODE"]
+  grant_types                 = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
+  redirect_uris               = ["https://${var.openshift_oauth_host}/oauth2callback/b4mad-id"]
   id_token_userinfo_assertion = true
   id_token_role_assertion     = true
   access_token_role_assertion = false
@@ -509,23 +579,30 @@ resource "zitadel_application_oidc" "openshift_nostromo" {
   }
 }
 
-resource "zitadel_user_grant" "admin_openshift" {
-  org_id     = local.org_id
-  project_id = zitadel_project.openshift.id
-  user_id    = zitadel_human_user.admin.id
-  role_keys  = [zitadel_project_role.openshift_cluster_user.role_key]
+resource "zitadel_project_grant" "openshift_eg_to_b4mad" {
+  org_id         = local.erdgeschoss_org_id
+  project_id     = zitadel_project.openshift_eg.id
+  granted_org_id = local.org_id
+  role_keys      = [zitadel_project_role.openshift_eg_cluster_user.role_key]
+}
+
+resource "zitadel_user_grant" "admin_openshift_eg" {
+  org_id           = local.org_id
+  project_id       = zitadel_project.openshift_eg.id
+  project_grant_id = zitadel_project_grant.openshift_eg_to_b4mad.id
+  user_id          = zitadel_human_user.admin.id
+  role_keys        = [zitadel_project_role.openshift_eg_cluster_user.role_key]
 }
 
 # Client id + secret for the cluster's OAuth CR. Zitadel returns the secret
-# only at creation, so it lives in tofu state (Secret
-# tfstate-default-zitadel-config, same namespace) and here.
+# only at creation, so it lives in tofu state and here.
 resource "kubernetes_secret_v1" "openshift_nostromo" {
   metadata {
     name      = "zitadel-openshift-nostromo"
     namespace = var.namespace
   }
   data = {
-    clientID     = zitadel_application_oidc.openshift_nostromo.client_id
-    clientSecret = zitadel_application_oidc.openshift_nostromo.client_secret
+    clientID     = zitadel_application_oidc.openshift_eg_nostromo.client_id
+    clientSecret = zitadel_application_oidc.openshift_eg_nostromo.client_secret
   }
 }
