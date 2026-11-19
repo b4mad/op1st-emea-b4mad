@@ -68,6 +68,8 @@ variable "admin_user" {
     email      = string
     first_name = string
     last_name  = string
+    nick_name  = optional(string)
+    gender     = optional(string, "GENDER_UNSPECIFIED")
   })
   description = "Human administrator: IAM owner of the instance (Console) and partitur staff. Initial password is generated once and written to Secret zitadel-admin-initial."
 }
@@ -185,6 +187,8 @@ resource "zitadel_human_user" "admin" {
   email      = var.admin_user.email
   first_name = var.admin_user.first_name
   last_name  = var.admin_user.last_name
+  nick_name  = var.admin_user.nick_name
+  gender     = var.admin_user.gender
 
   is_email_verified            = true
   initial_password             = random_password.admin_initial.result

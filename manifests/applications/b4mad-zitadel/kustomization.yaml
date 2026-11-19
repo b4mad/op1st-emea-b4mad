@@ -67,7 +67,9 @@ configMapGenerator:
       - TF_VAR_namespace=b4mad-zitadel
       - TF_VAR_partitur_public_url=https://socializer.b4mad.industries
       - 'TF_VAR_smtp={"host":"www49.your-server.de:465","user":"id@b4mad-service.net","sender_address":"id@b4mad-service.net","sender_name":"#B4mad Identity"}'
-      - 'TF_VAR_admin_user={"user_name":"goern@b4mad.industries","email":"goern@b4mad.industries","first_name":"Christoph","last_name":"Görn"}'
+      # Set by goern in the Console on 2026-11-19 and adopted here: username
+      # `goern` keeps the OpenShift user name at the cluster cut-over.
+      - 'TF_VAR_admin_user={"user_name":"goern","email":"goern@b4mad.net","first_name":"Christoph","last_name":"Görn","nick_name":"[GNU:]","gender":"GENDER_MALE"}'
   - name: zitadel-cloudflared-config
     files:
       - config.yaml=tunnel-config.yaml
