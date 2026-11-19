@@ -1,0 +1,27 @@
+# PaC for b4mad/hash-B4mad-op1st (Keycloak theme; bead op1st-emea-b4mad-ra8).
+# The repo moved from Codeberg to git.b4mad.industries on 2026-11-19. This
+# replaces the hand-made Codeberg Repository `b4mad-hash-b4mad-op1st`.
+#
+# Webhook: org-level webhook on org b4mad -> PaC controller route (signed with
+# forgejo-b4mad/webhook.secret). PaC checks the sender's permission with the
+# provider token, so b4mad-gitops needs Admin on the repo (with Write every
+# event fails "unable to verify event authorization").
+apiVersion: pipelinesascode.tekton.dev/v1alpha1
+kind: Repository
+metadata:
+  name: forgejo-b4mad-hash-b4mad-op1st
+spec:
+  # .tekton/on-pr.yaml is a single buildah image build (Keycloak theme);
+  # one at a time is plenty, PaC queues the excess.
+  concurrency_limit: 1
+  url: https://git.b4mad.industries/b4mad/hash-B4mad-op1st
+  git_provider:
+    # Explicit: PaC defaults to `github` when type is unset.
+    type: forgejo
+    url: https://git.b4mad.industries
+    secret:
+      name: forgejo-b4mad
+      key: provider.token
+    webhook_secret:
+      name: forgejo-b4mad
+      key: webhook.secret
