@@ -71,10 +71,13 @@ secret_header() {
   printf 'apiVersion: v1\nkind: Secret\nmetadata:\n  name: %s\n  namespace: %s\ntype: Opaque\ndata:\n' "$1" "$ns"
 }
 
-# aws-creds — the same S3 credentials as b4mad-keycloak, re-namespaced.
+# aws-creds — the same S3 credentials as b4mad-keycloak. Its source file
+# carries no namespace (it was given to kubeseal at seal time), so set one;
+# sops indents with 4 spaces, hence the indentation-agnostic patterns.
 if [[ ! -e $here/aws-creds.enc.yaml ]]; then
   (cd "$repo" && sops --decrypt manifests/applications/b4mad-keycloak/aws-creds.enc.yaml) \
-    | sed -e 's/^\(  namespace:\) b4mad-keycloak$/\1 '"$ns"'/' -e '/^  creationTimestamp:/d' \
+    | sed -E -e '/^ +(creationTimestamp|namespace):/d' \
+        -e 's/^( +)name: aws-creds$/&\n\1namespace: '"$ns"'/' \
     | encrypt aws-creds
 else
   encrypt aws-creds </dev/null
@@ -103,7 +106,7 @@ fi
 for s in aws-creds zitadel-masterkey zitadel-login; do
   # metadata stays unencrypted under the repo's encrypted_regex, so the
   # namespace can be checked without decrypting.
-  grep -q "^  namespace: $ns\$" "$here/$s.enc.yaml" \
+  grep -Eq "^ +namespace: $ns\$" "$here/$s.enc.yaml" \
     || { echo "$s.enc.yaml is not in namespace $ns — refusing to seal" >&2; exit 1; }
   seal "$s"
 done
