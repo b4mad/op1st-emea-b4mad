@@ -49,6 +49,12 @@ configMapGenerator:
     files:
       - config/main.tf
       - config/.terraform.lock.hcl
+      # Branding assets (config/main.tf, "Branding"); binary, so they land
+      # in binaryData. Keep them small: Argo's client-side apply stores the
+      # whole ConfigMap in a 256 KiB annotation.
+      - config/branding-logo.png
+      - config/branding-icon.png
+      - config/branding-font.ttf
   # Its environment values (TF_VAR_*). Ids and hosts, not secrets.
   - name: zitadel-config-vars
     literals:

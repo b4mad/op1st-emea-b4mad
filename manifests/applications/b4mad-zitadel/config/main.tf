@@ -357,3 +357,56 @@ resource "kubernetes_secret_v1" "uat" {
     ignore_changes = [data]
   }
 }
+
+# --- Branding (bead b1b.11) --------------------------------------------------
+#
+# The look of https://b4mad.industries: phosphor-green CRT terminal on black.
+#   #000000 background, #9bcd9b phosphor green (text, primary), #ffa500
+#   orange (the site's hover/accent, used for warnings), Josefin Sans 300.
+# Assets were taken from the site itself (2026-11-19): branding-logo.png is
+# the "#B4MAD" logo cropped from /images/og-b4mad.png (600 px wide),
+# branding-icon.png is /apple-touch-icon.png, branding-font.ttf is
+# /fonts/josefin-sans-300-latin.woff2 converted to TTF (OFL). They sit flat
+# next to this file because they are mounted from a ConfigMap, which cannot
+# hold directories.
+#
+# The site is dark-only, so is the login: THEME_MODE_DARK; the light values
+# repeat the dark ones in case a client forces light mode.
+# Instance default: applies to every org without its own label policy.
+locals {
+  brand = {
+    background = "#000000"
+    font       = "#9bcd9b"
+    primary    = "#9bcd9b"
+    warn       = "#ffa500"
+  }
+}
+
+resource "zitadel_default_label_policy" "b4mad" {
+  primary_color         = local.brand.primary
+  background_color      = local.brand.background
+  font_color            = local.brand.font
+  warn_color            = local.brand.warn
+  primary_color_dark    = local.brand.primary
+  background_color_dark = local.brand.background
+  font_color_dark       = local.brand.font
+  warn_color_dark       = local.brand.warn
+  theme_mode            = "THEME_MODE_DARK"
+
+  # Users of several orgs log in here; the org suffix only confuses.
+  hide_login_name_suffix = true
+  disable_watermark      = true
+
+  logo_path      = "${path.module}/branding-logo.png"
+  logo_hash      = filemd5("${path.module}/branding-logo.png")
+  logo_dark_path = "${path.module}/branding-logo.png"
+  logo_dark_hash = filemd5("${path.module}/branding-logo.png")
+  icon_path      = "${path.module}/branding-icon.png"
+  icon_hash      = filemd5("${path.module}/branding-icon.png")
+  icon_dark_path = "${path.module}/branding-icon.png"
+  icon_dark_hash = filemd5("${path.module}/branding-icon.png")
+  font_path      = "${path.module}/branding-font.ttf"
+  font_hash      = filemd5("${path.module}/branding-font.ttf")
+
+  set_active = true
+}
