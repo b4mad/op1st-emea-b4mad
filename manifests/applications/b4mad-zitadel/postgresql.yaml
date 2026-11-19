@@ -1,0 +1,93 @@
+---
+# CloudNativePG cluster backing Zitadel. Single instance: nostromo is a
+# single-node cluster, so there is no second node for an HA standby to land on.
+#
+# Unlike b4mad-agentsview this database is AUTHORITATIVE — every user, org,
+# client and the event store Zitadel derives all state from. It therefore
+# gets the full backup treatment of b4mad-forgejo: WAL + base backups to the
+# nostromo-cnpg S3 bucket (eu-central-1) via the aws-creds SealedSecret, plus
+# volume snapshots.
+#
+# ⚠️ A restore is useless without the masterkey (Secret zitadel-masterkey):
+# Zitadel encrypts client secrets, IdP secrets and signing keys with it. Back
+# up zitadel-masterkey.enc.yaml together with this bucket, mentally and
+# physically.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: prod
+spec:
+  instances: 1
+  bootstrap:
+    # Database and owner are created here, so the chart's init Job only runs
+    # `zitadel init zitadel` (schema) and never needs Postgres superuser
+    # credentials. See values-nostromo.yaml initJob.command.
+    initdb:
+      database: zitadel
+      owner: zitadel
+  storage:
+    resizeInUseVolumes: true
+    size: 8Gi
+    storageClass: lvms-vg1
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://nostromo-cnpg/b4mad-zitadel/
+      s3Credentials:
+        accessKeyId:
+          key: ACCESS_KEY_ID
+          name: aws-creds
+        secretAccessKey:
+          key: ACCESS_SECRET_KEY
+          name: aws-creds
+      wal:
+        compression: gzip
+        encryption: AES256
+        maxParallel: 8
+    retentionPolicy: 30d
+    target: prefer-standby
+    volumeSnapshot:
+      className: lvms-vg1
+      online: true
+      onlineConfiguration:
+        immediateCheckpoint: true
+        waitForArchive: true
+      snapshotOwnerReference: none
+  monitoring:
+    customQueriesConfigMap:
+      - key: queries
+        name: cnpg-default-monitoring
+    disableDefaultQueries: false
+    # enablePodMonitor is deprecated; the PodMonitor is managed manually below.
+    enablePodMonitor: false
+  postgresql:
+    parameters:
+      pgaudit.log: "none, -misc"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: daily
+spec:
+  # 03:30 — staggered to spread nostromo's nightly CNPG backup load. Cluster-wide
+  # slots: 02:00 pipelines, 02:30 keycloak, 03:00 feeldata-stage, 03:30 zitadel,
+  # 04:00 feeldata dev+prod, 04:30 matrix, 05:00 forgejo, 06:00 machdenstaat.
+  schedule: "0 30 3 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: prod
+---
+# Manually managed PodMonitor, replacing the deprecated
+# spec.monitoring.enablePodMonitor. Selector/port match what the CNPG operator
+# generates for a Cluster's instance pods.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: prod
+spec:
+  namespaceSelector: {}
+  selector:
+    matchLabels:
+      cnpg.io/cluster: prod
+      cnpg.io/podRole: instance
+  podMetricsEndpoints:
+    - port: metrics

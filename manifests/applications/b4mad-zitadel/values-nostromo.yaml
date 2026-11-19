@@ -1,0 +1,207 @@
+# Values for the Zitadel Helm chart (https://charts.zitadel.com, chart
+# version pinned in op1st-gitops/applications/b4mad-zitadel.yaml).
+#
+# Shape copied from the hand-installed instance in b4mad-socializer, which
+# this one replaces (bead op1st-emea-b4mad-b1b): service-CA serving cert in
+# the pod, h2c-capable Service, Login v2 talking to the API over in-cluster
+# TLS. What differs is that everything here is rendered by Argo CD, which has
+# consequences — see the ⚠️ notes below.
+#
+# ⚠️ Argo CD renders with `helm template`, where Helm's `lookup` always comes
+# back empty. Every chart feature that generates a secret on first install and
+# "reuses it via lookup" afterwards would therefore regenerate it on EVERY
+# sync. That is why the masterkey, the login service key and the session
+# cookie secret come from our own SealedSecrets instead of the chart.
+
+replicaCount: 2
+
+zitadel:
+  # Our SealedSecret (zitadel-masterkey.yaml), key `masterkey`. The chart's own
+  # masterkey Secret is a pre-install hook — exactly the lookup trap above.
+  masterkeySecretName: zitadel-masterkey
+
+  # CNPG creates prod-ca (key ca.crt) for the cluster in postgresql.yaml.
+  dbSslCaCrtSecret: prod-ca
+
+  # Issued by the OpenShift service CA via the annotation on the Service
+  # below; reencrypt Routes and in-cluster clients that mount the service CA
+  # bundle trust it without further ado.
+  serverSslCrtSecret: zitadel-serving-cert
+
+  configmapConfig:
+    # ⚠️ ExternalDomain is the OIDC issuer and the instance's routing key.
+    # Changing it later breaks every client. Applied only when the setup Job
+    # runs.
+    ExternalDomain: id.b4mad.industries
+    ExternalPort: 443
+    ExternalSecure: true
+    TLS:
+      Enabled: true
+    Database:
+      Postgres:
+        Host: prod-rw
+        Port: 5432
+        Database: zitadel
+        User:
+          SSL:
+            Mode: verify-full
+    FirstInstance:
+      Org:
+        Name: b4mad
+        # Machine user only — deliberately NO Human admin here. A human admin
+        # in FirstInstance needs its initial password in this ConfigMap, i.e.
+        # in git. Human administrators are created by config-as-code
+        # (bead op1st-emea-b4mad-b1b.3) with the machine user below, whose
+        # key the setup Job writes to the Secret `iam-admin`.
+        Machine:
+          Machine:
+            Username: iam-admin
+            Name: Bootstrap IAM owner (config-as-code)
+          MachineKey:
+            ExpirationDate: "2029-01-01T00:00:00Z"
+            Type: 1
+          Pat:
+            ExpirationDate: "2029-01-01T00:00:00Z"
+
+# Database credentials from the CNPG app Secret. initdb made `zitadel` the
+# owner of database `zitadel`, so no admin (superuser) credentials are needed.
+env:
+  - name: ZITADEL_DATABASE_POSTGRES_USER_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: prod-app
+        key: username
+  - name: ZITADEL_DATABASE_POSTGRES_USER_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: prod-app
+        key: password
+
+service:
+  annotations:
+    service.beta.openshift.io/serving-cert-secret-name: zitadel-serving-cert
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+login:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  configMap:
+    annotations:
+      helm.sh/hook: null
+      helm.sh/hook-delete-policy: null
+      helm.sh/hook-weight: null
+  serviceAccount:
+    annotations:
+      helm.sh/hook: null
+      helm.sh/hook-delete-policy: null
+      helm.sh/hook-weight: null
+  # One SealedSecret (zitadel-login.yaml) carries both:
+  #   tls.crt/tls.key — RSA keypair. Zitadel trusts tls.crt as the
+  #     SystemAPIUser `login-client`; the Login UI signs its API JWTs with
+  #     tls.key. Replaces the chart's lookup-generated key (see top).
+  #   ZITADEL_SESSION_COOKIE_SECRET — signs the login session cookie (>= 32
+  #     chars; "new,old" to rotate without signing everybody out).
+  loginServiceKeySecretName: zitadel-login
+  sessionCookieSecretName: zitadel-login
+  # The chart default dials http(s)://zitadel:8080 with a Host header; Zitadel
+  # serves TLS from the service CA, so name the Service by its cert SAN and
+  # trust the service CA bundle (ConfigMap service-ca, injected by OpenShift,
+  # see service-ca.yaml).
+  customConfigmapConfig: |-
+    ZITADEL_LOGINCLIENT_KEYFILE="/login-service-key/tls.key"
+    AUDIENCE="https://id.b4mad.industries"
+    ZITADEL_API_URL="https://zitadel.b4mad-zitadel.svc:8080"
+    CUSTOM_REQUEST_HEADERS="X-Zitadel-Instance-Host:id.b4mad.industries,X-Zitadel-Public-Host:id.b4mad.industries"
+  env:
+    - name: NODE_EXTRA_CA_CERTS
+      value: /service-ca/service-ca.crt
+  extraVolumes:
+    - name: service-ca
+      configMap:
+        name: service-ca
+  extraVolumeMounts:
+    - name: service-ca
+      mountPath: /service-ca
+      readOnly: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+
+# ---------------------------------------------------------------------------
+# Argo CD ordering
+#
+# ⚠️ The chart ships its ConfigMaps, ServiceAccounts, RBAC and the init/setup
+# Jobs as Helm pre-install/pre-upgrade hooks. Argo CD maps those to PreSync,
+# which runs BEFORE any normal resource of the Application — i.e. before the
+# CNPG cluster and the SealedSecrets from the kustomize source exist. The init
+# Job would wait for a database that the same sync has not yet created, and
+# the first sync would deadlock.
+#
+# So the Helm hook annotations are removed (null deletes a default map key)
+# and replaced by Argo sync waves:
+#   wave 0  namespace, SealedSecrets, CNPG cluster, ConfigMaps, SA, RBAC
+#   wave 1  init Job   (Sync hook) — `zitadel init zitadel`, schema only
+#   wave 2  setup Job  (Sync hook) — migrations, FirstInstance, writes the
+#                                    iam-admin machine key Secret
+#   wave 3  Deployments
+# Both Jobs re-run on every sync (BeforeHookCreation); init and setup are
+# idempotent, and setup is what applies Zitadel's migrations on upgrade.
+# ---------------------------------------------------------------------------
+configMap:
+  annotations:
+    helm.sh/hook: null
+    helm.sh/hook-delete-policy: null
+    helm.sh/hook-weight: null
+serviceAccount:
+  annotations:
+    helm.sh/hook: null
+    helm.sh/hook-delete-policy: null
+    helm.sh/hook-weight: null
+annotations:
+  argocd.argoproj.io/sync-wave: "3"
+initJob:
+  # Database and user already exist (CNPG initdb), so only create Zitadel's
+  # schema. The default "" would try to CREATE DATABASE/USER as admin.
+  command: zitadel
+  annotations:
+    helm.sh/hook: null
+    helm.sh/hook-delete-policy: null
+    helm.sh/hook-weight: null
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "1"
+  # First sync: the pod waits for CNPG to create prod-app and accept
+  # connections; bootstrap on lvms takes a few minutes.
+  activeDeadlineSeconds: 900
+setupJob:
+  annotations:
+    helm.sh/hook: null
+    helm.sh/hook-delete-policy: null
+    helm.sh/hook-weight: null
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "2"
+  activeDeadlineSeconds: 900
+# The cleanup Job is a post-delete hook that deletes the Secrets the setup Job
+# created. Deleting the Application must not silently destroy the iam-admin
+# key, so it is off.
+cleanupJob:
+  enabled: false

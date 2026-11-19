@@ -1,0 +1,9 @@
+# OpenShift injects the service-serving CA bundle (key service-ca.crt) into
+# this ConfigMap. The Login UI mounts it to trust Zitadel's serving cert
+# (zitadel-serving-cert); cloudflared will use it the same way.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-ca
+  annotations:
+    service.beta.openshift.io/inject-cabundle: "true"

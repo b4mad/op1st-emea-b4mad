@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    openshift.io/display-name: "#B4mad Identity (Zitadel)"
+    openshift.io/description: "Zitadel identity provider for the #B4mad Network, served at id.b4mad.industries. Successor to b4mad-keycloak (bead op1st-emea-b4mad-b1b)."
+    openshift.io/cluster-monitoring: "true"
+  labels:
+    b4mad.operate-first.cloud/owner: goern.b4mad.net
+    argocd.argoproj.io/managed-by: op1st-gitops
+  name: b4mad-zitadel

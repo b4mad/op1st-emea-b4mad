@@ -1,0 +1,92 @@
+# b4mad-zitadel
+
+Zitadel for the #B4mad Network, served at <https://id.b4mad.industries>.
+Successor to `b4mad-keycloak`; tracked as bead **op1st-emea-b4mad-b1b**.
+
+| Piece | Where |
+| --- | --- |
+| Zitadel + Login v2 | Helm chart `zitadel` from charts.zitadel.com, values in `values-nostromo.yaml` |
+| Database | CNPG cluster `prod` (`postgresql.yaml`), backups to `s3://nostromo-cnpg/b4mad-zitadel/` |
+| Argo CD | `op1st-gitops/applications/b4mad-zitadel.yaml` (multi-source: this dir + chart) |
+| Public access | cloudflared tunnel — login + OIDC only (bead `-b1b.2`) |
+| Admin Console / gRPC API | OpenShift Route on `id-admin.apps.nostromo…` (bead `-b1b.2`) |
+| Orgs, projects, clients, branding | config-as-code, OpenTofu (bead `-b1b.3`) |
+
+⚠️ `ExternalDomain` (`id.b4mad.industries`) is the OIDC issuer. Changing it
+breaks every client.
+
+## Argo CD and the chart's Helm hooks
+
+The chart is written for `helm install`: it uses Helm hooks for ordering and
+`lookup` to keep generated secrets stable. Neither survives Argo CD, which
+renders with `helm template`:
+
+- `lookup` returns nothing, so a chart-generated masterkey or login key would
+  be **regenerated on every sync**. All three are our own SealedSecrets.
+- Helm pre-install hooks become Argo PreSync, which runs before the CNPG
+  cluster exists. `values-nostromo.yaml` replaces them with sync waves; read
+  its "Argo CD ordering" section before bumping the chart version.
+
+## Secrets
+
+Same convention as the rest of the repo: `foo.enc.yaml` is a SOPS-encrypted
+plain Secret (source of truth), `foo.yaml` is the SealedSecret Argo applies.
+All three must exist before the first sync.
+
+| Secret | Keys | Notes |
+| --- | --- | --- |
+| `aws-creds` | `ACCESS_KEY_ID`, `ACCESS_SECRET_KEY`, `url` | Same S3 credentials as `b4mad-keycloak/aws-creds` |
+| `zitadel-masterkey` | `masterkey` | 32 chars. ⚠️ **Never changes.** Lose it and every encrypted value in the DB is gone; a DB backup is useless without it |
+| `zitadel-login` | `tls.crt`, `tls.key`, `ZITADEL_SESSION_COOKIE_SECRET` | RSA keypair: Zitadel trusts `tls.crt` as system user `login-client`, Login v2 signs with `tls.key`. Cookie secret ≥ 32 chars, `new,old` to rotate |
+
+Create them (zsh; needs `sops`, `kubeseal`, `openssl`, `yq`, and an `oc`
+login to nostromo):
+
+```zsh
+cd manifests/applications/b4mad-zitadel
+seal() { sops -d "$1.enc.yaml" | kubeseal --controller-namespace sealed-secrets --format yaml > "$1.yaml" }
+
+# aws-creds: same values as b4mad-keycloak, re-namespaced
+sops -d ../b4mad-keycloak/aws-creds.enc.yaml \
+  | yq '.metadata.namespace = "b4mad-zitadel" | del(.metadata.creationTimestamp)' > aws-creds.enc.yaml
+sops -e -i aws-creds.enc.yaml && seal aws-creds
+
+# zitadel-masterkey
+kubectl create secret generic zitadel-masterkey -n b4mad-zitadel --dry-run=client -o yaml \
+  --from-literal=masterkey="$(openssl rand -hex 16)" > zitadel-masterkey.enc.yaml
+sops -e -i zitadel-masterkey.enc.yaml && seal zitadel-masterkey
+
+# zitadel-login
+tmp=$(mktemp -d)
+openssl req -x509 -newkey rsa:2048 -nodes -days 3650 -subj /CN=login-service \
+  -keyout $tmp/tls.key -out $tmp/tls.crt
+kubectl create secret generic zitadel-login -n b4mad-zitadel --dry-run=client -o yaml \
+  --from-file=tls.crt=$tmp/tls.crt --from-file=tls.key=$tmp/tls.key \
+  --from-literal=ZITADEL_SESSION_COOKIE_SECRET="$(openssl rand -hex 32)" > zitadel-login.enc.yaml
+rm -rf $tmp
+sops -e -i zitadel-login.enc.yaml && seal zitadel-login
+```
+
+The `sops-encrypted` pre-commit hook refuses an `.enc.yaml` without a `sops:`
+block.
+
+## The bootstrap machine user
+
+`FirstInstance` creates org `b4mad` with only a machine user, `iam-admin`
+(IAM owner). The setup Job writes its key to the Secret `iam-admin`, outside
+git and outside Argo's tracking. There is deliberately no human admin in
+`FirstInstance`: its first password would have to live in the ConfigMap.
+Human administrators are created by config-as-code using `iam-admin`.
+
+## First sync
+
+Automated sync is off until the first sync has been watched by hand:
+
+```zsh
+argocd app sync b4mad-zitadel   # or the Argo CD UI
+oc -n b4mad-zitadel get cluster,job,pod
+```
+
+Expected order: CNPG `prod` healthy → `zitadel-init` → `zitadel-setup`
+(creates Secret `iam-admin`) → Deployments `zitadel` and `zitadel-login`
+ready. Then turn on `automated: {prune: true, selfHeal: true}`.
