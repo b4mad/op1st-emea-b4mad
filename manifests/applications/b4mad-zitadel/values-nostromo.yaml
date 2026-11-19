@@ -77,6 +77,23 @@ env:
         name: prod-app
         key: password
 
+# ⚠️ OpenShift restricted-v2 SCC: the chart defaults runAsUser/fsGroup 1000,
+# which the SCC rejects ("1000 is not an allowed group"; the namespace gets
+# its own UID range). null removes the default keys so the SCC assigns them.
+# Applies to the zitadel Deployment and the init/setup Jobs.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: null
+  fsGroup: null
+securityContext:
+  runAsNonRoot: true
+  runAsUser: null
+  readOnlyRootFilesystem: true
+  privileged: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+
 service:
   annotations:
     service.beta.openshift.io/serving-cert-secret-name: zitadel-serving-cert
