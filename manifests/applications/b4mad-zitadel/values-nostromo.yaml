@@ -37,6 +37,14 @@ zitadel:
     ExternalSecure: true
     TLS:
       Enabled: true
+    # Users migrated from Keycloak keep their passwords: Keycloak stores
+    # argon2id hashes, imported as PHC strings. The verifier lets Zitadel
+    # check them; on first successful login Zitadel re-hashes with its own
+    # hasher (bcrypt). Bead op1st-emea-b4mad-b1b.10.
+    SystemDefaults:
+      PasswordHasher:
+        Verifiers:
+          - argon2
     Database:
       Postgres:
         Host: prod-rw
