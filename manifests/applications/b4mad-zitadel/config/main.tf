@@ -146,6 +146,25 @@ resource "zitadel_email_provider_smtp" "default" {
   set_active     = true
 }
 
+# --- Orgs: one per former Keycloak realm (bead b1b.10) ----------------------
+#
+#   Keycloak realm      -> Zitadel org
+#   feeldata            -> feeldata
+#   b4mad.industries    -> b4mad        (exists: FirstInstance org)
+#   b4mad-forgejo       -> git
+#   erdgeschoss         -> erdgeschoss
+#
+# Users are data, not config: they were imported once from Keycloak (see
+# README "Migration from Keycloak"), not declared here.
+resource "zitadel_org" "migrated" {
+  for_each = toset(["feeldata", "git", "erdgeschoss"])
+  name     = each.key
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 # --- Human administrator -----------------------------------------------------
 
 # Initial password: random, generated once (kept in state, so re-runs do not
@@ -268,6 +287,10 @@ resource "kubernetes_config_map_v1" "clients" {
   data = {
     issuer                   = "https://${var.zitadel_domain}"
     partitur-webui-client-id = zitadel_application_oidc.partitur_webui.client_id
+    org-id-b4mad             = local.org_id
+    org-id-feeldata          = zitadel_org.migrated["feeldata"].id
+    org-id-git               = zitadel_org.migrated["git"].id
+    org-id-erdgeschoss       = zitadel_org.migrated["erdgeschoss"].id
   }
 }
 
