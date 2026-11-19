@@ -26,6 +26,7 @@ resources:
   - repositories/forgejo-goern-rs-cms.yaml
   - repositories/forgejo-b4mad-semantic-zoom-markdown.yaml
   - repositories/forgejo-b4mad-wechsler.yaml
+  - repositories/forgejo-b4mad-hash-b4mad-op1st.yaml
   - repositories/forgejo-machdenstaat-lage.yaml
   - repositories/forgejo-machdenstaat-oparl-lite-2.yaml
   - repositories/forgejo-agentic-forges-forge-agents.yaml
