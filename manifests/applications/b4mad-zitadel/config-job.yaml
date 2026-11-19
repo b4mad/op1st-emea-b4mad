@@ -137,6 +137,11 @@ spec:
                 secretKeyRef:
                   name: iam-admin-pat
                   key: pat
+            - name: TF_VAR_smtp_password
+              valueFrom:
+                secretKeyRef:
+                  name: zitadel-smtp
+                  key: password
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

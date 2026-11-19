@@ -72,6 +72,22 @@ variable "admin_user" {
   description = "Human administrator: IAM owner of the instance (Console) and partitur staff. Initial password is generated once and written to Secret zitadel-admin-initial."
 }
 
+variable "smtp" {
+  type = object({
+    host           = string
+    user           = string
+    sender_address = string
+    sender_name    = string
+  })
+  description = "SMTP mailbox Zitadel sends from (verification, password reset, OTP). Host must include the port."
+}
+
+variable "smtp_password" {
+  type        = string
+  sensitive   = true
+  description = "Password of the SMTP mailbox (Secret zitadel-smtp). Write-only on the provider resource: never stored in state."
+}
+
 variable "bootstrap_pat" {
   type        = string
   sensitive   = true
@@ -113,6 +129,21 @@ locals {
 resource "zitadel_instance_trusted_domain" "admin" {
   instance_id = var.instance_id
   domain      = var.admin_domain
+}
+
+# Dedicated mailbox on the Hetzner account (user decision 2026-11-19, bead
+# b1b.9), not the forge's or partitur's. Host is the Hetzner server name, not
+# a vanity name: the shared-hosting cert covers only that (see b4mad-forgejo
+# README). Port 465 with tls = true is implicit TLS.
+resource "zitadel_email_provider_smtp" "default" {
+  sender_address = var.smtp.sender_address
+  sender_name    = var.smtp.sender_name
+  host           = var.smtp.host
+  user           = var.smtp.user
+  password       = trimspace(var.smtp_password)
+  tls            = true
+  description    = "id@b4mad-service.net (Hetzner)"
+  set_active     = true
 }
 
 # --- Human administrator -----------------------------------------------------

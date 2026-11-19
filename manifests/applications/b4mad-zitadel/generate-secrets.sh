@@ -5,7 +5,7 @@
 # Usage (from anywhere; needs sops + a PGP key from .sops.yaml, kubeseal,
 # openssl):
 #   manifests/applications/b4mad-zitadel/generate-secrets.sh [--cert sealed-secrets.pem] \
-#     [--tunnel-credentials <tunnel-id>.json]
+#     [--tunnel-credentials <tunnel-id>.json] [--smtp-password-file <file>]
 #
 # --cert seals offline against the controller's public certificate, for hosts
 # that hold the PGP key but have no cluster login. Fetch it where you do have
@@ -17,6 +17,11 @@
 # --tunnel-credentials takes the credentials file `cloudflared tunnel create`
 # wrote and turns it into zitadel-cloudflared (key credentials.json). It is
 # only read when zitadel-cloudflared.enc.yaml does not exist yet.
+#
+# --smtp-password-file takes a file holding only the password of the SMTP
+# mailbox (no trailing newline needed) and turns it into zitadel-smtp (key
+# password), read by the zitadel-config Job. To rotate, delete
+# zitadel-smtp.enc.yaml and re-run with the new file.
 #
 # ⚠️ Idempotent by refusal: an existing *.enc.yaml is NEVER regenerated, only
 # re-sealed. zitadel-masterkey must never change — Zitadel encrypts its
@@ -35,6 +40,7 @@ ns=b4mad-zitadel
 abspath() { echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
 cert_args=(--controller-namespace sealed-secrets)
 tunnel_creds=
+smtp_password_file=
 while [[ $# -gt 0 ]]; do
   case $1 in
     --cert)
@@ -43,6 +49,9 @@ while [[ $# -gt 0 ]]; do
     --tunnel-credentials)
       [[ -r ${2:-} ]] || { echo "cannot read tunnel credentials '${2:-}'" >&2; exit 2; }
       tunnel_creds=$(abspath "$2"); shift 2 ;;
+    --smtp-password-file)
+      [[ -r ${2:-} ]] || { echo "cannot read SMTP password file '${2:-}'" >&2; exit 2; }
+      smtp_password_file=$(abspath "$2"); shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -128,6 +137,17 @@ if [[ -e $here/zitadel-cloudflared.enc.yaml || -n $tunnel_creds ]]; then
     fi
   } | encrypt zitadel-cloudflared
   secrets+=(zitadel-cloudflared)
+fi
+
+# zitadel-smtp — password of the dedicated Zitadel mailbox.
+if [[ -e $here/zitadel-smtp.enc.yaml || -n $smtp_password_file ]]; then
+  {
+    secret_header zitadel-smtp
+    if [[ -n $smtp_password_file ]]; then
+      printf '  password: %s\n' "$(tr -d '\n' <"$smtp_password_file" | b64)"
+    fi
+  } | encrypt zitadel-smtp
+  secrets+=(zitadel-smtp)
 fi
 
 for s in "${secrets[@]}"; do
