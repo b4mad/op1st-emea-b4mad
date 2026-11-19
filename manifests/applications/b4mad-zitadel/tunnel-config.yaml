@@ -11,7 +11,7 @@
 #
 # Path rules are regexes: anchored, first match wins, 404 catch-all.
 
-tunnel: TUNNEL_ID
+tunnel: a398aa90-8839-42c3-8bc4-f58ae122c897
 credentials-file: /etc/cloudflared/credentials/credentials.json
 
 metrics: 0.0.0.0:2000
