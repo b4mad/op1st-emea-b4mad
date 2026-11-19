@@ -26,7 +26,7 @@ rules:
     verbs: [create, list]
   - apiGroups: [""]
     resources: [secrets]
-    resourceNames: [tfstate-default-zitadel-config, zitadel-admin-initial]
+    resourceNames: [tfstate-default-zitadel-config, zitadel-admin-initial, zitadel-uat-initial]
     verbs: [get, update, patch, delete]
   - apiGroups: [""]
     resources: [configmaps]
