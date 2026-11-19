@@ -21,6 +21,35 @@ spec:
         extraScopes: []
         issuer: "https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss"
       type: OpenID
+    # Shared #B4mad Zitadel (manifests/applications/b4mad-zitadel), project
+    # `openshift` / app `nostromo` in org erdgeschoss; client declared in its
+    # config/main.tf, redirect .../oauth2callback/b4mad-id (the name here).
+    #
+    # mappingMethod `add`, not `claim`: a user who already exists via the
+    # Keycloak provider (goern) gets this identity ADDED and keeps his user
+    # and RBAC; `claim` would refuse the login because the user already has
+    # another identity. `add` lets the IdP's preferred_username pick an
+    # existing user, which is only safe because Zitadel admits nobody to this
+    # app without the project role `cluster-user` (project_role_check) and
+    # Zitadel usernames are instance-unique.
+    - mappingMethod: add
+      name: b4mad-id
+      openID:
+        claims:
+          email:
+            - email
+          name:
+            - name
+          preferredUsername:
+            - preferred_username
+        clientID: "400352713935814985"
+        clientSecret:
+          name: zitadel-b4mad-id-secret
+        extraScopes:
+          - email
+          - profile
+        issuer: "https://id.b4mad.industries"
+      type: OpenID
   # Replaces the stock provider-selection page so the console login screen
   # offers only the Keycloak provider above; see
   # oauth-provider-selection.yaml for the template and its caveats.

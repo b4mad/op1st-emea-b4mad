@@ -36,6 +36,8 @@ resources:
   - persistent-image-registry/
   - secrets/oauth-clients/github-oauth-app.yaml
   - secrets/oauth-clients/keycloak-erdgeschoss-b4mad-net-secret.yaml
+  # Client secret of Zitadel app nostromo (b4mad-id provider).
+  - secrets/oauth-clients/zitadel-b4mad-id-secret.yaml
   - sno-kubelet-config.yaml
   - worker-kubelet-config.yaml
 
