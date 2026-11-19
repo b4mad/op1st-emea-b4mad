@@ -29,6 +29,8 @@ resources:
   # credentials.json of the cloudflared tunnel (generate-secrets.sh
   # --tunnel-credentials).
   - zitadel-cloudflared.yaml
+  # Password of the SMTP mailbox (generate-secrets.sh --smtp-password-file).
+  - zitadel-smtp.yaml
 
   # Public access: cloudflared tunnel for id.b4mad.industries — login + OIDC
   # only, no APIs, no Console (see tunnel-config.yaml).
@@ -57,6 +59,7 @@ configMapGenerator:
       - TF_VAR_org_name=b4mad
       - TF_VAR_namespace=b4mad-zitadel
       - TF_VAR_partitur_public_url=https://socializer.b4mad.industries
+      - 'TF_VAR_smtp={"host":"www49.your-server.de:465","user":"id@b4mad-service.net","sender_address":"id@b4mad-service.net","sender_name":"#B4mad Identity"}'
       - 'TF_VAR_admin_user={"user_name":"goern@b4mad.industries","email":"goern@b4mad.industries","first_name":"Christoph","last_name":"Görn"}'
   - name: zitadel-cloudflared-config
     files:
