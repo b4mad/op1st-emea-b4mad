@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: b4mad-zitadel
+  namespace: op1st-gitops
+spec:
+  destination:
+    namespace: b4mad-zitadel
+    server: "https://api.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud:6443"
+  project: b4mad
+  sources:
+    # Kustomize dir: namespace, CNPG cluster, SealedSecrets, service CA
+    # bundle. Also serves as the $values ref for the chart source below.
+    - repoURL: https://github.com/b4mad/op1st-emea-b4mad
+      targetRevision: main
+      path: manifests/applications/b4mad-zitadel
+      ref: values
+    # The Zitadel chart (repository Secret op1st-gitops/repositories/zitadel-helm.yaml).
+    # ⚠️ values-nostromo.yaml rewrites the chart's Helm hooks into Argo sync
+    # waves; read its "Argo CD ordering" section before bumping the chart.
+    - repoURL: https://charts.zitadel.com
+      chart: zitadel
+      targetRevision: 10.5.0
+      helm:
+        releaseName: zitadel
+        valueFiles:
+          - $values/manifests/applications/b4mad-zitadel/values-nostromo.yaml
+  # ⚠️ No automated sync yet: the first sync is reviewed and run by hand
+  # (bead op1st-emea-b4mad-b1b.1). Enable automated/prune/selfHeal after it.
+  syncPolicy:
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 3
