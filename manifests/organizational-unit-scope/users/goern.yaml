@@ -7,3 +7,7 @@ fullName: Christoph Görn
 identities:
   - "github-com:260331"
   - "keycloak-erdgeschoss-b4mad:14a4d56f-db6d-43fb-9988-982e4a6390f2"
+  # Zitadel (id.b4mad.industries), IdP b4mad-id, mappingMethod add; added by
+  # goern's first login on 2026-11-19 (op1st-emea-b4mad-b1b.6). The number is
+  # his Zitadel user id (sub).
+  - "b4mad-id:400328513573355989"
