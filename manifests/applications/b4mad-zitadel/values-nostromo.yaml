@@ -45,6 +45,13 @@ zitadel:
       PasswordHasher:
         Verifiers:
           - argon2
+        # Keycloak hashes with argon2id m=7168 KiB (t=5, p=1), below
+        # Zitadel's default import floor MinMemory 8192; without this every
+        # import fails with CRYPT-5uV9n. 7168 KiB at t=5 is OWASP's argon2id
+        # minimum, and the hash is replaced by Zitadel's own on first login.
+        Limits:
+          Argon2:
+            MinMemory: 7168
     Database:
       Postgres:
         Host: prod-rw
