@@ -38,7 +38,26 @@ resources:
   # Admin access (Console, gRPC/REST APIs) via the OpenShift router.
   - admin-route.yaml
 
+  # Config as code: OpenTofu PostSync Job applying config/main.tf.
+  - config-job.yaml
+
 configMapGenerator:
+  # The OpenTofu configuration (config-job.yaml).
+  - name: zitadel-config-tf
+    files:
+      - config/main.tf
+      - config/.terraform.lock.hcl
+  # Its environment values (TF_VAR_*). Ids and hosts, not secrets.
+  - name: zitadel-config-vars
+    literals:
+      - TF_VAR_zitadel_domain=id.b4mad.industries
+      # projections.instances; fixed at first setup (2026-11-19).
+      - TF_VAR_instance_id=400322303839175122
+      - TF_VAR_admin_domain=id-admin.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
+      - TF_VAR_org_name=b4mad
+      - TF_VAR_namespace=b4mad-zitadel
+      - TF_VAR_partitur_public_url=https://socializer.b4mad.industries
+      - 'TF_VAR_admin_user={"user_name":"goern@b4mad.industries","email":"goern@b4mad.industries","first_name":"Christoph","last_name":"Görn"}'
   - name: zitadel-cloudflared-config
     files:
       - config.yaml=tunnel-config.yaml

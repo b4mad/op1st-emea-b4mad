@@ -1,0 +1,162 @@
+# Applies config/main.tf (OpenTofu) to the running Zitadel: trusted domain of
+# the admin Route, the human administrator (IAM owner), and the partitur
+# project, role and OIDC client. Writes its own state
+# (`tfstate-default-zitadel-config`), the administrator's one-time password
+# (`zitadel-admin-initial`) and the public client ids (`zitadel-clients`).
+#
+# PostSync: runs after every Argo CD sync once Zitadel is healthy, so drift
+# made in the Console is reverted. Shape taken from goern/socializer
+# manifests/zitadel/config-job.yaml.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: zitadel-config
+---
+# `create` and `list` cannot be name-scoped (the kubernetes backend lists
+# Secrets for workspace discovery). The SA can already read the IAM_OWNER PAT,
+# so this adds no privilege in practice.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: zitadel-config
+rules:
+  - apiGroups: [""]
+    resources: [secrets, configmaps]
+    verbs: [create, list]
+  - apiGroups: [""]
+    resources: [secrets]
+    resourceNames: [tfstate-default-zitadel-config, zitadel-admin-initial]
+    verbs: [get, update, patch, delete]
+  - apiGroups: [""]
+    resources: [configmaps]
+    resourceNames: [zitadel-clients]
+    verbs: [get, update, patch, delete]
+  - apiGroups: [coordination.k8s.io]
+    resources: [leases]
+    verbs: [create]
+  - apiGroups: [coordination.k8s.io]
+    resources: [leases]
+    resourceNames: [lock-tfstate-default-zitadel-config]
+    verbs: [get, update, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: zitadel-config
+subjects:
+  - kind: ServiceAccount
+    name: zitadel-config
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: zitadel-config
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: zitadel-config
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 6
+  activeDeadlineSeconds: 900
+  template:
+    spec:
+      serviceAccountName: zitadel-config
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # Providers come from registry.opentofu.org (egress needed). The config
+        # dir is read-only; config/.terraform.lock.hcl pins the providers.
+        # Refresh it with `tofu providers lock` when a version changes.
+        - name: init
+          image: ghcr.io/opentofu/opentofu:1.13.2
+          args: [-chdir=/tf, init, -input=false, -lockfile=readonly]
+          envFrom:
+            - configMapRef:
+                name: zitadel-config-vars
+          env:
+            - name: HOME
+              value: /work
+            - name: TF_DATA_DIR
+              value: /work/data
+            # Root filesystem is read-only; provider downloads need a temp dir.
+            - name: TMPDIR
+              value: /work
+            - name: TF_IN_AUTOMATION
+              value: "1"
+            - name: KUBE_IN_CLUSTER_CONFIG
+              value: "true"
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: tf
+              mountPath: /tf
+              readOnly: true
+            - name: work
+              mountPath: /work
+      containers:
+        - name: apply
+          image: ghcr.io/opentofu/opentofu:1.13.2
+          args: [-chdir=/tf, apply, -input=false, -auto-approve]
+          envFrom:
+            - configMapRef:
+                name: zitadel-config-vars
+          env:
+            - name: HOME
+              value: /work
+            - name: TF_DATA_DIR
+              value: /work/data
+            - name: TMPDIR
+              value: /work
+            - name: TF_IN_AUTOMATION
+              value: "1"
+            - name: KUBE_IN_CLUSTER_CONFIG
+              value: "true"
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            # Zitadel's in-cluster cert is signed by the OpenShift service CA.
+            - name: SSL_CERT_FILE
+              value: /service-ca/service-ca.crt
+            - name: TF_VAR_bootstrap_pat
+              valueFrom:
+                secretKeyRef:
+                  name: iam-admin-pat
+                  key: pat
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: tf
+              mountPath: /tf
+              readOnly: true
+            - name: work
+              mountPath: /work
+            - name: service-ca
+              mountPath: /service-ca
+              readOnly: true
+      volumes:
+        - name: tf
+          configMap:
+            name: zitadel-config-tf
+        - name: work
+          emptyDir: {}
+        - name: service-ca
+          configMap:
+            name: service-ca
