@@ -52,3 +52,6 @@ beads-backup.jsonl
 # Beads / Dolt files (added by bd init)
 .beads/proxieddb/
 *.gate.lock*
+
+# local MCP server config (per-user, may reference fnox secrets)
+.mcp.json
