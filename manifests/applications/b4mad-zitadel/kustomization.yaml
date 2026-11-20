@@ -31,6 +31,9 @@ resources:
   - zitadel-cloudflared.yaml
   # Password of the SMTP mailbox (generate-secrets.sh --smtp-password-file).
   - zitadel-smtp.yaml
+  # OAuth credentials of the Codeberg and GitHub IdPs (generate-secrets.sh
+  # --idps-env-file).
+  - zitadel-idps.yaml
 
   # Public access: cloudflared tunnel for id.b4mad.industries — login + OIDC
   # only, no APIs, no Console (see tunnel-config.yaml).
@@ -63,6 +66,7 @@ configMapGenerator:
       - TF_VAR_instance_id=400322303839175122
       - TF_VAR_admin_domain=id-admin.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
       - TF_VAR_org_name=b4mad
+      - TF_VAR_forgejo_url=https://git.b4mad.industries
       - TF_VAR_openshift_oauth_host=oauth-openshift.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
       - TF_VAR_namespace=b4mad-zitadel
       - TF_VAR_partitur_public_url=https://socializer.b4mad.industries

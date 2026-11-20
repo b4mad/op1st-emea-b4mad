@@ -302,6 +302,7 @@ resource "kubernetes_config_map_v1" "clients" {
     org-id-b4mad             = local.org_id
     org-id-feeldata          = zitadel_org.migrated["feeldata"].id
     org-id-git               = zitadel_org.migrated["git"].id
+    forgejo-client-id        = zitadel_application_oidc.forgejo.client_id
     org-id-erdgeschoss       = zitadel_org.migrated["erdgeschoss"].id
   }
 }
@@ -619,5 +620,208 @@ resource "kubernetes_secret_v1" "openshift_nostromo" {
   data = {
     clientID     = zitadel_application_oidc.openshift_eg_nostromo.client_id
     clientSecret = zitadel_application_oidc.openshift_eg_nostromo.client_secret
+  }
+}
+
+# --- Org git: the #B4mad forge (git.b4mad.industries), bead b1b.6 ----------
+#
+# User decisions 2026-11-20:
+#  - Codeberg (generic OIDC) and GitHub are the IdPs of org git; anyone with
+#    such an account may get a forge account (the public posture realm
+#    b4mad-forgejo has today). New users are created in org git.
+#  - Forgejo asks for scope urn:zitadel:iam:org:id:<git>, so its login runs
+#    in org git's context (these IdPs, this branding) and ONLY users of org
+#    git can log in to the forge. Admins (goern, durandom) therefore use their
+#    Codeberg/GitHub identity, i.e. a git-org account, holding forge-admin.
+#  - Privilege is not delegated to the IdPs: admin comes only from the
+#    project role forge-admin, granted here.
+
+variable "codeberg_client_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "codeberg_client_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "github_client_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "github_client_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "forgejo_url" {
+  type        = string
+  description = "ROOT_URL of Forgejo, no trailing slash."
+}
+
+locals {
+  git_org_id = zitadel_org.migrated["git"].id
+}
+
+# Codeberg runs Forgejo, a full OIDC provider. OAuth app registered by goern
+# on codeberg.org with redirect https://id.b4mad.industries/idps/callback.
+resource "zitadel_org_idp_oidc" "codeberg" {
+  org_id              = local.git_org_id
+  name                = "Codeberg"
+  issuer              = "https://codeberg.org"
+  client_id           = trimspace(var.codeberg_client_id)
+  client_secret       = trimspace(var.codeberg_client_secret)
+  scopes              = ["openid", "profile", "email"]
+  is_id_token_mapping = false
+  use_pkce            = true
+  is_creation_allowed = true
+  is_auto_creation    = true
+  is_auto_update      = true
+  is_linking_allowed  = true
+  # Existing users (the 45 Codeberg users of Keycloak realm b4mad-forgejo
+  # are not imported; they are created on first login) are matched by e-mail.
+  auto_linking = "AUTO_LINKING_OPTION_EMAIL"
+}
+
+resource "zitadel_org_idp_github" "github" {
+  org_id              = local.git_org_id
+  name                = "GitHub"
+  client_id           = trimspace(var.github_client_id)
+  client_secret       = trimspace(var.github_client_secret)
+  scopes              = ["read:user", "user:email"]
+  is_creation_allowed = true
+  is_auto_creation    = true
+  is_auto_update      = true
+  is_linking_allowed  = true
+  auto_linking        = "AUTO_LINKING_OPTION_EMAIL"
+}
+
+# Org git: external IdPs only — no local passwords, no registration form;
+# accounts come into existence through Codeberg/GitHub. Other values mirror
+# the instance default.
+resource "zitadel_login_policy" "git" {
+  org_id                        = local.git_org_id
+  user_login                    = false
+  allow_register                = true
+  allow_external_idp            = true
+  idps                          = [zitadel_org_idp_oidc.codeberg.id, zitadel_org_idp_github.github.id]
+  force_mfa                     = false
+  force_mfa_local_only          = false
+  passwordless_type             = "PASSWORDLESS_TYPE_ALLOWED"
+  hide_password_reset           = true
+  ignore_unknown_usernames      = false
+  allow_domain_discovery        = true
+  disable_login_with_email      = false
+  disable_login_with_phone      = false
+  default_redirect_uri          = ""
+  password_check_lifetime       = "240h0m0s"
+  external_login_check_lifetime = "240h0m0s"
+  mfa_init_skip_lifetime        = "720h0m0s"
+  second_factor_check_lifetime  = "18h0m0s"
+  multi_factor_check_lifetime   = "12h0m0s"
+  second_factors                = ["SECOND_FACTOR_TYPE_OTP", "SECOND_FACTOR_TYPE_U2F"]
+  multi_factors                 = ["MULTI_FACTOR_TYPE_U2F_WITH_VERIFICATION"]
+}
+
+resource "zitadel_project" "forge" {
+  org_id = local.git_org_id
+  name   = "forge"
+  # Public forge: every git-org user may log in; no role required.
+  project_role_assertion = true
+  project_role_check     = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_project_role" "forge_admin" {
+  project_id   = zitadel_project.forge.id
+  org_id       = local.git_org_id
+  role_key     = "forge-admin"
+  display_name = "Forgejo site admin"
+}
+
+resource "zitadel_application_oidc" "forgejo" {
+  project_id = zitadel_project.forge.id
+  org_id     = local.git_org_id
+  name       = "forgejo"
+
+  # Confidential client; Forgejo OAuth source `b4mad-id` (callback path
+  # /user/oauth2/<source name>/callback).
+  app_type                    = "OIDC_APP_TYPE_WEB"
+  auth_method_type            = "OIDC_AUTH_METHOD_TYPE_BASIC"
+  response_types              = ["OIDC_RESPONSE_TYPE_CODE"]
+  grant_types                 = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
+  redirect_uris               = ["${var.forgejo_url}/user/oauth2/b4mad-id/callback"]
+  post_logout_redirect_uris   = ["${var.forgejo_url}/"]
+  id_token_userinfo_assertion = true
+  id_token_role_assertion     = true
+  access_token_role_assertion = false
+  access_token_type           = "OIDC_TOKEN_TYPE_BEARER"
+  version                     = "OIDC_VERSION_1_0"
+  dev_mode                    = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+# Forgejo's admin mapping reads a `groups` claim (groupClaimName: groups,
+# adminGroup: forgejo-admins in b4mad-forgejo/values-nostromo.yaml). Zitadel
+# has roles, not groups: this action turns forge-admin on project forge into
+# groups = ["forgejo-admins"], for the ID token and userinfo. The action name
+# must equal the function name.
+resource "zitadel_action" "forgejo_groups" {
+  org_id          = local.git_org_id
+  name            = "forgejoGroups"
+  timeout         = "10s"
+  allowed_to_fail = true
+  script          = <<-EOT
+    function forgejoGroups(ctx, api) {
+      var grants = ctx.v1.user.grants;
+      if (grants == undefined || grants.count == 0) { return; }
+      var admin = false;
+      grants.grants.forEach(function (g) {
+        if (g.projectId == "${zitadel_project.forge.id}" && g.roles.indexOf("forge-admin") >= 0) { admin = true; }
+      });
+      if (admin) { api.v1.claims.setClaim("groups", ["forgejo-admins"]); }
+    }
+  EOT
+}
+
+resource "zitadel_trigger_actions" "forgejo_groups_userinfo" {
+  org_id       = local.git_org_id
+  flow_type    = "FLOW_TYPE_CUSTOMISE_TOKEN"
+  trigger_type = "TRIGGER_TYPE_PRE_USERINFO_CREATION"
+  action_ids   = [zitadel_action.forgejo_groups.id]
+}
+
+resource "zitadel_trigger_actions" "forgejo_groups_access_token" {
+  org_id       = local.git_org_id
+  flow_type    = "FLOW_TYPE_CUSTOMISE_TOKEN"
+  trigger_type = "TRIGGER_TYPE_PRE_ACCESS_TOKEN_CREATION"
+  action_ids   = [zitadel_action.forgejo_groups.id]
+}
+
+# Credentials of the forgejo client in the shape the Forgejo chart expects
+# for an OAuth source (keys `key`, `secret`); reflector mirrors it into
+# b4mad-forgejo, where values-nostromo.yaml references it.
+resource "kubernetes_secret_v1" "forgejo_oauth" {
+  metadata {
+    name      = "forgejo-oauth-zitadel"
+    namespace = var.namespace
+    annotations = {
+      "reflector.v1.k8s.emberstack.com/reflection-allowed"            = "true"
+      "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces" = "b4mad-forgejo"
+      "reflector.v1.k8s.emberstack.com/reflection-auto-enabled"       = "true"
+      "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces"    = "b4mad-forgejo"
+    }
+  }
+  data = {
+    key    = zitadel_application_oidc.forgejo.client_id
+    secret = zitadel_application_oidc.forgejo.client_secret
   }
 }
