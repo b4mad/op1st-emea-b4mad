@@ -5,7 +5,8 @@
 # Usage (from anywhere; needs sops + a PGP key from .sops.yaml, kubeseal,
 # openssl):
 #   manifests/applications/b4mad-zitadel/generate-secrets.sh [--cert sealed-secrets.pem] \
-#     [--tunnel-credentials <tunnel-id>.json] [--smtp-password-file <file>]
+#     [--tunnel-credentials <tunnel-id>.json] [--smtp-password-file <file>] \
+#     [--idps-env-file <file>]
 #
 # --cert seals offline against the controller's public certificate, for hosts
 # that hold the PGP key but have no cluster login. Fetch it where you do have
@@ -22,6 +23,11 @@
 # mailbox (no trailing newline needed) and turns it into zitadel-smtp (key
 # password), read by the zitadel-config Job. To rotate, delete
 # zitadel-smtp.enc.yaml and re-run with the new file.
+#
+# --idps-env-file takes KEY=VALUE lines (codeberg_client_id,
+# codeberg_client_secret, github_client_id, github_client_secret) and turns
+# them into zitadel-idps, read by the zitadel-config Job for the Codeberg and
+# GitHub IdPs of org git.
 #
 # ⚠️ Idempotent by refusal: an existing *.enc.yaml is NEVER regenerated, only
 # re-sealed. zitadel-masterkey must never change — Zitadel encrypts its
@@ -41,6 +47,7 @@ abspath() { echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; }
 cert_args=(--controller-namespace sealed-secrets)
 tunnel_creds=
 smtp_password_file=
+idps_env_file=
 while [[ $# -gt 0 ]]; do
   case $1 in
     --cert)
@@ -52,6 +59,9 @@ while [[ $# -gt 0 ]]; do
     --smtp-password-file)
       [[ -r ${2:-} ]] || { echo "cannot read SMTP password file '${2:-}'" >&2; exit 2; }
       smtp_password_file=$(abspath "$2"); shift 2 ;;
+    --idps-env-file)
+      [[ -r ${2:-} ]] || { echo "cannot read IdP env file '${2:-}'" >&2; exit 2; }
+      idps_env_file=$(abspath "$2"); shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -148,6 +158,21 @@ if [[ -e $here/zitadel-smtp.enc.yaml || -n $smtp_password_file ]]; then
     fi
   } | encrypt zitadel-smtp
   secrets+=(zitadel-smtp)
+fi
+
+# zitadel-idps — OAuth client credentials of the Codeberg and GitHub apps.
+if [[ -e $here/zitadel-idps.enc.yaml || -n $idps_env_file ]]; then
+  {
+    secret_header zitadel-idps
+    if [[ -n $idps_env_file ]]; then
+      for k in codeberg_client_id codeberg_client_secret github_client_id github_client_secret; do
+        v=$(sed -n "s/^$k=//p" "$idps_env_file" | head -1)
+        [[ -n $v ]] || { echo "missing $k in IdP env file" >&2; exit 1; }
+        printf '  %s: %s\n' "$k" "$(printf %s "$v" | b64)"
+      done
+    fi
+  } | encrypt zitadel-idps
+  secrets+=(zitadel-idps)
 fi
 
 for s in "${secrets[@]}"; do
