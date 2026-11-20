@@ -62,6 +62,12 @@ variable "partitur_public_url" {
   description = "PARTITUR_PUBLIC_URL of the socializer webui, no trailing slash."
 }
 
+variable "partitur_extra_urls" {
+  type        = list(string)
+  default     = []
+  description = "Further origins the partitur webui is served on (no trailing slash); each gets /auth/callback and /auth/signed-out registered."
+}
+
 variable "admin_user" {
   type = object({
     user_name  = string
@@ -488,8 +494,8 @@ resource "zitadel_application_oidc" "partitur_eg_webui" {
   auth_method_type            = "OIDC_AUTH_METHOD_TYPE_NONE"
   response_types              = ["OIDC_RESPONSE_TYPE_CODE"]
   grant_types                 = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
-  redirect_uris               = ["${var.partitur_public_url}/auth/callback"]
-  post_logout_redirect_uris   = ["${var.partitur_public_url}/auth/signed-out"]
+  redirect_uris               = [for u in concat([var.partitur_public_url], var.partitur_extra_urls) : "${u}/auth/callback"]
+  post_logout_redirect_uris   = [for u in concat([var.partitur_public_url], var.partitur_extra_urls) : "${u}/auth/signed-out"]
   id_token_role_assertion     = true
   access_token_role_assertion = false
   id_token_userinfo_assertion = false
