@@ -755,7 +755,13 @@ resource "zitadel_application_oidc" "forgejo" {
   auth_method_type            = "OIDC_AUTH_METHOD_TYPE_BASIC"
   response_types              = ["OIDC_RESPONSE_TYPE_CODE"]
   grant_types                 = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
-  redirect_uris               = ["${var.forgejo_url}/user/oauth2/b4mad-id/callback"]
+  # Two Forgejo sources share this client: b4mad-id (org git scope: public
+  # Codeberg/GitHub users) and b4mad-staff (no org scope: existing users of
+  # orgs b4mad/erdgeschoss, e.g. goern), user decision 2026-11-20.
+  redirect_uris = [
+    "${var.forgejo_url}/user/oauth2/b4mad-id/callback",
+    "${var.forgejo_url}/user/oauth2/b4mad-staff/callback",
+  ]
   post_logout_redirect_uris   = ["${var.forgejo_url}/"]
   id_token_userinfo_assertion = true
   id_token_role_assertion     = true
@@ -842,4 +848,46 @@ resource "zitadel_user_grant" "forge_admin" {
   project_id = zitadel_project.forge.id
   user_id    = each.value
   role_keys  = [zitadel_project_role.forge_admin.role_key]
+}
+
+# Staff of org b4mad on the forge: project grant forge -> b4mad, and goern's
+# single identity (b4mad) holds forge-admin through it (user decision
+# 2026-11-20: no separate git-org account for goern).
+resource "zitadel_project_grant" "forge_to_b4mad" {
+  org_id         = local.git_org_id
+  project_id     = zitadel_project.forge.id
+  granted_org_id = local.org_id
+  role_keys      = [zitadel_project_role.forge_admin.role_key]
+}
+
+resource "zitadel_user_grant" "admin_forge_admin" {
+  org_id           = local.org_id
+  project_id       = zitadel_project.forge.id
+  project_grant_id = zitadel_project_grant.forge_to_b4mad.id
+  user_id          = zitadel_human_user.admin.id
+  role_keys        = [zitadel_project_role.forge_admin.role_key]
+}
+
+# Token actions run in the flow of the USER's org, so b4mad users need the
+# same groups mapping as git users.
+resource "zitadel_action" "forgejo_groups_b4mad" {
+  org_id          = local.org_id
+  name            = "forgejoGroups"
+  timeout         = "10s"
+  allowed_to_fail = true
+  script          = zitadel_action.forgejo_groups.script
+}
+
+resource "zitadel_trigger_actions" "forgejo_groups_b4mad_userinfo" {
+  org_id       = local.org_id
+  flow_type    = "FLOW_TYPE_CUSTOMISE_TOKEN"
+  trigger_type = "TRIGGER_TYPE_PRE_USERINFO_CREATION"
+  action_ids   = [zitadel_action.forgejo_groups_b4mad.id]
+}
+
+resource "zitadel_trigger_actions" "forgejo_groups_b4mad_access_token" {
+  org_id       = local.org_id
+  flow_type    = "FLOW_TYPE_CUSTOMISE_TOKEN"
+  trigger_type = "TRIGGER_TYPE_PRE_ACCESS_TOKEN_CREATION"
+  action_ids   = [zitadel_action.forgejo_groups_b4mad.id]
 }
