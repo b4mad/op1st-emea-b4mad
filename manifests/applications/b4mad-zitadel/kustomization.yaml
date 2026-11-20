@@ -67,8 +67,9 @@ configMapGenerator:
       - TF_VAR_admin_domain=id-admin.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
       - TF_VAR_org_name=b4mad
       - TF_VAR_forgejo_url=https://git.b4mad.industries
-      # git-org users with forge-admin. goern: Codeberg login, 2026-11-20.
-      - 'TF_VAR_forge_admin_user_ids=["400430455662313659"]'
+      # git-org users with forge-admin (public-source admins). Empty: goern
+      # administers the forge with his b4mad account (project grant).
+      - 'TF_VAR_forge_admin_user_ids=[]'
       - TF_VAR_openshift_oauth_host=oauth-openshift.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
       - TF_VAR_namespace=b4mad-zitadel
       - TF_VAR_partitur_public_url=https://socializer.b4mad.industries
