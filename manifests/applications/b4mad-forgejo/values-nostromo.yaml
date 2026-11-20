@@ -88,6 +88,8 @@ gitea:
       # `goern` carried sub 81527376-… from the old realm and will be relinked
       # on first login. If ACCOUNT_LINKING is ever set to `disabled`, this
       # cutover strands every existing SSO account instead.
+      # (History: that re-linking is done. ACCOUNT_LINKING is `login` since
+      # 2026-11-20, see [oauth2_client] below.)
       autoDiscoverUrl: https://keycloak.erdgeschoss.b4mad.net/realms/b4mad-forgejo/.well-known/openid-configuration
       # Request email/profile so auto-created accounts get email + username
       # populated. Forgejo always prepends 'openid', so don't list it here.
@@ -308,11 +310,26 @@ gitea:
     oauth2_client:
       # Auto-create a Forgejo account from OIDC claims on first SSO login,
       # instead of showing the (empty, because internal signin is off)
-      # manual-registration page. USERNAME=nickname maps from Keycloak's
-      # preferred_username. Link by email if an account already exists.
+      # manual-registration page.
       ENABLE_AUTO_REGISTRATION: true
-      USERNAME: nickname
-      ACCOUNT_LINKING: auto
+      # preferred_username (truncated at the first @): Keycloak sends the
+      # broker username there, Zitadel the user name (goern; e-mail-shaped
+      # for users auto-created from Codeberg/GitHub, hence the truncation).
+      # Not `nickname`: Zitadel passes the user's free-text nickname
+      # (e.g. "[GNU:]"), which is no valid Forgejo name. For Keycloak nothing
+      # changes — it sends no nickname, and Forgejo already fell back to
+      # preferred_username.
+      USERNAME: preferred_username
+      # ⚠️ `login`, not `auto` (hardening, bead op1st-emea-b4mad-b1b.6). With
+      # `auto`, a login whose username or e-mail matched an existing account
+      # was silently attached to it — with public Codeberg/GitHub sign-up and
+      # usernames derived from e-mail local parts, anyone could claim an
+      # existing forge account (account takeover). `login` asks instead; since
+      # internal sign-in is off, an EXISTING account is linked to a new OAuth
+      # source only while signed in (Settings → Security → Linked Accounts),
+      # which is explicit and safe. Consequence for the Keycloak -> Zitadel
+      # cut-over: users must link while the Keycloak source still exists.
+      ACCOUNT_LINKING: login
     server:
       # Canonical URL Forgejo advertises (clone URLs, cookies, callbacks).
       # forgejo.b4mad.net also reaches the UI but redirects here. It stays in
