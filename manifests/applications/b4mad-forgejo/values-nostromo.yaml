@@ -108,6 +108,24 @@ gitea:
       # local break-glass account for exactly that case; do not delete it.
       groupClaimName: groups
       adminGroup: forgejo-admins
+    # Shared #B4mad Zitadel (manifests/applications/b4mad-zitadel), org git:
+    # project forge, app forgejo; login via Codeberg or GitHub only (bead
+    # op1st-emea-b4mad-b1b.6). Runs IN PARALLEL with the Keycloak source
+    # above; users link their existing forge account by e-mail
+    # (ACCOUNT_LINKING=auto) on first login here.
+    #
+    # The org scope makes the login run in org git's context (its IdPs) and
+    # admits only git-org users.
+    #
+    # ⚠️ Deliberately NO groupClaimName/adminGroup yet. Forgejo re-evaluates
+    # is_admin on every login through a source that has them, and the admins'
+    # git-org accounts only exist after their first login here — so they
+    # would lose site-admin. Added once forge-admin is granted in Zitadel.
+    - name: 'b4mad-id'
+      provider: openidConnect
+      existingSecret: forgejo-oauth-zitadel
+      autoDiscoverUrl: https://id.b4mad.industries/.well-known/openid-configuration
+      scopes: 'email profile urn:zitadel:iam:org:id:400349007681028254'
 
   # Prometheus metrics. `metrics.enabled` is the chart's shorthand for
   # [metrics] ENABLED = true in app.ini (see _helpers.tpl); `serviceMonitor`
