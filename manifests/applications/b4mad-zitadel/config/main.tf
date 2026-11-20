@@ -357,6 +357,15 @@ resource "kubernetes_secret_v1" "uat" {
   metadata {
     name      = "zitadel-uat-initial"
     namespace = var.namespace
+    # Mirrored by reflector into b4mad-socializer under the same name: the
+    # socializer agents running the UAT may read only that namespace
+    # (requested via uac:socializer, 2026-11-20). Rotations follow.
+    annotations = {
+      "reflector.v1.k8s.emberstack.com/reflection-allowed"            = "true"
+      "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces" = "b4mad-socializer"
+      "reflector.v1.k8s.emberstack.com/reflection-auto-enabled"       = "true"
+      "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces"    = "b4mad-socializer"
+    }
   }
   data = {
     staff_user       = local.uat_users.staff.user_name
