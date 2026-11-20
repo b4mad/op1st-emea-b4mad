@@ -825,3 +825,21 @@ resource "kubernetes_secret_v1" "forgejo_oauth" {
     secret = zitadel_application_oidc.forgejo.client_secret
   }
 }
+
+# Site admins of the forge: their git-org users (created on first Codeberg/
+# GitHub login, so referenced by id, not declared). The forgejoGroups action
+# turns this role into groups=["forgejo-admins"], which Forgejo's b4mad-id
+# source maps to site-admin on every login.
+variable "forge_admin_user_ids" {
+  type        = list(string)
+  default     = []
+  description = "Zitadel user ids (org git) holding forge-admin."
+}
+
+resource "zitadel_user_grant" "forge_admin" {
+  for_each   = toset(var.forge_admin_user_ids)
+  org_id     = local.git_org_id
+  project_id = zitadel_project.forge.id
+  user_id    = each.value
+  role_keys  = [zitadel_project_role.forge_admin.role_key]
+}
