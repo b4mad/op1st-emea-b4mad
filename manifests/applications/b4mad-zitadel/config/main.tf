@@ -243,8 +243,11 @@ resource "zitadel_application_oidc" "partitur_webui" {
   grant_types      = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
 
   # goern/socializer webui/src/lib/server/auth.ts
-  redirect_uris             = ["${var.partitur_public_url}/auth/callback"]
-  post_logout_redirect_uris = ["${var.partitur_public_url}/auth/signed-out"]
+  # Pinned to the legacy host: this old client (org b4mad) is kept unchanged
+  # until R2 on 2027-02-18 (bead b1b.12, socializer-kbyy); partitur_public_url
+  # moved to partitur.social in R1 and must not drag this client along.
+  redirect_uris             = ["https://socializer.b4mad.industries/auth/callback"]
+  post_logout_redirect_uris = ["https://socializer.b4mad.industries/auth/signed-out"]
 
   # Roles in the ID token (urn:zitadel:iam:org:project:roles), read at
   # callback time. No refresh token is kept.
