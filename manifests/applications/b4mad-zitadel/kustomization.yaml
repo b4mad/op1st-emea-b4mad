@@ -72,9 +72,11 @@ configMapGenerator:
       - 'TF_VAR_forge_admin_user_ids=[]'
       - TF_VAR_openshift_oauth_host=oauth-openshift.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud
       - TF_VAR_namespace=b4mad-zitadel
-      - TF_VAR_partitur_public_url=https://socializer.b4mad.industries
-      # The webui is also served on partitur.social (same Deployment).
-      - 'TF_VAR_partitur_extra_urls=["https://partitur.social"]'
+      # R1 (2026-11-22, socializer docs/ops/partitur-social-cutover.md):
+      # partitur.social is primary; the legacy host stays registered until R2
+      # on 2027-02-18 (bead b1b.12).
+      - TF_VAR_partitur_public_url=https://partitur.social
+      - 'TF_VAR_partitur_extra_urls=["https://socializer.b4mad.industries"]'
       - 'TF_VAR_smtp={"host":"www49.your-server.de:465","user":"id@b4mad-service.net","sender_address":"id@b4mad-service.net","sender_name":"#B4mad Identity"}'
       # Set by goern in the Console on 2026-11-19 and adopted here: username
       # `goern` keeps the OpenShift user name at the cluster cut-over.
