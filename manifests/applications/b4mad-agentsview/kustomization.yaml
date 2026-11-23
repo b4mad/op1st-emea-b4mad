@@ -33,7 +33,7 @@ images:
   - name: agentsview
     newName: ghcr.io/kenn-io/agentsview
     # Shared by the dashboard (deployment.yaml) and MCP (mcp-deployment.yaml).
-    newTag: 0.44.0
+    newTag: 0.48.0
   - name: ollama
     newName: docker.io/ollama/ollama
     # 0.34.0 — deliberately the same version gamer-0 runs, so both ends of a

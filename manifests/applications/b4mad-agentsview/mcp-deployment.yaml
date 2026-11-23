@@ -68,9 +68,10 @@ spec:
       containers:
         - name: agentsview-mcp
           image: agentsview
-          # The image entrypoint runs `serve`/`pg serve` depending on PG_SERVE
-          # and neither is wanted here, so `command` is overridden outright —
-          # setting `args` alone would still land in the wrong subcommand.
+          # `command` is set explicitly so this container never depends on the
+          # image's entrypoint. Since 0.46.0 that entrypoint is the binary and
+          # passes a leading subcommand (`mcp`) through unchanged. The image's
+          # AGENTSVIEW_REQUIRE_AUTH=true default matches the bearer token here.
           command: ["agentsview"]
           args:
             - mcp
