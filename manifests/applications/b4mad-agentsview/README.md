@@ -7,7 +7,7 @@ Network, at <https://agentsview.b4mad.industries>.
 
 AgentsView has two halves and only one of them is in this cluster.
 
-- **`agentsview pg serve`** (this Deployment, `PG_SERVE=1`) is **read-only**.
+- **`agentsview pg serve`** (this Deployment, `AGENTSVIEW_MODE=pg-serve`) is **read-only**.
   It renders a PostgreSQL database and nothing else: no local sync, no file
   watching, no session uploads.
 - **`agentsview pg push`** runs on each *machine*, where the authoritative
@@ -147,7 +147,7 @@ Client config — no local container needed, connect to the URL directly:
 
 ### Four behaviours worth knowing before you change this
 
-Each was verified against the pinned image (0.42.0), not inferred:
+Each was verified against the image at 0.42.0, not inferred:
 
 1. **`agentsview mcp --http` answers on every request path.** `/`, `/mcp`,
    `/sse` — all return the same JSON-RPC result. That is why a `/mcp` Ingress

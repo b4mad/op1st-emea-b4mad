@@ -54,10 +54,11 @@ spec:
         # --- the dashboard, loopback-only ------------------------------------
         - name: agentsview
           image: agentsview
-          # The image's entrypoint runs `agentsview serve` unless PG_SERVE is
-          # truthy, in which case it runs `agentsview pg serve` and appends
-          # these args. `pg serve` is read-only: no local sync, no session
-          # uploads, no file watching — it only reads what the machines pushed.
+          # The image's entrypoint is the agentsview binary itself (since
+          # 0.46.0). With AGENTSVIEW_MODE=pg-serve and args that start with a
+          # flag, it runs `agentsview replica pg serve` with these args.
+          # `pg serve` is read-only: no local sync, no session uploads, no file
+          # watching — it only reads what the machines pushed.
           #
           # ⚠️ --host 127.0.0.1 is load-bearing. It is what makes oauth2-proxy
           # the ONLY way in: both containers share the pod network namespace,
@@ -65,9 +66,7 @@ spec:
           # can. Change this to 0.0.0.0 and the Service would expose the whole
           # session archive — every prompt, every tool result, every secret
           # finding — with no authentication at all.
-          #
-          # The image's default CMD carries --no-browser, which `serve` accepts
-          # and `pg serve` does not; overriding args drops it, which is correct.
+          # Explicit flags override the image's AGENTSVIEW_HOST=0.0.0.0.
           args:
             - --host
             - 127.0.0.1
@@ -76,8 +75,14 @@ spec:
             - --public-url
             - https://agentsview.b4mad.industries
           env:
-            - name: PG_SERVE
-              value: "1"
+            - name: AGENTSVIEW_MODE
+              value: pg-serve
+            # ⚠️ The image defaults to AGENTSVIEW_REQUIRE_AUTH=true (since
+            # 0.46.0). oauth2-proxy sends no bearer token upstream, so with auth
+            # on every page would 401. Off is safe only because of the
+            # 127.0.0.1 bind above: oauth2-proxy is the authentication here.
+            - name: AGENTSVIEW_REQUIRE_AUTH
+              value: "false"
             # Generated and rotated by the CNPG operator for the `agentsview`
             # owner role; nothing about this connection lives in git.
             - name: AGENTSVIEW_PG_URI
