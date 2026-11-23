@@ -127,7 +127,7 @@ LAN-only, so neither existing surface can serve a remote assistant. What guards
 it instead is AgentsView's own bearer token (`AGENTSVIEW_AUTH_TOKEN`, from the
 `agentsview-mcp-token` SealedSecret): one static credential, no expiry, no
 revocation list, in front of every prompt, tool result and `secret_findings`
-row in the archive. That is a weaker gate than the dashboard's Keycloak flow.
+row in the archive. That is a weaker gate than the dashboard's Zitadel flow.
 It is deliberate and it should be rotated like a password, not forgotten like a
 config value. Requests without the header get `401 Unauthorized`.
 
@@ -215,29 +215,33 @@ The Ingress reaches **oauth2-proxy** (`:4180`), never AgentsView. AgentsView
 binds `127.0.0.1:8080`, so its only reachable path is through the sidecar in the
 same pod.
 
-- Realm **`erdgeschoss`**, not `b4mad-forgejo`. That realm brokers GitHub and
-  Codeberg and auto-provisions accounts from them; with the client over there,
-  the sole thing between any GitHub user and every prompt, tool result and
-  `secret_findings` row in the archive would be an `--allowed-group` flag.
-  `erdgeschoss` has no public identity provider, so it fails closed.
-- The client is provisioned by `setup-agentsview-client-job.yaml` in
-  `b4mad-keycloak` — realm `erdgeschoss` is create-only in git, so it follows
-  the same PostSync-Job pattern as the Forgejo broker client.
-- Any `erdgeschoss` user can sign in. To narrow that to a group, add an
-  `oidc-group-membership-mapper` to the client and pass `--allowed-group` to
-  oauth2-proxy.
+- Identity provider is **Zitadel** (`https://id.b4mad.industries`), app
+  `agentsview` in project `agentsview` of org **`erdgeschoss`**, defined in
+  `b4mad-zitadel/config/main.tf` (applied by the `zitadel-config` PostSync Job).
+- ⚠️ The gate is Zitadel's **`project_role_check`**. One Zitadel instance
+  serves every org, including org `git`, where anyone can self-register via
+  GitHub or Codeberg. Only users holding role **`viewer`** get a token at all;
+  oauth2-proxy itself accepts any e-mail (`--email-domain=*`). Never turn the
+  role check off.
+- `viewer` is granted to goern (org `b4mad`) through a project grant
+  erdgeschoss → b4mad. To admit someone else, add a `zitadel_user_grant` next
+  to `admin_agentsview_eg`.
 
-### Rotating the client secret
+### Client credentials
 
-One value in one place: `b4mad-keycloak/agentsview-oidc.enc.yaml`. Re-seal it,
-and the PostSync Job pushes it to Keycloak while reflector mirrors it into
-`b4mad-agentsview` for oauth2-proxy.
+Zitadel generates both client id and secret. The OpenTofu job writes them as
+Secret `agentsview-oidc-zitadel` (keys `OAUTH2_PROXY_CLIENT_ID`,
+`OAUTH2_PROXY_CLIENT_SECRET`) into `b4mad-zitadel`, and reflector mirrors it
+here. Nothing is sealed in git.
 
-```bash
-scripts/sops2sealedsecret --context <ctx> --namespace b4mad-keycloak \
-  manifests/applications/b4mad-keycloak/agentsview-oidc.enc.yaml \
-  manifests/applications/b4mad-keycloak/agentsview-oidc.yaml --force
-```
+⚠️ Do not regenerate the secret in the Console: the secret lives in tofu state,
+and the next job run would write the old value back into the Secret. To rotate,
+recreate the app (new id and secret): lift `prevent_destroy`, then
+`tofu apply -replace=zitadel_application_oidc.agentsview_eg`, then restart the
+pod.
+
+The old Keycloak client (`b4mad-keycloak/setup-agentsview-client-job.yaml`,
+`agentsview-oidc`) is unused and goes with Keycloak (bead b1b.7).
 
 ## Two things that look wrong and are not
 
