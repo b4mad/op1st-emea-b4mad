@@ -14,3 +14,12 @@ metadata:
 value: 10000000
 globalDefault: false
 description: "This priority class should be used for normal Operate First service pods only."
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: op1st-ci
+value: -100
+globalDefault: false
+preemptionPolicy: Never
+description: "CI pipeline pods (Tekton PipelineRuns). Lowest priority, never preempts: production pods sharing a node (wechsler-5p0h) preempt them, not the other way round."
