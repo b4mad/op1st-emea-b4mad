@@ -132,14 +132,16 @@ spec:
         # --- the authentication gate -----------------------------------------
         - name: oauth2-proxy
           image: oauth2-proxy
-          # Realm erdgeschoss, not b4mad-forgejo: that realm brokers GitHub and
-          # Codeberg and auto-provisions from them, so anyone with a GitHub
-          # account could reach a login there. erdgeschoss has no public
-          # identity provider, so this gate fails closed.
+          # Zitadel (id.b4mad.industries), app agentsview in org erdgeschoss.
+          # ⚠️ The gate is Zitadel's project_role_check on project agentsview:
+          # one instance serves every org, including org git where anyone can
+          # self-register via GitHub/Codeberg. Only holders of role `viewer`
+          # get a token at all (b4mad-zitadel/config/main.tf).
+          # Client id comes from the Secret (OAUTH2_PROXY_CLIENT_ID): Zitadel
+          # generates it.
           args:
             - --provider=oidc
-            - --oidc-issuer-url=https://keycloak.erdgeschoss.b4mad.net/realms/erdgeschoss
-            - --client-id=agentsview
+            - --oidc-issuer-url=https://id.b4mad.industries
             - --redirect-url=https://agentsview.b4mad.industries/oauth2/callback
             - --upstream=http://127.0.0.1:8080
             - --http-address=0.0.0.0:4180
@@ -153,18 +155,22 @@ spec:
             - --cookie-samesite=lax
             - --cookie-expire=12h
           env:
-            # ⚠️ agentsview-oidc is NOT sealed into this namespace. It is
-            # sealed into b4mad-keycloak, where the PostSync Job sets the very
-            # same value on the Keycloak client, and reflector mirrors it here
-            # — one value, one place to rotate, no chance of the two halves
-            # drifting apart. The pod stays Pending-on-secret until reflector
-            # has copied it.
+            # ⚠️ agentsview-oidc-zitadel is NOT sealed into this namespace.
+            # The zitadel-config PostSync Job (OpenTofu) writes it into
+            # b4mad-zitadel when it creates the client, and reflector mirrors
+            # it here. The pod stays Pending-on-secret until reflector has
+            # copied it.
+            - name: OAUTH2_PROXY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: agentsview-oidc-zitadel
+                  key: OAUTH2_PROXY_CLIENT_ID
             - name: OAUTH2_PROXY_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: agentsview-oidc
+                  name: agentsview-oidc-zitadel
                   key: OAUTH2_PROXY_CLIENT_SECRET
-            # Cookie signing only; Keycloak never sees this one.
+            # Cookie signing only; Zitadel never sees this one.
             - name: OAUTH2_PROXY_COOKIE_SECRET
               valueFrom:
                 secretKeyRef:

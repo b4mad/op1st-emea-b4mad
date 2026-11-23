@@ -307,6 +307,7 @@ resource "kubernetes_config_map_v1" "clients" {
     org-id-git               = zitadel_org.migrated["git"].id
     forgejo-client-id        = zitadel_application_oidc.forgejo.client_id
     org-id-erdgeschoss       = zitadel_org.migrated["erdgeschoss"].id
+    agentsview-client-id     = zitadel_application_oidc.agentsview_eg.client_id
   }
 }
 
@@ -623,6 +624,96 @@ resource "kubernetes_secret_v1" "openshift_nostromo" {
   data = {
     clientID     = zitadel_application_oidc.openshift_eg_nostromo.client_id
     clientSecret = zitadel_application_oidc.openshift_eg_nostromo.client_secret
+  }
+}
+
+# AgentsView (agentsview.b4mad.industries), bead b1b.6.1 ---------------------
+#
+# oauth2-proxy in b4mad-agentsview is the only gate in front of the whole
+# session archive. ⚠️ project_role_check is what keeps this closed: without
+# it ANY user of this instance gets a token, including everyone who
+# self-registers in org git via GitHub/Codeberg. Only holders of `viewer`
+# may sign in (user decision 2026-11-23: goern only; add others by grant).
+
+variable "agentsview_url" {
+  type    = string
+  default = "https://agentsview.b4mad.industries"
+}
+
+resource "zitadel_project" "agentsview_eg" {
+  org_id                 = local.erdgeschoss_org_id
+  name                   = "agentsview"
+  project_role_assertion = true
+  project_role_check     = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_project_role" "agentsview_eg_viewer" {
+  project_id   = zitadel_project.agentsview_eg.id
+  org_id       = local.erdgeschoss_org_id
+  role_key     = "viewer"
+  display_name = "Viewer (may open the AgentsView dashboard)"
+}
+
+resource "zitadel_application_oidc" "agentsview_eg" {
+  project_id = zitadel_project.agentsview_eg.id
+  org_id     = local.erdgeschoss_org_id
+  name       = "agentsview"
+
+  # Confidential client: oauth2-proxy holds the secret.
+  app_type                  = "OIDC_APP_TYPE_WEB"
+  auth_method_type          = "OIDC_AUTH_METHOD_TYPE_BASIC"
+  response_types            = ["OIDC_RESPONSE_TYPE_CODE"]
+  grant_types               = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
+  redirect_uris             = ["${var.agentsview_url}/oauth2/callback"]
+  post_logout_redirect_uris = ["${var.agentsview_url}/"]
+  # oauth2-proxy reads email/email_verified from the ID token.
+  id_token_userinfo_assertion = true
+  id_token_role_assertion     = true
+  access_token_role_assertion = false
+  access_token_type           = "OIDC_TOKEN_TYPE_BEARER"
+  version                     = "OIDC_VERSION_1_0"
+  dev_mode                    = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_project_grant" "agentsview_eg_to_b4mad" {
+  org_id         = local.erdgeschoss_org_id
+  project_id     = zitadel_project.agentsview_eg.id
+  granted_org_id = local.org_id
+  role_keys      = [zitadel_project_role.agentsview_eg_viewer.role_key]
+}
+
+resource "zitadel_user_grant" "admin_agentsview_eg" {
+  org_id           = local.org_id
+  project_id       = zitadel_project.agentsview_eg.id
+  project_grant_id = zitadel_project_grant.agentsview_eg_to_b4mad.id
+  user_id          = zitadel_human_user.admin.id
+  role_keys        = [zitadel_project_role.agentsview_eg_viewer.role_key]
+}
+
+# Keys named for oauth2-proxy's env vars; reflector mirrors the Secret into
+# b4mad-agentsview. Zitadel returns the secret only at creation.
+resource "kubernetes_secret_v1" "agentsview_oidc" {
+  metadata {
+    name      = "agentsview-oidc-zitadel"
+    namespace = var.namespace
+    annotations = {
+      "reflector.v1.k8s.emberstack.com/reflection-allowed"            = "true"
+      "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces" = "b4mad-agentsview"
+      "reflector.v1.k8s.emberstack.com/reflection-auto-enabled"       = "true"
+      "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces"    = "b4mad-agentsview"
+    }
+  }
+  data = {
+    OAUTH2_PROXY_CLIENT_ID     = zitadel_application_oidc.agentsview_eg.client_id
+    OAUTH2_PROXY_CLIENT_SECRET = zitadel_application_oidc.agentsview_eg.client_secret
   }
 }
 
