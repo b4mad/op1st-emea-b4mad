@@ -1,0 +1,113 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: report-failure
+  annotations:
+    tekton.dev/displayName: "on pipeline failure: open a labelled forge issue for castra, full step log attached"
+spec:
+  # Runs as a `finally` task of every pipeline in .tekton/, guarded by
+  # `when: $(tasks.status) in [Failed]`. For each failed TaskRun it
+  # opens ONE issue on git.b4mad.industries/operate-first/op1st-emea-b4mad, labelled and assigned to the
+  # castra bot for investigation, and posts the failed step's log as a comment.
+  # If an open issue with the same title (pipeline + branch) exists, the failure
+  # is added to it as a comment instead.
+  #
+  # The script is scripts/ci-report-failure.py, read from the cloned source
+  # workspace. That assumes `clone-source` succeeded; if the clone itself fails
+  # there is no script and no report (accepted). The script is
+  # covered by tests/test_ci_report_failure.py (python3 -m unittest).
+  #
+  # Logs come from the Kubernetes API with the pod's own ServiceAccount token
+  # (the `pipeline` SA holds the `edit` ClusterRole in op1st-pipelines, which
+  # covers taskruns and pods/log — verified with `oc auth can-i`, 2026-10-05).
+  # No kubectl/oc binary is needed: the script is stdlib-only Python.
+  #
+  # The forge token is the forge agent b4mad-gitops's PAT (write:issue among
+  # its scopes), Secret `forgejo-b4mad` key `provider.token`. b4mad-gitops needs write access to the repo.
+  # `optional: true` is load-bearing: until the Secret exists the step logs
+  # "no token" and exits 0, so shipping this Task cannot break a pipeline.
+  #
+  # ⚠️ The repo is PUBLIC, so the issue and its comments are public. The script
+  # redacts private keys, bearer/basic tokens, `*token|secret|password|key=…`
+  # assignments and URL credentials before posting. That is a best-effort
+  # scrub, not a guarantee — never print a secret in a CI step.
+  params:
+    - name: PIPELINERUN_NAME
+      description: Name of the failed PipelineRun ($(context.pipelineRun.name)).
+      type: string
+    - name: PIPELINERUN_NAMESPACE
+      description: Namespace of the failed PipelineRun ($(context.pipelineRun.namespace)).
+      type: string
+    - name: REVISION
+      description: Commit SHA the run built.
+      type: string
+    - name: SOURCE_BRANCH
+      description: Branch the run built.
+      type: string
+      default: ""
+    - name: EVENT_TYPE
+      description: PaC event type (push, pull_request, ...).
+      type: string
+      default: ""
+    - name: REPO
+      description: owner/name on git.b4mad.industries that receives the issue.
+      type: string
+      default: operate-first/op1st-emea-b4mad
+    - name: ASSIGNEE
+      description: git.b4mad.industries user the issue is assigned to for investigation.
+      type: string
+      default: b4mad-castra
+    - name: LABELS
+      description: |
+        Comma-separated label names. Each must exist in the repo; a missing
+        one is skipped with a warning rather than failing the report. `bug`
+        routes it as a defect, `intake` triggers castra's assessment.
+      type: string
+      default: "bug,intake"
+    - name: PYTHON_IMAGE
+      description: Container image carrying python3 (stdlib only is used).
+      type: string
+      default: ghcr.io/astral-sh/uv:python3.14-bookworm-slim
+  workspaces:
+    - name: source
+      description: The cloned repo; the script is read from scripts/.
+      mountPath: /workspace/src
+      readOnly: true
+  steps:
+    - name: report
+      image: $(params.PYTHON_IMAGE)
+      # Memory limit; no measurement yet.
+      computeResources:
+        limits:
+          memory: 512Mi
+        requests:
+          cpu: 50m
+          memory: 128Mi
+      env:
+        - name: PIPELINERUN_NAME
+          value: $(params.PIPELINERUN_NAME)
+        - name: PIPELINERUN_NAMESPACE
+          value: $(params.PIPELINERUN_NAMESPACE)
+        - name: REVISION
+          value: $(params.REVISION)
+        - name: SOURCE_BRANCH
+          value: $(params.SOURCE_BRANCH)
+        - name: EVENT_TYPE
+          value: $(params.EVENT_TYPE)
+        - name: REPO
+          value: $(params.REPO)
+        - name: ASSIGNEE
+          value: $(params.ASSIGNEE)
+        - name: LABELS
+          value: $(params.LABELS)
+        - name: FORGEJO_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: forgejo-b4mad
+              key: provider.token
+              optional: true
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        python3 scripts/ci-report-failure.py

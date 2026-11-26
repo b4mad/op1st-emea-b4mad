@@ -39,3 +39,14 @@ repos:
         entry: scripts/check-realm-config-substitution.sh
         language: script
         files: 'realm-config/.*\.ya?ml$'
+
+# Every pipeline must report failures to a forge issue (op1st-emea-b4mad-2pv.5).
+# A new .tekton pipeline that forgets the finally block fails silently otherwise.
+-   repo: local
+    hooks:
+    -   id: tekton-report-failure
+        name: Every .tekton pipeline has the report-failure finally block
+        entry: scripts/check-tekton-report-failure.py
+        language: python
+        additional_dependencies: [pyyaml]
+        files: '^\.tekton/[^/]+\.ya?ml$'
