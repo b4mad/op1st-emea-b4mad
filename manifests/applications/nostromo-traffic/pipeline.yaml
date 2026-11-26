@@ -1,0 +1,115 @@
+# Tekton build: git-clone -> buildah build+push to the ImageStream :latest.
+# Modelled on b4mad-forgejo/borg-pipeline.yaml (no Pipelines-as-Code: PR
+# pipelines are broken, bead op1st-emea-b4mad-3dq). Start a build with
+# pipelinerun.yaml (generateName, so it is NOT in the kustomization).
+#
+# The operator already binds the namespace `pipeline` SA to pipelines-scc;
+# we only add the explicit image-builder grant.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: nostromo-traffic-build-image-builder
+  namespace: nostromo-traffic
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-builder
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: nostromo-traffic
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: nostromo-traffic-build
+  namespace: nostromo-traffic
+spec:
+  params:
+    - name: git-url
+      type: string
+      default: https://github.com/b4mad/op1st-emea-b4mad.git
+    - name: git-revision
+      type: string
+      default: main
+    - name: image
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/nostromo-traffic/nostromo-traffic:latest
+    - name: context
+      type: string
+      default: apps/nostromo-traffic
+    - name: containerfile
+      type: string
+      default: apps/nostromo-traffic/Containerfile
+  workspaces:
+    - name: shared # RWO PVC: clone (subPath source) + registry auth (subPath auth)
+  tasks:
+    # Mint an internal-registry auth file from the pod's SA token (no stored credentials).
+    - name: registry-auth
+      workspaces:
+        - name: auth
+          workspace: shared
+          subPath: auth
+      taskSpec:
+        workspaces:
+          - name: auth
+        steps:
+          - name: write-config
+            image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+              TOKEN="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+              AUTH="$(printf 'unused:%s' "${TOKEN}" | base64 -w0)"
+              cat > "$(workspaces.auth.path)/config.json" <<EOF
+              {"auths":{"image-registry.openshift-image-registry.svc:5000":{"auth":"${AUTH}"}}}
+              EOF
+    - name: git-clone
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: URL
+          value: $(params.git-url)
+        - name: REVISION
+          value: $(params.git-revision)
+      workspaces:
+        - name: output
+          workspace: shared
+          subPath: source
+    - name: build
+      runAfter: [git-clone, registry-auth]
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: buildah
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: IMAGE
+          value: $(params.image)
+        - name: DOCKERFILE
+          value: $(params.containerfile)
+        - name: CONTEXT
+          value: $(params.context)
+        - name: STORAGE_DRIVER
+          value: vfs
+        # In-cluster registry serves a service-ca cert buildah does not trust.
+        - name: TLS_VERIFY
+          value: "false"
+      workspaces:
+        - name: source
+          workspace: shared
+          subPath: source
+        - name: dockerconfig
+          workspace: shared
+          subPath: auth

@@ -1,0 +1,16 @@
+# PUBLIC and UNAUTHENTICATED by the user's explicit decision (bead
+# op1st-emea-b4mad-2pv.3). Exposure is limited by design: fixed server-side
+# queries, an allowlisted range and a 60 s cache — see README.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nostromo-traffic
+spec:
+  to:
+    kind: Service
+    name: nostromo-traffic
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

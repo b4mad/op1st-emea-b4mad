@@ -1,0 +1,21 @@
+# Read-only identity for the app. cluster-monitoring-view is the only grant:
+# it lets the SA query Thanos/Prometheus and nothing else (no Secrets, no
+# workloads, no writes). Its projected token is read by the server per query.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nostromo-traffic
+  namespace: nostromo-traffic
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nostromo-traffic-monitoring-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-monitoring-view
+subjects:
+  - kind: ServiceAccount
+    name: nostromo-traffic
+    namespace: nostromo-traffic

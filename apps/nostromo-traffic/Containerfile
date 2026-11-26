@@ -1,0 +1,18 @@
+# Two-stage build. Runs under OpenShift restricted-v2 (arbitrary non-root UID,
+# group 0): files are group-readable and nothing writes outside /tmp at runtime.
+FROM registry.access.redhat.com/ubi9/nodejs-22:latest AS build
+WORKDIR /opt/app-root/src
+COPY --chown=1001:0 package.json package-lock.json ./
+RUN npm ci
+COPY --chown=1001:0 . .
+RUN npx svelte-kit sync && npm run build && npm prune --omit=dev
+
+FROM registry.access.redhat.com/ubi9/nodejs-22-minimal:latest
+WORKDIR /opt/app-root/src
+COPY --from=build --chown=1001:0 /opt/app-root/src/build ./build
+COPY --from=build --chown=1001:0 /opt/app-root/src/node_modules ./node_modules
+COPY --from=build --chown=1001:0 /opt/app-root/src/package.json ./
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
+EXPOSE 3000
+USER 1001
+CMD ["node", "build"]

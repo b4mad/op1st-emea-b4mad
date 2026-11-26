@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nostromo-traffic
+spec:
+  selector:
+    app: nostromo-traffic
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

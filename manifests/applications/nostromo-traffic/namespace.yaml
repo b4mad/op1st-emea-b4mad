@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nostromo-traffic
+  annotations:
+    openshift.io/display-name: "nostromo traffic"
+    openshift.io/description: "SvelteKit Sankey of nostromo network traffic, built from Prometheus byte counters via the Thanos querier. Public, unauthenticated by explicit decision (bead op1st-emea-b4mad-2pv.3)."
+  labels:
+    b4mad.operate-first.cloud/owner: goern.b4mad.net

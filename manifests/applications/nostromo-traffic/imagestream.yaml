@@ -1,0 +1,8 @@
+# Target of the Tekton build (pipeline.yaml writes :latest).
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: nostromo-traffic
+spec:
+  lookupPolicy:
+    local: true

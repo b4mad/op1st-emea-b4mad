@@ -1,0 +1,27 @@
+{
+  "name": "nostromo-traffic",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "start": "node build",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "test": "node --test src/lib/model.test.ts"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-node": "^5.5.8",
+    "@sveltejs/kit": "^2.70.4",
+    "@sveltejs/vite-plugin-svelte": "^6.2.4",
+    "@types/d3-sankey": "^0.12.5",
+    "@types/node": "^26.6.11",
+    "svelte": "^5.59.2",
+    "svelte-check": "^4.7.8",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.8"
+  },
+  "dependencies": {
+    "d3-sankey": "^0.12.3"
+  }
+}

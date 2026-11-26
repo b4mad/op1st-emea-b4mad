@@ -1,0 +1,22 @@
+# Start a build MANUALLY (generateName => not part of the kustomization):
+#   oc create -f manifests/applications/nostromo-traffic/pipelinerun.yaml
+#   tkn -n nostromo-traffic pipelinerun logs -f --last
+# To build another branch:  tkn pipeline start ... -p git-revision=<branch>
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: nostromo-traffic-build-
+  namespace: nostromo-traffic
+spec:
+  pipelineRef:
+    name: nostromo-traffic-build
+  taskRunTemplate:
+    serviceAccountName: pipeline
+  workspaces:
+    - name: shared
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 2Gi

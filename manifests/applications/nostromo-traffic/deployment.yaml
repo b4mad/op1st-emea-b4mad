@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nostromo-traffic
+  annotations:
+    # Roll out automatically when the build pushes a new :latest.
+    image.openshift.io/triggers: >-
+      [{"from":{"kind":"ImageStreamTag","name":"nostromo-traffic:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"app\")].image"}]
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nostromo-traffic
+  template:
+    metadata:
+      labels:
+        app: nostromo-traffic
+    spec:
+      serviceAccountName: nostromo-traffic
+      automountServiceAccountToken: true
+      containers:
+        - name: app
+          image: image-registry.openshift-image-registry.svc:5000/nostromo-traffic/nostromo-traffic:latest
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            # Trust the service CA that signs thanos-querier.openshift-monitoring.svc.
+            - name: NODE_EXTRA_CA_CERTS
+              value: /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+          readinessProbe:
+            httpGet: { path: /, port: http }
+          livenessProbe:
+            httpGet: { path: /, port: http }
+            initialDelaySeconds: 10
+          resources:
+            requests: { cpu: 20m, memory: 96Mi }
+            limits: { memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: [ALL]
+            seccompProfile:
+              type: RuntimeDefault
