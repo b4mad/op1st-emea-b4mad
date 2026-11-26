@@ -40,6 +40,9 @@ resources:
   - tunnel-deployment.yaml
   - tunnel-networkpolicy.yaml
 
+  # Database alerts (CNPG upstream rules plus ours).
+  - cnpg-alerts.yaml
+
   # Admin access (Console, gRPC/REST APIs) via the OpenShift router.
   - admin-route.yaml
 
