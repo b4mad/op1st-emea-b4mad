@@ -11,20 +11,36 @@ export interface RawInputs {
   pods: Record<Dir, PodRates>; // pod-network eth0 per node+namespace
 }
 
+export const CLASSES = ['external', 'local', 'overlay'] as const;
+export type TrafficClass = (typeof CLASSES)[number];
+
 export interface SankeyData {
   nodes: { id: string; label: string; kind: 'class' | 'node' | 'namespace' }[];
-  links: { source: string; target: string; value: number }[];
+  // est: value was scaled because a traffic class is hidden (see buildSankey)
+  links: { source: string; target: string; value: number; est?: boolean }[];
+}
+
+/** Parse ?hide=a,b into a set of known classes; unknown values are ignored. */
+export function parseHide(param: string | null): Set<TrafficClass> {
+  const known = new Set<string>(CLASSES);
+  return new Set((param ?? '').split(',').filter((c): c is TrafficClass => known.has(c)));
 }
 
 export const TOP_NAMESPACES = 15;
 
-const CLASS_LABEL: Record<string, string> = {
+export const CLASS_LABEL: Record<TrafficClass, string> = {
   external: 'external / host-network (est.)',
-  overlay: 'other node via overlay',
-  local: 'same-node pods'
+  overlay: 'other node (overlay)',
+  local: 'same node (pod↔pod)'
 };
 
-export function buildSankey(raw: RawInputs, dir: Dir): SankeyData {
+/**
+ * Hidden classes: a node's namespace links carry its full total, but the metrics
+ * cannot say which namespace's bytes belong to which class. So each node's
+ * namespace links are scaled by (kept classes / node total) and flagged `est`.
+ * Nodes/namespaces/links that end up at zero are dropped.
+ */
+export function buildSankey(raw: RawInputs, dir: Dir, hidden: ReadonlySet<TrafficClass> = new Set()): SankeyData {
   const pods = raw.pods[dir].filter((p) => p.value > 0);
 
   // Top-N namespaces by total traffic; the rest are folded into "other".
@@ -38,8 +54,12 @@ export function buildSankey(raw: RawInputs, dir: Dir): SankeyData {
   const links = new Map<string, number>();
   const addNode = (id: string, label: string, kind: 'class' | 'node' | 'namespace') =>
     nodes.set(id, { id, label, kind });
-  const addLink = (s: string, t: string, v: number) => {
-    if (v > 0) links.set(`${s}\u0000${t}`, (links.get(`${s}\u0000${t}`) ?? 0) + v);
+  const est = new Set<string>();
+  const addLink = (s: string, t: string, v: number, isEst = false) => {
+    if (v <= 0) return;
+    const k = `${s}\u0000${t}`;
+    links.set(k, (links.get(k) ?? 0) + v);
+    if (isEst) est.add(k);
   };
 
   const clusterNodes = [...new Set(pods.map((p) => p.node))].sort();
@@ -58,24 +78,31 @@ export function buildSankey(raw: RawInputs, dir: Dir): SankeyData {
     const overlay = Math.min(gen, total);
     const external = Math.min(Math.max(nic - gen, 0), total - overlay);
     const local = total - overlay - external;
-    const parts: [string, number][] = [
+    const parts: [TrafficClass, number][] = [
       ['external', external],
       ['overlay', overlay],
       ['local', local]
     ];
+    const kept = parts.filter(([c]) => !hidden.has(c)).reduce((a, [, v]) => a + v, 0);
+    if (kept <= 0) continue; // nothing left on this node
+    const scale = kept / total;
 
     const nodeId = `node:${node}`;
     addNode(nodeId, node, 'node');
     for (const [cls, v] of parts) {
+      if (hidden.has(cls)) continue;
       addNode(`cls:${cls}`, CLASS_LABEL[cls], 'class');
       // rx: class -> node -> namespace; tx: namespace -> node -> class
       if (dir === 'rx') addLink(`cls:${cls}`, nodeId, v);
       else addLink(nodeId, `cls:${cls}`, v);
     }
     for (const [ns, v] of nsRates) {
+      const sv = v * scale;
+      const isEst = scale < 1;
+      if (sv <= 0) continue;
       addNode(`ns:${ns}`, ns, 'namespace');
-      if (dir === 'rx') addLink(nodeId, `ns:${ns}`, v);
-      else addLink(`ns:${ns}`, nodeId, v);
+      if (dir === 'rx') addLink(nodeId, `ns:${ns}`, sv, isEst);
+      else addLink(`ns:${ns}`, nodeId, sv, isEst);
     }
   }
 
@@ -84,7 +111,7 @@ export function buildSankey(raw: RawInputs, dir: Dir): SankeyData {
     const [source, target] = k.split('\u0000');
     usedIds.add(source);
     usedIds.add(target);
-    return { source, target, value };
+    return est.has(k) ? { source, target, value, est: true } : { source, target, value };
   });
   return { nodes: [...nodes.values()].filter((n) => usedIds.has(n.id)), links: outLinks };
 }

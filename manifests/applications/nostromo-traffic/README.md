@@ -73,9 +73,24 @@ Received view: `source class → node → namespace`. Sent view is the mirror: `
 | Edge | Represents |
 |---|---|
 | `external / host-network (est.)` ↔ node | NIC traffic not explained by the overlay, capped at what pods handled. |
-| `other node via overlay` ↔ node | Pod traffic crossing the geneve tunnel to/from the other node. |
-| `same-node pods` ↔ node | Remainder of pod traffic: pods talking to pods on the same node (never leaves the node, invisible on any NIC). |
+| `other node (overlay)` ↔ node | Pod traffic crossing the geneve tunnel to/from the other node. |
+| `same node (pod↔pod)` ↔ node | Remainder of pod traffic: pods talking to pods on the same node (never leaves the node, invisible on any NIC). |
 | node ↔ namespace | Exact pod `eth0` rate of that namespace on that node. Top 15 namespaces; the rest is grouped as `other (N)`. |
+
+## Filtering traffic classes
+
+Three checkboxes (`external / host-network`, `other node (overlay)`, `same node (pod↔pod)`) show or hide a
+class in both the received and sent diagrams. The state lives in the URL, e.g. `?hide=external,local`
+(`external`, `overlay`, `local`; unknown values are ignored), so a filtered view can be linked.
+
+- Filtering is **client-side**: `/api/traffic` returns the raw rates of the same six fixed queries and
+  the browser builds the Sankey (`buildSankey(raw, dir, hidden)` in `src/lib/model.ts`). No new query,
+  no new server parameter; the allowlist and cache are unchanged.
+- The metrics cannot say which namespace's bytes belong to which class. With a class hidden, each node's
+  namespace links are therefore scaled by `kept classes / node total`. Those values are **estimates**
+  and are marked `(est.)` in the tooltip and a note under the chart.
+- Nodes, namespaces and links that end up at zero are dropped. With all three classes hidden the page
+  shows an empty-state message.
 
 ## Local development
 

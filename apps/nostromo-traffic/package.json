@@ -8,7 +8,7 @@
     "build": "vite build",
     "start": "node build",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "test": "node --test src/lib/model.test.ts"
+    "test": "node --test src/lib/model.test.ts src/lib/filter.test.ts"
   },
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.5.8",

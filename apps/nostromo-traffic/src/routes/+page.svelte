@@ -1,11 +1,23 @@
 <script lang="ts">
   import { sankey, sankeyLinkHorizontal } from 'd3-sankey';
-  import type { SankeyData } from '$lib/model';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/state';
+  import { buildSankey, parseHide, CLASSES, CLASS_LABEL, type RawInputs, type TrafficClass } from '$lib/model';
 
   const RANGES = ['1h', '6h', '24h', '7d'];
   let range = $state('1h');
   let dir = $state<'rx' | 'tx'>('rx');
-  let result = $state<{ generatedAt: string; rx: SankeyData; tx: SankeyData } | null>(null);
+  let result = $state<{ generatedAt: string; raw: RawInputs } | null>(null);
+  // Hidden classes live in the URL (?hide=external,local) so a filtered view is linkable.
+  const hidden = $derived(parseHide(page.url.searchParams.get('hide')));
+  function toggle(c: TrafficClass) {
+    const next = new Set(hidden);
+    if (!next.delete(c)) next.add(c);
+    const u = new URL(page.url);
+    if (next.size) u.searchParams.set('hide', CLASSES.filter((x) => next.has(x)).join(','));
+    else u.searchParams.delete('hide');
+    goto(u, { replaceState: true, keepFocus: true, noScroll: true });
+  }
   let err = $state('');
   let loading = $state(false);
 
@@ -25,8 +37,9 @@
   const COLORS: Record<string, string> = { class: '#8a8f98', node: '#2f6fed', namespace: '#1f9d6b' };
 
   const graph = $derived.by(() => {
-    const d = result?.[dir];
-    if (!d || !d.links.length) return null;
+    if (!result) return null;
+    const d = buildSankey(result.raw, dir, hidden);
+    if (!d.links.length) return null;
     const layout = sankey<any, any>()
       .nodeId((n: any) => n.id)
       .nodeWidth(14)
@@ -59,6 +72,11 @@
       <button class:on={dir === 'rx'} onclick={() => (dir = 'rx')}>received</button>
       <button class:on={dir === 'tx'} onclick={() => (dir = 'tx')}>sent</button>
     </span>
+    <span class="classes">
+      {#each CLASSES as c}
+        <label><input type="checkbox" checked={!hidden.has(c)} onchange={() => toggle(c)} /> {CLASS_LABEL[c]}</label>
+      {/each}
+    </span>
     <small>{loading ? 'loading…' : result ? `avg over ${range}, as of ${new Date(result.generatedAt).toLocaleTimeString()}` : ''}</small>
   </div>
 
@@ -68,7 +86,7 @@
     <svg viewBox="0 0 {W} {H}" role="img" aria-label="Sankey diagram of cluster network traffic">
       {#each graph.links as l}
         <path d={link(l)} fill="none" stroke={COLORS[(dir === 'rx' ? l.source : l.target).kind]} stroke-opacity="0.3" stroke-width={Math.max(1, l.width)}>
-          <title>{l.source.label} → {l.target.label}: {fmt(l.value)}</title>
+          <title>{l.source.label} → {l.target.label}: {fmt(l.value)}{l.est ? ' (est.)' : ''}</title>
         </path>
       {/each}
       {#each graph.nodes as n}
@@ -81,7 +99,10 @@
       {/each}
     </svg>
   {:else if !loading && !err}
-    <p>No traffic data.</p>
+    <p class="empty">{hidden.size === CLASSES.length ? 'All traffic classes are hidden — enable at least one.' : 'No traffic data.'}</p>
+  {/if}
+  {#if graph && hidden.size}
+    <p class="note">Classes hidden: namespace values are scaled per node and are estimates (est.).</p>
   {/if}
 
   <p class="note">
@@ -100,6 +121,8 @@
   button.on { background: #2f6fed; border-color: #2f6fed; color: #fff; }
   svg { width: 100%; height: auto; }
   text { font-size: 12px; fill: currentColor; }
+  .classes { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .empty { padding: 3rem; text-align: center; opacity: .7; }
   .err { color: #d1242f; }
   .note { opacity: .7; max-width: 70ch; }
 </style>

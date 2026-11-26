@@ -3,7 +3,7 @@
 // is ever forwarded to Prometheus.
 import { readFileSync } from 'node:fs';
 import { env } from '$env/dynamic/private';
-import { buildSankey, type Dir, type PodRates, type RawInputs, type SankeyData } from '$lib/model';
+import type { PodRates, RawInputs } from '$lib/model';
 
 export const RANGES = { '1h': '1h', '6h': '6h', '24h': '24h', '7d': '7d' } as const;
 export type RangeKey = keyof typeof RANGES;
@@ -52,8 +52,8 @@ const byPod = (s: Sample[]): PodRates =>
 export interface TrafficResult {
   range: RangeKey;
   generatedAt: string;
-  rx: SankeyData;
-  tx: SankeyData;
+  // Raw rates; the client builds/filters the Sankey (no extra queries needed).
+  raw: RawInputs;
 }
 
 async function compute(range: RangeKey): Promise<TrafficResult> {
@@ -66,9 +66,7 @@ async function compute(range: RangeKey): Promise<TrafficResult> {
     geneve: { rx: byNode(genRx, 'instance'), tx: byNode(genTx, 'instance') },
     pods: { rx: byPod(podRx), tx: byPod(podTx) }
   };
-  const dirs: Dir[] = ['rx', 'tx'];
-  const [rx, tx] = dirs.map((d) => buildSankey(raw, d));
-  return { range, generatedAt: new Date().toISOString(), rx, tx };
+  return { range, generatedAt: new Date().toISOString(), raw };
 }
 
 // 60 s cache per range; concurrent requests share one in-flight computation.
