@@ -1,0 +1,53 @@
+# Keeps PVC forgejo-backup mounted so kubelet exports kubelet_volume_stats_*
+# for it (op1st-emea-b4mad-8m3).
+#
+# ⚠️ WHY THIS EXISTS. kubelet only reports volume stats for volumes a pod
+# currently mounts. forgejo-backup is otherwise mounted for a few minutes a
+# night by the CronJobs, so it has no fill series at all — which is how it
+# filled up unnoticed three times in 2026 (Systems-agaa, op1st-emea-b4mad-d1h).
+# This pod does nothing but hold the mount (read-only, so it cannot interfere
+# with the dump or the prune) and gives ForgejoBackupVolume* in monitoring.yaml
+# something to evaluate. Do not remove it without removing those rules, or
+# ForgejoBackupVolumeMetricsMissing will fire.
+#
+# RWO is fine alongside the CronJob pods: lvms-vg1 volumes are node-local, so
+# every consumer lands on the same node.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forgejo-backup-volume-probe
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo-backup-volume-probe
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: forgejo-backup-volume-probe
+    spec:
+      containers:
+        - name: hold
+          # Same image the dump uses, so no extra image to pull or track.
+          image: code.forgejo.org/forgejo/forgejo:17.0.2-rootless
+          command: [sleep, infinity]
+          resources:
+            requests:
+              cpu: 1m
+              memory: 4Mi
+            limits:
+              memory: 16Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: backup
+              mountPath: /backup
+              readOnly: true
+      volumes:
+        - name: backup
+          persistentVolumeClaim:
+            claimName: forgejo-backup

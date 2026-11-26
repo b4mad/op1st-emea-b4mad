@@ -261,16 +261,15 @@ spec:
         # + WAL). The code indexer is the usual reason the Forgejo volume grows
         # without anyone pushing anything.
         #
-        # ⚠️ The namespace's third PVC, forgejo-backup, is NOT covered and
-        # cannot be: kubelet exports kubelet_volume_stats_* only for volumes a
-        # pod currently mounts, and that one is mounted for seconds a night by
-        # a CronJob. It reports no series at all. It filled to 100% unnoticed
-        # on 2026-08-01 (Systems-agaa); the ForgejoBackup* job-level alerts
-        # below are what watch it now.
+        # ⚠️ The namespace's third PVC, forgejo-backup, is excluded from the
+        # percentage rules: its real limit is the 1.5x-last-dump preflight, not
+        # 95% full. kubelet only exports volume stats while a pod mounts the
+        # volume, so Deployment/forgejo-backup-volume-probe holds it mounted;
+        # ForgejoBackupVolume* (forgejo-backup group) watch it.
         - alert: ForgejoVolumeFillingUp
           expr: >-
-            kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo"}
-            / kubelet_volume_stats_capacity_bytes{namespace="b4mad-forgejo"} < 0.15
+            kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo", persistentvolumeclaim!="forgejo-backup"}
+            / kubelet_volume_stats_capacity_bytes{namespace="b4mad-forgejo", persistentvolumeclaim!="forgejo-backup"} < 0.15
           for: 15m
           labels:
             severity: warning
@@ -283,8 +282,8 @@ spec:
 
         - alert: ForgejoVolumeAlmostFull
           expr: >-
-            kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo"}
-            / kubelet_volume_stats_capacity_bytes{namespace="b4mad-forgejo"} < 0.05
+            kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo", persistentvolumeclaim!="forgejo-backup"}
+            / kubelet_volume_stats_capacity_bytes{namespace="b4mad-forgejo", persistentvolumeclaim!="forgejo-backup"} < 0.05
           for: 5m
           labels:
             severity: critical
@@ -308,7 +307,10 @@ spec:
 # forgejo-backup is mounted for a few seconds a night by the CronJob, so it
 # has NO series at all — verified empty against prometheus-k8s. A PVC that
 # only a CronJob touches is invisible to fill alerts by construction. The
-# backup path therefore has to be watched at the Job level, here.
+# backup path is therefore watched at the Job level, here — and, since
+# op1st-emea-b4mad-8m3, at the volume level too: Deployment/
+# forgejo-backup-volume-probe keeps the PVC mounted so the ForgejoBackupVolume*
+# rules below have a series to evaluate.
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -353,6 +355,72 @@ spec:
               accumulating unbacked-up changes. Check
               `oc -n b4mad-forgejo get cronjob forgejo-backup` and the free
               space on PVC forgejo-backup.
+
+        # ⚠️ The backup preflight needs available >= 1.5x the LAST DUMP (after
+        # the prune; see backup-cronjob.yaml). There is no dump-size metric, but
+        # at rest the PVC holds exactly RETENTION=1 dump, so
+        # `used = capacity - available` IS the last dump size and the preflight
+        # condition becomes `available < 1.5 * used`. The warning fires at 2x
+        # so there is time to act before the first failed night; the critical
+        # at 1.5x means the next run WILL fail preflight.
+        #
+        # for: 6h swallows the nightly transient: during a run two dumps
+        # coexist (activeDeadlineSeconds is 1h), which looks like "low free"
+        # for about an hour. If RETENTION is ever raised, used != one dump and
+        # these ratios must be redone.
+        - alert: ForgejoBackupVolumeLow
+          expr: >-
+            kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo", persistentvolumeclaim="forgejo-backup"}
+            < 2 * (
+              kubelet_volume_stats_capacity_bytes{namespace="b4mad-forgejo", persistentvolumeclaim="forgejo-backup"}
+              - kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo", persistentvolumeclaim="forgejo-backup"}
+            )
+          for: 6h
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge backup PVC has under 2x the last dump free"
+            description: >-
+              PVC forgejo-backup has {{ $value | humanize1024 }}B free, less
+              than 2x what the (single, retained) dump occupies. The nightly
+              preflight demands 1.5x and will start failing soon. Grow the PVC
+              (lvms-vg1 allows expansion), exclude /data/packages from the
+              dump, or lower RETENTION — see op1st-emea-b4mad-8m3 / -y3c.
+
+        - alert: ForgejoBackupVolumeBelowPreflight
+          expr: >-
+            kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo", persistentvolumeclaim="forgejo-backup"}
+            < 1.5 * (
+              kubelet_volume_stats_capacity_bytes{namespace="b4mad-forgejo", persistentvolumeclaim="forgejo-backup"}
+              - kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo", persistentvolumeclaim="forgejo-backup"}
+            )
+          for: 6h
+          labels:
+            severity: critical
+          annotations:
+            summary: "#B4mad Forge backup PVC is below the preflight margin"
+            description: >-
+              PVC forgejo-backup has {{ $value | humanize1024 }}B free, less
+              than 1.5x the last dump: the next forgejo-backup run will fail
+              its preflight and no new dump will be taken or shipped off-site.
+              Grow the PVC now.
+
+        # Without this, losing the probe Deployment (or a kubelet change)
+        # silently turns the two rules above off — the exact blind spot they
+        # were written to close.
+        - alert: ForgejoBackupVolumeMetricsMissing
+          expr: >-
+            absent(kubelet_volume_stats_available_bytes{namespace="b4mad-forgejo", persistentvolumeclaim="forgejo-backup"})
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "#B4mad Forge backup PVC has no fill metrics"
+            description: >-
+              kubelet reports nothing for PVC forgejo-backup, so
+              ForgejoBackupVolume* cannot fire. Check
+              `oc -n b4mad-forgejo get deploy forgejo-backup-volume-probe` —
+              kubelet only exports volume stats while a pod mounts the PVC.
 
         - alert: ForgejoOffsiteJobFailed
           expr: >-

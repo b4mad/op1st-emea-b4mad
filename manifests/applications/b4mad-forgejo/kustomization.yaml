@@ -29,6 +29,9 @@ resources:
 
   # Backups: daily logical dump to a local PVC + off-site borg push to store-1.
   - backup-cronjob.yaml
+  # Holds the backup PVC mounted so kubelet reports its fill level (alerts in
+  # monitoring.yaml, forgejo-backup group).
+  - backup-volume-probe.yaml
   - offsite-cronjob.yaml
 
   # Synthetic SMTP send test standing in for a mail-delivery metric Forgejo
