@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: b4mad-lanista
+
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/managed-by: op1st-emea-b4mad
+
+# Secret `lanista` is deliberately NOT listed yet — see README.md.
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - service.yaml
+  - route.yaml
+
+images:
+  - name: lanista-web
+    newName: codeberg.org/b4mad/lanista-web
+    # ⚠️ UNVERIFIED placeholder: set to the tag the live Deployment runs.
+    newTag: latest

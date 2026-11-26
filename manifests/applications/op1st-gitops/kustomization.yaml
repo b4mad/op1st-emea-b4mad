@@ -26,6 +26,7 @@ resources:
   - applications/b4mad-epaper-service.yaml
   - applications/b4mad-forgejo.yaml
   - applications/b4mad-keycloak.yaml
+  - applications/b4mad-lanista.yaml
   - applications/b4mad-matrix.yaml
   - applications/b4mad-matrixa.yaml
   - applications/b4mad-meshtastic-gateway.yaml

@@ -1,0 +1,11 @@
+# PLACEHOLDER, NOT in kustomization.yaml and never applied by Argo.
+# See README.md ("The lanista secret"): copy to lanista.enc.yaml, fill in
+# locally, sops-encrypt.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: lanista
+  namespace: b4mad-lanista
+type: Opaque
+stringData:
+  OPENROUTER_API_KEY: REPLACE_ME

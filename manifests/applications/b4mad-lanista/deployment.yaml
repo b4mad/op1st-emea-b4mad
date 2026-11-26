@@ -1,0 +1,50 @@
+# ⚠️ UNVERIFIED: rebuilt from bead op1st-emea-b4mad-rpl because `oc` was logged
+# out. Container port, probes, resources, env beyond OPENROUTER_API_KEY and the
+# image tag are best guesses. Compare with `oc -n b4mad-lanista get deploy
+# lanista-web -o yaml` (the Argo diff does this) BEFORE enabling automated sync.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lanista-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lanista-web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: lanista-web
+    spec:
+      # No nodeSelector / affinity on purpose (op1st-emea-b4mad-770): it was
+      # pinned to node `river`, a SPOF with no technical reason (emptyDir only).
+      # Keeping it out of git means selfHeal, once enabled, keeps it out of live.
+      containers:
+        - name: lanista-web
+          image: lanista-web
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: lanista
+                  key: OPENROUTER_API_KEY
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
