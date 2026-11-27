@@ -1,6 +1,6 @@
-# PUBLIC and UNAUTHENTICATED by the user's explicit decision (bead
-# op1st-emea-b4mad-2pv.3). Exposure is limited by design: fixed server-side
-# queries, an allowlisted range and a 60 s cache — see README.
+# Fronted by oauth2-proxy (Zitadel OIDC, bead op1st-emea-b4mad-2pv.7): the
+# Service points at the proxy port, the app itself listens on loopback only.
+# The host must match var.traffic_url in b4mad-zitadel/config/main.tf.
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
