@@ -23,8 +23,10 @@ Copy the agentsview block in `config/main.tf`:
 ## store-1 (Synology NAS), bead op1st-emea-b4mad-zkw
 
 - Device: Synology DSM 7.4.1-90080 Update 2, client "SSO Client" (OIDC).
-- DSM URL / redirect URI: `https://store-1.local:5001/`. It must match exactly,
-  including the trailing slash.
+- Redirect URIs (exact match, trailing slash): `https://store-1.local:5001/`
+  for the browser, `https://10.144.8.24:5001/` for clients that connect by
+  LAN IP (added for the Synology Photos app). Each address DSM is opened by
+  needs its own entry, in both `var.store1_urls` and DSM's redirect list.
 - `.local` resolves only via mDNS on the LAN, which is fine for the browser
   redirect. ⚠️ store-1 is on the isolated NAS VLAN. DSM itself must reach
   `https://id.b4mad.industries` (discovery, token, JWKS) over the back-channel.

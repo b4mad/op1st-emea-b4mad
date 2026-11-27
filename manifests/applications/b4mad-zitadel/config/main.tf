@@ -772,9 +772,11 @@ resource "kubernetes_secret_v1" "fritz_initial" {
 # DSM is a second gate: it maps a claim to an EXISTING DSM account and does
 # not create users. See AGENTS.md.
 
-variable "store1_url" {
-  type    = string
-  default = "https://store-1.local:5001"
+# Every address DSM is opened by needs its own redirect URI: the browser
+# uses store-1.local (mDNS); clients by IP (Synology Photos) use the LAN IP.
+variable "store1_urls" {
+  type    = list(string)
+  default = ["https://store-1.local:5001", "https://10.144.8.24:5001"]
 }
 
 resource "zitadel_project" "store1_eg" {
@@ -805,8 +807,8 @@ resource "zitadel_application_oidc" "store1_eg_dsm" {
   auth_method_type          = "OIDC_AUTH_METHOD_TYPE_BASIC"
   response_types            = ["OIDC_RESPONSE_TYPE_CODE"]
   grant_types               = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
-  redirect_uris             = ["${var.store1_url}/"]
-  post_logout_redirect_uris = ["${var.store1_url}/"]
+  redirect_uris             = [for u in var.store1_urls : "${u}/"]
+  post_logout_redirect_uris = [for u in var.store1_urls : "${u}/"]
   # DSM reads the username claim from the ID token.
   id_token_userinfo_assertion = true
   id_token_role_assertion     = true
@@ -861,7 +863,7 @@ resource "kubernetes_secret_v1" "store1_oidc" {
     client_id     = zitadel_application_oidc.store1_eg_dsm.client_id
     client_secret = zitadel_application_oidc.store1_eg_dsm.client_secret
     well_known    = "https://${var.zitadel_domain}/.well-known/openid-configuration"
-    redirect_uri  = "${var.store1_url}/"
+    redirect_uris = join(" ", [for u in var.store1_urls : "${u}/"])
   }
 }
 
