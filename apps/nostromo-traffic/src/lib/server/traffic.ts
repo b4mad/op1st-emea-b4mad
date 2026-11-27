@@ -56,29 +56,34 @@ export interface TrafficResult {
   tx: SankeyData;
 }
 
-async function compute(range: RangeKey): Promise<TrafficResult> {
+async function compute(range: RangeKey): Promise<RawInputs> {
   const q = QUERIES(RANGES[range]);
   const [nicRx, nicTx, genRx, genTx, podRx, podTx] = await Promise.all([
     instant(q.nicRx), instant(q.nicTx), instant(q.genRx), instant(q.genTx), instant(q.podRx), instant(q.podTx)
   ]);
-  const raw: RawInputs = {
+  return {
     nic: { rx: byNode(nicRx, 'instance'), tx: byNode(nicTx, 'instance') },
     geneve: { rx: byNode(genRx, 'instance'), tx: byNode(genTx, 'instance') },
     pods: { rx: byPod(podRx), tx: byPod(podTx) }
   };
-  const dirs: Dir[] = ['rx', 'tx'];
-  const [rx, tx] = dirs.map((d) => buildSankey(raw, d));
-  return { range, generatedAt: new Date().toISOString(), rx, tx };
 }
 
-// 60 s cache per range; concurrent requests share one in-flight computation.
-const cache = new Map<RangeKey, { at: number; p: Promise<TrafficResult> }>();
+// 60 s cache of the raw rates per range; concurrent requests share one in-flight computation.
+// The namespace filter is applied after the cache, so both views share one Prometheus query.
+const cache = new Map<RangeKey, { at: number; p: Promise<RawInputs> }>();
 
-export function getTraffic(range: RangeKey): Promise<TrafficResult> {
+function getRaw(range: RangeKey): Promise<RawInputs> {
   const hit = cache.get(range);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.p;
   const p = compute(range);
   cache.set(range, { at: Date.now(), p });
   p.catch(() => cache.get(range)?.p === p && cache.delete(range)); // never cache failures
   return p;
+}
+
+export async function getTraffic(range: RangeKey, ownOnly = false): Promise<TrafficResult> {
+  const raw = await getRaw(range);
+  const dirs: Dir[] = ['rx', 'tx'];
+  const [rx, tx] = dirs.map((d) => buildSankey(raw, d, ownOnly));
+  return { range, generatedAt: new Date().toISOString(), rx, tx };
 }

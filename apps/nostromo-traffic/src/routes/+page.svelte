@@ -4,6 +4,7 @@
 
   const RANGES = ['1h', '6h', '24h', '7d'];
   let range = $state('1h');
+  let ownOnly = $state(false);
   let dir = $state<'rx' | 'tx'>('rx');
   let result = $state<{ generatedAt: string; rx: SankeyData; tx: SankeyData } | null>(null);
   let err = $state('');
@@ -11,11 +12,12 @@
 
   $effect(() => {
     const r = range;
+    const own = ownOnly;
     loading = true;
     err = '';
-    fetch(`/api/traffic?range=${r}`)
+    fetch(`/api/traffic?range=${r}${own ? '&own=1' : ''}`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
-      .then((j) => r === range && (result = j))
+      .then((j) => r === range && own === ownOnly && (result = j))
       .catch((e) => (err = String(e.message ?? e)))
       .finally(() => (loading = false));
   });
@@ -59,6 +61,7 @@
       <button class:on={dir === 'rx'} onclick={() => (dir = 'rx')}>received</button>
       <button class:on={dir === 'tx'} onclick={() => (dir = 'tx')}>sent</button>
     </span>
+    <label><input type="checkbox" bind:checked={ownOnly} /> hide platform namespaces</label>
     <small>{loading ? 'loading…' : result ? `avg over ${range}, as of ${new Date(result.generatedAt).toLocaleTimeString()}` : ''}</small>
   </div>
 

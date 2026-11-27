@@ -30,7 +30,7 @@ Not in the Argo app-of-apps; `pipelinerun.yaml` is not in the kustomization (gen
 - ServiceAccount `nostromo-traffic`, bound **only** to `cluster-monitoring-view`; the app reads its
   projected token on every query. No other permissions.
 - Restricted-v2 SCC: non-root arbitrary UID, read-only root FS, all capabilities dropped.
-- The client sends only `?range=`. It must be one of `1h|6h|24h|7d`; anything else is a 400.
+- The client sends only `?range=` (one of `1h|6h|24h|7d`) and optionally `?own=1`; anything else is a 400. `own=1` hides platform namespaces: only those starting with `b4mad-`, `feeldata-`, `machdenstaat-`, `op1st-` stay (list: `OWN_NS_PREFIXES` in `src/lib/model.ts`).
   PromQL is defined in `apps/nostromo-traffic/src/lib/server/traffic.ts`, never taken from the client.
 - Results are cached 60 s per range (concurrent requests share one in-flight query; failures are not cached).
 

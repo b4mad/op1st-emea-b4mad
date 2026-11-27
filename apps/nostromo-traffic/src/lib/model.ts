@@ -18,14 +18,19 @@ export interface SankeyData {
 
 export const TOP_NAMESPACES = 15;
 
+// The single definition of "our" namespaces; everything else (openshift-*, kube-*, ...)
+// is platform-internal and hidden when the UI's "hide platform namespaces" box is ticked.
+export const OWN_NS_PREFIXES = ['b4mad-', 'feeldata-', 'machdenstaat-', 'op1st-'] as const;
+export const isOwnNamespace = (ns: string) => OWN_NS_PREFIXES.some((p) => ns.startsWith(p));
+
 const CLASS_LABEL: Record<string, string> = {
   external: 'external / host-network (est.)',
   overlay: 'other node via overlay',
   local: 'same-node pods'
 };
 
-export function buildSankey(raw: RawInputs, dir: Dir): SankeyData {
-  const pods = raw.pods[dir].filter((p) => p.value > 0);
+export function buildSankey(raw: RawInputs, dir: Dir, ownOnly = false): SankeyData {
+  const pods = raw.pods[dir].filter((p) => p.value > 0 && (!ownOnly || isOwnNamespace(p.namespace)));
 
   // Top-N namespaces by total traffic; the rest are folded into "other".
   const perNs = new Map<string, number>();
