@@ -47,9 +47,12 @@ Not in the Argo app-of-apps; `pipelinerun.yaml` is not in the kustomization (gen
 - ServiceAccount `nostromo-traffic`, bound **only** to `cluster-monitoring-view`; the app reads its
   projected token on every query. No other permissions.
 - Restricted-v2 SCC: non-root arbitrary UID, read-only root FS, all capabilities dropped.
-- The client sends only `?range=` (one of `1h|6h|24h|7d`) and optionally `?own=1`; anything else is a 400. `own=1` hides platform namespaces: only those starting with `b4mad-`, `feeldata-`, `machdenstaat-`, `op1st-` stay (list: `OWN_NS_PREFIXES` in `src/lib/model.ts`).
+- Two read-only endpoints, each with a strict allow-list (`src/lib/params.ts`); unknown, repeated or odd-valued params are a 400:
+  - `GET /api/traffic?range=&own=1&nonodes=1`: `range` is one of `1h|6h|24h|7d`; `own=1` hides platform namespaces (only those starting with `b4mad-`, `feeldata-`, `machdenstaat-`, `op1st-` stay; list: `OWN_NS_PREFIXES` in `src/lib/model.ts`); `nonodes=1` collapses the `node:*` hubs (class → namespace directly, bytes conserved). Flags are opt-in at the API; the UI sends `nonodes=1` by default ("hide node traffic" is checked on load).
+  - `GET /api/pods?range=&namespace=`: per-pod rx/tx table. `namespace` is required and must match `^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$` (k8s namespace name; no quotes, braces or backslashes can pass), otherwise 400. It is the only client string that reaches PromQL, and it is re-checked server-side before interpolation.
   PromQL is defined in `apps/nostromo-traffic/src/lib/server/traffic.ts`, never taken from the client.
-- Results are cached 60 s per range (concurrent requests share one in-flight query; failures are not cached).
+- Results are cached 60 s per range (concurrent requests share one in-flight query; failures are not cached). The pod table is cached 60 s per (range, namespace), bounded to 200 entries.
+- Host-network pods are not in the pod table: cAdvisor reports them on the node's own interfaces, never `eth0`, and the query selects `interface="eth0"` only (same rule as the Sankey).
 
 ## What Prometheus can and cannot show
 
