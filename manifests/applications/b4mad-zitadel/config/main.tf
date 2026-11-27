@@ -717,6 +717,154 @@ resource "kubernetes_secret_v1" "agentsview_oidc" {
   }
 }
 
+# Human user fritz in org erdgeschoss (user decision 2026-11-27) ------------
+#
+# Exception to "users are data": fritz is new, not imported from Keycloak, so
+# he is declared here. Same hand-over as the admin: random initial password
+# in Secret zitadel-fritz-initial, change forced at first login. user_name
+# matches his DSM account on store-1.
+
+resource "random_password" "fritz_initial" {
+  length           = 24
+  min_upper        = 2
+  min_lower        = 2
+  min_numeric      = 2
+  min_special      = 2
+  override_special = "!#$%*-_+"
+}
+
+resource "zitadel_human_user" "fritz" {
+  org_id     = local.erdgeschoss_org_id
+  user_name  = "fritz"
+  email      = "fritz@goern.name"
+  first_name = "Fritz"
+  last_name  = "Görn"
+
+  is_email_verified            = true
+  initial_password             = random_password.fritz_initial.result
+  initial_skip_password_change = false
+}
+
+resource "kubernetes_secret_v1" "fritz_initial" {
+  metadata {
+    name      = "zitadel-fritz-initial"
+    namespace = var.namespace
+  }
+  data = {
+    user_name = zitadel_human_user.fritz.user_name
+    password  = random_password.fritz_initial.result
+  }
+
+  lifecycle {
+    ignore_changes = [data]
+  }
+}
+
+# store-1: Synology NAS, DSM 7.4.1-90080 Update 2, bead op1st-emea-b4mad-zkw --
+#
+# DSM "SSO Client" (OIDC). Access (user decision 2026-11-27): every user of
+# org erdgeschoss plus goern from org b4mad. hasProjectCheck cannot express
+# "one user of another org" (it admits whole orgs), so this uses
+# project_role_check with a `user` role granted per user. ⚠️ The erdgeschoss
+# users are data (imported from Keycloak), so they are read at plan time; a
+# new erdgeschoss user gets access on the next Argo CD sync of this Job
+# (fritz, created above, therefore gets his grant on the second run).
+# DSM is a second gate: it maps a claim to an EXISTING DSM account and does
+# not create users. See AGENTS.md.
+
+variable "store1_url" {
+  type    = string
+  default = "https://store-1.local:5001"
+}
+
+resource "zitadel_project" "store1_eg" {
+  org_id                 = local.erdgeschoss_org_id
+  name                   = "store-1"
+  project_role_assertion = true
+  project_role_check     = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_project_role" "store1_eg_user" {
+  project_id   = zitadel_project.store1_eg.id
+  org_id       = local.erdgeschoss_org_id
+  role_key     = "user"
+  display_name = "User (may sign in to DSM on store-1)"
+}
+
+resource "zitadel_application_oidc" "store1_eg_dsm" {
+  project_id = zitadel_project.store1_eg.id
+  org_id     = local.erdgeschoss_org_id
+  name       = "store-1-dsm"
+
+  # Confidential client: DSM holds the secret (pasted in by hand).
+  app_type                  = "OIDC_APP_TYPE_WEB"
+  auth_method_type          = "OIDC_AUTH_METHOD_TYPE_BASIC"
+  response_types            = ["OIDC_RESPONSE_TYPE_CODE"]
+  grant_types               = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
+  redirect_uris             = ["${var.store1_url}/"]
+  post_logout_redirect_uris = ["${var.store1_url}/"]
+  # DSM reads the username claim from the ID token.
+  id_token_userinfo_assertion = true
+  id_token_role_assertion     = true
+  access_token_role_assertion = false
+  access_token_type           = "OIDC_TOKEN_TYPE_BEARER"
+  version                     = "OIDC_VERSION_1_0"
+  dev_mode                    = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+# Users of the owning org: direct user grants, no project grant needed.
+data "zitadel_human_users" "erdgeschoss" {
+  org_id = local.erdgeschoss_org_id
+}
+
+resource "zitadel_user_grant" "store1_eg_erdgeschoss" {
+  for_each   = toset(data.zitadel_human_users.erdgeschoss.user_ids)
+  org_id     = local.erdgeschoss_org_id
+  project_id = zitadel_project.store1_eg.id
+  user_id    = each.value
+  role_keys  = [zitadel_project_role.store1_eg_user.role_key]
+}
+
+# goern (org b4mad): project grant to b4mad, then a grant for goern only.
+resource "zitadel_project_grant" "store1_eg_to_b4mad" {
+  org_id         = local.erdgeschoss_org_id
+  project_id     = zitadel_project.store1_eg.id
+  granted_org_id = local.org_id
+  role_keys      = [zitadel_project_role.store1_eg_user.role_key]
+}
+
+resource "zitadel_user_grant" "admin_store1_eg" {
+  org_id           = local.org_id
+  project_id       = zitadel_project.store1_eg.id
+  project_grant_id = zitadel_project_grant.store1_eg_to_b4mad.id
+  user_id          = zitadel_human_user.admin.id
+  role_keys        = [zitadel_project_role.store1_eg_user.role_key]
+}
+
+# No in-cluster consumer, so no reflector: read it once and paste it into
+# DSM (Control Panel > Domain/LDAP > SSO Client). Zitadel returns the
+# secret only at creation.
+resource "kubernetes_secret_v1" "store1_oidc" {
+  metadata {
+    name      = "store-1-oidc-zitadel"
+    namespace = var.namespace
+  }
+  data = {
+    client_id     = zitadel_application_oidc.store1_eg_dsm.client_id
+    client_secret = zitadel_application_oidc.store1_eg_dsm.client_secret
+    well_known    = "https://${var.zitadel_domain}/.well-known/openid-configuration"
+    redirect_uri  = "${var.store1_url}/"
+  }
+}
+
 # --- Org git: the #B4mad forge (git.b4mad.industries), bead b1b.6 ----------
 #
 # User decisions 2026-11-20:
