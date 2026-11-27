@@ -23,13 +23,37 @@ export const TOP_NAMESPACES = 15;
 export const OWN_NS_PREFIXES = ['b4mad-', 'feeldata-', 'machdenstaat-', 'op1st-'] as const;
 export const isOwnNamespace = (ns: string) => OWN_NS_PREFIXES.some((p) => ns.startsWith(p));
 
+// Strict k8s namespace (DNS-1123 label) syntax. The only client-supplied string that ever reaches
+// PromQL, and only after matching this (no quotes, braces or backslashes can pass).
+const NS_NAME_RE = /^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$/;
+export const isNamespaceName = (s: string | null): s is string => s !== null && NS_NAME_RE.test(s);
+
+export interface PodRow {
+  pod: string;
+  rx: number;
+  tx: number;
+}
+
+// Joins per-pod rx/tx samples into table rows, sorted by rx (then name, for stable output).
+export function buildPodTable(rx: Record<string, number>, tx: Record<string, number>): PodRow[] {
+  return [...new Set([...Object.keys(rx), ...Object.keys(tx)])]
+    .map((pod) => ({ pod, rx: rx[pod] ?? 0, tx: tx[pod] ?? 0 }))
+    .sort((a, b) => b.rx - a.rx || a.pod.localeCompare(b.pod));
+}
+
+export interface SankeyOptions {
+  ownOnly?: boolean; // hide platform namespaces (bead 2pv.6)
+  hideNodes?: boolean; // collapse the node:* hubs (host-network / per-node view), bead 2pv.8
+}
+
 const CLASS_LABEL: Record<string, string> = {
   external: 'external / host-network (est.)',
   overlay: 'other node via overlay',
   local: 'same-node pods'
 };
 
-export function buildSankey(raw: RawInputs, dir: Dir, ownOnly = false): SankeyData {
+export function buildSankey(raw: RawInputs, dir: Dir, opts: SankeyOptions = {}): SankeyData {
+  const { ownOnly = false, hideNodes = false } = opts;
   const pods = raw.pods[dir].filter((p) => p.value > 0 && (!ownOnly || isOwnNamespace(p.namespace)));
 
   // Top-N namespaces by total traffic; the rest are folded into "other".
@@ -70,6 +94,20 @@ export function buildSankey(raw: RawInputs, dir: Dir, ownOnly = false): SankeyDa
     ];
 
     const nodeId = `node:${node}`;
+    if (hideNodes) {
+      // No node hub: each namespace gets its share of each class, pro rata to the node's total.
+      // Bytes are conserved (sum over classes of a namespace's links == its rate).
+      for (const [ns, v] of nsRates) {
+        addNode(`ns:${ns}`, ns, 'namespace');
+        for (const [cls, c] of parts) {
+          addNode(`cls:${cls}`, CLASS_LABEL[cls], 'class');
+          const share = total > 0 ? (v * c) / total : 0;
+          if (dir === 'rx') addLink(`cls:${cls}`, `ns:${ns}`, share);
+          else addLink(`ns:${ns}`, `cls:${cls}`, share);
+        }
+      }
+      continue;
+    }
     addNode(nodeId, node, 'node');
     for (const [cls, v] of parts) {
       addNode(`cls:${cls}`, CLASS_LABEL[cls], 'class');
