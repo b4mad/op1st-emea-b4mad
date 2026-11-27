@@ -6,6 +6,7 @@ spec:
   selector:
     app: nostromo-traffic
   ports:
+    # The proxy, never the app: the app binds 127.0.0.1 (see deployment.yaml).
     - name: http
-      port: 3000
-      targetPort: http
+      port: 4180
+      targetPort: oauth2-proxy

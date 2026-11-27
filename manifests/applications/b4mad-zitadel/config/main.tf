@@ -867,6 +867,116 @@ resource "kubernetes_secret_v1" "store1_oidc" {
   }
 }
 
+# nostromo-traffic (Route on the nostromo apps domain), bead op1st-emea-b4mad-2pv.7
+#
+# oauth2-proxy sidecar in namespace nostromo-traffic is the only way in.
+# Access (user decision 2026-11-27) is the same model as store-1: every user
+# of org erdgeschoss plus goern from org b4mad, nobody else. ⚠️
+# project_role_check is what keeps it closed (org git self-registrations and
+# the uat users in b4mad get no token). The erdgeschoss users are read at plan
+# time (data.zitadel_human_users.erdgeschoss, declared with store-1), so a new
+# one gets access on the next run of this Job.
+
+variable "traffic_url" {
+  type    = string
+  default = "https://nostromo-traffic-nostromo-traffic.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud"
+}
+
+resource "zitadel_project" "traffic_eg" {
+  org_id                 = local.erdgeschoss_org_id
+  name                   = "traffic-app"
+  project_role_assertion = true
+  project_role_check     = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_project_role" "traffic_eg_user" {
+  project_id   = zitadel_project.traffic_eg.id
+  org_id       = local.erdgeschoss_org_id
+  role_key     = "user"
+  display_name = "User (may open nostromo-traffic)"
+}
+
+resource "zitadel_application_oidc" "traffic_eg" {
+  project_id = zitadel_project.traffic_eg.id
+  org_id     = local.erdgeschoss_org_id
+  name       = "traffic-app"
+
+  # Confidential client: oauth2-proxy holds the secret.
+  app_type                  = "OIDC_APP_TYPE_WEB"
+  auth_method_type          = "OIDC_AUTH_METHOD_TYPE_BASIC"
+  response_types            = ["OIDC_RESPONSE_TYPE_CODE"]
+  grant_types               = ["OIDC_GRANT_TYPE_AUTHORIZATION_CODE"]
+  redirect_uris             = ["${var.traffic_url}/oauth2/callback"]
+  post_logout_redirect_uris = ["${var.traffic_url}/"]
+  # oauth2-proxy reads email/email_verified from the ID token.
+  id_token_userinfo_assertion = true
+  id_token_role_assertion     = true
+  access_token_role_assertion = false
+  access_token_type           = "OIDC_TOKEN_TYPE_BEARER"
+  version                     = "OIDC_VERSION_1_0"
+  dev_mode                    = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "zitadel_user_grant" "traffic_eg_erdgeschoss" {
+  for_each   = toset(data.zitadel_human_users.erdgeschoss.user_ids)
+  org_id     = local.erdgeschoss_org_id
+  project_id = zitadel_project.traffic_eg.id
+  user_id    = each.value
+  role_keys  = [zitadel_project_role.traffic_eg_user.role_key]
+}
+
+# goern (org b4mad): project grant to b4mad, then a grant for goern only.
+resource "zitadel_project_grant" "traffic_eg_to_b4mad" {
+  org_id         = local.erdgeschoss_org_id
+  project_id     = zitadel_project.traffic_eg.id
+  granted_org_id = local.org_id
+  role_keys      = [zitadel_project_role.traffic_eg_user.role_key]
+}
+
+resource "zitadel_user_grant" "admin_traffic_eg" {
+  org_id           = local.org_id
+  project_id       = zitadel_project.traffic_eg.id
+  project_grant_id = zitadel_project_grant.traffic_eg_to_b4mad.id
+  user_id          = zitadel_human_user.admin.id
+  role_keys        = [zitadel_project_role.traffic_eg_user.role_key]
+}
+
+# Cookie signing only (Zitadel never sees it). Generated here so it is never
+# in git; lives in tfstate and the Secret below. 32 alphanumerics = 32 bytes,
+# a valid oauth2-proxy AES key length.
+resource "random_password" "traffic_cookie" {
+  length  = 32
+  special = false
+}
+
+# Keys named for oauth2-proxy's env vars; reflector mirrors the Secret into
+# nostromo-traffic. Zitadel returns the secret only at creation.
+resource "kubernetes_secret_v1" "traffic_oidc" {
+  metadata {
+    name      = "traffic-oidc-zitadel"
+    namespace = var.namespace
+    annotations = {
+      "reflector.v1.k8s.emberstack.com/reflection-allowed"            = "true"
+      "reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces" = "nostromo-traffic"
+      "reflector.v1.k8s.emberstack.com/reflection-auto-enabled"       = "true"
+      "reflector.v1.k8s.emberstack.com/reflection-auto-namespaces"    = "nostromo-traffic"
+    }
+  }
+  data = {
+    OAUTH2_PROXY_CLIENT_ID     = zitadel_application_oidc.traffic_eg.client_id
+    OAUTH2_PROXY_CLIENT_SECRET = zitadel_application_oidc.traffic_eg.client_secret
+    OAUTH2_PROXY_COOKIE_SECRET = random_password.traffic_cookie.result
+  }
+}
+
 # --- Org git: the #B4mad forge (git.b4mad.industries), bead b1b.6 ----------
 #
 # User decisions 2026-11-20:

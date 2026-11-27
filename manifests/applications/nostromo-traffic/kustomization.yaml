@@ -17,3 +17,9 @@ resources:
   - deployment.yaml
   - service.yaml
   - route.yaml
+
+images:
+  - name: oauth2-proxy
+    newName: quay.io/oauth2-proxy/oauth2-proxy
+    # v7.15.4, same pin as b4mad-agentsview
+    digest: sha256:b1b2021fe8f4004573e8d690dec6c7bb29cc44364572cf8510a05bf3a0ae2ded

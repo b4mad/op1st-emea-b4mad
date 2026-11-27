@@ -52,3 +52,16 @@ Copy the agentsview block in `config/main.tf`:
 - No in-cluster consumer: client id/secret, discovery URL and redirect URI
   are in Secret `store-1-oidc-zitadel` in this namespace and are pasted into
   DSM by hand. Do not add reflector annotations.
+
+## nostromo-traffic (traffic-app), bead op1st-emea-b4mad-2pv.7
+
+- Project and OIDC app `traffic-app` in org erdgeschoss, role `user`. Same
+  access model as store-1 (erdgeschoss users plus goern, nobody else), reusing
+  `data.zitadel_human_users.erdgeschoss`. A new erdgeschoss user gets access on
+  the next Job run.
+- Redirect URI is `var.traffic_url` + `/oauth2/callback`. It must equal the
+  Route host of `manifests/applications/nostromo-traffic`.
+- Secret `traffic-oidc-zitadel` (client id/secret plus a generated oauth2-proxy
+  cookie secret) is reflected into namespace `nostromo-traffic`. nostromo-traffic
+  is not in the Argo app-of-apps, so the pod cannot start until this Job has
+  run once and reflector has copied the Secret.

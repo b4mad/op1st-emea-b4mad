@@ -28,14 +28,66 @@ spec:
             # Trust the service CA that signs thanos-querier.openshift-monitoring.svc.
             - name: NODE_EXTRA_CA_CERTS
               value: /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
-          readinessProbe:
-            httpGet: { path: /, port: http }
-          livenessProbe:
-            httpGet: { path: /, port: http }
-            initialDelaySeconds: 10
+            # ⚠️ Load-bearing: loopback only, so oauth2-proxy is the ONLY way
+            # in. Both containers share the pod network namespace; nothing
+            # outside the pod can reach 127.0.0.1. Overrides the image's
+            # HOST=0.0.0.0. Set it to 0.0.0.0 and the app is public again.
+            - name: HOST
+              value: 127.0.0.1
+          # ⚠️ No probes here, on purpose: kubelet dials the pod IP, which the
+          # loopback bind above makes unreachable. oauth2-proxy's /ping
+          # (readiness below) gates the endpoint; process exit is the app's
+          # health signal. Same as b4mad-agentsview.
           resources:
             requests: { cpu: 20m, memory: 96Mi }
             limits: { memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: [ALL]
+            seccompProfile:
+              type: RuntimeDefault
+        # --- the authentication gate -----------------------------------------
+        - name: oauth2-proxy
+          image: oauth2-proxy
+          # Zitadel (id.b4mad.industries), app traffic-app in org erdgeschoss.
+          # ⚠️ The gate is Zitadel's project_role_check: only erdgeschoss users
+          # and goern hold role `user` (b4mad-zitadel/config/main.tf).
+          args:
+            - --provider=oidc
+            - --oidc-issuer-url=https://id.b4mad.industries
+            - --redirect-url=https://nostromo-traffic-nostromo-traffic.apps.nostromo.erdgeschoss.b4mad.emea.operate-first.cloud/oauth2/callback
+            - --upstream=http://127.0.0.1:3000
+            - --http-address=0.0.0.0:4180
+            - --scope=openid email profile
+            - --email-domain=*
+            - --skip-provider-button=true
+            # Behind the OpenShift router: trust X-Forwarded-*.
+            - --reverse-proxy=true
+            - --cookie-secure=true
+            - --cookie-samesite=lax
+            - --cookie-expire=12h
+          envFrom:
+            # ⚠️ Not in git. The zitadel-config Job (OpenTofu) writes
+            # traffic-oidc-zitadel into b4mad-zitadel; reflector mirrors it
+            # here. Holds OAUTH2_PROXY_CLIENT_ID/_CLIENT_SECRET/_COOKIE_SECRET.
+            - secretRef:
+                name: traffic-oidc-zitadel
+          ports:
+            - containerPort: 4180
+              name: oauth2-proxy
+          readinessProbe:
+            httpGet: { path: /ping, port: 4180 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /ping, port: 4180 }
+            initialDelaySeconds: 10
+          resources:
+            requests: { cpu: 10m, memory: 32Mi }
+            limits: { memory: 128Mi }
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

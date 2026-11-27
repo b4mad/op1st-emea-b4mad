@@ -4,8 +4,11 @@ A SvelteKit app that draws the network traffic of the nostromo cluster as a Sank
 diagram, from the **existing Prometheus metrics** via the Thanos querier. No NetObserv,
 no extra operator. Source: `apps/nostromo-traffic/`.
 
-> ⚠️ The Route is **public and unauthenticated** — an explicit decision (bead
-> `op1st-emea-b4mad-2pv.3`). It exposes namespace names and traffic volumes. Guards:
+> ⚠️ Sign-in is required (bead `op1st-emea-b4mad-2pv.7`; it was public before,
+> `.3`). An oauth2-proxy sidecar authenticates against Zitadel
+> (`id.b4mad.industries`, project/app `traffic-app` in org erdgeschoss). Allowed:
+> every user of org erdgeschoss plus goern (org b4mad); nobody else. The app binds
+> `127.0.0.1`, so the proxy (Service port 4180) is the only way in. Further guards:
 > fixed server-side PromQL, allowlisted time range, 60 s server-side cache, read-only SA.
 
 ## Deploy
@@ -24,6 +27,20 @@ The Deployment has an ImageStream trigger: it starts (and rolls out) when the bu
 `apps/nostromo-traffic/` must exist there first. To build another revision:
 copy `pipelinerun.yaml` and add `params: [{name: git-revision, value: <branch>}]` under `spec`.
 Not in the Argo app-of-apps; `pipelinerun.yaml` is not in the kustomization (generateName).
+
+## Sign-in (Zitadel)
+
+- Zitadel side is declared in `manifests/applications/b4mad-zitadel/config/main.tf`
+  (`traffic_eg`) and applied by the `zitadel-config` Job. That Job writes Secret
+  `traffic-oidc-zitadel` (client id/secret plus a generated cookie secret, none in git);
+  reflector copies it into this namespace.
+- ⚠️ **Order matters:** this app is not in Argo. After merging, wait for Argo to sync
+  b4mad-zitadel and the Job to finish, check
+  `oc -n nostromo-traffic get secret traffic-oidc-zitadel`, **then** `oc apply -k`.
+  Until the Secret exists the pod stays in `CreateContainerConfigError`.
+- A new erdgeschoss user gets access on the next `zitadel-config` Job run.
+- The redirect URI is derived from the Route host; if the host changes, update
+  `traffic_url` in `main.tf` and the `--redirect-url` arg in `deployment.yaml`.
 
 ## Security model
 
